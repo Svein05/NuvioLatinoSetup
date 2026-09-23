@@ -29,8 +29,15 @@ class WizardState {
     this.apiKeys = {
       tmdb: '',
       tvdb: '',
-      rpdb: 't0-free-rpdb'
+      mdblist: '',
+      rpdb: 't0-free-rpdb',
+      fanart: '',
+      topPoster: '',
+      publicmetadb: '',
+      gemini: '',
+      openrouter: ''
     };
+    this.searchAiEnabled = false;
 
     // Plantillas en memoria
     this.rawMetadataTemplate = null;
@@ -324,15 +331,33 @@ class WizardState {
     // 3. Inyectar API Keys en config
     if (!configObj.apiKeys) configObj.apiKeys = {};
 
-    if (this.apiKeys.tmdb) {
-      configObj.apiKeys.tmdb = this.apiKeys.tmdb.trim();
-    }
-    if (this.apiKeys.tvdb) {
-      configObj.apiKeys.tvdb = this.apiKeys.tvdb.trim();
-    }
+    configObj.apiKeys.tmdb = (this.apiKeys.tmdb || '').trim();
+    configObj.apiKeys.tvdb = (this.apiKeys.tvdb || '').trim();
+    configObj.apiKeys.mdblist = (this.apiKeys.mdblist || '').trim();
     configObj.apiKeys.rpdb = (this.apiKeys.rpdb || 't0-free-rpdb').trim();
+    configObj.apiKeys.fanart = (this.apiKeys.fanart || '').trim();
+    configObj.apiKeys.topPoster = (this.apiKeys.topPoster || '').trim();
+    configObj.apiKeys.publicmetadb = (this.apiKeys.publicmetadb || '').trim();
+    configObj.apiKeys.gemini = (this.apiKeys.gemini || '').trim();
+    configObj.apiKeys.openrouter = (this.apiKeys.openrouter || '').trim();
     configObj.apiKeys.traktTokenId = '';
-    configObj.apiKeys.mdblist = '';
+
+    // 3.1 Configurar Búsqueda con IA
+    if (!configObj.search) configObj.search = {};
+    configObj.search.ai_enabled = Boolean(this.searchAiEnabled);
+    if (this.searchAiEnabled) {
+      if (!configObj.search.engineEnabled) configObj.search.engineEnabled = {};
+      configObj.search.engineEnabled["gemini.search"] = true;
+      if (this.apiKeys.openrouter) {
+        configObj.search.ai_provider = 'openrouter';
+      } else if (this.apiKeys.gemini) {
+        configObj.search.ai_provider = 'gemini';
+      }
+    } else {
+      if (configObj.search.engineEnabled) {
+        configObj.search.engineEnabled["gemini.search"] = false;
+      }
+    }
 
     // 4. Inyectar contraseña de edición
     const password = this.aiometadata.password || 'NuvioSetupMaster2026';
