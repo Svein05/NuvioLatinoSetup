@@ -14,3 +14,8 @@ __pycache__/
 *$py.class
 run.pyc
 
+# Residual / removed files
+scripts/
+Plantilla.html
+run.py
+
