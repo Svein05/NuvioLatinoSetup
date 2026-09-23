@@ -52,6 +52,11 @@
     </div>
 
     <div class="flex items-center gap-3">
+      <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
+        <i class="fa-brands fa-discord"></i>
+        <span class="hidden sm:inline">Addon LAT-ADD</span>
+      </a>
       <div id="authStatusBadge" class="text-xs bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
         <i class="fa-solid fa-circle text-[8px]"></i> No autenticado
       </div>
@@ -61,74 +66,57 @@
     </div>
   </header>
 
-  <!-- Contenedor Principal (Sidebar + Workspace) -->
-  <div class="flex-1 flex max-w-7xl w-full mx-auto p-4 md:p-6 gap-6">
+  <!-- Contenedor Principal (Layout Superior Expansivo) -->
+  <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 md:p-6 gap-4">
 
-    <!-- Navegación Lateral (Índice de Pasos) -->
-    <aside class="w-64 hidden md:flex flex-col gap-2 shrink-0">
-      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-1">
-        Secciones del Asistente
-      </div>
-      
-      <button onclick="goToStep(1)" id="nav-btn-1" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors bg-brand-600/10 text-brand-400 font-medium border border-brand-500/30">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-user-lock w-4 text-center"></i>
+    <!-- Stepper Superior en Cápsulas (Pill Navigation) -->
+    <nav class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-2 md:p-2.5 backdrop-blur-md shadow-lg" aria-label="Progreso del asistente">
+      <div class="capsule-stepper justify-start lg:justify-between px-1">
+        <button onclick="goToStep(1)" id="capsule-step-1" class="step-capsule active">
+          <span class="step-badge">1</span>
+          <i class="fa-solid fa-user-lock"></i>
           <span>1. Cuenta Nuvio</span>
-        </div>
-        <i class="step-lock-icon hidden"></i>
-      </button>
+          <i class="step-icon-status hidden"></i>
+        </button>
 
-      <button onclick="goToStep(2)" id="nav-btn-2" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-users w-4 text-center"></i>
-          <span>2. Perfiles</span>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
-      </button>
+        <button onclick="goToStep(2)" id="capsule-step-2" class="step-capsule locked">
+          <span class="step-badge">2</span>
+          <i class="fa-solid fa-users"></i>
+          <span>2. Elegir Perfil</span>
+          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
+        </button>
 
-      <button onclick="goToStep(3)" id="nav-btn-3" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-key w-4 text-center"></i>
-          <span>3. Claves API</span>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
-      </button>
+        <button onclick="goToStep(3)" id="capsule-step-3" class="step-capsule locked">
+          <span class="step-badge">3</span>
+          <i class="fa-solid fa-tv"></i>
+          <span>3. Colección</span>
+          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
+        </button>
 
-      <button onclick="goToStep(4)" id="nav-btn-4" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-tv w-4 text-center"></i>
-          <span>4. Mini NUVIO</span>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
-      </button>
+        <button onclick="goToStep(4)" id="capsule-step-4" class="step-capsule locked">
+          <span class="step-badge">4</span>
+          <i class="fa-solid fa-key"></i>
+          <span>4. ApiKeys</span>
+          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
+        </button>
 
-      <button onclick="goToStep(5)" id="nav-btn-5" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-shield-halved w-4 text-center"></i>
+        <button onclick="goToStep(5)" id="capsule-step-5" class="step-capsule locked">
+          <span class="step-badge">5</span>
+          <i class="fa-solid fa-shield-halved"></i>
           <span>5. AIOMetadata</span>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
-      </button>
+          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
+        </button>
 
-      <button onclick="goToStep(6)" id="nav-btn-6" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
-        <div class="flex items-center gap-2.5">
-          <i class="fa-solid fa-rocket w-4 text-center"></i>
-          <span>6. Inyección y Log</span>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
-      </button>
-
-      <!-- Botón de Discord Permanente en Sidebar -->
-      <div class="mt-auto pt-4 border-t border-slate-800">
-        <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" 
-           class="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-semibold transition-all shadow-sm">
-          <i class="fa-brands fa-discord text-sm"></i>
-          <span>Recomendación Addon LAT-ADD</span>
-        </a>
+        <button onclick="goToStep(6)" id="capsule-step-6" class="step-capsule locked">
+          <span class="step-badge">6</span>
+          <i class="fa-solid fa-rocket"></i>
+          <span>6. Inyección</span>
+          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
+        </button>
       </div>
-    </aside>
+    </nav>
 
-    <!-- Contenido de los Pasos -->
+    <!-- Contenido de los Pasos (Espacio de Trabajo Principal a Pantalla Completa) -->
     <main class="flex-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
       
       <!-- ========================================== -->
@@ -203,9 +191,27 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 3: CLAVES API METADATA               -->
+      <!-- PASO 3: MINI NUVIO INTERACTIVO (COLECCIÓN) -->
       <!-- ========================================== -->
       <div id="step-3" class="step-content">
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
+            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
+            <span>Mini NUVIO: Gestor Visual de Colecciones</span>
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Personaliza, reordena y edita carruseles en vivo. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
+        </div>
+
+        <!-- Contenedor dinámico del Mini Nuvio -->
+        <div id="miniNuvioContainer">
+          <!-- Renderizado por js/mini-nuvio.js -->
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PASO 4: CLAVES API METADATA               -->
+      <!-- ========================================== -->
+      <div id="step-4" class="step-content">
         <div class="mb-6">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <i class="fa-solid fa-key text-brand-500 text-lg"></i>
@@ -238,24 +244,6 @@
             </div>
             <input id="traktToken" type="text" placeholder="Token OAuth de Trakt" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
           </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- PASO 4: MINI NUVIO INTERACTIVO (COLECCIONES)-->
-      <!-- ========================================== -->
-      <div id="step-4" class="step-content">
-        <div class="mb-4">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
-            <span>Mini NUVIO: Gestor Visual de Colecciones</span>
-          </h2>
-          <p class="text-sm text-slate-400 mt-1">Personaliza, reordena y edita carruseles en vivo. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
-        </div>
-
-        <!-- Contenedor dinámico del Mini Nuvio -->
-        <div id="miniNuvioContainer">
-          <!-- Renderizado por js/mini-nuvio.js -->
         </div>
       </div>
 
