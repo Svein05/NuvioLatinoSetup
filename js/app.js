@@ -602,24 +602,37 @@ class AppController {
     const geminiInput = document.getElementById('geminiApiKey');
     const openrouterInput = document.getElementById('openrouterApiKey');
 
-    const checkStep3Unlock = () => {
-      if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
-        state.unlockStep(4); // Desbloquea Paso 4 (Colecciones / Mini Nuvio)
-        this.updateUI();
+    const btnValidate = document.getElementById('btnValidateApiKeys');
+    const overallBadge = document.getElementById('apiKeyOverallBadge');
+    const statusMsg = document.getElementById('apiKeyStatusMessage');
+
+    const invalidateValidation = (modifiedKey) => {
+      if (state.apiKeysValidated) {
+        state.invalidateApiKeysValidation();
+        if (overallBadge) overallBadge.classList.add('hidden');
+        if (statusMsg) {
+          statusMsg.innerText = 'Has modificado tus claves. Debes probarlas nuevamente para continuar.';
+          statusMsg.className = 'text-[11px] text-amber-400 mt-0.5 font-medium';
+        }
+      }
+      const badge = document.getElementById(`badge-${modifiedKey}`);
+      if (badge && modifiedKey === 'tmdb') {
+        badge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
+        badge.innerText = 'No verificada';
       }
     };
 
     // 1. Vincular campos base
-    const bindInput = (el, key, isDefault = null, triggerUnlock = false) => {
+    const bindInput = (el, key, isDefault = null) => {
       if (!el) return;
       el.value = state.apiKeys[key] || isDefault || '';
       el.addEventListener('input', (e) => {
         state.apiKeys[key] = e.target.value.trim() || (isDefault || '');
-        if (triggerUnlock) checkStep3Unlock();
+        invalidateValidation(key);
       });
     };
 
-    bindInput(tmdbInput, 'tmdb', null, true);
+    bindInput(tmdbInput, 'tmdb');
     bindInput(tvdbInput, 'tvdb');
     bindInput(mdblistInput, 'mdblist');
     bindInput(rpdbInput, 'rpdb', 't0-free-rpdb');
@@ -638,13 +651,190 @@ class AppController {
         } else {
           aiContainer.classList.add('hidden');
         }
+        invalidateValidation('ai');
       });
     }
 
     bindInput(geminiInput, 'gemini');
     bindInput(openrouterInput, 'openrouter');
 
-    // 3. Botones de alternar visibilidad de contraseña (eye icon)
+    // 3. Botón de Verificación de Claves API (Obligatorio para continuar)
+    if (btnValidate) {
+      btnValidate.addEventListener('click', async () => {
+        btnValidate.disabled = true;
+        btnValidate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Probando credenciales...</span>';
+
+        let allValid = true;
+        const validationMap = {};
+
+        // Validar TMDB (Obligatoria)
+        const tmdbKey = (state.apiKeys.tmdb || '').trim();
+        const tmdbBadge = document.getElementById('badge-tmdb');
+        if (!tmdbKey || tmdbKey.length < 8) {
+          allValid = false;
+          if (tmdbBadge) {
+            tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+            tmdbBadge.innerText = '✗ Obligatoria';
+          }
+        } else {
+          try {
+            const res = await fetch(`https://api.themoviedb.org/3/authentication?api_key=${encodeURIComponent(tmdbKey)}`);
+            if (res.ok) {
+              validationMap.tmdb = true;
+              if (tmdbBadge) {
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                tmdbBadge.innerText = '✓ Válida';
+              }
+            } else {
+              allValid = false;
+              if (tmdbBadge) {
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                tmdbBadge.innerText = '✗ Inválida';
+              }
+            }
+          } catch (_) {
+            if (tmdbKey.length === 32) {
+              validationMap.tmdb = true;
+              if (tmdbBadge) {
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                tmdbBadge.innerText = '✓ Válida';
+              }
+            } else {
+              allValid = false;
+              if (tmdbBadge) {
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                tmdbBadge.innerText = '✗ Error de red';
+              }
+            }
+          }
+        }
+
+        // Validar Búsqueda con IA si está activa
+        if (state.searchAiEnabled) {
+          const geminiKey = (state.apiKeys.gemini || '').trim();
+          const openrouterKey = (state.apiKeys.openrouter || '').trim();
+          const geminiBadge = document.getElementById('badge-gemini');
+          const openrouterBadge = document.getElementById('badge-openrouter');
+
+          if (!geminiKey && !openrouterKey) {
+            allValid = false;
+            this.showToast('Búsqueda con IA activa: ingresa clave de Gemini u OpenRouter.', 'warning');
+          }
+
+          if (geminiKey) {
+            try {
+              const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(geminiKey)}`);
+              if (res.ok) {
+                if (geminiBadge) {
+                  geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  geminiBadge.innerText = '✓ Válida';
+                }
+              } else {
+                allValid = false;
+                if (geminiBadge) {
+                  geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  geminiBadge.innerText = '✗ Inválida';
+                }
+              }
+            } catch (_) {
+              if (geminiKey.startsWith('AIzaSy') && geminiKey.length >= 30 && geminiBadge) {
+                geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                geminiBadge.innerText = '✓ Válida';
+              }
+            }
+          }
+
+          if (openrouterKey) {
+            try {
+              const res = await fetch('https://openrouter.ai/api/v1/auth/key', {
+                headers: { 'Authorization': `Bearer ${openrouterKey}` }
+              });
+              if (res.ok) {
+                if (openrouterBadge) {
+                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  openrouterBadge.innerText = '✓ Válida';
+                }
+              } else {
+                allValid = false;
+                if (openrouterBadge) {
+                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  openrouterBadge.innerText = '✗ Inválida';
+                }
+              }
+            } catch (_) {
+              if ((openrouterKey.startsWith('sk-or-v1-') || openrouterKey.length >= 20) && openrouterBadge) {
+                openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                openrouterBadge.innerText = '✓ Válida';
+              }
+            }
+          }
+        }
+
+        // Validar opcionales si fueron provistas
+        const mdblistKey = (state.apiKeys.mdblist || '').trim();
+        const mdblistBadge = document.getElementById('badge-mdblist');
+        if (mdblistKey) {
+          try {
+            const res = await fetch(`https://mdblist.com/api/?apikey=${encodeURIComponent(mdblistKey)}&s=avatar`);
+            if (res.ok) {
+              if (mdblistBadge) {
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                mdblistBadge.innerText = '✓ Válida';
+              }
+            } else {
+              allValid = false;
+              if (mdblistBadge) {
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                mdblistBadge.innerText = '✗ Inválida';
+              }
+            }
+          } catch (_) {
+            if (mdblistKey.length >= 10 && mdblistBadge) {
+              mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+              mdblistBadge.innerText = '✓ Válida';
+            }
+          }
+        }
+
+        const fanartKey = (state.apiKeys.fanart || '').trim();
+        const fanartBadge = document.getElementById('badge-fanart');
+        if (fanartKey && fanartBadge) {
+          fanartBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+          fanartBadge.innerText = '✓ Válida';
+        }
+
+        const rpdbBadge = document.getElementById('badge-rpdb');
+        if (rpdbBadge) {
+          rpdbBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+          rpdbBadge.innerText = '✓ Válida';
+        }
+
+        // Resultado Final
+        if (allValid) {
+          state.setApiKeysValidation(true, validationMap);
+          if (overallBadge) overallBadge.classList.remove('hidden');
+          if (statusMsg) {
+            statusMsg.innerText = '✓ Todas las claves han sido comprobadas con éxito. Ya puedes avanzar al siguiente paso.';
+            statusMsg.className = 'text-[11px] text-emerald-400 mt-0.5 font-medium';
+          }
+          this.showToast('✓ Claves API verificadas exitosamente', 'success');
+          this.updateUI();
+        } else {
+          state.setApiKeysValidation(false, validationMap);
+          if (overallBadge) overallBadge.classList.add('hidden');
+          if (statusMsg) {
+            statusMsg.innerText = 'No se pudieron verificar una o más claves. Revisa los campos marcados en rojo.';
+            statusMsg.className = 'text-[11px] text-red-400 mt-0.5 font-medium';
+          }
+          this.showToast('Revisa las claves marcadas en rojo para continuar', 'error');
+        }
+
+        btnValidate.disabled = false;
+        btnValidate.innerHTML = '<i class="fa-solid fa-vial-circle-check"></i><span>Probar Claves API</span>';
+      });
+    }
+
+    // 4. Botones de alternar visibilidad de contraseña (eye icon)
     document.querySelectorAll('.btn-toggle-key').forEach((btn) => {
       btn.addEventListener('click', () => {
         const targetId = btn.getAttribute('data-target');
@@ -672,10 +862,11 @@ class AppController {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
     const btnExecute = document.getElementById('btnExecutePipeline');
-    const modeSimRadio = document.getElementById('modeSimulation');
-    const modeRealRadio = document.getElementById('modeReal');
     const btnDownloadCol = document.getElementById('btnDownloadCollections');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
+
+    // Forzar modo Real en producción
+    state.execution.mode = 'real';
 
     if (passwordInput) {
       passwordInput.value = state.aiometadata.password || '';
@@ -693,18 +884,6 @@ class AppController {
       });
     }
 
-    if (modeSimRadio) {
-      modeSimRadio.addEventListener('change', () => {
-        if (modeSimRadio.checked) state.execution.mode = 'simulation';
-      });
-    }
-
-    if (modeRealRadio) {
-      modeRealRadio.addEventListener('change', () => {
-        if (modeRealRadio.checked) state.execution.mode = 'real';
-      });
-    }
-
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
         // Validar todos los pasos (1 a 5) antes de ejecutar
@@ -717,6 +896,22 @@ class AppController {
             return;
           }
         }
+
+        const statusContainer = document.getElementById('injectionStatusContainer');
+        const phaseTitle = document.getElementById('injectionPhaseTitle');
+        const phaseStep = document.getElementById('injectionPhaseStep');
+        const progressBar = document.getElementById('injectionProgressBar');
+        const phaseDetail = document.getElementById('injectionPhaseDetail');
+
+        if (statusContainer) statusContainer.classList.remove('hidden');
+        if (phaseTitle) phaseTitle.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-brand-400"></i><span>Iniciando inyección...</span>';
+        if (phaseStep) phaseStep.innerText = 'Fase 1 de 5';
+        if (progressBar) progressBar.style.width = '15%';
+        if (phaseDetail) phaseDetail.innerText = 'Conectando con servidores de AIOMetadata y Nuvio...';
+
+        btnExecute.disabled = true;
+        btnExecute.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Aprovisionando en Nuvio...</span>';
+
         PipelineInjector.execute();
       });
     }
@@ -763,35 +958,54 @@ class AppController {
 
   handleStateUpdate(s, eventType) {
     if (eventType === 'LOG_ADDED') {
-      this.renderLogs();
-    } else if (eventType === 'LOGS_CLEARED') {
-      const consoleEl = document.getElementById('consoleLog');
-      if (consoleEl) consoleEl.innerHTML = '';
+      const lastLog = state.execution.logs[state.execution.logs.length - 1];
+      if (lastLog) {
+        const detailEl = document.getElementById('injectionPhaseDetail');
+        if (detailEl) detailEl.innerText = lastLog.message;
+
+        const match = lastLog.message.match(/\[(\d+)\/(\d+)\]/);
+        if (match) {
+          const current = parseInt(match[1], 10);
+          const total = parseInt(match[2], 10);
+          const stepEl = document.getElementById('injectionPhaseStep');
+          const barEl = document.getElementById('injectionProgressBar');
+          if (stepEl) stepEl.innerText = `Fase ${current} de ${total}`;
+          if (barEl) barEl.style.width = `${(current / total) * 100}%`;
+        }
+      }
     } else if (eventType === 'EXECUTION_FINISHED') {
       const btnExecute = document.getElementById('btnExecutePipeline');
+      const titleEl = document.getElementById('injectionPhaseTitle');
+      const barEl = document.getElementById('injectionProgressBar');
+      const detailEl = document.getElementById('injectionPhaseDetail');
+
       if (btnExecute) {
         btnExecute.disabled = false;
-        btnExecute.innerHTML = '<i class="fa-solid fa-bolt"></i><span>Re-ejecutar Configuración</span>';
+        btnExecute.innerHTML = '<i class="fa-solid fa-check"></i><span>Configuración Lista (Re-ejecutar)</span>';
       }
-    } else if (eventType === 'STEP_UNLOCKED') {
+
+      if (state.execution.isCompleted) {
+        if (titleEl) {
+          titleEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span class="text-emerald-400">¡Configuración inyectada con éxito!</span>';
+        }
+        if (barEl) {
+          barEl.style.width = '100%';
+          barEl.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-300';
+        }
+        if (detailEl) {
+          detailEl.innerText = `Perfil "${state.selectedProfileName || 'Principal'}" configurado y listo en tu app Nuvio.`;
+          detailEl.className = 'text-[11px] text-emerald-300 font-medium';
+        }
+        this.showToast('🎉 ¡Aprovisionamiento completado con éxito en Nuvio!', 'success');
+      } else {
+        if (titleEl) {
+          titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i><span class="text-rose-400">Error durante la inyección</span>';
+        }
+        this.showToast('Ocurrió un error durante la inyección. Revisa el detalle.', 'error');
+      }
+    } else if (eventType === 'STEP_UNLOCKED' || eventType === 'API_KEYS_VALIDATED' || eventType === 'API_KEYS_INVALIDATED') {
       this.updateUI();
     }
-  }
-
-  renderLogs() {
-    const consoleEl = document.getElementById('consoleLog');
-    if (!consoleEl) return;
-
-    consoleEl.innerHTML = state.execution.logs.map(log => {
-      let colorClass = 'log-info';
-      if (log.type === 'success') colorClass = 'log-success';
-      if (log.type === 'warning') colorClass = 'log-warning';
-      if (log.type === 'error') colorClass = 'log-error';
-
-      return `<div class="${colorClass}">[${log.timestamp}] ${log.message}</div>`;
-    }).join('');
-
-    consoleEl.scrollTop = consoleEl.scrollHeight;
   }
 }
 
