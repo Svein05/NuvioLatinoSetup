@@ -1198,7 +1198,7 @@ class AppController {
     let catalogsCount = 0;
     try {
       const meta = state.getSynchronizedMetadataPayload();
-      catalogsCount = meta.catalogs.length;
+      catalogsCount = (meta.config?.catalogs || meta.catalogs || []).length;
     } catch (_) {
       catalogsCount = 0;
     }
