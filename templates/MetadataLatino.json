@@ -198,7 +198,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.netflix",
@@ -246,7 +249,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.disney-plus",
@@ -286,7 +292,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.disney-plus",
@@ -326,7 +335,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.prime-video",
@@ -374,7 +386,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.prime-video",
@@ -422,7 +437,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.apple-tv",
@@ -466,7 +484,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.apple-tv",
@@ -510,7 +531,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.hbo-max",
@@ -554,7 +578,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.hbo-max",
@@ -598,7 +625,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.hulu",
@@ -638,7 +668,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.hulu",
@@ -678,7 +711,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.paramount-plus",
@@ -730,7 +766,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.paramount-plus",
@@ -786,7 +825,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.peacock",
@@ -830,7 +872,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.peacock",
@@ -874,7 +919,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.crunchyroll",
@@ -918,7 +966,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.crunchyroll",
@@ -962,7 +1013,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.discovery-plus",
@@ -1006,7 +1060,10 @@
               "voteCountMin": 0
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.discovery-plus",
@@ -1050,7 +1107,10 @@
               "voteCountMin": 0
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.curiosity-stream",
@@ -1098,7 +1158,10 @@
               "voteCountMin": 0
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.curiosity-stream",
@@ -1146,7 +1209,10 @@
               "voteCountMin": 0
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.jiohotstar",
@@ -1186,7 +1252,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.jiohotstar",
@@ -1226,7 +1295,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.starz",
@@ -1278,7 +1350,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.starz",
@@ -1330,7 +1405,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.streaming.shudder",
@@ -1378,7 +1456,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.series.streaming.shudder",
@@ -1426,7 +1507,10 @@
               "voteCountMin": 0
             }
           }
-        }
+        },
+        "tags": [
+          "Plataforma Streaming"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.action",
@@ -1463,7 +1547,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.adventure",
@@ -1500,7 +1587,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.action-adventure",
@@ -1537,7 +1627,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.animation",
@@ -1574,7 +1667,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.animation",
@@ -1611,7 +1707,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.comedy",
@@ -1648,7 +1747,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.comedy",
@@ -1685,7 +1787,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.crime",
@@ -1722,7 +1827,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.crime",
@@ -1759,7 +1867,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.documentary",
@@ -1796,7 +1907,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.documentary",
@@ -1833,7 +1947,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.drama",
@@ -1870,7 +1987,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.drama",
@@ -1907,7 +2027,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.family",
@@ -1944,7 +2067,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.family",
@@ -1981,7 +2107,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.fantasy",
@@ -2018,7 +2147,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.history",
@@ -2055,7 +2187,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.horror",
@@ -2092,7 +2227,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.kids",
@@ -2129,7 +2267,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.music",
@@ -2166,7 +2307,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.mystery",
@@ -2203,7 +2347,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.mystery",
@@ -2240,7 +2387,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.news",
@@ -2282,7 +2432,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.reality",
@@ -2319,7 +2472,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.romance",
@@ -2356,7 +2512,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.science-fiction",
@@ -2393,7 +2552,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.sci-fi-fantasy",
@@ -2430,7 +2592,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.soap",
@@ -2472,7 +2637,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.talk",
@@ -2514,7 +2682,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.tv-movie",
@@ -2556,7 +2727,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.thriller",
@@ -2593,7 +2767,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.war",
@@ -2630,7 +2807,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.war-politics",
@@ -2667,7 +2847,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.movie.genres.western",
@@ -2704,7 +2887,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "tmdb.discover.series.genres.western",
@@ -2741,7 +2927,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Genero"
+        ]
       },
       {
         "id": "mal.airing",
@@ -2751,7 +2940,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.upcoming",
@@ -2761,7 +2953,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.schedule",
@@ -2771,7 +2966,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.seasons",
@@ -2781,7 +2979,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.80sDecade",
@@ -2791,7 +2992,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.90sDecade",
@@ -2801,7 +3005,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.00sDecade",
@@ -2811,7 +3018,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "mal.10sDecade",
@@ -2821,7 +3031,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "mal.20sDecade",
@@ -2831,7 +3044,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "mal.genres",
@@ -2841,7 +3057,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.studios",
@@ -2851,7 +3070,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "mal.top_movies",
@@ -2861,7 +3083,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.top_series",
@@ -2871,7 +3096,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.most_favorites",
@@ -2881,7 +3109,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.most_popular",
@@ -2891,7 +3122,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.top_anime",
@@ -2901,7 +3135,10 @@
         "order": "asc",
         "source": "mal",
         "enabled": true,
-        "showInHome": false
+        "showInHome": false,
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.time-travel",
@@ -2958,7 +3195,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.time-travel",
@@ -3015,7 +3255,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.revenge",
@@ -3076,7 +3319,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.revenge",
@@ -3137,7 +3383,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.spy",
@@ -3206,7 +3455,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.spy",
@@ -3275,7 +3527,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.magic",
@@ -3340,7 +3595,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.magic",
@@ -3405,7 +3663,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.k-drama",
@@ -3446,7 +3707,10 @@
               "voteCountMin": 50
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.k-drama",
@@ -3487,7 +3751,10 @@
               "voteCountMin": 25
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.treasure-hunt",
@@ -3556,7 +3823,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.treasure-hunt",
@@ -3621,7 +3891,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.romantic-comedy",
@@ -3686,7 +3959,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.romantic-comedy",
@@ -3747,7 +4023,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.coming-of-age",
@@ -3808,7 +4087,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.coming-of-age",
@@ -3869,7 +4151,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.superhero",
@@ -3934,7 +4219,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.superhero",
@@ -3999,7 +4287,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.space",
@@ -4068,7 +4359,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.space",
@@ -4137,7 +4431,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.martial-arts",
@@ -4206,7 +4503,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.martial-arts",
@@ -4275,7 +4575,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.vampire",
@@ -4344,7 +4647,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.vampire",
@@ -4413,7 +4719,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.theme.satire",
@@ -4478,7 +4787,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.series.theme.satire",
@@ -4603,7 +4915,10 @@
               ]
             }
           }
-        }
+        },
+        "tags": [
+          "Descubre"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.cartoon-network",
@@ -4649,7 +4964,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.cartoon-network",
@@ -4695,7 +5013,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.dc",
@@ -4741,7 +5062,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.dc",
@@ -4787,7 +5111,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.dreamworks",
@@ -4825,7 +5152,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.dreamworks",
@@ -4863,7 +5193,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.ghibli",
@@ -4901,7 +5234,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.ghibli",
@@ -4939,7 +5275,10 @@
               "voteCountMin": 1
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.marvel",
@@ -4985,7 +5324,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.marvel",
@@ -5035,7 +5377,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.nickelodeon",
@@ -5081,7 +5426,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.nickelodeon",
@@ -5127,7 +5475,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.pixar",
@@ -5165,7 +5516,10 @@
               "voteCountMin": 10
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.pixar",
@@ -5203,7 +5557,10 @@
               "voteCountMin": 5
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.studios.lucasfilm",
@@ -5245,7 +5602,10 @@
               "voteCountMin": 1
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.series.studios.lucasfilm",
@@ -5287,7 +5647,10 @@
               "voteCountMin": 1
             }
           }
-        }
+        },
+        "tags": [
+          "Studio"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.2020s",
@@ -5321,7 +5684,10 @@
               "primaryReleaseTo": "2029-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.2020s",
@@ -5355,7 +5721,10 @@
               "firstAirTo": "2029-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.2010s",
@@ -5389,7 +5758,10 @@
               "primaryReleaseTo": "2019-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.2010s",
@@ -5423,7 +5795,10 @@
               "firstAirTo": "2019-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.2000s",
@@ -5457,7 +5832,10 @@
               "primaryReleaseTo": "2009-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.2000s",
@@ -5491,7 +5869,10 @@
               "firstAirTo": "2009-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.1990s",
@@ -5530,7 +5911,10 @@
               "primaryReleaseTo": "1999-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.1990s",
@@ -5569,7 +5953,10 @@
               "firstAirTo": "1999-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.1980s",
@@ -5608,7 +5995,10 @@
               "primaryReleaseTo": "1989-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.1980s",
@@ -5647,7 +6037,10 @@
               "firstAirTo": "1989-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.1970s",
@@ -5686,7 +6079,10 @@
               "primaryReleaseTo": "1979-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.1970s",
@@ -5725,7 +6121,10 @@
               "firstAirTo": "1979-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.1960s",
@@ -5764,7 +6163,10 @@
               "primaryReleaseTo": "1969-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.1960s",
@@ -5803,7 +6205,10 @@
               "firstAirTo": "1969-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.movie.decades.1950s",
@@ -5842,7 +6247,10 @@
               "primaryReleaseTo": "1959-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tmdb.discover.series.decades.1950s",
@@ -5881,7 +6289,10 @@
               "firstAirTo": "1959-12-31"
             }
           }
-        }
+        },
+        "tags": [
+          "Décadas"
+        ]
       },
       {
         "id": "tvdb.list.4",
@@ -5908,7 +6319,10 @@
         "enabled": true,
         "showInHome": true,
         "source": "mal",
-        "displayType": "anime"
+        "displayType": "anime",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.userlist.on_hold",
@@ -5917,7 +6331,10 @@
         "enabled": true,
         "showInHome": true,
         "source": "mal",
-        "displayType": "anime"
+        "displayType": "anime",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.userlist.plan_to_watch",
@@ -5926,7 +6343,10 @@
         "enabled": true,
         "showInHome": true,
         "source": "mal",
-        "displayType": "anime"
+        "displayType": "anime",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mal.userlist.watching",
@@ -5935,7 +6355,10 @@
         "enabled": true,
         "showInHome": true,
         "source": "mal",
-        "displayType": "anime"
+        "displayType": "anime",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "mdblist.201247",
@@ -6734,8 +7157,9 @@
           "mediatype": "movie"
         },
         "tags": [
+          "Disney Plus",
           "Plataforma Streaming",
-          "Disney Plus"
+          "Studio"
         ]
       },
       {
@@ -11008,7 +11432,10 @@
         "name": "Lat-Add Anime",
         "enabled": true,
         "showInHome": false,
-        "source": "community"
+        "source": "community",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "lat-add_series",
@@ -11024,7 +11451,10 @@
         "name": "Lat-Add Anime Movies",
         "enabled": true,
         "showInHome": false,
-        "source": "community"
+        "source": "community",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "latinobrid_series",
@@ -11064,7 +11494,10 @@
         "name": "Lat-Add Recent Anime",
         "enabled": true,
         "showInHome": false,
-        "source": "community"
+        "source": "community",
+        "tags": [
+          "Anime"
+        ]
       },
       {
         "id": "latinobrid_movies",

@@ -24,6 +24,7 @@ class WizardState {
     this.profiles = [];
     this.selectedProfileId = null;
     this.selectedProfileName = '';
+    this.newlyCreatedProfileIds = new Set();
 
     // Credenciales de Proveedores de Metadatos
     this.apiKeys = {
@@ -70,6 +71,11 @@ class WizardState {
 
   notify(changeType = 'GENERAL') {
     this.subscribers.forEach(cb => cb(this, changeType));
+  }
+
+  isProfileNew(profileId) {
+    if (!profileId) return false;
+    return this.newlyCreatedProfileIds.has(String(profileId));
   }
 
   /**
@@ -219,6 +225,16 @@ class WizardState {
     const newState = forceState !== null ? forceState : !section.enabled;
     section.enabled = newState;
     section.folders.forEach(f => { f.enabled = newState; });
+    this.notify('COLLECTIONS_UPDATED');
+  }
+
+  /**
+   * Actualiza propiedades de una sección completa (título, visibilidad, etc.)
+   */
+  updateSection(sectionId, newProps) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section) return;
+    Object.assign(section, newProps);
     this.notify('COLLECTIONS_UPDATED');
   }
 
