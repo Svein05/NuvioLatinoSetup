@@ -4,6 +4,59 @@
  */
 export class NuvioClient {
   /**
+   * Crea una nueva cuenta en Nuvio (Supabase Auth SignUp)
+   * @param {string} apiUrl URL base del backend de Nuvio (ej: https://api.nuvio.tv)
+   * @param {string} apikey Clave anónima pública de Nuvio
+   * @param {string} email Correo del usuario
+   * @param {string} password Contraseña
+   * @returns {Promise<{ accessToken: string, userId: string, user: object }>}
+   */
+  static async signup({ apiUrl, apikey, email, password }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const endpoint = `${cleanUrl}/auth/v1/signup`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'apikey': apikey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const message = errorData.msg || errorData.error_description || errorData.message || response.statusText;
+        if (/already registered|already exists|duplicate/i.test(message)) {
+          throw new Error('Ya existe una cuenta con este correo en Nuvio. Por favor cambia a la opción "Iniciar Sesión".');
+        }
+        throw new Error(`Error al registrar cuenta (${response.status}): ${message}`);
+      }
+
+      const data = await response.json();
+
+      // Si la respuesta incluye directamente la sesión con access_token
+      if (data.access_token && data.user?.id) {
+        return {
+          accessToken: data.access_token,
+          userId: data.user.id,
+          user: data.user
+        };
+      }
+
+      // Si la cuenta fue creada pero no retornó token de sesión inmediato, iniciar sesión automáticamente
+      return await this.login({ apiUrl, apikey, email, password });
+    } catch (err) {
+      console.error('[NuvioClient] Error de signup:', err);
+      throw err;
+    }
+  }
+
+  /**
    * Inicia sesión con credenciales de Nuvio (Supabase Auth)
    * @param {string} apiUrl URL base del backend de Nuvio (ej: https://api.nuvio.tv)
    * @param {string} apikey Clave anónima pública de Nuvio

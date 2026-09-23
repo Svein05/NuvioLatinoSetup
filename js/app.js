@@ -195,6 +195,49 @@ class AppController {
     const emailInput = document.getElementById('nuvioEmail');
     const passInput = document.getElementById('nuvioPassword');
     const btnConnect = document.getElementById('btnNuvioConnect');
+    const btnSignup = document.getElementById('btnNuvioSignup');
+    const tabLogin = document.getElementById('tabAuthLogin');
+    const tabSignup = document.getElementById('tabAuthSignup');
+    const headingText = document.getElementById('authHeadingText');
+    const headingIcon = document.getElementById('authHeadingIcon');
+    const subtitle = document.getElementById('authSubtitle');
+    const hintText = document.getElementById('authHintText');
+
+    let authMode = 'login'; // 'login' | 'signup'
+
+    const switchAuthMode = (mode) => {
+      authMode = mode;
+      if (mode === 'login') {
+        if (tabLogin) {
+          tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+        }
+        if (tabSignup) {
+          tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
+        }
+        if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
+        if (headingIcon) headingIcon.className = "fa-solid fa-user-lock text-brand-500 text-lg";
+        if (subtitle) subtitle.innerText = "El asistente se comunicará con la API pública de Nuvio directamente desde tu navegador.";
+        if (hintText) hintText.classList.add('hidden');
+        if (btnConnect) btnConnect.style.display = 'flex';
+        if (btnSignup) btnSignup.style.display = 'none';
+      } else {
+        if (tabSignup) {
+          tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-emerald-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+        }
+        if (tabLogin) {
+          tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
+        }
+        if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
+        if (headingIcon) headingIcon.className = "fa-solid fa-user-plus text-emerald-400 text-lg";
+        if (subtitle) subtitle.innerText = "Registra tu cuenta oficial en Nuvio de forma gratuita directamente desde aquí.";
+        if (hintText) hintText.classList.remove('hidden');
+        if (btnConnect) btnConnect.style.display = 'none';
+        if (btnSignup) btnSignup.style.display = 'flex';
+      }
+    };
+
+    if (tabLogin) tabLogin.addEventListener('click', () => switchAuthMode('login'));
+    if (tabSignup) tabSignup.addEventListener('click', () => switchAuthMode('signup'));
 
     if (emailInput) {
       emailInput.addEventListener('input', (e) => {
@@ -208,6 +251,7 @@ class AppController {
       });
     }
 
+    // Acción Iniciar Sesión
     if (btnConnect) {
       btnConnect.addEventListener('click', async () => {
         const email = emailInput?.value?.trim();
@@ -266,6 +310,93 @@ class AppController {
         } finally {
           btnConnect.disabled = false;
           btnConnect.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> Conectar Cuenta';
+        }
+      });
+    }
+
+    // Acción Crear Cuenta
+    if (btnSignup) {
+      btnSignup.addEventListener('click', async () => {
+        const email = emailInput?.value?.trim();
+        const password = passInput?.value;
+        const apikey = CONFIG.NUVIO_PUBLIC_ANON_KEY;
+
+        if (!email || !password) {
+          this.showToast('Por favor ingresa un correo y contraseña para crear tu cuenta.', 'warning');
+          return;
+        }
+
+        if (password.length < 6) {
+          this.showToast('La contraseña debe tener al menos 6 caracteres.', 'warning');
+          return;
+        }
+
+        btnSignup.disabled = true;
+        btnSignup.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Registrando cuenta...';
+
+        try {
+          const auth = await NuvioClient.signup({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey,
+            email,
+            password
+          });
+
+          state.nuvioAuth.accessToken = auth.accessToken;
+          state.nuvioAuth.userId = auth.userId;
+          state.nuvioAuth.isAuthenticated = true;
+          state.nuvioAuth.apikey = apikey;
+
+          // Consultar perfiles o crear perfil inicial "Principal"
+          let profiles = [];
+          try {
+            profiles = await NuvioClient.getProfiles({
+              apiUrl: CONFIG.NUVIO_API_URL,
+              apikey,
+              accessToken: auth.accessToken,
+              userId: auth.userId
+            });
+          } catch (_) {
+            profiles = [];
+          }
+
+          if (profiles.length === 0) {
+            try {
+              const defaultProfile = await NuvioClient.createProfile({
+                apiUrl: CONFIG.NUVIO_API_URL,
+                apikey,
+                accessToken: auth.accessToken,
+                userId: auth.userId,
+                name: 'Principal'
+              });
+              profiles = [defaultProfile];
+            } catch (_) {}
+          }
+
+          state.profiles = profiles;
+          if (profiles.length > 0) {
+            state.selectedProfileId = profiles[0].id;
+            state.selectedProfileName = profiles[0].name || profiles[0].title || 'Principal';
+            state.unlockStep(3);
+          }
+
+          state.unlockStep(2);
+          this.renderProfiles();
+          this.setAuthBadge(true);
+          this.showToast('✓ ¡Cuenta creada con éxito! Bienvenido a Nuvio.', 'success');
+
+          setTimeout(() => {
+            state.currentStep = 2;
+            this.updateUI();
+          }, 600);
+        } catch (err) {
+          this.showToast(err.message, 'error');
+          if (/iniciar sesión/i.test(err.message)) {
+            switchAuthMode('login');
+          }
+        } finally {
+          btnSignup.disabled = false;
+          btnSignup.innerHTML = '<i class="fa-solid fa-user-plus mr-1"></i> Crear Cuenta Oficial en Nuvio';
         }
       });
     }
