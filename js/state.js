@@ -7,7 +7,7 @@ import { CONFIG } from './config.js';
 class WizardState {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 6;
+    this.totalSteps = 5;
     this.maxUnlockedStep = 1; // Control restrictivo de avance de pasos
 
     // Autenticación Nuvio (Supabase)
@@ -126,9 +126,6 @@ class WizardState {
             error: 'Debes definir una contraseña de al menos 4 caracteres para tu addon de AIOMetadata (o pulsar "Generar aleatoria").'
           };
         }
-        return { valid: true, error: null };
-
-      case 6:
         return { valid: true, error: null };
 
       default:

@@ -132,6 +132,7 @@ export class PipelineInjector {
           apiUrl: CONFIG.NUVIO_API_URL,
           apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
           accessToken,
+          userId: state.nuvioAuth.userId,
           addonData: addonPayload
         });
         state.addLog('✓ Addon instalado exitosamente en el perfil de Nuvio.', 'success');
@@ -140,21 +141,22 @@ export class PipelineInjector {
       // ========================================================
       // FASE 4: Inyección de Colecciones Nativas
       // ========================================================
-      state.addLog('[4/4] Inyectando colecciones nativas (/rest/v1/collections)...', 'info');
-      const collectionsForApi = state.getFlattenedCollectionsForApi(targetProfileId, addonId);
-      const totalCollections = collectionsForApi.length;
+      state.addLog('[4/4] Inyectando colecciones nativas sincronizadas (sync_push_collections)...', 'info');
+      const synchronizedCollections = state.getSynchronizedNuvioCollections();
+      const totalCollections = synchronizedCollections.reduce((acc, sec) => acc + (sec.folders?.length || 0), 0);
 
       if (isSimulation) {
         await this.delay(800);
         state.addLog(`✓ [Simulado] ${totalCollections} colecciones inyectadas con éxito.`, 'success');
       } else {
-        await NuvioClient.injectCollections({
+        await NuvioClient.pushCollections({
           apiUrl: CONFIG.NUVIO_API_URL,
           apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
           accessToken,
-          collections: collectionsForApi
+          profileId: targetProfileId,
+          collectionsJson: synchronizedCollections
         });
-        state.addLog(`✓ ${totalCollections} colecciones inyectadas exitosamente en Nuvio.`, 'success');
+        state.addLog(`✓ ${totalCollections} colecciones inyectadas exitosamente en tu perfil de Nuvio.`, 'success');
       }
 
       // ========================================================

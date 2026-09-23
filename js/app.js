@@ -26,8 +26,7 @@ class AppController {
     this.setupStep1Events();
     this.setupStep2Profiles();
     this.setupStep4ApiKeys();
-    this.setupStep5AIOMetadata();
-    this.setupStep6Execution();
+    this.setupStep5Injection();
 
     // 3. Suscribirse al estado para actualizar la UI reactiva
     state.subscribe((s, eventType) => {
@@ -185,9 +184,9 @@ class AppController {
     if (btnNext) btnNext.style.display = (currentStep === totalSteps) ? 'none' : 'flex';
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 6, refrescar resumen
-    if (currentStep === 6) {
-      this.refreshStep6Summary();
+    // Si estamos en el paso 5, refrescar resumen
+    if (currentStep === 5) {
+      this.refreshStep5Summary();
     }
   }
 
@@ -527,7 +526,7 @@ class AppController {
 
     const checkStep4Unlock = () => {
       if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
-        state.unlockStep(5); // Desbloquea Paso 5 (AIOMetadata)
+        state.unlockStep(5); // Desbloquea Paso 5 (Inyección)
         this.updateUI();
       }
     };
@@ -550,29 +549,19 @@ class AppController {
     }
   }
 
-  setupStep5AIOMetadata() {
-    const instanceInput = document.getElementById('aioInstanceUrl');
+  setupStep5Injection() {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
-
-    const checkStep5Unlock = () => {
-      if (state.aiometadata.password && state.aiometadata.password.length >= 4) {
-        state.unlockStep(6); // Desbloquea Paso 6 (Inyección)
-        this.updateUI();
-      }
-    };
-
-    if (instanceInput) {
-      instanceInput.value = state.aiometadata.instanceUrl;
-      instanceInput.addEventListener('input', (e) => {
-        state.aiometadata.instanceUrl = e.target.value.trim() || CONFIG.DEFAULT_AIOMETADATA_URL;
-      });
-    }
+    const btnExecute = document.getElementById('btnExecutePipeline');
+    const modeSimRadio = document.getElementById('modeSimulation');
+    const modeRealRadio = document.getElementById('modeReal');
+    const btnDownloadCol = document.getElementById('btnDownloadCollections');
+    const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
 
     if (passwordInput) {
+      passwordInput.value = state.aiometadata.password || '';
       passwordInput.addEventListener('input', (e) => {
         state.aiometadata.password = e.target.value;
-        checkStep5Unlock();
       });
     }
 
@@ -581,18 +570,9 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
-        checkStep5Unlock();
         this.showToast('Contraseña aleatoria generada y configurada', 'info');
       });
     }
-  }
-
-  setupStep6Execution() {
-    const btnExecute = document.getElementById('btnExecutePipeline');
-    const modeSimRadio = document.getElementById('modeSimulation');
-    const modeRealRadio = document.getElementById('modeReal');
-    const btnDownloadCol = document.getElementById('btnDownloadCollections');
-    const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
 
     if (modeSimRadio) {
       modeSimRadio.addEventListener('change', () => {
@@ -608,12 +588,13 @@ class AppController {
 
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
-        // Validar todos los pasos anteriores antes de ejecutar
+        // Validar todos los pasos (1 a 5) antes de ejecutar
         for (let i = 1; i <= 5; i++) {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            window.goToStep(i);
+            if (i < 5) window.goToStep(i);
+            if (i === 5 && passwordInput) passwordInput.focus();
             return;
           }
         }
@@ -634,7 +615,7 @@ class AppController {
     }
   }
 
-  refreshStep6Summary() {
+  refreshStep5Summary() {
     const targetEl = document.getElementById('summaryProfileTarget');
     const countEl = document.getElementById('summaryCollectionsCount');
     const catalogsEl = document.getElementById('summaryCatalogsCount');

@@ -102,15 +102,8 @@
 
         <button onclick="goToStep(5)" id="capsule-step-5" class="step-capsule locked">
           <span class="step-badge">5</span>
-          <i class="fa-solid fa-shield-halved"></i>
-          <span>5. AIOMetadata</span>
-          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
-        </button>
-
-        <button onclick="goToStep(6)" id="capsule-step-6" class="step-capsule locked">
-          <span class="step-badge">6</span>
           <i class="fa-solid fa-rocket"></i>
-          <span>6. Inyección</span>
+          <span>5. Inyección</span>
           <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
         </button>
       </div>
@@ -277,51 +270,34 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 5: SEGURIDAD AIOMETADATA             -->
+      <!-- PASO 5: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
       <!-- ========================================== -->
       <div id="step-5" class="step-content">
-        <div class="mb-6">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-shield-halved text-brand-500 text-lg"></i>
-            <span>Instancia y Clave de AIOMetadata</span>
-          </h2>
-          <p class="text-sm text-slate-400 mt-1">Configura la instancia pública o autohospedada y tu contraseña maestra para reconfigurar el addon cuando desees.</p>
-        </div>
-
-        <div class="space-y-4 max-w-lg">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Instancia de AIOMetadata</label>
-            <input id="aioInstanceUrl" type="text" value="https://aiometadata.elfhosted.com" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm font-mono text-slate-300 transition-colors">
-            <p class="text-[11px] text-slate-500 mt-1">Puedes usar la instancia por defecto o tu propio servidor autohospedado.</p>
-          </div>
-
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Contraseña Maestra del Addon</label>
-              <button id="btnGeneratePassword" type="button" class="text-[11px] text-brand-400 hover:underline">
-                <i class="fa-solid fa-dice mr-1"></i> Generar aleatoria
-              </button>
-            </div>
-            <input id="aioPassword" type="password" placeholder="Define una contraseña segura" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
-            <p class="text-[11px] text-slate-500 mt-1">Guarda esta clave si deseas reconfigurar o añadir catálogos futuros en la web de AIOMetadata.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- PASO 6: INYECCIÓN Y LOGS                  -->
-      <!-- ========================================== -->
-      <div id="step-6" class="step-content">
         <div class="mb-5">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <i class="fa-solid fa-rocket text-brand-500 text-lg"></i>
-            <span>Ejecución e Inyección Automatizada</span>
+            <span>Seguridad del Addon e Inyección Automatizada</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Revisa el resumen final y ejecuta el aprovisionamiento coordinado.</p>
+          <p class="text-sm text-slate-400 mt-1">Configura la clave maestra para tu addon de metadatos, revisa el resumen y ejecuta el aprovisionamiento en Nuvio.</p>
+        </div>
+
+        <!-- Clave Maestra de AIOMetadata -->
+        <div class="mb-5 p-4 bg-slate-950/80 border border-slate-800 rounded-xl max-w-2xl">
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved text-brand-400"></i>
+              <span>Contraseña Maestra del Addon</span>
+            </label>
+            <button id="btnGeneratePassword" type="button" class="text-xs text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+              <i class="fa-solid fa-dice"></i> Generar aleatoria
+            </button>
+          </div>
+          <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 4 caracteres)" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+          <p class="text-[11px] text-slate-500 mt-1.5">Esta contraseña protegerá tu addon y te permitirá editarlo en el futuro desde la interfaz de AIOMetadata si lo requieres.</p>
         </div>
 
         <!-- Tarjetas de Resumen -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5 max-w-2xl text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 max-w-2xl text-xs">
           <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
             <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Perfil Nuvio</span>
             <span id="summaryProfileTarget" class="text-slate-200 font-bold block truncate">Principal</span>
@@ -351,7 +327,7 @@
 
         <!-- Consola de Log en Tiempo Real -->
         <div class="bg-black/80 border border-slate-800 rounded-xl p-4 font-mono text-xs max-w-2xl h-44 overflow-y-auto mb-4 terminal-log shadow-inner" id="consoleLog">
-          <div class="text-slate-500">> Asistente listo para procesar. Selecciona el modo y presiona el botón inferior.</div>
+          <div class="text-slate-500">> Asistente listo para procesar. Define la contraseña maestra y presiona el botón inferior.</div>
         </div>
 
         <!-- Botones de Acción -->
@@ -381,7 +357,7 @@
         </button>
 
         <div class="flex items-center gap-3">
-          <span class="text-xs text-slate-500 font-mono" id="stepCounter">Paso 1 de 6</span>
+          <span class="text-xs text-slate-500 font-mono" id="stepCounter">Paso 1 de 5</span>
           <button id="btnNext" onclick="changeStep(1)" class="px-5 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all flex items-center gap-1.5">
             <span>Siguiente</span> <i class="fa-solid fa-chevron-right ml-1"></i>
           </button>
