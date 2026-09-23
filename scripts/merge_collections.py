@@ -1,3 +1,8 @@
+"""Utilidad de fusión y consolidación de estructuras de colecciones para Nuvio.
+
+Combina secciones cinematográficas, plataformas de streaming y géneros,
+resolviendo rutas locales y unificando fuentes de catálogos sin duplicación.
+"""
 import os
 import sys
 import json

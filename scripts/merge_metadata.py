@@ -1,3 +1,8 @@
+"""Utilidad de consolidación y optimización de metadatos para AIOMetadata.
+
+Unifica catálogos comunitarios, fuentes TMDB/MDBList y parámetros regionales en
+Español Latino (es-MX) garantizando compatibilidad con el ecosistema de Nuvio.
+"""
 import os
 import sys
 import json

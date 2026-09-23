@@ -1,3 +1,8 @@
+"""Normalizador de taxonomía, dimensiones y etiquetas para colecciones y metadatos.
+
+Asegura proporciones horizontales (LANDSCAPE) para géneros y asigna etiquetas
+contextuales consistentes en las plantillas JSON.
+"""
 import os
 import sys
 import json
