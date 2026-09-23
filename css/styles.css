@@ -12,6 +12,15 @@
   display: block;
 }
 
+#step-1.active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 52vh;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

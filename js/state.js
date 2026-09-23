@@ -42,6 +42,8 @@ class WizardState {
     this.apiKeysValidated = false;
     this.apiKeysValidationStatus = {};
     this.isManualMode = false;
+    this.manualCopiedCollections = false;
+    this.manualCopiedAio = false;
 
     // Plantillas en memoria
     this.rawMetadataTemplate = null;
@@ -85,6 +87,8 @@ class WizardState {
     this.isManualMode = true;
     this.selectedProfileId = 'manual-profile';
     this.selectedProfileName = 'Perfil Manual';
+    this.manualCopiedCollections = false;
+    this.manualCopiedAio = false;
     this.unlockStep(3);
     this.currentStep = 3;
     this.notify('MANUAL_MODE_ENABLED');

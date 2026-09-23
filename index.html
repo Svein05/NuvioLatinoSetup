@@ -38,14 +38,15 @@
 
   <!-- Header Superior -->
   <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-40">
-    <div class="flex items-center">
+    <div class="flex items-center gap-3">
+      <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-6 md:h-7 w-auto object-contain">
       <h1 class="text-base md:text-lg font-bold tracking-wide text-slate-100">
-        Nuvio Metadata Latino
+        Metadata Latino
       </h1>
     </div>
 
     <div class="flex items-center gap-2.5">
-      <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" 
+      <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
         <i class="fa-brands fa-discord"></i>
         <span class="hidden sm:inline">Addon LAT-ADD</span>
@@ -87,16 +88,14 @@
       <!-- ========================================== -->
       <!-- PASO 1: AUTENTICACIÓN / REGISTRO NUVIO     -->
       <!-- ========================================== -->
-      <div id="step-1" class="step-content active">
-        <!-- Cabecera con Logotipo Oficial de Nuvio a la izquierda del título -->
-        <div class="mb-5 flex items-center gap-3">
-          <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-7 md:h-8 w-auto object-contain">
-          <h2 id="authHeading" class="text-xl font-bold text-slate-100 flex items-center">
-            <span id="authHeadingText">Conectar con tu cuenta</span>
-          </h2>
-        </div>
+      <div id="step-1" class="step-content active flex-1 flex flex-col justify-center items-center w-full min-h-[50vh] py-4">
+        <div class="w-full max-w-md mx-auto space-y-4">
+          <div class="mb-5 text-center">
+            <h2 id="authHeading" class="text-xl font-bold text-slate-100 flex items-center justify-center">
+              <span id="authHeadingText">Conectar con tu cuenta</span>
+            </h2>
+          </div>
 
-        <div class="space-y-4 max-w-lg">
           <!-- Pestañas de Modo: Iniciar Sesión vs Crear Cuenta -->
           <div class="flex items-center gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
             <button id="tabAuthLogin" type="button" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5">
@@ -566,7 +565,7 @@
               <i class="fa-solid fa-copy"></i>
               <span>Copiar JSON de Colecciones</span>
             </button>
-            <button id="btnCopyAioConfig" type="button" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs transition-all border border-slate-700 flex items-center gap-2">
+            <button id="btnCopyAioConfig" type="button" disabled class="px-4 py-2.5 bg-slate-800 text-slate-500 border border-slate-700/60 font-semibold rounded-xl text-xs transition-all shadow-none flex items-center gap-2 cursor-not-allowed" title="Ingresa una contraseña para el addon (mínimo 4 caracteres) primero">
               <i class="fa-solid fa-copy"></i>
               <span>Copiar JSON de Metadata</span>
             </button>
@@ -667,6 +666,55 @@
       <span class="text-[10px] text-slate-600">Nuvio Latino</span>
     </div>
   </aside>
+
+  <!-- Modal Emergente de Finalización y Comunidad -->
+  <div id="completionModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-slate-900/95 border border-brand-500/40 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl text-center transform transition-all relative overflow-hidden">
+      <!-- Decoración de fondo glow -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Icono de éxito con pulso suave -->
+      <div class="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg shadow-emerald-500/10">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+
+      <!-- Título -->
+      <h3 id="completionModalTitle" class="text-xl font-bold text-white mb-2">¡Configuración Completada!</h3>
+
+      <!-- Mensaje dinámico (Automático vs Manual) -->
+      <div id="completionModalMessage" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+        <!-- Inyectado dinámicamente -->
+      </div>
+
+      <!-- Tarjeta de Recomendación de Addon LAT-ADD y Discord -->
+      <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 my-4 text-center">
+        <div class="text-xs font-semibold text-slate-200 mb-1 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-star text-amber-400 text-[11px]"></i>
+          <span>Recomendación de la Comunidad</span>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed mb-3">
+          Te recomendamos el addon de <strong class="text-slate-100 font-semibold">LAT-ADD</strong>, completamente enfocado en la comunidad Latina. Si gustas o requieres soporte y asistencia técnica, puedes unirte a nuestro Discord oficial:
+        </p>
+
+        <!-- Botón centrado destacado de Discord -->
+        <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
+           class="inline-flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#5865F2]/25 transition-all transform hover:scale-[1.02]">
+          <i class="fa-brands fa-discord text-base"></i>
+          <span>Unirse a Discord (Soporte & LAT-ADD)</span>
+        </a>
+      </div>
+
+      <p class="text-[11px] text-slate-400 mb-5">
+        No dudes en otorgar tu feedback y disfrutar de todo tu contenido completamente en Latino.
+      </p>
+
+      <!-- Botón de Aceptar / Cerrar -->
+      <button id="btnCloseCompletionModal" type="button" class="w-full py-2.5 px-5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-brand-500/20">
+        ¡Entendido, gracias!
+      </button>
+    </div>
+  </div>
 
   <!-- Contenedor de notificaciones flotantes (Toasts) -->
   <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>

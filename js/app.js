@@ -259,10 +259,17 @@ class AppController {
       const btnExec = document.getElementById('btnExecutePipeline');
       if (state.isManualMode) {
         if (manualContainer) manualContainer.classList.remove('hidden');
-        if (btnExec) btnExec.classList.add('hidden');
+        if (btnExec) {
+          btnExec.classList.add('hidden');
+          btnExec.style.display = 'none';
+        }
+        this.updateManualModeButtons();
       } else {
         if (manualContainer) manualContainer.classList.add('hidden');
-        if (btnExec) btnExec.classList.remove('hidden');
+        if (btnExec) {
+          btnExec.classList.remove('hidden');
+          btnExec.style.display = 'flex';
+        }
       }
       this.refreshStep5Summary();
       this.updateStep5ExecuteButton();
@@ -290,6 +297,16 @@ class AppController {
     const btnExecute = document.getElementById('btnExecutePipeline');
     if (!btnExecute) return;
 
+    // En modo manual, este botón NUNCA se muestra
+    if (state.isManualMode) {
+      btnExecute.classList.add('hidden');
+      btnExecute.style.display = 'none';
+      return;
+    }
+
+    btnExecute.classList.remove('hidden');
+    btnExecute.style.display = 'flex';
+
     const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
     if (hasPassword) {
       btnExecute.disabled = false;
@@ -300,6 +317,75 @@ class AppController {
       btnExecute.className = "px-6 py-3 bg-slate-800 text-slate-500 border border-slate-700/60 font-medium rounded-xl text-sm transition-all flex items-center gap-2 cursor-not-allowed shadow-none";
       btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
     }
+  }
+
+  updateManualModeButtons() {
+    const btnCopyAio = document.getElementById('btnCopyAioConfig');
+    const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
+    if (!btnCopyAio) return;
+
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+
+    if (hasPassword) {
+      btnCopyAio.disabled = false;
+      btnCopyAio.className = "px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-brand-600/25 flex items-center gap-2 cursor-pointer";
+      btnCopyAio.title = "Copiar JSON de configuración de AIOMetadata";
+      if (btnDownloadAio) {
+        btnDownloadAio.disabled = false;
+        btnDownloadAio.className = "px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer";
+      }
+    } else {
+      btnCopyAio.disabled = true;
+      btnCopyAio.className = "px-4 py-2.5 bg-slate-800 text-slate-500 border border-slate-700/60 font-semibold rounded-xl text-xs transition-all shadow-none flex items-center gap-2 cursor-not-allowed";
+      btnCopyAio.title = "Ingresa una contraseña para el addon (mínimo 4 caracteres) primero";
+      if (btnDownloadAio) {
+        btnDownloadAio.disabled = true;
+        btnDownloadAio.className = "px-4 py-3 bg-slate-950 text-slate-600 border border-slate-900 rounded-xl text-xs transition-all flex items-center gap-2 cursor-not-allowed";
+      }
+    }
+  }
+
+  showCompletionModal({ isManual = false, profileName = 'Principal' } = {}) {
+    const modal = document.getElementById('completionModal');
+    const titleEl = document.getElementById('completionModalTitle');
+    const msgEl = document.getElementById('completionModalMessage');
+    const btnClose = document.getElementById('btnCloseCompletionModal');
+
+    if (!modal) return;
+
+    if (isManual) {
+      if (titleEl) titleEl.innerText = "¡Archivos JSON Listos!";
+      if (msgEl) {
+        msgEl.innerHTML = `
+          <p class="font-medium text-slate-200">¡Listo! Has copiado con éxito ambos archivos JSON (Colecciones y Metadata).</p>
+          <p class="mt-1.5 text-slate-400">Ahora solo tienes que ingresar manualmente los JSON dentro de Nuvio en un nuevo perfil y agregar tus addons de Streams preferidos :D</p>
+        `;
+      }
+    } else {
+      if (titleEl) titleEl.innerText = "¡Configuración Exitosa!";
+      if (msgEl) {
+        msgEl.innerHTML = `
+          <p class="font-medium text-slate-200">¡Listo! Todo debería estar correctamente importado y configurado en el perfil <strong class="text-brand-400 font-bold">"${profileName}"</strong> de tu cuenta Nuvio.</p>
+          <p class="mt-1.5 text-slate-400">Ahora solo tienes que agregar tus addons de Streams preferidos :D</p>
+        `;
+      }
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
+    const closeModal = () => {
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    };
+
+    if (btnClose) {
+      btnClose.onclick = closeModal;
+    }
+
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
   }
 
   setupStep1Events() {
@@ -978,6 +1064,7 @@ class AppController {
       passwordInput.addEventListener('input', (e) => {
         state.aiometadata.password = e.target.value;
         this.updateStep5ExecuteButton();
+        this.updateManualModeButtons();
         this.updateNavigationButtons();
       });
     }
@@ -988,6 +1075,7 @@ class AppController {
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
         this.updateStep5ExecuteButton();
+        this.updateManualModeButtons();
         this.updateNavigationButtons();
         this.showToast('Contraseña aleatoria generada y configurada', 'info');
       });
@@ -1002,7 +1090,14 @@ class AppController {
         try {
           const colData = state.getSynchronizedNuvioCollections();
           await navigator.clipboard.writeText(JSON.stringify(colData, null, 2));
+          state.manualCopiedCollections = true;
           this.showToast('✓ JSON de Colecciones copiado al portapapeles', 'success');
+
+          if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio) {
+            setTimeout(() => {
+              this.showCompletionModal({ isManual: true });
+            }, 600);
+          }
         } catch (err) {
           this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
         }
@@ -1011,10 +1106,24 @@ class AppController {
 
     if (btnCopyAio) {
       btnCopyAio.addEventListener('click', async () => {
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        if (!hasPassword) {
+          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          if (passwordInput) passwordInput.focus();
+          return;
+        }
+
         try {
           const aioData = state.getSynchronizedMetadataPayload();
           await navigator.clipboard.writeText(JSON.stringify(aioData, null, 2));
+          state.manualCopiedAio = true;
           this.showToast('✓ JSON de Metadata copiado al portapapeles', 'success');
+
+          if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio) {
+            setTimeout(() => {
+              this.showCompletionModal({ isManual: true });
+            }, 600);
+          }
         } catch (err) {
           this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
         }
@@ -1061,6 +1170,12 @@ class AppController {
 
     if (btnDownloadAio) {
       btnDownloadAio.addEventListener('click', () => {
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        if (state.isManualMode && !hasPassword) {
+          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          if (passwordInput) passwordInput.focus();
+          return;
+        }
         PipelineInjector.downloadAioConfigJson();
       });
     }
@@ -1134,6 +1249,11 @@ class AppController {
           detailEl.className = 'text-[11px] text-emerald-300 font-medium';
         }
         this.showToast('🎉 ¡Aprovisionamiento completado con éxito en Nuvio!', 'success');
+
+        // Mostrar ventana emergente de finalización y recomendación
+        setTimeout(() => {
+          this.showCompletionModal({ isManual: false, profileName: state.selectedProfileName || 'Principal' });
+        }, 800);
       } else {
         if (titleEl) {
           titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i><span class="text-rose-400">Error durante la inyección</span>';
