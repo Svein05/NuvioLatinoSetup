@@ -99,7 +99,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -114,7 +114,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -133,8 +133,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/ahora_en_nuvio_recomendados_logo.png",
-        "coverImageUrl": "./assets/collections/ahora_en_nuvio_recomendados_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_recomendados_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_recomendados_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -174,19 +174,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_rated"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_rated"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/ahora_en_nuvio_recomendados_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_recomendados_backdrop.jpg"
       },
       {
         "id": "folder-831fbd54",
@@ -258,8 +258,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/ahora_en_nuvio_estreno_logo.png",
-        "coverImageUrl": "./assets/collections/ahora_en_nuvio_estreno_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_estreno_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_estreno_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -287,7 +287,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/ahora_en_nuvio_estreno_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_estreno_backdrop.jpg"
       },
       {
         "id": "folder-3c82a7c2",
@@ -355,7 +355,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "Day",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -370,7 +370,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "Day",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -404,8 +404,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/ahora_en_nuvio_tendencia_logo.png",
-        "coverImageUrl": "./assets/collections/ahora_en_nuvio_tendencia_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -433,13 +433,13 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "Day",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.trending"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "Day",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.trending"
           },
@@ -451,7 +451,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/ahora_en_nuvio_tendencia_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_backdrop.jpg"
       },
       {
         "id": "folder-d6ff21a4",
@@ -519,7 +519,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -534,7 +534,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -568,8 +568,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/ahora_en_nuvio_ranking_logo.png",
-        "coverImageUrl": "./assets/collections/ahora_en_nuvio_ranking_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_ranking_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_ranking_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -597,19 +597,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_rated"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_rated"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/ahora_en_nuvio_ranking_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_ranking_backdrop.jpg"
       },
       {
         "id": "folder-b51b3ca9",
@@ -692,7 +692,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -707,7 +707,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -726,12 +726,12 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/ahora_en_nuvio_popular_logo.png",
-        "coverImageUrl": "./assets/collections/ahora_en_nuvio_popular_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_movie"
           },
@@ -743,7 +743,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_series"
           },
@@ -761,19 +761,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/ahora_en_nuvio_popular_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_backdrop.jpg"
       }
     ],
     "pinToTop": false,
@@ -852,7 +852,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -867,7 +867,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -886,8 +886,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_netflix_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_netflix_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_netflix_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_netflix_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -915,19 +915,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.netflix"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.netflix"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_netflix_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_netflix_backdrop.jpg"
       },
       {
         "id": "folder-e813e067",
@@ -995,7 +995,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1010,7 +1010,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1029,8 +1029,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_prime_video_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_prime_video_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_prime_video_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_prime_video_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1058,19 +1058,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.prime-video"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.prime-video"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_prime_video_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_prime_video_backdrop.jpg"
       },
       {
         "id": "folder-b26b5ce8",
@@ -1138,7 +1138,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1153,7 +1153,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1172,8 +1172,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_hbo_max_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_hbo_max_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_hbo_max_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_hbo_max_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1201,19 +1201,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.hbo-max"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.hbo-max"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_hbo_max_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_hbo_max_backdrop.jpg"
       },
       {
         "id": "folder-dbbb084a",
@@ -1281,7 +1281,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1296,7 +1296,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1315,8 +1315,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_apple_tv_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_apple_tv_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_apple_tv_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_apple_tv_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1344,19 +1344,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.apple-tv"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.apple-tv"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_apple_tv_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_apple_tv_backdrop.jpg"
       },
       {
         "id": "folder-00fb2e4e",
@@ -1454,7 +1454,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1469,7 +1469,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1488,8 +1488,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_disney_plus_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_disney_plus_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_disney_plus_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_disney_plus_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1529,19 +1529,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.disney-plus"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.disney-plus"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_disney_plus_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_disney_plus_backdrop.jpg"
       },
       {
         "id": "folder-f1637f34",
@@ -1609,7 +1609,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1624,7 +1624,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1643,8 +1643,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_paramount_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_paramount_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_paramount_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_paramount_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1672,19 +1672,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.paramount-plus"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.paramount-plus"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_paramount_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_paramount_backdrop.jpg"
       },
       {
         "id": "folder-c5ff6f91",
@@ -1752,7 +1752,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1767,7 +1767,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1786,8 +1786,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_crunchyroll_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_crunchyroll_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1815,19 +1815,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.crunchyroll"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.crunchyroll"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_crunchyroll_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_backdrop.jpg"
       },
       {
         "id": "folder-9a508b89",
@@ -1895,7 +1895,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1910,7 +1910,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -1929,8 +1929,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_peacock_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_peacock_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_peacock_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_peacock_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1958,19 +1958,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.peacock"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.peacock"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_peacock_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_peacock_backdrop.jpg"
       },
       {
         "id": "folder-088c3a6a",
@@ -2038,7 +2038,7 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2053,7 +2053,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2072,8 +2072,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_shudder_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_shudder_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_shudder_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_shudder_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2101,19 +2101,19 @@
           },
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.shudder"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.shudder"
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_shudder_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_shudder_backdrop.jpg"
       },
       {
         "id": "folder-74ace452",
@@ -2185,8 +2185,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_rakuten_viki_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_rakuten_viki_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_rakuten_viki_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_rakuten_viki_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2214,7 +2214,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_rakuten_viki_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_rakuten_viki_backdrop.jpg"
       },
       {
         "id": "folder-64181c59",
@@ -2286,8 +2286,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/plataformas_de_streaming_vix_logo.png",
-        "coverImageUrl": "./assets/collections/plataformas_de_streaming_vix_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_vix_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_vix_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2315,7 +2315,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/plataformas_de_streaming_vix_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_vix_backdrop.jpg"
       },
       {
         "id": "collections.streaming.hulu",
@@ -2323,7 +2323,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2338,7 +2338,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2362,13 +2362,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.hulu"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.hulu"
           }
@@ -2382,7 +2382,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2397,7 +2397,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2421,13 +2421,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.paramount-plus"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.paramount-plus"
           }
@@ -2441,7 +2441,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2456,7 +2456,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2480,13 +2480,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.discovery-plus"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.discovery-plus"
           }
@@ -2500,7 +2500,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2515,7 +2515,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2539,13 +2539,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.curiosity-stream"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.curiosity-stream"
           }
@@ -2559,7 +2559,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2574,7 +2574,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2598,13 +2598,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.jiohotstar"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.jiohotstar"
           }
@@ -2618,7 +2618,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2633,7 +2633,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -2657,13 +2657,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.streaming.starz"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.streaming.starz"
           }
@@ -2797,8 +2797,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_acción_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_acción_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_acción_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_acción_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2844,7 +2844,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_acción_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_acción_backdrop.jpg"
       },
       {
         "id": "folder-eb65e806",
@@ -2946,8 +2946,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_drama_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_drama_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_drama_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_drama_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2987,7 +2987,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_drama_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_drama_backdrop.jpg"
       },
       {
         "id": "folder-f20ecfce",
@@ -3104,8 +3104,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_comedia_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_comedia_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_comedia_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_comedia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3151,7 +3151,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_comedia_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_comedia_backdrop.jpg"
       },
       {
         "id": "folder-f593859d",
@@ -3223,8 +3223,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_suspenso_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_suspenso_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_suspenso_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_suspenso_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3252,7 +3252,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_suspenso_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_suspenso_backdrop.jpg"
       },
       {
         "id": "folder-27daa96d",
@@ -3339,8 +3339,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_terror_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_terror_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_terror_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_terror_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3374,7 +3374,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_terror_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_terror_backdrop.jpg"
       },
       {
         "id": "folder-0de37c42",
@@ -3491,8 +3491,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_fantasía_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_fantasía_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_fantasía_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_fantasía_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3538,7 +3538,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_fantasía_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_fantasía_backdrop.jpg"
       },
       {
         "id": "folder-7b07b4c0",
@@ -3640,8 +3640,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_romance_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_romance_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_romance_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_romance_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3681,7 +3681,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_romance_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_romance_backdrop.jpg"
       },
       {
         "id": "folder-abda4cc0",
@@ -3798,8 +3798,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_animación_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_animación_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_animación_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_animación_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3845,7 +3845,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_animación_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_animación_backdrop.jpg"
       },
       {
         "id": "folder-84df6ac2",
@@ -3917,8 +3917,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_conciertos_biopic_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_conciertos_biopic_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_conciertos_biopic_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_conciertos_biopic_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3946,7 +3946,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_conciertos_biopic_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_conciertos_biopic_backdrop.jpg"
       },
       {
         "id": "folder-eba616bd",
@@ -4078,8 +4078,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_documentales_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_documentales_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_documentales_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_documentales_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -4131,7 +4131,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_documentales_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_documentales_backdrop.jpg"
       },
       {
         "id": "folder-4e08c588",
@@ -4203,8 +4203,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_oeste_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_oeste_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_oeste_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_oeste_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -4232,7 +4232,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_oeste_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_oeste_backdrop.jpg"
       },
       {
         "id": "folder-d9628957",
@@ -4289,8 +4289,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_mafia_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_mafia_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_mafia_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_mafia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -4312,7 +4312,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_mafia_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_mafia_backdrop.jpg"
       },
       {
         "id": "folder-cfeba781",
@@ -4384,8 +4384,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/géneros_hindú_logo.png",
-        "coverImageUrl": "./assets/collections/géneros_hindú_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_hindú_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_hindú_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -4413,7 +4413,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/géneros_hindú_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/géneros_hindú_backdrop.jpg"
       },
       {
         "id": "collections.genres.crime",
@@ -4850,8 +4850,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/anime_descubre_logo.png",
-        "coverImageUrl": "./assets/collections/anime_descubre_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -4879,7 +4879,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/anime_descubre_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_backdrop.jpg"
       },
       {
         "id": "folder-9RP4Z63N",
@@ -4981,8 +4981,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/anime_estudios_logo.png",
-        "coverImageUrl": "./assets/collections/anime_estudios_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -5022,7 +5022,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/anime_estudios_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_backdrop.jpg"
       },
       {
         "id": "folder-JQ8I3SCI",
@@ -5094,8 +5094,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/anime_isekai_fantasia_logo.png",
-        "coverImageUrl": "./assets/collections/anime_isekai_fantasia_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_isekai_fantasia_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_isekai_fantasia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -5123,7 +5123,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/anime_isekai_fantasia_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_isekai_fantasia_backdrop.jpg"
       },
       {
         "id": "folder-CDMZH7S0",
@@ -5195,8 +5195,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "./assets/collections/anime_novedades_logo.png",
-        "coverImageUrl": "./assets/collections/anime_novedades_cover.jpg",
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_cover.jpg",
         "catalogSources": [
           {
             "type": "series",
@@ -5224,7 +5224,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "./assets/collections/anime_novedades_backdrop.jpg"
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_backdrop.jpg"
       }
     ],
     "pinToTop": false,
@@ -5243,7 +5243,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5258,7 +5258,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5282,13 +5282,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.time-travel"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.time-travel"
           }
@@ -5302,7 +5302,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5317,7 +5317,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5341,13 +5341,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.revenge"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.revenge"
           }
@@ -5361,7 +5361,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5376,7 +5376,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5400,13 +5400,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.spy"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.spy"
           }
@@ -5420,7 +5420,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5435,7 +5435,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5459,13 +5459,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.magic"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.magic"
           }
@@ -5479,7 +5479,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5494,7 +5494,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5518,13 +5518,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.k-drama"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.k-drama"
           }
@@ -5538,7 +5538,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5553,7 +5553,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5577,13 +5577,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.treasure-hunt"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.treasure-hunt"
           }
@@ -5597,7 +5597,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5612,7 +5612,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5636,13 +5636,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.romantic-comedy"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.romantic-comedy"
           }
@@ -5656,7 +5656,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5671,7 +5671,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5695,13 +5695,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.coming-of-age"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.coming-of-age"
           }
@@ -5715,7 +5715,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5730,7 +5730,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5754,13 +5754,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.superhero"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.superhero"
           }
@@ -5774,7 +5774,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5789,7 +5789,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5813,13 +5813,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.space"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.space"
           }
@@ -5833,7 +5833,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5848,7 +5848,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5872,13 +5872,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.martial-arts"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.martial-arts"
           }
@@ -5892,7 +5892,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5907,7 +5907,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5931,13 +5931,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.vampire"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.vampire"
           }
@@ -5951,7 +5951,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5966,7 +5966,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -5990,13 +5990,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.theme.satire"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.theme.satire"
           }
@@ -6021,7 +6021,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6036,7 +6036,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6060,13 +6060,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.cartoon-network"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.cartoon-network"
           }
@@ -6080,7 +6080,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6095,7 +6095,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6119,13 +6119,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.dc"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.dc"
           }
@@ -6139,7 +6139,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6154,7 +6154,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6178,13 +6178,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.dreamworks"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.dreamworks"
           }
@@ -6198,7 +6198,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6213,7 +6213,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6237,13 +6237,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.ghibli"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.ghibli"
           }
@@ -6257,7 +6257,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6272,7 +6272,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6341,13 +6341,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.marvel"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.marvel"
           },
@@ -6367,7 +6367,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6382,7 +6382,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6406,13 +6406,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.nickelodeon"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.nickelodeon"
           }
@@ -6426,7 +6426,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6441,7 +6441,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6465,13 +6465,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.pixar"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.pixar"
           }
@@ -6485,7 +6485,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6500,7 +6500,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6524,13 +6524,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.studios.lucasfilm"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.studios.lucasfilm"
           }
@@ -6555,7 +6555,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6570,7 +6570,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6594,13 +6594,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.2020s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.2020s"
           }
@@ -6614,7 +6614,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6629,7 +6629,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6653,13 +6653,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.2010s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.2010s"
           }
@@ -6673,7 +6673,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6688,7 +6688,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6712,13 +6712,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.2000s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.2000s"
           }
@@ -6732,7 +6732,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6747,7 +6747,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6771,13 +6771,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.1990s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.1990s"
           }
@@ -6791,7 +6791,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6806,7 +6806,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6830,13 +6830,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.1980s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.1980s"
           }
@@ -6850,7 +6850,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6865,7 +6865,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6889,13 +6889,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.1970s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.1970s"
           }
@@ -6909,7 +6909,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6924,7 +6924,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6948,13 +6948,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.1960s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.1960s"
           }
@@ -6968,7 +6968,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -6983,7 +6983,7 @@
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "title": null,
             "sortBy": null,
             "tmdbId": null,
@@ -7007,13 +7007,13 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.movie.decades.1950s"
           },
           {
             "type": "series",
-            "genre": null,
+            "genre": "None",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.discover.series.decades.1950s"
           }
@@ -7073,7 +7073,7 @@
         "focusGifUrl": "",
         "heroVideoUrl": "",
         "titleLogoUrl": "",
-        "coverImageUrl": "./assets/collections/complementos_latinobrid_cover.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/complementos_latinobrid_cover.png",
         "catalogSources": [
           {
             "type": "movie",
