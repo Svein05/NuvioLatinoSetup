@@ -1,3 +1,8 @@
+"""Servidor HTTP local y lanzador de desarrollo para Nuvio Setup.
+
+Ejecuta un servidor web ligero con prevención de caché y abre automáticamente
+la aplicación en el navegador predeterminado del sistema.
+"""
 import http.server
 import socketserver
 import webbrowser

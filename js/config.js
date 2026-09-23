@@ -17,11 +17,11 @@ export const CONFIG = {
 
   // Enlace y texto de la comunidad
   COMMUNITY: {
-    DISCORD_URL: "https://discord.gg/",
+    DISCORD_URL: "https://discord.gg/EubYtJVJEc",
     DISCORD_LABEL: "Recomendación Addon LAT-ADD"
   },
 
-  // Almacenamiento local temporal para testing
+  // Claves de almacenamiento local para sesión y preferencias
   STORAGE_KEYS: {
     SESSION: "nuvio_wizard_session_v1",
     PREFERENCES: "nuvio_wizard_prefs_v1"

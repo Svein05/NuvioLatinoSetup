@@ -1,3 +1,8 @@
+"""Descargador concurrente de recursos multimedia de colecciones de Nuvio.
+
+Extrae y descarga pósters, fondos hero y logotipos en alta resolución
+desde las plantillas de colecciones para almacenamiento local estático.
+"""
 import os
 import sys
 import json
