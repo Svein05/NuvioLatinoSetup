@@ -28,10 +28,8 @@ class WizardState {
     // Credenciales de Proveedores de Metadatos
     this.apiKeys = {
       tmdb: '',
-      mdblist: '',
-      trakt: '',
-      gemini: '',
-      rpdb: ''
+      tvdb: '',
+      rpdb: 't0-free-rpdb'
     };
 
     // Plantillas en memoria
@@ -309,6 +307,7 @@ class WizardState {
     const filterCatList = (list) => {
       if (!Array.isArray(list)) return [];
       return list.filter(cat => {
+        if (cat.source === 'trakt') return false;
         const isIncluded = activeCatalogIds.has(cat.id);
         cat.showInHome = false;
         return isIncluded;
@@ -328,15 +327,12 @@ class WizardState {
     if (this.apiKeys.tmdb) {
       configObj.apiKeys.tmdb = this.apiKeys.tmdb.trim();
     }
-    if (this.apiKeys.mdblist) {
-      configObj.apiKeys.mdblist = this.apiKeys.mdblist.trim();
+    if (this.apiKeys.tvdb) {
+      configObj.apiKeys.tvdb = this.apiKeys.tvdb.trim();
     }
-    if (this.apiKeys.trakt) {
-      configObj.apiKeys.traktTokenId = this.apiKeys.trakt.trim();
-    }
-    if (this.apiKeys.gemini) {
-      configObj.apiKeys.gemini = this.apiKeys.gemini.trim();
-    }
+    configObj.apiKeys.rpdb = (this.apiKeys.rpdb || 't0-free-rpdb').trim();
+    configObj.apiKeys.traktTokenId = '';
+    configObj.apiKeys.mdblist = '';
 
     // 4. Inyectar contraseña de edición
     const password = this.aiometadata.password || 'NuvioSetupMaster2026';

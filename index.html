@@ -111,7 +111,7 @@
           <!-- Botón Crear Cuenta (Oculto por defecto) -->
           <button id="btnNuvioSignup" type="button" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-600/20 hidden items-center justify-center gap-2">
             <i class="fa-solid fa-user-plus"></i>
-            <span>Crear Cuenta Oficial en Nuvio</span>
+            <span>Crear Cuenta en Nuvio</span>
           </button>
 
           <!-- Clave pública interna oculta para producción -->
@@ -189,28 +189,34 @@
         </div>
 
         <div class="space-y-4 max-w-lg">
+          <!-- TMDB API Key -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">TMDB API Key</label>
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">TMDB API Key <span class="text-brand-400">*</span></label>
               <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Obtener gratis</a>
             </div>
             <input id="tmdbApiKey" type="text" placeholder="Ej: 3a2b1c..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
+            <p class="text-[11px] text-slate-500 mt-1">Requerida para la información y descubrimientos de películas y series.</p>
           </div>
 
+          <!-- TheTVDB API Key -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">MDBList API Key (Opcional)</label>
-              <a href="https://mdblist.com/preferences/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Obtener</a>
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">TheTVDB API Key</label>
+              <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Obtener gratis</a>
             </div>
-            <input id="mdblistApiKey" type="text" placeholder="Para rankings de Rotten Tomatoes, IMDb y listas" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
+            <input id="tvdbApiKey" type="text" placeholder="Clave API de TheTVDB" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
+            <p class="text-[11px] text-slate-500 mt-1">Utilizada como proveedor principal de metadatos para series de televisión y anime.</p>
           </div>
 
+          <!-- RPDB API Key (Con default t0-free-rpdb) -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">Trakt Access Token (Opcional)</label>
-              <span class="text-[11px] text-slate-500">Para listas automáticas</span>
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">RPDB API Key</label>
+              <a href="https://ratingposterdb.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Ver tiers</a>
             </div>
-            <input id="traktToken" type="text" placeholder="Token OAuth de Trakt" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
+            <input id="rpdbApiKey" type="text" value="t0-free-rpdb" placeholder="t0-free-rpdb" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
+            <p class="text-[11px] text-slate-500 mt-1">Preconfigurada con el tier gratuito por defecto (<code>t0-free-rpdb</code>). Cámbiala solo si tienes una cuenta premium.</p>
           </div>
         </div>
       </div>
