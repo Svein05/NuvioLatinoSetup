@@ -1,0 +1,77 @@
+/**
+ * Estilos personalizados para Nuvio & AIOMetadata Auto-Setup Wizard
+ */
+
+/* Control de Pasos del Asistente */
+.step-content {
+  display: none;
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.step-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbars Personalizadas para el Mini Nuvio y la Consola */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.8);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.8);
+}
+
+/* Efectos Glow Cinemáticos */
+.glow-brand {
+  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+}
+
+/* Terminal Log */
+.terminal-log {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  line-height: 1.5;
+}
+
+.terminal-log .log-info {
+  color: #94a3b8;
+}
+
+.terminal-log .log-success {
+  color: #34d399;
+  font-weight: 500;
+}
+
+.terminal-log .log-warning {
+  color: #fbbf24;
+}
+
+.terminal-log .log-error {
+  color: #f87171;
+  font-weight: 600;
+}
