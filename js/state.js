@@ -39,6 +39,8 @@ class WizardState {
       openrouter: ''
     };
     this.searchAiEnabled = false;
+    this.apiKeysValidated = false;
+    this.apiKeysValidationStatus = {};
 
     // Plantillas en memoria
     this.rawMetadataTemplate = null;
@@ -51,9 +53,9 @@ class WizardState {
       password: ''
     };
 
-    // Configuración de Ejecución
+    // Configuración de Ejecución (Siempre Real en producción)
     this.execution = {
-      mode: 'real', // 'simulation' | 'real'
+      mode: 'real',
       isRunning: false,
       isCompleted: false,
       logs: [],
@@ -107,7 +109,19 @@ class WizardState {
         if (!this.apiKeys.tmdb || this.apiKeys.tmdb.trim().length < 8) {
           return {
             valid: false,
-            error: 'La TMDB API Key es obligatoria (mínimo 8 caracteres) para alimentar el simulador de pósters y catálogos.'
+            error: 'La TMDB API Key es obligatoria (mínimo 8 caracteres).'
+          };
+        }
+        if (this.searchAiEnabled && !this.apiKeys.gemini && !this.apiKeys.openrouter) {
+          return {
+            valid: false,
+            error: 'Activaste la búsqueda con IA: debes ingresar al menos una clave (Google Gemini u OpenRouter).'
+          };
+        }
+        if (!this.apiKeysValidated) {
+          return {
+            valid: false,
+            error: 'Debes verificar tus claves pulsando el botón "Probar Claves API" antes de continuar al siguiente paso.'
           };
         }
         return { valid: true, error: null };
@@ -292,6 +306,152 @@ class WizardState {
   }
 
   /**
+   * Reordena un catálogo dentro de una carpeta (subir o bajar)
+   */
+  moveCatalogInFolder(sectionId, folderId, catalogIndex, direction) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return false;
+    const folder = section.folders.find(f => f.id === folderId);
+    if (!folder) return false;
+
+    const sources = folder.sources || [];
+    const targetIndex = catalogIndex + direction;
+    if (targetIndex < 0 || targetIndex >= sources.length) return false;
+
+    // Mover en sources
+    const [movedSource] = sources.splice(catalogIndex, 1);
+    sources.splice(targetIndex, 0, movedSource);
+    folder.sources = sources;
+
+    // Mover en catalogSources si existe
+    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length === sources.length) {
+      const [movedCat] = folder.catalogSources.splice(catalogIndex, 1);
+      folder.catalogSources.splice(targetIndex, 0, movedCat);
+    }
+
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Renombra un catálogo dentro de una carpeta y en la plantilla de AIOMetadata
+   */
+  renameCatalogInFolder(sectionId, folderId, catalogIndex, newTitle) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return false;
+    const folder = section.folders.find(f => f.id === folderId);
+    if (!folder || !folder.sources || !folder.sources[catalogIndex]) return false;
+
+    const trimmed = (newTitle || '').trim();
+    if (!trimmed) return false;
+
+    const source = folder.sources[catalogIndex];
+    source.title = trimmed;
+
+    if (Array.isArray(folder.catalogSources) && folder.catalogSources[catalogIndex]) {
+      folder.catalogSources[catalogIndex].title = trimmed;
+    }
+
+    // Actualizar en el manifest de AIOMetadata si coincide con el catalogId
+    const catId = source.catalogId || source.id;
+    if (catId && this.rawMetadataTemplate) {
+      const cats = this.rawMetadataTemplate.config?.catalogs || this.rawMetadataTemplate.catalogs || [];
+      const match = cats.find(c => c.id === catId);
+      if (match) {
+        match.name = trimmed;
+      }
+    }
+
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Elimina un catálogo de una carpeta
+   */
+  removeCatalogFromFolder(sectionId, folderId, catalogIndex) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return false;
+    const folder = section.folders.find(f => f.id === folderId);
+    if (!folder || !folder.sources || catalogIndex < 0 || catalogIndex >= folder.sources.length) return false;
+
+    folder.sources.splice(catalogIndex, 1);
+    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length > catalogIndex) {
+      folder.catalogSources.splice(catalogIndex, 1);
+    }
+
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Añade un catálogo a una carpeta
+   */
+  addCatalogToFolder(sectionId, folderId, catalogMeta) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return { success: false, error: 'Sección no encontrada.' };
+    const folder = section.folders.find(f => f.id === folderId);
+    if (!folder) return { success: false, error: 'Carpeta no encontrada.' };
+
+    if (!Array.isArray(folder.sources)) folder.sources = [];
+    if (!Array.isArray(folder.catalogSources)) folder.catalogSources = [];
+
+    const catId = catalogMeta.id || '';
+    const exists = folder.sources.some(s => (s.catalogId || s.id) === catId);
+    if (exists) {
+      return { success: false, error: 'El catálogo ya está presente en esta fila.' };
+    }
+
+    const newSource = {
+      type: catalogMeta.type || 'movie',
+      genre: null,
+      title: catalogMeta.name || catId,
+      sortBy: null,
+      tmdbId: null,
+      addonId: 'aio-metadata',
+      filters: null,
+      sortHow: null,
+      provider: 'addon',
+      catalogId: catId,
+      mediaType: null,
+      traktListId: null,
+      tmdbSourceType: null
+    };
+
+    const newCatSource = {
+      type: catalogMeta.type || 'movie',
+      genre: null,
+      addonId: 'aio-metadata',
+      catalogId: catId,
+      title: catalogMeta.name || catId
+    };
+
+    folder.sources.push(newSource);
+    folder.catalogSources.push(newCatSource);
+
+    this.notify('COLLECTIONS_UPDATED');
+    return { success: true };
+  }
+
+  /**
+   * Métodos para validación de API Keys
+   */
+  setApiKeysValidation(isValid, statusMap = {}) {
+    this.apiKeysValidated = isValid;
+    this.apiKeysValidationStatus = statusMap;
+    if (isValid) {
+      this.unlockStep(4);
+    }
+    this.notify('API_KEYS_VALIDATED');
+  }
+
+  invalidateApiKeysValidation() {
+    this.apiKeysValidated = false;
+    this.apiKeysValidationStatus = {};
+    this.notify('API_KEYS_INVALIDATED');
+  }
+
+  /**
    * Genera el payload sincronizado para AIOMetadata:
    * Solo incluye los catálogos vinculados a colecciones que estén activas (`enabled !== false`)
    * e inyecta las API keys configuradas en el Paso 3.
@@ -330,7 +490,6 @@ class WizardState {
     const filterCatList = (list) => {
       if (!Array.isArray(list)) return [];
       return list.filter(cat => {
-        if (cat.source === 'trakt') return false;
         const isIncluded = activeCatalogIds.has(cat.id);
         cat.showInHome = false;
         return isIncluded;

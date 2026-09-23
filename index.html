@@ -210,6 +210,7 @@
                     <i class="fa-solid fa-film text-brand-400"></i>
                     <span>TMDB API Key</span>
                     <span class="text-[10px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider">Requerida</span>
+                    <span id="badge-tmdb" class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono">No verificada</span>
                   </label>
                   <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-xs text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium">
                     <span>Obtener Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
@@ -229,8 +230,10 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">
-                    TheTVDB API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span>TheTVDB API Key</span>
+                    <span class="text-[10px] text-slate-400 font-normal">(Opcional)</span>
+                    <span id="badge-tvdb" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                   </label>
                   <a href="https://thetvdb.com/dashboard/account/apikeys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -250,8 +253,10 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">
-                    MDBList API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span>MDBList API Key</span>
+                    <span class="text-[10px] text-slate-400 font-normal">(Opcional)</span>
+                    <span id="badge-mdblist" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                   </label>
                   <a href="https://mdblist.com/preferences/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -271,8 +276,10 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">
-                    RPDB API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span>RPDB API Key</span>
+                    <span class="text-[10px] text-slate-400 font-normal">(Opcional)</span>
+                    <span id="badge-rpdb" class="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">Preconfigurada</span>
                   </label>
                   <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -285,15 +292,17 @@
                   </button>
                 </div>
               </div>
-              <p class="text-[10px] text-slate-400 mt-1.5">Preconfigurada por defecto con el tier libre (<code>t0-free-rpdb</code>) para ratings en pósters.</p>
+              <p class="text-[10px] text-slate-400 mt-1.5">Preconfigurada por defecto con el tier libre (t0-free-rpdb) para ratings en pósters.</p>
             </div>
 
             <!-- 5. Fanart.tv API Key -->
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">
-                    Fanart.tv API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span>Fanart.tv API Key</span>
+                    <span class="text-[10px] text-slate-400 font-normal">(Opcional)</span>
+                    <span id="badge-fanart" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                   </label>
                   <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -313,8 +322,10 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">
-                    TOP Posters API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span>TOP Posters API Key</span>
+                    <span class="text-[10px] text-slate-400 font-normal">(Opcional)</span>
+                    <span id="badge-topPoster" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                   </label>
                   <a href="https://topposters.top/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -334,8 +345,10 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">
-                    PublicMetaDB API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-2">
+                    <span>PublicMetaDB API Key</span>
+                    <span class="text-[10px] text-slate-400 font-normal">(Opcional)</span>
+                    <span id="badge-publicmetadb" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                   </label>
                   <a href="https://publicmetadb.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -385,6 +398,7 @@
                     <label class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
                       <i class="fa-brands fa-google text-brand-400"></i>
                       <span>Google Gemini API Key</span>
+                      <span id="badge-gemini" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                     </label>
                     <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                       <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -407,6 +421,7 @@
                     <label class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
                       <i class="fa-solid fa-network-wired text-brand-400"></i>
                       <span>OpenRouter API Key</span>
+                      <span id="badge-openrouter" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-950 border border-slate-800 text-slate-500 font-mono">Opcional</span>
                     </label>
                     <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                       <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -422,6 +437,29 @@
                 <p class="text-[10px] text-slate-400 mt-1.5">Alternativa para modelos abiertos multi-proveedor.</p>
               </div>
             </div>
+          </div>
+
+          <!-- Panel de Verificación de Claves API -->
+          <div class="mt-5 p-4 bg-slate-950/80 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-shield-halved text-sm"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                  <span>Verificación de Integraciones</span>
+                  <span id="apiKeyOverallBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono font-medium">✓ Visto Bueno</span>
+                </h4>
+                <p id="apiKeyStatusMessage" class="text-[11px] text-slate-400 mt-0.5">
+                  Debes probar las claves ingresadas para asegurar que respondan correctamente antes de continuar.
+                </p>
+              </div>
+            </div>
+
+            <button id="btnValidateApiKeys" type="button" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-lg shadow-brand-600/25 flex items-center justify-center gap-2 shrink-0">
+              <i class="fa-solid fa-vial-circle-check"></i>
+              <span>Probar Claves API</span>
+            </button>
           </div>
         </div>
       </div>
@@ -487,22 +525,19 @@
           </div>
         </div>
 
-        <!-- Selector de Modo de Ejecución (Testing vs Real) -->
-        <div class="flex items-center gap-4 mb-4 p-3 bg-slate-950/80 border border-slate-800 rounded-xl max-w-2xl text-xs">
-          <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">Modo:</span>
-          <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-            <input type="radio" name="execMode" id="modeReal" checked class="text-brand-600 bg-slate-900 border-slate-700">
-            <span>Real (Llamadas a producción)</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer text-slate-400 hover:text-slate-300">
-            <input type="radio" name="execMode" id="modeSimulation" class="text-brand-600 bg-slate-900 border-slate-700">
-            <span>Simulación (Mock / Testing)</span>
-          </label>
-        </div>
-
-        <!-- Consola de Log en Tiempo Real -->
-        <div class="bg-black/80 border border-slate-800 rounded-xl p-4 font-mono text-xs max-w-2xl h-44 overflow-y-auto mb-4 terminal-log shadow-inner" id="consoleLog">
-          <div class="text-slate-500">> Asistente listo para procesar. Define la contraseña maestra y presiona el botón inferior.</div>
+        <!-- Contenedor de Estado de Inyección en Producción -->
+        <div id="injectionStatusContainer" class="hidden mb-4 p-4 bg-slate-950/90 border border-brand-500/30 rounded-xl max-w-2xl space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span id="injectionPhaseTitle" class="text-xs font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-spinner fa-spin text-brand-400"></i>
+              <span>Aprovisionando configuración...</span>
+            </span>
+            <span id="injectionPhaseStep" class="text-[11px] font-mono text-brand-400">Fase 1 de 5</span>
+          </div>
+          <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+            <div id="injectionProgressBar" class="bg-brand-500 h-1.5 rounded-full transition-all duration-300 w-1/5"></div>
+          </div>
+          <p id="injectionPhaseDetail" class="text-[11px] text-slate-400">Iniciando comunicación con Nuvio y AIOMetadata...</p>
         </div>
 
         <!-- Botones de Acción -->

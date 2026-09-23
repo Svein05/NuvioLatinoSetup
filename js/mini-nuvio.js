@@ -424,11 +424,17 @@ export class MiniNuvio {
           </div>
 
           <!-- Pie del Modal -->
-          <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800 shrink-0">
-            <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${folder.id}')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-brand-400 hover:text-brand-300 hover:bg-slate-800/80 border border-brand-500/30 transition-all flex items-center gap-1.5">
-              <i class="fa-solid fa-sliders"></i>
-              <span>Personalizar Portadas y Logos</span>
-            </button>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-4 mt-4 border-t border-slate-800 shrink-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" onclick="window.miniNuvioInstance.openAddCatalogModal('${sec.id}', '${folder.id}')" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 border border-emerald-500/30 transition-all flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-plus text-[11px]"></i>
+                <span>Añadir Catálogo a esta fila</span>
+              </button>
+              <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${folder.id}')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-brand-400 hover:text-brand-300 hover:bg-slate-800/80 border border-brand-500/30 transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Personalizar Portadas y Logos</span>
+              </button>
+            </div>
 
             <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors">
               Cerrar Explorador
@@ -440,13 +446,15 @@ export class MiniNuvio {
     `;
 
     // Cargar asíncronamente cada catálogo y sus pósters
-    this.loadCatalogExplorerContent(sources, catalogMap, tmdbKey);
+    this.loadCatalogExplorerContent(sectionId, folderId, sources, catalogMap, tmdbKey);
   }
 
   /**
    * Carga y renderiza el contenido de cada catálogo dentro del Explorador
+   * con controles para reordenar (subir/bajar), renombrar y eliminar.
+   * Sin estrellas sobre pósters ni textos redundantes de simulación.
    */
-  async loadCatalogExplorerContent(sources, catalogMap, tmdbKey) {
+  async loadCatalogExplorerContent(sectionId, folderId, sources, catalogMap, tmdbKey) {
     const bodyEl = document.getElementById('catalogExplorerBody');
     if (!bodyEl) return;
 
@@ -454,7 +462,10 @@ export class MiniNuvio {
       bodyEl.innerHTML = `
         <div class="p-8 text-center text-slate-400">
           <i class="fa-solid fa-film text-3xl text-slate-600 mb-2"></i>
-          <p class="text-sm">Esta colección utiliza catálogos globales de TMDB.</p>
+          <p class="text-sm">Esta colección no tiene catálogos activos asignados.</p>
+          <button type="button" onclick="window.miniNuvioInstance.openAddCatalogModal('${sectionId}', '${folderId}')" class="mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> Añadir Catálogo
+          </button>
         </div>
       `;
       return;
@@ -462,27 +473,64 @@ export class MiniNuvio {
 
     const renderedCatalogs = [];
 
-    for (const s of sources) {
+    for (let idx = 0; idx < sources.length; idx++) {
+      const s = sources[idx];
       const catId = s.catalogId || s.id || '';
       const catMeta = catalogMap.get(catId) || { name: s.title || catId, type: s.type };
       const resolved = await TmdbService.resolveCatalogPreview(catId, catMeta, tmdbKey);
-      renderedCatalogs.push(resolved);
+      
+      // Respetar título personalizado si existe en sources
+      const displayTitle = s.title || resolved.title || catMeta.name || catId;
+      renderedCatalogs.push({ ...resolved, title: displayTitle, index: idx, catId });
     }
 
     bodyEl.innerHTML = renderedCatalogs.map(cat => {
+      const idx = cat.index;
       const typeLabel = cat.mediaType === 'series' || cat.mediaType === 'tv' ? 'Series' : cat.mediaType === 'anime' ? 'Anime' : 'Películas';
-      
+      const isFirst = idx === 0;
+      const isLast = idx === renderedCatalogs.length - 1;
+
+      // Barra de controles de cada catálogo: Reordenar, Renombrar y Eliminar
+      const controlsBar = `
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+          <div class="flex items-center gap-2">
+            <!-- Botones Subir / Bajar -->
+            <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+              <button type="button" onclick="window.miniNuvioInstance.moveCatalogInExplorer('${sectionId}', '${folderId}', ${idx}, -1)" ${isFirst ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"'} title="Mover arriba">
+                <i class="fa-solid fa-chevron-up text-[10px]"></i>
+              </button>
+              <button type="button" onclick="window.miniNuvioInstance.moveCatalogInExplorer('${sectionId}', '${folderId}', ${idx}, 1)" ${isLast ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"'} title="Mover abajo">
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              </button>
+            </div>
+            
+            <h4 class="text-xs font-bold text-white flex items-center gap-2">
+              <i class="${cat.isTrakt ? 'fa-solid fa-tv text-amber-400' : 'fa-solid fa-film text-brand-400'}"></i>
+              <span>${cat.title}</span>
+            </h4>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
+            
+            <button type="button" onclick="window.miniNuvioInstance.renameCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[10px] text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors" title="Renombrar este catálogo">
+              <i class="fa-solid fa-pen-to-square text-[9px] text-brand-400"></i>
+              <span>Renombrar</span>
+            </button>
+
+            <button type="button" onclick="window.miniNuvioInstance.deleteCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-[10px] text-red-400 hover:text-red-300 flex items-center gap-1.5 transition-colors" title="Quitar de esta colección">
+              <i class="fa-solid fa-trash-can text-[9px]"></i>
+              <span>Quitar</span>
+            </button>
+          </div>
+        </div>
+      `;
+
       // Caso 1: Catálogo que requiere sincronización de Trakt
       if (cat.isTrakt) {
         return `
-          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <h4 class="text-xs font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-tv text-amber-400"></i>
-                <span>${cat.title}</span>
-              </h4>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
-            </div>
+          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
+            ${controlsBar}
 
             <!-- Alerta Sincronización Trakt -->
             <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-2.5">
@@ -496,39 +544,23 @@ export class MiniNuvio {
         `;
       }
 
-      // Caso 2: Catálogo con pósters de TMDB en vivo
+      // Caso 2: Catálogo con pósters de TMDB en vivo (Sin estrellas sobre pósters ni textos de conteo)
       const items = cat.items || [];
       return `
         <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <h4 class="text-xs font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-film text-brand-400"></i>
-              <span>${cat.title}</span>
-            </h4>
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
-              <span class="text-[10px] text-slate-500 font-mono">${items.length} títulos en latino</span>
-            </div>
-          </div>
+          ${controlsBar}
 
-          <!-- Carrusel de Pósters Reales en Español Latino -->
+          <!-- Carrusel de Pósters Reales en Español Latino (Limpio y Cinematográfico) -->
           <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
             ${items.map(item => {
               const posterUrl = TmdbService.getPosterUrl(item.poster_path);
               const title = item.title || item.name || 'Título';
               const year = (item.release_date || item.first_air_date || '').split('-')[0] || '';
-              const vote = item.vote_average ? Number(item.vote_average).toFixed(1) : null;
 
               return `
                 <div class="w-28 sm:w-32 shrink-0 space-y-1.5 group select-none">
                   <div class="aspect-[2/3] rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-md relative">
                     <img src="${posterUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" loading="lazy">
-                    ${vote ? `
-                      <div class="absolute top-1.5 right-1.5 bg-black/80 backdrop-blur-sm px-1.5 py-0.5 rounded text-[9px] font-mono text-amber-400 flex items-center gap-0.5 font-bold shadow">
-                        <i class="fa-solid fa-star text-[8px]"></i>
-                        <span>${vote}</span>
-                      </div>
-                    ` : ''}
                   </div>
                   <div class="text-[11px] font-semibold text-slate-200 truncate group-hover:text-white" title="${title}">
                     ${title}
@@ -543,6 +575,209 @@ export class MiniNuvio {
         </div>
       `;
     }).join('');
+  }
+
+  /**
+   * Métodos para CRUD interactivo de Catálogos en el Explorador
+   */
+  moveCatalogInExplorer(sectionId, folderId, catalogIndex, direction) {
+    const success = state.moveCatalogInFolder(sectionId, folderId, catalogIndex, direction);
+    if (success) {
+      this.refreshCatalogExplorer(sectionId, folderId);
+    }
+  }
+
+  deleteCatalogInExplorer(sectionId, folderId, catalogIndex) {
+    const sec = state.collections.find(s => s.id === sectionId);
+    const folder = sec?.folders?.find(f => f.id === folderId);
+    const cat = folder?.sources?.[catalogIndex];
+    const catName = cat?.title || cat?.catalogId || 'este catálogo';
+
+    if (confirm(`¿Quitar "${catName}" de esta colección?`)) {
+      state.removeCatalogFromFolder(sectionId, folderId, catalogIndex);
+      this.refreshCatalogExplorer(sectionId, folderId);
+    }
+  }
+
+  renameCatalogInExplorer(sectionId, folderId, catalogIndex) {
+    const sec = state.collections.find(s => s.id === sectionId);
+    const folder = sec?.folders?.find(f => f.id === folderId);
+    const source = folder?.sources?.[catalogIndex];
+    if (!source) return;
+
+    const currentTitle = source.title || source.catalogId || '';
+
+    const existing = document.getElementById('renameCatalogModal');
+    if (existing) existing.remove();
+
+    const renameEl = document.createElement('div');
+    renameEl.id = 'renameCatalogModal';
+    renameEl.className = 'fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm';
+    renameEl.innerHTML = `
+      <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 shadow-2xl text-slate-200 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square text-brand-400"></i>
+            <span>Renombrar Catálogo</span>
+          </h3>
+          <button type="button" onclick="document.getElementById('renameCatalogModal').remove()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1 font-medium">Nombre visible en Nuvio y AIOMetadata:</label>
+          <input id="renameCatalogInput" type="text" value="${currentTitle.replace(/"/g, '&quot;')}" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:outline-none focus:border-brand-500 text-sm text-white font-medium">
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="document.getElementById('renameCatalogModal').remove()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300">
+            Cancelar
+          </button>
+          <button id="btnSaveCatalogRename" type="button" class="px-4 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-semibold text-white">
+            Guardar Nombre
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(renameEl);
+    const input = document.getElementById('renameCatalogInput');
+    input.focus();
+    input.select();
+
+    const saveAction = () => {
+      const val = input.value.trim();
+      if (val) {
+        state.renameCatalogInFolder(sectionId, folderId, catalogIndex, val);
+        renameEl.remove();
+        this.refreshCatalogExplorer(sectionId, folderId);
+      }
+    };
+
+    document.getElementById('btnSaveCatalogRename').onclick = saveAction;
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') saveAction();
+      if (e.key === 'Escape') renameEl.remove();
+    };
+  }
+
+  openAddCatalogModal(sectionId, folderId) {
+    const sec = state.collections.find(s => s.id === sectionId);
+    const folder = sec?.folders?.find(f => f.id === folderId);
+    if (!folder) return;
+
+    const allCatalogs = state.rawMetadataTemplate?.config?.catalogs || state.rawMetadataTemplate?.catalogs || [];
+    const currentIds = new Set((folder.sources || []).map(s => s.catalogId || s.id));
+
+    const existing = document.getElementById('addCatalogModal');
+    if (existing) existing.remove();
+
+    const addEl = document.createElement('div');
+    addEl.id = 'addCatalogModal';
+    addEl.className = 'fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md';
+    addEl.innerHTML = `
+      <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full p-5 shadow-2xl flex flex-col max-h-[85vh] text-slate-200">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3 shrink-0">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+              <i class="fa-solid fa-plus text-xs"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-white">Añadir Catálogo a "${folder.title}"</h3>
+              <p class="text-[11px] text-slate-400">Selecciona un catálogo disponible de la biblioteca</p>
+            </div>
+          </div>
+          <button type="button" onclick="document.getElementById('addCatalogModal').remove()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <div class="mb-3 shrink-0">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input id="searchAddCatalogInput" type="text" placeholder="Buscar por título, streaming, anime, género..." class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:outline-none focus:border-brand-500 text-xs text-white">
+          </div>
+        </div>
+
+        <div id="addCatalogList" class="overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-slate-700 flex-1">
+          <!-- Renderizado dinámico -->
+        </div>
+
+        <div class="pt-3 mt-3 border-t border-slate-800 flex justify-end shrink-0">
+          <button type="button" onclick="document.getElementById('addCatalogModal').remove()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(addEl);
+
+    const renderList = (filter = '') => {
+      const listEl = document.getElementById('addCatalogList');
+      if (!listEl) return;
+      const lower = filter.toLowerCase().trim();
+
+      const filtered = allCatalogs.filter(c => {
+        if (!c.id) return false;
+        if (lower && !(c.name || '').toLowerCase().includes(lower) && !c.id.toLowerCase().includes(lower)) {
+          return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">No se encontraron catálogos con "${filter}".</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.slice(0, 80).map(cat => {
+        const isAlreadyAdded = currentIds.has(cat.id);
+        const typeLabel = cat.type === 'series' || cat.displayType === 'series' ? 'Series' : cat.type === 'anime' ? 'Anime' : 'Películas';
+        return `
+          <div class="p-2.5 bg-slate-950 border border-slate-800/80 rounded-xl flex items-center justify-between gap-3 hover:border-slate-700 transition-colors">
+            <div class="min-w-0">
+              <h4 class="text-xs font-semibold text-white truncate">${cat.name || cat.id}</h4>
+              <p class="text-[10px] text-slate-400 font-mono truncate">${cat.id} • ${typeLabel}</p>
+            </div>
+            <div>
+              ${isAlreadyAdded ? `
+                <span class="text-[10px] px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono">En uso</span>
+              ` : `
+                <button type="button" onclick="window.miniNuvioInstance.doAddCatalog('${sectionId}', '${folderId}', '${cat.id}')" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-colors flex items-center gap-1">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Añadir</span>
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    renderList();
+
+    const searchInput = document.getElementById('searchAddCatalogInput');
+    searchInput.oninput = (e) => renderList(e.target.value);
+    searchInput.focus();
+  }
+
+  doAddCatalog(sectionId, folderId, catalogId) {
+    const allCatalogs = state.rawMetadataTemplate?.config?.catalogs || state.rawMetadataTemplate?.catalogs || [];
+    const cat = allCatalogs.find(c => c.id === catalogId);
+    if (!cat) return;
+
+    const res = state.addCatalogToFolder(sectionId, folderId, cat);
+    if (res.success) {
+      const modal = document.getElementById('addCatalogModal');
+      if (modal) modal.remove();
+      this.refreshCatalogExplorer(sectionId, folderId);
+    } else {
+      alert(res.error || 'No se pudo añadir');
+    }
+  }
+
+  refreshCatalogExplorer(sectionId, folderId) {
+    this.openCatalogExplorer(sectionId, folderId);
   }
 
   /**
