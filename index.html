@@ -134,12 +134,24 @@
             <span>Crear Cuenta en Nuvio</span>
           </button>
 
+          <!-- Opción Alternativa: Modo Manual sin cuenta -->
+          <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-slate-800"></div>
+            <span class="flex-shrink mx-3 text-[10px] text-slate-500 uppercase tracking-widest font-mono">o también</span>
+            <div class="flex-grow border-t border-slate-800"></div>
+          </div>
+
+          <button id="btnContinueWithoutAccount" type="button" class="w-full py-2.5 px-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-user-slash text-slate-400"></i>
+            <span>Continuar sin cuenta de Nuvio (Modo Manual)</span>
+          </button>
+
           <!-- Clave pública interna oculta para producción -->
           <input id="nuvioApikey" type="hidden" value="sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN">
 
           <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-start gap-3 text-xs text-slate-400">
             <i class="fa-solid fa-lock text-slate-500 mt-0.5"></i>
-            <span>Seguridad: Tus credenciales se envían directamente a <code>api.nuvio.tv</code> vía HTTPS. No se guardan ni transmiten a terceros.</span>
+            <span>Seguridad: Tus credenciales se envían directamente a Nuvio. No se guardan ni transmiten a terceros.</span>
           </div>
         </div>
       </div>
@@ -471,7 +483,7 @@
         <div class="mb-4">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
-            <span>Mini NUVIO: Gestor Visual de Colecciones</span>
+            <span>NUVIO: Gestor Visual de Colecciones</span>
           </h2>
           <p class="text-sm text-slate-400 mt-1">Explora catálogos con pósters en vivo en latino, personaliza filas y carruseles. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
         </div>
@@ -540,9 +552,30 @@
           <p id="injectionPhaseDetail" class="text-[11px] text-slate-400">Iniciando comunicación con Nuvio y AIOMetadata...</p>
         </div>
 
+        <!-- Contenedor Modo Manual (Sin cuenta Nuvio) -->
+        <div id="manualModeContainer" class="hidden mb-5 p-4 bg-slate-950/90 border border-brand-500/30 rounded-2xl max-w-2xl space-y-3">
+          <div class="flex items-center gap-2 text-xs font-bold text-amber-300">
+            <i class="fa-solid fa-circle-info text-amber-400"></i>
+            <span>Modo Manual (Sin cuenta Nuvio)</span>
+          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Al no usar una cuenta Nuvio, tendrás que manualmente ingresar los JSON dentro de Nuvio en un nuevo perfil.
+          </p>
+          <div class="flex flex-wrap items-center gap-2.5 pt-1">
+            <button id="btnCopyCollectionsJson" type="button" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-brand-600/25 flex items-center gap-2">
+              <i class="fa-solid fa-copy"></i>
+              <span>Copiar JSON de Colecciones</span>
+            </button>
+            <button id="btnCopyAioConfig" type="button" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl text-xs transition-all border border-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-copy"></i>
+              <span>Copiar JSON de Metadata</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Botones de Acción -->
         <div class="flex flex-wrap items-center gap-3">
-          <button id="btnExecutePipeline" class="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-medium rounded-xl text-sm transition-all shadow-lg shadow-brand-600/25 flex items-center gap-2">
+          <button id="btnExecutePipeline" disabled class="px-6 py-3 bg-slate-800 text-slate-500 border border-slate-700/60 font-medium rounded-xl text-sm transition-all flex items-center gap-2 cursor-not-allowed shadow-none">
             <i class="fa-solid fa-bolt"></i>
             <span>Ejecutar Configuración Automática</span>
           </button>
@@ -613,7 +646,7 @@
         <span class="drawer-badge">4</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">Colección</div>
-          <div class="text-[10px] text-slate-400">Mini NUVIO interactivo</div>
+          <div class="text-[10px] text-slate-400">NUVIO interactivo</div>
         </div>
         <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
       </button>

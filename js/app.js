@@ -113,9 +113,24 @@ class AppController {
         return;
       }
 
+      // En modo manual, el paso 2 de perfiles está omitido
+      if (state.isManualMode && targetStep === 2) {
+        this.showToast('En modo sin cuenta, el paso 2 de perfiles está omitido.', 'info');
+        return;
+      }
+
       // Retroceder siempre está permitido para revisar datos previos
       if (targetStep < state.currentStep) {
         state.currentStep = targetStep;
+        closeDrawer();
+        this.updateUI();
+        return;
+      }
+
+      // En modo manual, permitir avanzar desde el paso 1 al paso 3
+      if (state.isManualMode && state.currentStep === 1 && targetStep === 3) {
+        state.unlockStep(3);
+        state.currentStep = 3;
         closeDrawer();
         this.updateUI();
         return;
@@ -141,22 +156,37 @@ class AppController {
     };
 
     window.changeStep = (delta) => {
-      const next = state.currentStep + delta;
-      if (next < 1 || next > state.totalSteps) return;
-
-      // Retroceder 1 paso
+      // Retroceder
       if (delta < 0) {
-        state.currentStep = next;
-        this.updateUI();
+        if (state.isManualMode && state.currentStep === 3) {
+          state.currentStep = 1;
+          this.updateUI();
+          return;
+        }
+        const prev = state.currentStep + delta;
+        if (prev >= 1) {
+          state.currentStep = prev;
+          this.updateUI();
+        }
         return;
       }
 
-      // Avanzar 1 paso: validar paso actual
+      // Avanzar: validar paso actual
       const val = state.validateStep(state.currentStep);
       if (!val.valid) {
         this.showToast(val.error, 'warning');
         return;
       }
+
+      if (state.isManualMode && state.currentStep === 1) {
+        state.unlockStep(3);
+        state.currentStep = 3;
+        this.updateUI();
+        return;
+      }
+
+      const next = state.currentStep + delta;
+      if (next > state.totalSteps) return;
 
       state.unlockStep(next);
       state.currentStep = next;
@@ -180,6 +210,14 @@ class AppController {
       const item = document.getElementById(`drawer-step-${i}`);
       if (!item) continue;
 
+      if (state.isManualMode && i === 2) {
+        item.className = "drawer-step-item opacity-40 cursor-not-allowed";
+        item.title = "Paso omitido en modo manual (sin cuenta de Nuvio)";
+        const statusIcon = item.querySelector('.drawer-status-icon');
+        if (statusIcon) statusIcon.className = "fa-solid fa-ban text-slate-500 text-[10px] drawer-status-icon";
+        continue;
+      }
+
       const isCurrent = (i === currentStep);
       const isUnlocked = (i <= maxUnlockedStep);
       const statusIcon = item.querySelector('.drawer-status-icon');
@@ -202,7 +240,7 @@ class AppController {
       }
     }
 
-    // Controles inferiores
+    // Controles superiores
     const btnBack = document.getElementById('btnBack');
     const btnNext = document.getElementById('btnNext');
     const stepCounter = document.getElementById('stepCounter');
@@ -213,11 +251,54 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 4 o 5, refrescar o desbloquear
+    // Si estamos en el paso 4 o 5, refrescar o sincronizar vistas
     if (currentStep === 4) {
       state.unlockStep(5);
     } else if (currentStep === 5) {
+      const manualContainer = document.getElementById('manualModeContainer');
+      const btnExec = document.getElementById('btnExecutePipeline');
+      if (state.isManualMode) {
+        if (manualContainer) manualContainer.classList.remove('hidden');
+        if (btnExec) btnExec.classList.add('hidden');
+      } else {
+        if (manualContainer) manualContainer.classList.add('hidden');
+        if (btnExec) btnExec.classList.remove('hidden');
+      }
       this.refreshStep5Summary();
+      this.updateStep5ExecuteButton();
+    }
+
+    // Actualizar estilo reactivo del botón Siguiente
+    this.updateNavigationButtons();
+  }
+
+  updateNavigationButtons() {
+    const btnNext = document.getElementById('btnNext');
+    if (!btnNext) return;
+
+    const val = state.validateStep(state.currentStep);
+    if (val.valid) {
+      btnNext.className = "px-4 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/20 cursor-pointer";
+      btnNext.title = "Avanzar al siguiente paso";
+    } else {
+      btnNext.className = "px-4 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-500 border border-slate-700/60 shadow-none transition-all flex items-center gap-1.5 cursor-not-allowed";
+      btnNext.title = val.error || "Completa este paso para continuar";
+    }
+  }
+
+  updateStep5ExecuteButton() {
+    const btnExecute = document.getElementById('btnExecutePipeline');
+    if (!btnExecute) return;
+
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    if (hasPassword) {
+      btnExecute.disabled = false;
+      btnExecute.className = "px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-600/30 cursor-pointer";
+      btnExecute.title = "Ejecutar la inyección y configuración automática";
+    } else {
+      btnExecute.disabled = true;
+      btnExecute.className = "px-6 py-3 bg-slate-800 text-slate-500 border border-slate-700/60 font-medium rounded-xl text-sm transition-all flex items-center gap-2 cursor-not-allowed shadow-none";
+      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
     }
   }
 
@@ -266,12 +347,33 @@ class AppController {
     if (emailInput) {
       emailInput.addEventListener('input', (e) => {
         state.nuvioAuth.email = e.target.value.trim();
+        this.updateNavigationButtons();
       });
     }
 
     if (passInput) {
       passInput.addEventListener('input', (e) => {
         state.nuvioAuth.password = e.target.value;
+        this.updateNavigationButtons();
+      });
+    }
+
+    // Acción Continuar sin Cuenta (Modo Manual)
+    const btnContinueWithout = document.getElementById('btnContinueWithoutAccount');
+    if (btnContinueWithout) {
+      btnContinueWithout.addEventListener('click', () => {
+        state.enableManualMode();
+        const badge = document.getElementById('authStatusBadge');
+        if (badge) {
+          badge.className = "text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5";
+          badge.innerHTML = '<i class="fa-solid fa-user-slash text-[10px]"></i> Modo Manual (Sin cuenta)';
+        }
+        this.showToast('Continuando en modo manual sin cuenta de Nuvio.', 'info');
+        setTimeout(() => {
+          state.unlockStep(3);
+          state.currentStep = 3;
+          this.updateUI();
+        }, 300);
       });
     }
 
@@ -298,6 +400,7 @@ class AppController {
             password
           });
 
+          state.isManualMode = false;
           state.nuvioAuth.accessToken = auth.accessToken;
           state.nuvioAuth.userId = auth.userId;
           state.nuvioAuth.isAuthenticated = true;
@@ -366,6 +469,7 @@ class AppController {
             password
           });
 
+          state.isManualMode = false;
           state.nuvioAuth.accessToken = auth.accessToken;
           state.nuvioAuth.userId = auth.userId;
           state.nuvioAuth.isAuthenticated = true;
@@ -620,6 +724,7 @@ class AppController {
         badge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
         badge.innerText = 'No verificada';
       }
+      this.updateNavigationButtons();
     };
 
     // 1. Vincular campos base
@@ -872,6 +977,8 @@ class AppController {
       passwordInput.value = state.aiometadata.password || '';
       passwordInput.addEventListener('input', (e) => {
         state.aiometadata.password = e.target.value;
+        this.updateStep5ExecuteButton();
+        this.updateNavigationButtons();
       });
     }
 
@@ -880,7 +987,37 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
+        this.updateStep5ExecuteButton();
+        this.updateNavigationButtons();
         this.showToast('Contraseña aleatoria generada y configurada', 'info');
+      });
+    }
+
+    // Botones de Modo Manual: Copiar JSON al portapapeles
+    const btnCopyCol = document.getElementById('btnCopyCollectionsJson');
+    const btnCopyAio = document.getElementById('btnCopyAioConfig');
+
+    if (btnCopyCol) {
+      btnCopyCol.addEventListener('click', async () => {
+        try {
+          const colData = state.getSynchronizedNuvioCollections();
+          await navigator.clipboard.writeText(JSON.stringify(colData, null, 2));
+          this.showToast('✓ JSON de Colecciones copiado al portapapeles', 'success');
+        } catch (err) {
+          this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
+        }
+      });
+    }
+
+    if (btnCopyAio) {
+      btnCopyAio.addEventListener('click', async () => {
+        try {
+          const aioData = state.getSynchronizedMetadataPayload();
+          await navigator.clipboard.writeText(JSON.stringify(aioData, null, 2));
+          this.showToast('✓ JSON de Metadata copiado al portapapeles', 'success');
+        } catch (err) {
+          this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
+        }
       });
     }
 
@@ -951,7 +1088,7 @@ class AppController {
       catalogsCount = 0;
     }
 
-    if (targetEl) targetEl.innerText = state.selectedProfileName || 'Perfil Principal';
+    if (targetEl) targetEl.innerText = state.isManualMode ? 'Manual (Sin cuenta)' : (state.selectedProfileName || 'Perfil Principal');
     if (countEl) countEl.innerText = `${activeFolders} carruseles seleccionados`;
     if (catalogsEl) catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
   }
