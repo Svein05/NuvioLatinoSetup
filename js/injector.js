@@ -1,0 +1,214 @@
+/**
+ * Orquestador del Pipeline de Inyección y Sincronización
+ * Coordina AIOMetadataClient, NuvioClient y WizardState con logs en tiempo real.
+ */
+import { state } from './state.js';
+import { AIOMetadataClient } from './aiometadata-client.js';
+import { NuvioClient } from './nuvio-client.js';
+import { CONFIG } from './config.js';
+
+export class PipelineInjector {
+  /**
+   * Ejecuta el pipeline completo (Simulado o Real)
+   */
+  static async execute() {
+    if (state.execution.isRunning) return;
+
+    state.execution.isRunning = true;
+    state.execution.isCompleted = false;
+    state.execution.result = null;
+    state.clearLogs();
+
+    const isSimulation = state.execution.mode === 'simulation';
+
+    state.addLog(`🚀 Iniciando proceso en modo: ${isSimulation ? 'SIMULACIÓN (Testing sin API)' : 'REAL (Llamadas a producción)'}`, 'info');
+
+    try {
+      // ========================================================
+      // FASE 1: Filtrado y Guardado en AIOMetadata
+      // ========================================================
+      state.addLog('[1/4] Compilando configuración de AIOMetadata (Español Latino)...', 'info');
+      const metaPayload = state.getSynchronizedMetadataPayload();
+      const activeCatalogsCount = metaPayload.catalogs.length;
+      state.addLog(`✓ ${activeCatalogsCount} catálogos sincronizados en modo Ghost (inHome: false).`, 'info');
+
+      let manifestUrl = '';
+      let addonId = 'aio-metadata';
+      let addonName = 'AIOMetadata Latino';
+
+      if (isSimulation) {
+        await this.delay(700);
+        const mockUuid = 'lat-' + Math.random().toString(36).substring(2, 10);
+        manifestUrl = `${state.aiometadata.instanceUrl.replace(/\/+$/, '')}/stremio/${mockUuid}/manifest.json`;
+        state.addLog(`✓ [Simulado] UUID generado: ${mockUuid}`, 'success');
+        state.addLog(`✓ [Simulado] Manifest URL: ${manifestUrl}`, 'success');
+      } else {
+        state.addLog(`Enviando configuración a ${state.aiometadata.instanceUrl} (/api/config/save)...`, 'info');
+        const saveRes = await AIOMetadataClient.saveConfiguration(state.aiometadata.instanceUrl, metaPayload);
+        manifestUrl = saveRes.manifestUrl;
+        state.addLog(`✓ UUID generado: ${saveRes.uuid}`, 'success');
+        state.addLog(`✓ Manifest generado: ${manifestUrl}`, 'success');
+
+        // Leer manifest generado para obtener ID y Nombre oficial
+        state.addLog('Inspeccionando manifest generado...', 'info');
+        const manifest = await AIOMetadataClient.fetchManifest(manifestUrl);
+        addonId = manifest.id || addonId;
+        addonName = manifest.name || addonName;
+        state.addLog(`✓ Addon verificado: "${addonName}" (ID: ${addonId})`, 'success');
+      }
+
+      // ========================================================
+      // FASE 2: Verificación de Sesión y Perfil en Nuvio
+      // ========================================================
+      state.addLog('[2/4] Verificando autenticación y perfil de Nuvio...', 'info');
+      let accessToken = state.nuvioAuth.accessToken;
+      let targetProfileId = state.selectedProfileId;
+      let targetProfileName = state.selectedProfileName || 'Perfil Principal';
+
+      if (isSimulation) {
+        await this.delay(600);
+        targetProfileId = targetProfileId || 'mock-profile-uuid-001';
+        state.addLog(`✓ [Simulado] Sesión confirmada. Perfil objetivo: "${targetProfileName}"`, 'success');
+      } else {
+        // Si no se inició sesión en el paso 1, intentar con los inputs actuales
+        if (!accessToken) {
+          if (!state.nuvioAuth.email || !state.nuvioAuth.password) {
+            throw new Error('Faltan credenciales de Nuvio. Ingresa tu correo y contraseña en el Paso 1.');
+          }
+          state.addLog(`Iniciando sesión con ${state.nuvioAuth.email}...`, 'info');
+          const loginData = await NuvioClient.login({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            email: state.nuvioAuth.email,
+            password: state.nuvioAuth.password
+          });
+          accessToken = loginData.accessToken;
+          state.nuvioAuth.accessToken = accessToken;
+          state.nuvioAuth.userId = loginData.userId;
+          state.nuvioAuth.isAuthenticated = true;
+          state.addLog('✓ Sesión iniciada con éxito en Nuvio API.', 'success');
+
+          // Obtener perfiles si aún no estaban cargados
+          const profiles = await NuvioClient.getProfiles({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken,
+            userId: loginData.userId
+          });
+          state.profiles = profiles;
+          if (!targetProfileId && profiles.length > 0) {
+            targetProfileId = profiles[0].id;
+            targetProfileName = profiles[0].name || profiles[0].title || 'Perfil Principal';
+            state.selectedProfileId = targetProfileId;
+            state.selectedProfileName = targetProfileName;
+          }
+        }
+
+        if (!targetProfileId) {
+          throw new Error('No se ha seleccionado ningún perfil de destino en el Paso 2.');
+        }
+
+        state.addLog(`✓ Perfil seleccionado: "${targetProfileName}" (ID: ${targetProfileId})`, 'success');
+      }
+
+      // ========================================================
+      // FASE 3: Registro del Addon en Nuvio
+      // ========================================================
+      state.addLog('[3/4] Registrando Addon en la base de datos de Nuvio (/rest/v1/addons)...', 'info');
+      const addonPayload = {
+        profile_id: targetProfileId,
+        addon_id: addonId,
+        manifest_url: manifestUrl,
+        transport_url: manifestUrl,
+        name: addonName,
+        enabled: true
+      };
+
+      if (isSimulation) {
+        await this.delay(600);
+        state.addLog('✓ [Simulado] Addon registrado correctamente en el perfil.', 'success');
+      } else {
+        await NuvioClient.installAddon({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken,
+          addonData: addonPayload
+        });
+        state.addLog('✓ Addon instalado exitosamente en el perfil de Nuvio.', 'success');
+      }
+
+      // ========================================================
+      // FASE 4: Inyección de Colecciones Nativas
+      // ========================================================
+      state.addLog('[4/4] Inyectando colecciones nativas (/rest/v1/collections)...', 'info');
+      const collectionsForApi = state.getFlattenedCollectionsForApi(targetProfileId, addonId);
+      const totalCollections = collectionsForApi.length;
+
+      if (isSimulation) {
+        await this.delay(800);
+        state.addLog(`✓ [Simulado] ${totalCollections} colecciones inyectadas con éxito.`, 'success');
+      } else {
+        await NuvioClient.injectCollections({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken,
+          collections: collectionsForApi
+        });
+        state.addLog(`✓ ${totalCollections} colecciones inyectadas exitosamente en Nuvio.`, 'success');
+      }
+
+      // ========================================================
+      // RESULTADO FINAL
+      // ========================================================
+      state.execution.result = {
+        uuid: manifestUrl.split('/stremio/')[1]?.replace('/manifest.json', '') || 'ok',
+        manifestUrl,
+        addonId,
+        collectionsCount: totalCollections,
+        profileName: targetProfileName
+      };
+
+      state.execution.isCompleted = true;
+      state.addLog('🎉 ¡Configuración completada con éxito! Tu Nuvio está listo.', 'success');
+    } catch (err) {
+      console.error('[PipelineInjector] Error:', err);
+      state.addLog(`❌ Error en el proceso: ${err.message}`, 'error');
+      state.addLog('💡 Sugerencia: Si es un error de CORS o red, verifica que tu proveedor de internet no bloquee api.nuvio.tv o usa el botón de descarga manual de JSON.', 'warning');
+    } finally {
+      state.execution.isRunning = false;
+      state.notify('EXECUTION_FINISHED');
+    }
+  }
+
+  /**
+   * Genera y descarga el archivo JSON de colecciones para importación manual en Nuvio
+   */
+  static downloadCollectionsJson() {
+    const data = state.getSynchronizedNuvioCollections();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'NuvioCollections_Latino.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Genera y descarga la configuración de AIOMetadata en JSON
+   */
+  static downloadAioConfigJson() {
+    const data = state.getSynchronizedMetadataPayload();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'AIOMetadata_Latino.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  static delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
