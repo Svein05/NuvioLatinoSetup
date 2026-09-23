@@ -183,40 +183,222 @@
         <div class="mb-6">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <i class="fa-solid fa-key text-brand-500 text-lg"></i>
-            <span>Proveedores e Integraciones (API Keys)</span>
+            <span>Integraciones y Proveedores (API Keys)</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Estas claves se inyectarán en la plantilla <code>MetadataLatino.json</code> para alimentar pósteres, calificaciones y recomendaciones.</p>
+          <p class="text-sm text-slate-400 mt-1">Conéctate a servicios externos para potenciar la calidad de metadatos, calificaciones y carátulas.</p>
         </div>
 
-        <div class="space-y-4 max-w-lg">
-          <!-- TMDB API Key -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">TMDB API Key <span class="text-brand-400">*</span></label>
-              <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Obtener gratis</a>
+        <div class="space-y-6 max-w-4xl">
+          <!-- GRID DE CLAVES BASE (2 Columnas) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- 1. TMDB API Key (Requerida) -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-1">
+                    <span>TMDB API Key</span>
+                    <span class="text-rose-400 font-bold">*</span>
+                  </label>
+                  <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="tmdbApiKey" type="password" placeholder="Pega tu API key de TMDB aquí" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="tmdbApiKey">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Obligatoria. Base para pósters, sinopsis y actores de películas y series.</p>
             </div>
-            <input id="tmdbApiKey" type="text" placeholder="Ej: 3a2b1c..." class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
-            <p class="text-[11px] text-slate-500 mt-1">Requerida para la información y descubrimientos de películas y series.</p>
+
+            <!-- 2. TheTVDB API Key -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200">TheTVDB API Key</label>
+                  <a href="https://thetvdb.com/dashboard/account/apikeys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="tvdbApiKey" type="password" placeholder="Pega tu API key de TheTVDB" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="tvdbApiKey">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Opcional. Proveedor de orden cronológico para series y anime.</p>
+            </div>
+
+            <!-- 3. MDBList API Key -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200">MDBList API Key</label>
+                  <a href="https://mdblist.com/preferences/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="mdblistApiKey" type="password" placeholder="Pega tu clave de MDBList" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="mdblistApiKey">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Permite sincronizar listas personalizadas y puntuaciones críticas de MDBList.</p>
+            </div>
+
+            <!-- 4. RPDB API Key (t0-free-rpdb) -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200">RPDB API Key</label>
+                  <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="rpdbApiKey" type="text" value="t0-free-rpdb" placeholder="t0-free-rpdb" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="rpdbApiKey">
+                    <i class="fa-solid fa-eye-slash"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Preconfigurada por defecto con el tier libre (<code>t0-free-rpdb</code>) para ratings en pósters.</p>
+            </div>
+
+            <!-- 5. Fanart.tv API Key -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200">Fanart.tv API Key</label>
+                  <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="fanartApiKey" type="password" placeholder="Pega tu API key de Fanart.tv" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="fanartApiKey">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Añade logos claros en formato PNG y banners de alta resolución.</p>
+            </div>
+
+            <!-- 6. TOP Posters API Key -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200">TOP Posters API Key</label>
+                  <a href="https://topposters.top/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="topPosterApiKey" type="password" placeholder="Pega tu clave de TOP Posters" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="topPosterApiKey">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Pósters alternativos estilizados para carruseles destacados.</p>
+            </div>
+
+            <!-- 7. PublicMetaDB API Key -->
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between md:col-span-2">
+              <div>
+                <div class="flex justify-between items-center mb-1.5">
+                  <label class="text-xs font-semibold text-slate-200">PublicMetaDB API Key</label>
+                  <a href="https://publicmetadb.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                </div>
+                <div class="relative">
+                  <input id="publicmetadbApiKey" type="password" placeholder="Pega tu clave de PublicMetaDB" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="publicmetadbApiKey">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1.5">Metadatos abiertos y enriquecimiento comunitario.</p>
+            </div>
+
           </div>
 
-          <!-- TheTVDB API Key -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">TheTVDB API Key</label>
-              <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Obtener gratis</a>
-            </div>
-            <input id="tvdbApiKey" type="text" placeholder="Clave API de TheTVDB" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
-            <p class="text-[11px] text-slate-500 mt-1">Utilizada como proveedor principal de metadatos para series de televisión y anime.</p>
-          </div>
+          <!-- SECCIÓN INTERRUPTOR: ACTIVAR BÚSQUEDA CON IA -->
+          <div class="p-4 bg-slate-900/80 border border-brand-500/30 rounded-2xl shadow-lg shadow-brand-500/5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center text-base">
+                  <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                  <div class="text-sm font-semibold text-slate-100 flex items-center gap-2">
+                    <span>Activar búsqueda con IA</span>
+                    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30">Inteligente</span>
+                  </div>
+                  <p class="text-xs text-slate-400 mt-0.5">Permite realizar búsquedas semánticas contextuales en lenguaje natural.</p>
+                </div>
+              </div>
 
-          <!-- RPDB API Key (Con default t0-free-rpdb) -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">RPDB API Key</label>
-              <a href="https://ratingposterdb.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:underline">Ver tiers</a>
+              <!-- Toggle Switch -->
+              <label class="relative inline-flex items-center cursor-pointer select-none">
+                <input type="checkbox" id="toggleSearchAi" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+              </label>
             </div>
-            <input id="rpdbApiKey" type="text" value="t0-free-rpdb" placeholder="t0-free-rpdb" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 font-mono transition-colors">
-            <p class="text-[11px] text-slate-500 mt-1">Preconfigurada con el tier gratuito por defecto (<code>t0-free-rpdb</code>). Cámbiala solo si tienes una cuenta premium.</p>
+
+            <!-- Contenedor Desplegable de Claves IA -->
+            <div id="aiKeysContainer" class="hidden mt-4 pt-4 border-t border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-4 transition-all duration-300">
+              <!-- Google Gemini API Key -->
+              <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl flex flex-col justify-between">
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <label class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                      <i class="fa-brands fa-google text-brand-400"></i>
+                      <span>Google Gemini API Key</span>
+                    </label>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                      <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                    </a>
+                  </div>
+                  <div class="relative">
+                    <input id="geminiApiKey" type="password" placeholder="AIzaSy..." class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-900 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                    <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="geminiApiKey">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1.5">Gratis en Google AI Studio. Modelo recomendado: <code>gemini-2.5-flash</code>.</p>
+              </div>
+
+              <!-- OpenRouter API Key -->
+              <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl flex flex-col justify-between">
+                <div>
+                  <div class="flex justify-between items-center mb-1.5">
+                    <label class="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                      <i class="fa-solid fa-network-wired text-brand-400"></i>
+                      <span>OpenRouter API Key</span>
+                    </label>
+                    <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+                      <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                    </a>
+                  </div>
+                  <div class="relative">
+                    <input id="openrouterApiKey" type="password" placeholder="sk-or-v1-..." class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-900 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
+                    <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="openrouterApiKey">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1.5">Alternativa para modelos abiertos multi-proveedor.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

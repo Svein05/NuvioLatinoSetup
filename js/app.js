@@ -502,8 +502,8 @@ class AppController {
 
     if (state.profiles && state.profiles.length > 0) {
       container.innerHTML = state.profiles.map((p, idx) => {
-        const isSelected = state.selectedProfileId === p.id || (!state.selectedProfileId && idx === 0);
-        if (isSelected && !state.selectedProfileId) {
+        const isSelected = (state.selectedProfileId !== null && state.selectedProfileId !== undefined && String(state.selectedProfileId) === String(p.id)) || (state.selectedProfileId === null && idx === 0);
+        if (isSelected && state.selectedProfileId === null) {
           state.selectedProfileId = p.id;
           state.selectedProfileName = p.name || p.title || `Perfil ${idx + 1}`;
           state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
@@ -513,14 +513,33 @@ class AppController {
         const avatar = p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
 
         return `
-          <label class="cursor-pointer border ${isSelected ? 'border-brand-500 bg-brand-500/10' : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'} p-4 rounded-xl flex flex-col items-center gap-2 transition-all">
-            <input type="radio" name="profile_select" value="${p.id}" ${isSelected ? 'checked' : ''} onchange="window.appController.selectProfile('${p.id}', '${name.replace(/'/g, "\\'")}')" class="hidden">
-            <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full border-2 ${isSelected ? 'border-brand-500' : 'border-slate-700'} object-cover">
-            <span class="text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-300'}">${name}</span>
-            <span class="text-[10px] ${isSelected ? 'text-brand-400 font-semibold uppercase tracking-wider' : 'text-slate-500'}">
-              ${isSelected ? 'Seleccionado' : 'Click para elegir'}
-            </span>
-          </label>
+          <div onclick="window.appController.selectProfile('${p.id}', '${name.replace(/'/g, "\\'")}')" 
+               class="group relative cursor-pointer p-4 rounded-xl flex flex-col items-center gap-2.5 transition-all duration-200 select-none ${
+                 isSelected 
+                   ? 'border-2 border-brand-500 ring-4 ring-brand-500/25 bg-brand-500/15 shadow-lg shadow-brand-500/20 transform -translate-y-0.5' 
+                   : 'border border-slate-800 bg-slate-950/50 hover:border-slate-700 hover:bg-slate-900/60 hover:-translate-y-0.5'
+               }">
+            ${isSelected ? `
+              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] shadow-md ring-2 ring-emerald-400/40">
+                <i class="fa-solid fa-check"></i>
+              </div>
+            ` : `
+              <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-slate-700 bg-slate-900/80 flex items-center justify-center text-[8px] text-transparent group-hover:border-slate-500">
+                <i class="fa-solid fa-check text-slate-600"></i>
+              </div>
+            `}
+            <div class="relative">
+              <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
+                isSelected ? 'ring-2 ring-brand-400 shadow-md scale-105' : 'ring-1 ring-slate-700 group-hover:ring-slate-500'
+              }">
+            </div>
+            <div class="text-center w-full">
+              <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}">${name}</div>
+              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-emerald-400 font-bold uppercase tracking-wider' : 'text-slate-500 group-hover:text-slate-400'}">
+                ${isSelected ? '✓ Seleccionado' : 'Click para elegir'}
+              </div>
+            </div>
+          </div>
         `;
       }).join('');
     } else {
@@ -545,7 +564,16 @@ class AppController {
   setupStep4ApiKeys() {
     const tmdbInput = document.getElementById('tmdbApiKey');
     const tvdbInput = document.getElementById('tvdbApiKey');
+    const mdblistInput = document.getElementById('mdblistApiKey');
     const rpdbInput = document.getElementById('rpdbApiKey');
+    const fanartInput = document.getElementById('fanartApiKey');
+    const topPosterInput = document.getElementById('topPosterApiKey');
+    const publicmetadbInput = document.getElementById('publicmetadbApiKey');
+
+    const toggleAi = document.getElementById('toggleSearchAi');
+    const aiContainer = document.getElementById('aiKeysContainer');
+    const geminiInput = document.getElementById('geminiApiKey');
+    const openrouterInput = document.getElementById('openrouterApiKey');
 
     const checkStep4Unlock = () => {
       if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
@@ -554,27 +582,63 @@ class AppController {
       }
     };
 
-    if (tmdbInput) {
-      tmdbInput.value = state.apiKeys.tmdb || '';
-      tmdbInput.addEventListener('input', (e) => {
-        state.apiKeys.tmdb = e.target.value.trim();
-        checkStep4Unlock();
+    // 1. Vincular campos base
+    const bindInput = (el, key, isDefault = null, triggerUnlock = false) => {
+      if (!el) return;
+      el.value = state.apiKeys[key] || isDefault || '';
+      el.addEventListener('input', (e) => {
+        state.apiKeys[key] = e.target.value.trim() || (isDefault || '');
+        if (triggerUnlock) checkStep4Unlock();
+      });
+    };
+
+    bindInput(tmdbInput, 'tmdb', null, true);
+    bindInput(tvdbInput, 'tvdb');
+    bindInput(mdblistInput, 'mdblist');
+    bindInput(rpdbInput, 'rpdb', 't0-free-rpdb');
+    bindInput(fanartInput, 'fanart');
+    bindInput(topPosterInput, 'topPoster');
+    bindInput(publicmetadbInput, 'publicmetadb');
+
+    // 2. Vincular Búsqueda con IA y sus campos
+    if (toggleAi && aiContainer) {
+      toggleAi.checked = Boolean(state.searchAiEnabled);
+      toggleAi.addEventListener('change', (e) => {
+        const enabled = e.target.checked;
+        state.searchAiEnabled = enabled;
+        if (enabled) {
+          aiContainer.classList.remove('hidden');
+        } else {
+          aiContainer.classList.add('hidden');
+        }
       });
     }
 
-    if (tvdbInput) {
-      tvdbInput.value = state.apiKeys.tvdb || '';
-      tvdbInput.addEventListener('input', (e) => {
-        state.apiKeys.tvdb = e.target.value.trim();
-      });
-    }
+    bindInput(geminiInput, 'gemini');
+    bindInput(openrouterInput, 'openrouter');
 
-    if (rpdbInput) {
-      rpdbInput.value = state.apiKeys.rpdb || 't0-free-rpdb';
-      rpdbInput.addEventListener('input', (e) => {
-        state.apiKeys.rpdb = e.target.value.trim() || 't0-free-rpdb';
+    // 3. Botones de alternar visibilidad de contraseña (eye icon)
+    document.querySelectorAll('.btn-toggle-key').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-target');
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          if (icon) {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+          }
+        } else {
+          input.type = 'password';
+          if (icon) {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+          }
+        }
       });
-    }
+    });
   }
 
   setupStep5Injection() {
