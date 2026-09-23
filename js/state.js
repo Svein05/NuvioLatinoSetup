@@ -103,7 +103,16 @@ class WizardState {
         }
         return { valid: true, error: null };
 
-      case 3: {
+      case 3:
+        if (!this.apiKeys.tmdb || this.apiKeys.tmdb.trim().length < 8) {
+          return {
+            valid: false,
+            error: 'La TMDB API Key es obligatoria (mínimo 8 caracteres) para alimentar el simulador de pósters y catálogos.'
+          };
+        }
+        return { valid: true, error: null };
+
+      case 4: {
         let activeCount = 0;
         this.collections.forEach(sec => {
           if (sec.enabled !== false) {
@@ -120,15 +129,6 @@ class WizardState {
         }
         return { valid: true, error: null };
       }
-
-      case 4:
-        if (!this.apiKeys.tmdb || this.apiKeys.tmdb.trim().length < 8) {
-          return {
-            valid: false,
-            error: 'La TMDB API Key es obligatoria para obtener la información de películas y series.'
-          };
-        }
-        return { valid: true, error: null };
 
       case 5:
         if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {

@@ -187,27 +187,9 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 3: MINI NUVIO INTERACTIVO (COLECCIÓN) -->
+      <!-- PASO 3: CLAVES API METADATA               -->
       <!-- ========================================== -->
       <div id="step-3" class="step-content">
-        <div class="mb-4">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
-            <span>Mini NUVIO: Gestor Visual de Colecciones</span>
-          </h2>
-          <p class="text-sm text-slate-400 mt-1">Personaliza, reordena y edita carruseles en vivo. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
-        </div>
-
-        <!-- Contenedor dinámico del Mini Nuvio -->
-        <div id="miniNuvioContainer">
-          <!-- Renderizado por js/mini-nuvio.js -->
-        </div>
-      </div>
-
-      <!-- ========================================== -->
-      <!-- PASO 4: CLAVES API METADATA               -->
-      <!-- ========================================== -->
-      <div id="step-4" class="step-content">
         <div class="mb-6">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <i class="fa-solid fa-key text-brand-500 text-lg"></i>
@@ -445,6 +427,24 @@
       </div>
 
       <!-- ========================================== -->
+      <!-- PASO 4: MINI NUVIO INTERACTIVO (COLECCIÓN) -->
+      <!-- ========================================== -->
+      <div id="step-4" class="step-content">
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
+            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
+            <span>Mini NUVIO: Gestor Visual de Colecciones</span>
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Explora catálogos con pósters en vivo en latino, personaliza filas y carruseles. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
+        </div>
+
+        <!-- Contenedor dinámico del Mini Nuvio -->
+        <div id="miniNuvioContainer">
+          <!-- Renderizado por js/mini-nuvio.js -->
+        </div>
+      </div>
+
+      <!-- ========================================== -->
       <!-- PASO 5: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
       <!-- ========================================== -->
       <div id="step-5" class="step-content">
@@ -568,8 +568,8 @@
       <button onclick="goToStep(3)" id="drawer-step-3" class="drawer-step-item locked">
         <span class="drawer-badge">3</span>
         <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Colección</div>
-          <div class="text-[10px] text-slate-400">Mini NUVIO interactivo</div>
+          <div class="font-medium text-xs">ApiKeys</div>
+          <div class="text-[10px] text-slate-400">TMDB, MDBList, TVDB...</div>
         </div>
         <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
       </button>
@@ -577,8 +577,8 @@
       <button onclick="goToStep(4)" id="drawer-step-4" class="drawer-step-item locked">
         <span class="drawer-badge">4</span>
         <div class="flex-1 text-left">
-          <div class="font-medium text-xs">ApiKeys</div>
-          <div class="text-[10px] text-slate-400">TMDB, MDBList, Trakt</div>
+          <div class="font-medium text-xs">Colección</div>
+          <div class="text-[10px] text-slate-400">Mini NUVIO interactivo</div>
         </div>
         <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
       </button>
