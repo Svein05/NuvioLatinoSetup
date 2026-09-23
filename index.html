@@ -37,77 +37,29 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500/30 selection:text-brand-300">
 
   <!-- Header Superior -->
-  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center font-bold text-white shadow-lg shadow-brand-500/25">
-        <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
-      </div>
-      <div>
-        <h1 class="text-base font-bold tracking-wide flex items-center gap-2">
-          <span>Perfect Setup Wizard</span>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30 font-mono">LATINO</span>
-        </h1>
-        <p class="text-xs text-slate-400">Nuvio + AIOMetadata Auto-Provisioning</p>
-      </div>
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center">
+      <h1 class="text-base md:text-lg font-bold tracking-wide text-slate-100">
+        Nuvio Metadata Latino
+      </h1>
     </div>
 
     <div class="flex items-center gap-3">
       <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" 
-         class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
+         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
         <i class="fa-brands fa-discord"></i>
         <span class="hidden sm:inline">Addon LAT-ADD</span>
       </a>
-      <div id="authStatusBadge" class="text-xs bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
-        <i class="fa-solid fa-circle text-[8px]"></i> No autenticado
-      </div>
-      <span class="hidden sm:inline-block text-xs bg-brand-500/10 text-brand-300 border border-brand-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
-        <i class="fa-solid fa-list-check"></i> Asistente Secuencial
-      </span>
+
+      <!-- Botón de Menú de 3 Líneas para abrir el Índice -->
+      <button id="btnOpenIndex" type="button" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 flex items-center justify-center transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" title="Abrir Índice de Pasos">
+        <i class="fa-solid fa-bars text-sm"></i>
+      </button>
     </div>
   </header>
 
   <!-- Contenedor Principal (Layout Superior Expansivo) -->
   <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 md:p-6 gap-4">
-
-    <!-- Stepper Superior en Cápsulas (Pill Navigation) -->
-    <nav class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-2 md:p-2.5 backdrop-blur-md shadow-lg" aria-label="Progreso del asistente">
-      <div class="capsule-stepper justify-start lg:justify-between px-1">
-        <button onclick="goToStep(1)" id="capsule-step-1" class="step-capsule active">
-          <span class="step-badge">1</span>
-          <i class="fa-solid fa-user-lock"></i>
-          <span>1. Cuenta Nuvio</span>
-          <i class="step-icon-status hidden"></i>
-        </button>
-
-        <button onclick="goToStep(2)" id="capsule-step-2" class="step-capsule locked">
-          <span class="step-badge">2</span>
-          <i class="fa-solid fa-users"></i>
-          <span>2. Elegir Perfil</span>
-          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
-        </button>
-
-        <button onclick="goToStep(3)" id="capsule-step-3" class="step-capsule locked">
-          <span class="step-badge">3</span>
-          <i class="fa-solid fa-tv"></i>
-          <span>3. Colección</span>
-          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
-        </button>
-
-        <button onclick="goToStep(4)" id="capsule-step-4" class="step-capsule locked">
-          <span class="step-badge">4</span>
-          <i class="fa-solid fa-key"></i>
-          <span>4. ApiKeys</span>
-          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
-        </button>
-
-        <button onclick="goToStep(5)" id="capsule-step-5" class="step-capsule locked">
-          <span class="step-badge">5</span>
-          <i class="fa-solid fa-rocket"></i>
-          <span>5. Inyección</span>
-          <i class="fa-solid fa-lock text-[10px] step-icon-status"></i>
-        </button>
-      </div>
-    </nav>
 
     <!-- Contenido de los Pasos (Espacio de Trabajo Principal a Pantalla Completa) -->
     <main class="flex-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
@@ -116,18 +68,12 @@
       <!-- PASO 1: AUTENTICACIÓN / REGISTRO NUVIO     -->
       <!-- ========================================== -->
       <div id="step-1" class="step-content active">
-        <!-- Cabecera con Logotipo Oficial de Nuvio -->
-        <div class="mb-5 flex flex-col items-start gap-3">
-          <div class="px-4 py-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 shadow-md">
-            <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-8 md:h-9 w-auto object-contain">
-          </div>
-          <div>
-            <h2 id="authHeading" class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-              <i id="authHeadingIcon" class="fa-solid fa-user-lock text-brand-500 text-lg"></i>
-              <span id="authHeadingText">Conectar con tu cuenta de Nuvio</span>
-            </h2>
-            <p id="authSubtitle" class="text-sm text-slate-400 mt-1">El asistente se comunicará con la API pública de Nuvio directamente desde tu navegador.</p>
-          </div>
+        <!-- Cabecera con Logotipo Oficial de Nuvio a la izquierda del título -->
+        <div class="mb-5 flex items-center gap-3">
+          <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-7 md:h-8 w-auto object-contain">
+          <h2 id="authHeading" class="text-xl font-bold text-slate-100 flex items-center">
+            <span id="authHeadingText">Conectar con tu cuenta</span>
+          </h2>
         </div>
 
         <div class="space-y-4 max-w-lg">
@@ -366,6 +312,78 @@
 
     </main>
   </div>
+
+  <!-- Overlay y Drawer Lateral para el Índice de Pasos -->
+  <div id="indexDrawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+  <aside id="indexDrawer" class="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-slate-950 border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+    <!-- Cabecera del Drawer -->
+    <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-7 h-7 rounded-lg bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-list-ol"></i>
+        </div>
+        <h3 class="text-sm font-bold text-slate-100">Índice de Pasos</h3>
+      </div>
+      <button id="btnCloseIndex" type="button" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors" title="Cerrar índice">
+        <i class="fa-solid fa-xmark text-sm"></i>
+      </button>
+    </div>
+
+    <!-- Lista de Pasos del Índice -->
+    <div class="flex-1 p-4 space-y-2 overflow-y-auto" id="drawerStepList">
+      <button onclick="goToStep(1)" id="drawer-step-1" class="drawer-step-item active">
+        <span class="drawer-badge">1</span>
+        <div class="flex-1 text-left">
+          <div class="font-medium text-xs">Cuenta Nuvio</div>
+          <div class="text-[10px] text-slate-400">Iniciar sesión o registro</div>
+        </div>
+        <i class="drawer-status-icon hidden"></i>
+      </button>
+
+      <button onclick="goToStep(2)" id="drawer-step-2" class="drawer-step-item locked">
+        <span class="drawer-badge">2</span>
+        <div class="flex-1 text-left">
+          <div class="font-medium text-xs">Elegir Perfil</div>
+          <div class="text-[10px] text-slate-400">Perfil destino de Nuvio</div>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+      </button>
+
+      <button onclick="goToStep(3)" id="drawer-step-3" class="drawer-step-item locked">
+        <span class="drawer-badge">3</span>
+        <div class="flex-1 text-left">
+          <div class="font-medium text-xs">Colección</div>
+          <div class="text-[10px] text-slate-400">Mini NUVIO interactivo</div>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+      </button>
+
+      <button onclick="goToStep(4)" id="drawer-step-4" class="drawer-step-item locked">
+        <span class="drawer-badge">4</span>
+        <div class="flex-1 text-left">
+          <div class="font-medium text-xs">ApiKeys</div>
+          <div class="text-[10px] text-slate-400">TMDB, MDBList, Trakt</div>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+      </button>
+
+      <button onclick="goToStep(5)" id="drawer-step-5" class="drawer-step-item locked">
+        <span class="drawer-badge">5</span>
+        <div class="flex-1 text-left">
+          <div class="font-medium text-xs">Inyección</div>
+          <div class="text-[10px] text-slate-400">Seguridad y sincronización</div>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+      </button>
+    </div>
+
+    <!-- Pie del Drawer -->
+    <div class="p-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+      <span id="drawerStepCounter">Paso 1 de 5</span>
+      <span class="text-[10px] text-slate-600">Nuvio Latino</span>
+    </div>
+  </aside>
 
   <!-- Contenedor de notificaciones flotantes (Toasts) -->
   <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>

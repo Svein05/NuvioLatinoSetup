@@ -85,12 +85,38 @@ class AppController {
   }
 
   setupNavigation() {
+    const drawer = document.getElementById('indexDrawer');
+    const overlay = document.getElementById('indexDrawerOverlay');
+    const btnOpen = document.getElementById('btnOpenIndex');
+    const btnClose = document.getElementById('btnCloseIndex');
+
+    const openDrawer = () => {
+      if (drawer) drawer.classList.add('open');
+      if (overlay) overlay.classList.add('open');
+    };
+
+    const closeDrawer = () => {
+      if (drawer) drawer.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+    };
+
+    if (btnOpen) btnOpen.addEventListener('click', openDrawer);
+    if (btnClose) btnClose.addEventListener('click', closeDrawer);
+    if (overlay) overlay.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
+
     window.goToStep = (targetStep) => {
-      if (targetStep === state.currentStep) return;
+      if (targetStep === state.currentStep) {
+        closeDrawer();
+        return;
+      }
 
       // Retroceder siempre está permitido para revisar datos previos
       if (targetStep < state.currentStep) {
         state.currentStep = targetStep;
+        closeDrawer();
         this.updateUI();
         return;
       }
@@ -110,6 +136,7 @@ class AppController {
 
       state.unlockStep(targetStep);
       state.currentStep = targetStep;
+      closeDrawer();
       this.updateUI();
     };
 
@@ -148,30 +175,30 @@ class AppController {
       }
     }
 
-    // Actualizar botones de navegación superior en cápsulas (Pills)
+    // Actualizar items del Drawer lateral (Índice de Pasos)
     for (let i = 1; i <= totalSteps; i++) {
-      const capsule = document.getElementById(`capsule-step-${i}`);
-      if (!capsule) continue;
+      const item = document.getElementById(`drawer-step-${i}`);
+      if (!item) continue;
 
       const isCurrent = (i === currentStep);
       const isUnlocked = (i <= maxUnlockedStep);
-      const statusIcon = capsule.querySelector('.step-icon-status');
+      const statusIcon = item.querySelector('.drawer-status-icon');
 
       if (isCurrent) {
-        capsule.className = "step-capsule active";
-        if (statusIcon) statusIcon.className = "step-icon-status hidden";
+        item.className = "drawer-step-item active";
+        if (statusIcon) statusIcon.className = "drawer-status-icon hidden";
       } else if (i < currentStep) {
-        // Pasos anteriores ya completados
-        capsule.className = "step-capsule completed";
-        if (statusIcon) statusIcon.className = "fa-solid fa-circle-check text-emerald-400 text-xs step-icon-status";
+        // Pasos anteriores completados
+        item.className = "drawer-step-item completed";
+        if (statusIcon) statusIcon.className = "fa-solid fa-circle-check text-emerald-400 text-xs drawer-status-icon";
       } else if (isUnlocked) {
-        // Siguiente paso desbloqueado disponible
-        capsule.className = "step-capsule completed";
-        if (statusIcon) statusIcon.className = "step-icon-status hidden";
+        // Paso desbloqueado disponible
+        item.className = "drawer-step-item completed";
+        if (statusIcon) statusIcon.className = "drawer-status-icon hidden";
       } else {
         // Paso bloqueado
-        capsule.className = "step-capsule locked";
-        if (statusIcon) statusIcon.className = "fa-solid fa-lock text-slate-500 text-[10px] step-icon-status";
+        item.className = "drawer-step-item locked";
+        if (statusIcon) statusIcon.className = "fa-solid fa-lock text-slate-500 text-[10px] drawer-status-icon";
       }
     }
 
@@ -179,10 +206,12 @@ class AppController {
     const btnBack = document.getElementById('btnBack');
     const btnNext = document.getElementById('btnNext');
     const stepCounter = document.getElementById('stepCounter');
+    const drawerStepCounter = document.getElementById('drawerStepCounter');
 
     if (btnBack) btnBack.style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
     if (btnNext) btnNext.style.display = (currentStep === totalSteps) ? 'none' : 'flex';
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
+    if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
     // Si estamos en el paso 5, refrescar resumen
     if (currentStep === 5) {
@@ -198,8 +227,6 @@ class AppController {
     const tabLogin = document.getElementById('tabAuthLogin');
     const tabSignup = document.getElementById('tabAuthSignup');
     const headingText = document.getElementById('authHeadingText');
-    const headingIcon = document.getElementById('authHeadingIcon');
-    const subtitle = document.getElementById('authSubtitle');
     const hintText = document.getElementById('authHintText');
 
     let authMode = 'login'; // 'login' | 'signup'
@@ -213,9 +240,7 @@ class AppController {
         if (tabSignup) {
           tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
         }
-        if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
-        if (headingIcon) headingIcon.className = "fa-solid fa-user-lock text-brand-500 text-lg";
-        if (subtitle) subtitle.innerText = "El asistente se comunicará con la API pública de Nuvio directamente desde tu navegador.";
+        if (headingText) headingText.innerText = "Conectar con tu cuenta";
         if (hintText) hintText.classList.add('hidden');
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
@@ -226,9 +251,7 @@ class AppController {
         if (tabLogin) {
           tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
         }
-        if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
-        if (headingIcon) headingIcon.className = "fa-solid fa-user-plus text-emerald-400 text-lg";
-        if (subtitle) subtitle.innerText = "Registra tu cuenta oficial en Nuvio de forma gratuita directamente desde aquí.";
+        if (headingText) headingText.innerText = "Crear una nueva cuenta";
         if (hintText) hintText.classList.remove('hidden');
         if (btnConnect) btnConnect.style.display = 'none';
         if (btnSignup) btnSignup.style.display = 'flex';

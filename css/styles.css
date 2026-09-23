@@ -159,3 +159,91 @@
   background: rgba(51, 65, 85, 0.4);
   color: #64748b;
 }
+
+/* ========================================== */
+/* DRAWER LATERAL PARA EL ÍNDICE DE PASOS     */
+/* ========================================== */
+#indexDrawerOverlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#indexDrawer.open {
+  transform: translateX(0);
+}
+
+.drawer-step-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.drawer-step-item:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #f1f5f9;
+}
+
+.drawer-step-item .drawer-badge {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 9999px;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.drawer-step-item.active {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: #6366f1;
+  color: #ffffff;
+  box-shadow: 0 0 16px -2px rgba(99, 102, 241, 0.3);
+}
+
+.drawer-step-item.active .drawer-badge {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+.drawer-step-item.completed {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #e2e8f0;
+}
+
+.drawer-step-item.completed:hover {
+  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.drawer-step-item.completed .drawer-badge {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.drawer-step-item.locked {
+  opacity: 0.5;
+  background: rgba(15, 23, 42, 0.25);
+  border-color: rgba(30, 41, 59, 0.5);
+  cursor: not-allowed;
+}
+
+.drawer-step-item.locked:hover {
+  background: rgba(15, 23, 42, 0.25);
+  border-color: rgba(30, 41, 59, 0.5);
+  color: #94a3b8;
+}
