@@ -605,7 +605,11 @@ export class MiniNuvio {
     const source = folder?.sources?.[catalogIndex];
     if (!source) return;
 
-    const currentTitle = source.title || source.catalogId || '';
+    // Resolver nombre legible: 1. título personalizado previo, 2. nombre en plantilla de AIOMetadata, 3. ID de respaldo
+    const catId = source.catalogId || source.id || '';
+    const allCatalogs = state.rawMetadataTemplate?.config?.catalogs || state.rawMetadataTemplate?.catalogs || [];
+    const catMeta = allCatalogs.find(c => c.id === catId);
+    const currentTitle = source.title || catMeta?.name || catId;
 
     const existing = document.getElementById('renameCatalogModal');
     if (existing) existing.remove();

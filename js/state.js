@@ -41,6 +41,7 @@ class WizardState {
     this.searchAiEnabled = false;
     this.apiKeysValidated = false;
     this.apiKeysValidationStatus = {};
+    this.isManualMode = false;
 
     // Plantillas en memoria
     this.rawMetadataTemplate = null;
@@ -76,8 +77,17 @@ class WizardState {
   }
 
   isProfileNew(profileId) {
-    if (!profileId) return false;
+    if (!profileId || this.isManualMode) return false;
     return this.newlyCreatedProfileIds.has(String(profileId));
+  }
+
+  enableManualMode() {
+    this.isManualMode = true;
+    this.selectedProfileId = 'manual-profile';
+    this.selectedProfileName = 'Perfil Manual';
+    this.unlockStep(3);
+    this.currentStep = 3;
+    this.notify('MANUAL_MODE_ENABLED');
   }
 
   /**
@@ -88,16 +98,16 @@ class WizardState {
   validateStep(stepNumber) {
     switch (stepNumber) {
       case 1:
-        if (!this.nuvioAuth.isAuthenticated || !this.nuvioAuth.accessToken) {
+        if (!this.isManualMode && (!this.nuvioAuth.isAuthenticated || !this.nuvioAuth.accessToken)) {
           return {
             valid: false,
-            error: 'Debes iniciar sesión con tu cuenta de Nuvio (pulsa "Conectar Cuenta") para continuar al siguiente paso.'
+            error: 'Debes iniciar sesión con tu cuenta de Nuvio (o pulsar "Continuar sin cuenta") para continuar al siguiente paso.'
           };
         }
         return { valid: true, error: null };
 
       case 2:
-        if (!this.selectedProfileId) {
+        if (!this.isManualMode && !this.selectedProfileId) {
           return {
             valid: false,
             error: 'Debes seleccionar un perfil de destino para continuar.'
@@ -138,7 +148,7 @@ class WizardState {
         if (activeCount === 0) {
           return {
             valid: false,
-            error: 'Debes tener activada al menos una colección en el Mini NUVIO.'
+            error: 'Debes tener activada al menos una colección en el NUVIO.'
           };
         }
         return { valid: true, error: null };
