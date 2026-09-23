@@ -418,7 +418,7 @@ class AppController {
           }
         } finally {
           btnSignup.disabled = false;
-          btnSignup.innerHTML = '<i class="fa-solid fa-user-plus mr-1"></i> Crear Cuenta Oficial en Nuvio';
+          btnSignup.innerHTML = '<i class="fa-solid fa-user-plus mr-1"></i> Crear Cuenta en Nuvio';
         }
       });
     }
@@ -544,8 +544,8 @@ class AppController {
 
   setupStep4ApiKeys() {
     const tmdbInput = document.getElementById('tmdbApiKey');
-    const mdblistInput = document.getElementById('mdblistApiKey');
-    const traktInput = document.getElementById('traktToken');
+    const tvdbInput = document.getElementById('tvdbApiKey');
+    const rpdbInput = document.getElementById('rpdbApiKey');
 
     const checkStep4Unlock = () => {
       if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
@@ -555,19 +555,24 @@ class AppController {
     };
 
     if (tmdbInput) {
+      tmdbInput.value = state.apiKeys.tmdb || '';
       tmdbInput.addEventListener('input', (e) => {
         state.apiKeys.tmdb = e.target.value.trim();
         checkStep4Unlock();
       });
     }
-    if (mdblistInput) {
-      mdblistInput.addEventListener('input', (e) => {
-        state.apiKeys.mdblist = e.target.value.trim();
+
+    if (tvdbInput) {
+      tvdbInput.value = state.apiKeys.tvdb || '';
+      tvdbInput.addEventListener('input', (e) => {
+        state.apiKeys.tvdb = e.target.value.trim();
       });
     }
-    if (traktInput) {
-      traktInput.addEventListener('input', (e) => {
-        state.apiKeys.trakt = e.target.value.trim();
+
+    if (rpdbInput) {
+      rpdbInput.value = state.apiKeys.rpdb || 't0-free-rpdb';
+      rpdbInput.addEventListener('input', (e) => {
+        state.apiKeys.rpdb = e.target.value.trim() || 't0-free-rpdb';
       });
     }
   }

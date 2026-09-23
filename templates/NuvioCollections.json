@@ -17,7 +17,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "trakt.recommendations.movies",
+            "catalogId": "tmdb.top_rated",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -32,7 +32,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "trakt.recommendations.shows",
+            "catalogId": "tmdb.top_rated",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -50,13 +50,13 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "trakt.recommendations.movies"
+            "catalogId": "tmdb.top_rated"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "trakt.recommendations.shows"
+            "catalogId": "tmdb.top_rated"
           }
         ],
         "focusGifEnabled": true,
