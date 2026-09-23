@@ -120,18 +120,36 @@
     <main class="flex-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
       
       <!-- ========================================== -->
-      <!-- PASO 1: AUTENTICACIÓN NUVIO               -->
+      <!-- PASO 1: AUTENTICACIÓN / REGISTRO NUVIO     -->
       <!-- ========================================== -->
       <div id="step-1" class="step-content active">
-        <div class="mb-6">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-user-lock text-brand-500 text-lg"></i>
-            <span>Conectar con tu cuenta de Nuvio</span>
-          </h2>
-          <p class="text-sm text-slate-400 mt-1">El asistente se comunicará con la API pública de Nuvio directamente desde tu navegador.</p>
+        <!-- Cabecera con Logotipo Oficial de Nuvio -->
+        <div class="mb-5 flex flex-col items-start gap-3">
+          <div class="px-4 py-2.5 rounded-2xl bg-slate-950/80 border border-slate-800/80 shadow-md">
+            <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-8 md:h-9 w-auto object-contain">
+          </div>
+          <div>
+            <h2 id="authHeading" class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
+              <i id="authHeadingIcon" class="fa-solid fa-user-lock text-brand-500 text-lg"></i>
+              <span id="authHeadingText">Conectar con tu cuenta de Nuvio</span>
+            </h2>
+            <p id="authSubtitle" class="text-sm text-slate-400 mt-1">El asistente se comunicará con la API pública de Nuvio directamente desde tu navegador.</p>
+          </div>
         </div>
 
         <div class="space-y-4 max-w-lg">
+          <!-- Pestañas de Modo: Iniciar Sesión vs Crear Cuenta -->
+          <div class="flex items-center gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
+            <button id="tabAuthLogin" type="button" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              <span>Iniciar Sesión</span>
+            </button>
+            <button id="tabAuthSignup" type="button" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Crear Cuenta</span>
+            </button>
+          </div>
+
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
             <input id="nuvioEmail" type="email" placeholder="usuario@correo.com" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
@@ -139,11 +157,22 @@
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
             <input id="nuvioPassword" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+            <p id="authHintText" class="text-[11px] text-slate-500 mt-1.5 hidden flex items-center gap-1">
+              <i class="fa-solid fa-shield text-emerald-400"></i>
+              <span>La contraseña debe contener al menos 6 caracteres.</span>
+            </p>
           </div>
 
+          <!-- Botón Iniciar Sesión -->
           <button id="btnNuvioConnect" type="button" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2">
             <i class="fa-solid fa-arrow-right-to-bracket"></i>
             <span>Conectar Cuenta</span>
+          </button>
+
+          <!-- Botón Crear Cuenta (Oculto por defecto) -->
+          <button id="btnNuvioSignup" type="button" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-600/20 hidden items-center justify-center gap-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Crear Cuenta Oficial en Nuvio</span>
           </button>
 
           <!-- Clave pública interna oculta para producción -->
