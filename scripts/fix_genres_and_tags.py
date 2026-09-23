@@ -64,3 +64,4 @@ def fix_metadata_tags():
 if __name__ == "__main__":
     fix_collections()
     fix_metadata_tags()
+
