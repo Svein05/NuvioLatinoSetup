@@ -98,21 +98,6 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.top_movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
             "genre": "None",
             "title": null,
@@ -171,12 +156,6 @@
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.99273"
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_movie"
           },
           {
             "type": "series",
@@ -294,21 +273,6 @@
         "title": "Tendencia",
         "sources": [
           {
-            "type": "movie",
-            "genre": "Day",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.trending_movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
             "genre": "Day",
             "title": null,
@@ -352,36 +316,6 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "Day",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.trending_movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "Day",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.trending",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -392,12 +326,6 @@
         "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_logo.png",
         "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_cover.jpg",
         "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "Day",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending_movie"
-          },
           {
             "type": "series",
             "genre": "Day",
@@ -415,18 +343,6 @@
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.16086"
-          },
-          {
-            "type": "movie",
-            "genre": "Day",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending_movie"
-          },
-          {
-            "type": "series",
-            "genre": "Day",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending"
           }
         ],
         "focusGifEnabled": false,
@@ -497,21 +413,6 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.top_movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
             "genre": "None",
             "title": null,
@@ -524,21 +425,6 @@
             "catalogId": "tmdb.top_rated",
             "mediaType": null,
             "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": null,
-            "genre": null,
-            "title": "1001 Mejores Películas de Todos los Tiempos (Cine)",
-            "sortBy": "rank",
-            "tmdbId": null,
-            "addonId": null,
-            "filters": null,
-            "sortHow": "asc",
-            "provider": "trakt",
-            "catalogId": null,
-            "mediaType": "MOVIE",
-            "traktListId": 1282987,
             "tmdbSourceType": null
           }
         ],
@@ -575,12 +461,6 @@
             "catalogId": "mdblist.125105"
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_movie"
-          },
-          {
             "type": "series",
             "genre": "None",
             "addonId": "aio-metadata",
@@ -594,21 +474,6 @@
         "id": "folder-b51b3ca9",
         "title": "Popular",
         "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.top_movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
           {
             "type": "movie",
             "genre": "None",
@@ -668,36 +533,6 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.top_movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.top",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -708,12 +543,6 @@
         "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_logo.png",
         "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_cover.jpg",
         "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_movie"
-          },
           {
             "type": "movie",
             "genre": null,
@@ -737,18 +566,6 @@
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.133223"
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_movie"
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.top"
           }
         ],
         "focusGifEnabled": false,
@@ -6262,36 +6079,6 @@
             "catalogId": "tmdb.discover.series.studios.marvel",
             "mediaType": null,
             "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": null,
-            "genre": null,
-            "title": "Universo Cinematográfico de Marvel (Cine)",
-            "sortBy": "rank",
-            "tmdbId": null,
-            "addonId": null,
-            "filters": null,
-            "sortHow": "asc",
-            "provider": "trakt",
-            "catalogId": null,
-            "mediaType": "MOVIE",
-            "traktListId": 1248149,
-            "tmdbSourceType": null
-          },
-          {
-            "type": null,
-            "genre": null,
-            "title": "Universo Cinematográfico de Marvel (Series)",
-            "sortBy": "rank",
-            "tmdbId": null,
-            "addonId": null,
-            "filters": null,
-            "sortHow": "asc",
-            "provider": "trakt",
-            "catalogId": null,
-            "mediaType": "TV",
-            "traktListId": 1248149,
             "tmdbSourceType": null
           },
           {

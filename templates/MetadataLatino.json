@@ -113,36 +113,6 @@
         ]
       },
       {
-        "id": "tmdb.top",
-        "name": "Lo más popular de hoy",
-        "type": "series",
-        "source": "tmdb",
-        "enabled": true,
-        "showInHome": false,
-        "enableRatingPosters": true,
-        "randomizePerPage": false,
-        "displayType": "series",
-        "tags": [
-          "Ahora en Nuvio",
-          "Populares"
-        ]
-      },
-      {
-        "id": "tmdb.trending",
-        "name": "Lo que todo el mundo esta viendo según TMDB",
-        "type": "series",
-        "source": "tmdb",
-        "enabled": true,
-        "showInHome": false,
-        "enableRatingPosters": true,
-        "randomizePerPage": false,
-        "displayType": "series",
-        "tags": [
-          "Ahora en Nuvio",
-          "Tendencia"
-        ]
-      },
-      {
         "id": "tmdb.top_rated",
         "name": "⭐ Top Rated",
         "sort": "default",
@@ -11403,22 +11373,6 @@
         ]
       },
       {
-        "id": "tmdb.trending_movie",
-        "type": "movie",
-        "name": "Tmdb.Trending Movie",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb"
-      },
-      {
-        "id": "tmdb.top_movie",
-        "type": "movie",
-        "name": "Tmdb.Top Movie",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb"
-      },
-      {
         "id": "tmdb.top_series",
         "type": "series",
         "name": "Tmdb.Top Series",
@@ -11837,36 +11791,6 @@
       "displayType": "series",
       "tags": [
         "Recomendaciones"
-      ]
-    },
-    {
-      "id": "tmdb.top",
-      "name": "Lo más popular de hoy",
-      "type": "series",
-      "source": "tmdb",
-      "enabled": true,
-      "showInHome": false,
-      "enableRatingPosters": true,
-      "randomizePerPage": false,
-      "displayType": "series",
-      "tags": [
-        "Ahora en Nuvio",
-        "Populares"
-      ]
-    },
-    {
-      "id": "tmdb.trending",
-      "name": "Lo que todo el mundo esta viendo según TMDB",
-      "type": "series",
-      "source": "tmdb",
-      "enabled": true,
-      "showInHome": false,
-      "enableRatingPosters": true,
-      "randomizePerPage": false,
-      "displayType": "series",
-      "tags": [
-        "Ahora en Nuvio",
-        "Tendencia"
       ]
     },
     {
@@ -22704,22 +22628,6 @@
         "Anime",
         "Other Anime"
       ]
-    },
-    {
-      "id": "tmdb.trending_movie",
-      "type": "movie",
-      "name": "Tmdb.Trending Movie",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb"
-    },
-    {
-      "id": "tmdb.top_movie",
-      "type": "movie",
-      "name": "Tmdb.Top Movie",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb"
     },
     {
       "id": "tmdb.top_series",
