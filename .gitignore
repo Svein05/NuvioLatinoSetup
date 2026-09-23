@@ -8,8 +8,9 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Node / Dependencies if any
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+run.pyc
+

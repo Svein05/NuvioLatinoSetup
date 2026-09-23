@@ -38,25 +38,104 @@ class AppController {
     this.updateUI();
   }
 
+  /**
+   * Sistema de Notificaciones Flotantes (Toasts)
+   * @param {string} message 
+   * @param {'info' | 'success' | 'warning' | 'error'} type 
+   * @param {number} duration 
+   */
+  showToast(message, type = 'info', duration = 3500) {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-medium';
+
+    let icon = 'fa-circle-info text-brand-400';
+    let colors = 'bg-slate-900/95 border-brand-500/40 text-slate-100 shadow-brand-950/40';
+
+    if (type === 'success') {
+      icon = 'fa-circle-check text-emerald-400';
+      colors = 'bg-slate-900/95 border-emerald-500/40 text-emerald-100 shadow-emerald-950/40';
+    } else if (type === 'error') {
+      icon = 'fa-circle-exclamation text-rose-400';
+      colors = 'bg-slate-900/95 border-rose-500/40 text-rose-100 shadow-rose-950/40';
+    } else if (type === 'warning') {
+      icon = 'fa-triangle-exclamation text-amber-400';
+      colors = 'bg-slate-900/95 border-amber-500/40 text-amber-100 shadow-amber-950/40';
+    }
+
+    toast.className += ` ${colors}`;
+    toast.innerHTML = `
+      <i class="fa-solid ${icon} text-base shrink-0"></i>
+      <span class="flex-1 leading-snug">${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.remove('translate-y-2', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    setTimeout(() => {
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-2', 'opacity-0');
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
   setupNavigation() {
-    window.goToStep = (step) => {
-      if (step >= 1 && step <= state.totalSteps) {
-        state.currentStep = step;
+    window.goToStep = (targetStep) => {
+      if (targetStep === state.currentStep) return;
+
+      // Retroceder siempre está permitido
+      if (targetStep < state.currentStep) {
+        state.currentStep = targetStep;
         this.updateUI();
+        return;
       }
+
+      // Avanzar: validar todos los pasos anteriores estrictamente
+      for (let s = 1; s < targetStep; s++) {
+        const val = state.validateStep(s);
+        if (!val.valid) {
+          this.showToast(`Paso ${s}: ${val.error}`, 'warning');
+          return;
+        }
+        state.unlockStep(s + 1);
+      }
+
+      state.currentStep = targetStep;
+      this.updateUI();
     };
 
     window.changeStep = (delta) => {
       const next = state.currentStep + delta;
-      if (next >= 1 && next <= state.totalSteps) {
+      if (next < 1 || next > state.totalSteps) return;
+
+      // Retroceder
+      if (delta < 0) {
         state.currentStep = next;
         this.updateUI();
+        return;
       }
+
+      // Avanzar: validar el paso actual estrictamente
+      const val = state.validateStep(state.currentStep);
+      if (!val.valid) {
+        this.showToast(val.error, 'warning');
+        return;
+      }
+
+      state.unlockStep(next);
+      state.currentStep = next;
+      this.updateUI();
     };
   }
 
   updateUI() {
-    const { currentStep, totalSteps } = state;
+    const { currentStep, totalSteps, maxUnlockedStep } = state;
 
     // Cambiar visibilidad de los paneles de contenido
     for (let i = 1; i <= totalSteps; i++) {
@@ -66,14 +145,34 @@ class AppController {
       }
     }
 
-    // Actualizar botones de navegación lateral
+    // Actualizar botones de navegación lateral con estado visual estricto
     for (let i = 1; i <= totalSteps; i++) {
       const btn = document.getElementById(`nav-btn-${i}`);
       if (!btn) continue;
-      if (i === currentStep) {
-        btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors bg-brand-600/10 text-brand-500 font-medium border border-brand-500/20";
+
+      const isCurrent = (i === currentStep);
+      const isUnlocked = (i <= maxUnlockedStep);
+      const lockIcon = btn.querySelector('.step-lock-icon');
+
+      if (isCurrent) {
+        btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors bg-brand-600/10 text-brand-400 font-medium border border-brand-500/30";
+        if (lockIcon) {
+          lockIcon.className = "step-lock-icon hidden";
+        }
+      } else if (isUnlocked) {
+        btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-300 hover:bg-slate-900 hover:text-slate-100 border border-transparent cursor-pointer";
+        if (lockIcon) {
+          if (i < currentStep) {
+            lockIcon.className = "fa-solid fa-circle-check text-emerald-400 text-xs step-lock-icon";
+          } else {
+            lockIcon.className = "step-lock-icon hidden";
+          }
+        }
       } else {
-        btn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent";
+        btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-600 border border-transparent cursor-not-allowed opacity-60";
+        if (lockIcon) {
+          lockIcon.className = "fa-solid fa-lock text-slate-600 text-xs step-lock-icon";
+        }
       }
     }
 
@@ -95,12 +194,11 @@ class AppController {
   setupStep1Events() {
     const emailInput = document.getElementById('nuvioEmail');
     const passInput = document.getElementById('nuvioPassword');
-    const apikeyInput = document.getElementById('nuvioApikey');
     const btnConnect = document.getElementById('btnNuvioConnect');
 
     if (emailInput) {
       emailInput.addEventListener('input', (e) => {
-        state.nuvioAuth.email = e.target.value;
+        state.nuvioAuth.email = e.target.value.trim();
       });
     }
 
@@ -110,21 +208,14 @@ class AppController {
       });
     }
 
-    if (apikeyInput) {
-      apikeyInput.value = state.nuvioAuth.apikey;
-      apikeyInput.addEventListener('input', (e) => {
-        state.nuvioAuth.apikey = e.target.value.trim() || CONFIG.NUVIO_PUBLIC_ANON_KEY;
-      });
-    }
-
     if (btnConnect) {
       btnConnect.addEventListener('click', async () => {
         const email = emailInput?.value?.trim();
         const password = passInput?.value;
-        const apikey = apikeyInput?.value?.trim() || CONFIG.NUVIO_PUBLIC_ANON_KEY;
+        const apikey = CONFIG.NUVIO_PUBLIC_ANON_KEY;
 
         if (!email || !password) {
-          alert('Por favor ingresa tu correo y contraseña de Nuvio.');
+          this.showToast('Por favor ingresa tu correo y contraseña de Nuvio.', 'warning');
           return;
         }
 
@@ -142,8 +233,9 @@ class AppController {
           state.nuvioAuth.accessToken = auth.accessToken;
           state.nuvioAuth.userId = auth.userId;
           state.nuvioAuth.isAuthenticated = true;
+          state.nuvioAuth.apikey = apikey;
 
-          // Obtener perfiles
+          // Obtener perfiles de la cuenta
           const profiles = await NuvioClient.getProfiles({
             apiUrl: CONFIG.NUVIO_API_URL,
             apikey,
@@ -155,13 +247,21 @@ class AppController {
           if (profiles.length > 0) {
             state.selectedProfileId = profiles[0].id;
             state.selectedProfileName = profiles[0].name || profiles[0].title || 'Perfil Principal';
+            state.unlockStep(3);
           }
 
+          state.unlockStep(2);
           this.renderProfiles();
           this.setAuthBadge(true);
-          alert('✓ ¡Sesión iniciada con éxito! Perfiles obtenidos de tu cuenta.');
+          this.showToast('✓ ¡Sesión iniciada con éxito! Perfiles sincronizados.', 'success');
+
+          // Auto-avanzar al paso 2 de manera fluida
+          setTimeout(() => {
+            state.currentStep = 2;
+            this.updateUI();
+          }, 600);
         } catch (err) {
-          alert(`❌ Error al conectar: ${err.message}`);
+          this.showToast(`Error al conectar: ${err.message}`, 'error');
           this.setAuthBadge(false);
         } finally {
           btnConnect.disabled = false;
@@ -185,23 +285,79 @@ class AppController {
 
   setupStep2Profiles() {
     this.renderProfiles();
+
+    const btnCreate = document.getElementById('btnCreateProfile');
+    const nameInput = document.getElementById('newProfileName');
+
+    if (btnCreate && nameInput) {
+      const handleCreate = async () => {
+        const name = nameInput.value.trim();
+        if (!name) {
+          this.showToast('Por favor escribe un nombre para el nuevo perfil.', 'warning');
+          nameInput.focus();
+          return;
+        }
+
+        if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) {
+          this.showToast('Debes haber iniciado sesión con tu cuenta de Nuvio en el Paso 1.', 'error');
+          return;
+        }
+
+        btnCreate.disabled = true;
+        btnCreate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando...</span>';
+
+        try {
+          const newProfile = await NuvioClient.createProfile({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken: state.nuvioAuth.accessToken,
+            userId: state.nuvioAuth.userId,
+            name: name
+          });
+
+          // Agregar a la lista de perfiles y auto-seleccionar
+          state.profiles.push(newProfile);
+          state.selectedProfileId = newProfile.id;
+          state.selectedProfileName = newProfile.name || name;
+          state.unlockStep(3);
+
+          this.renderProfiles();
+          nameInput.value = '';
+          this.showToast(`¡Perfil "${name}" creado y seleccionado con éxito!`, 'success');
+        } catch (err) {
+          console.error(err);
+          this.showToast(`Error al crear perfil: ${err.message}`, 'error');
+        } finally {
+          btnCreate.disabled = false;
+          btnCreate.innerHTML = '<i class="fa-solid fa-plus"></i><span>Crear Perfil</span>';
+        }
+      };
+
+      btnCreate.addEventListener('click', handleCreate);
+      nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleCreate();
+        }
+      });
+    }
   }
 
   renderProfiles() {
     const container = document.getElementById('profilesContainer');
     if (!container) return;
 
-    // Si hay perfiles reales cargados desde la API
     if (state.profiles && state.profiles.length > 0) {
       container.innerHTML = state.profiles.map((p, idx) => {
         const isSelected = state.selectedProfileId === p.id || (!state.selectedProfileId && idx === 0);
         if (isSelected && !state.selectedProfileId) {
           state.selectedProfileId = p.id;
           state.selectedProfileName = p.name || p.title || `Perfil ${idx + 1}`;
+          state.unlockStep(3);
         }
 
         const name = p.name || p.title || `Perfil ${idx + 1}`;
-        const avatar = p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${name}`;
+        const avatar = p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
 
         return `
           <label class="cursor-pointer border ${isSelected ? 'border-brand-500 bg-brand-500/10' : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'} p-4 rounded-xl flex flex-col items-center gap-2 transition-all">
@@ -215,38 +371,22 @@ class AppController {
         `;
       }).join('');
     } else {
-      // Perfiles mock para testing libre sin login previo
-      const mockProfiles = [
-        { id: 'mock-p1', name: 'Principal (Test)', label: 'P1' },
-        { id: 'mock-p2', name: 'Secundario (Test)', label: 'P2' },
-        { id: 'mock-p3', name: 'Invitados (Test)', label: 'P3' }
-      ];
-
-      container.innerHTML = mockProfiles.map((p, idx) => {
-        const isSelected = (!state.selectedProfileId && idx === 0) || state.selectedProfileId === p.id;
-        if (isSelected && !state.selectedProfileId) {
-          state.selectedProfileId = p.id;
-          state.selectedProfileName = p.name;
-        }
-
-        return `
-          <label class="cursor-pointer border ${isSelected ? 'border-brand-500 bg-brand-500/10' : 'border-slate-800 bg-slate-950/40 hover:border-slate-700'} p-4 rounded-xl flex flex-col items-center gap-2 transition-all">
-            <input type="radio" name="profile_select" value="${p.id}" ${isSelected ? 'checked' : ''} onchange="window.appController.selectProfile('${p.id}', '${p.name.replace(/'/g, "\\'")}')" class="hidden">
-            <div class="w-12 h-12 rounded-full bg-slate-800 border-2 ${isSelected ? 'border-brand-500 text-brand-400' : 'border-slate-700 text-slate-400'} flex items-center justify-center text-lg font-bold">${p.label}</div>
-            <span class="text-sm font-medium ${isSelected ? 'text-white' : 'text-slate-400'}">${p.name}</span>
-            <span class="text-[10px] ${isSelected ? 'text-brand-400 font-semibold uppercase tracking-wider' : 'text-slate-500'}">
-              ${isSelected ? 'Seleccionado' : 'Click para elegir'}
-            </span>
-          </label>
-        `;
-      }).join('');
+      container.innerHTML = `
+        <div class="col-span-full py-8 text-center bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
+          <i class="fa-solid fa-user-circle text-4xl text-slate-600 mb-2"></i>
+          <p class="text-sm font-medium text-slate-300">No se encontraron perfiles en tu cuenta de Nuvio</p>
+          <p class="text-xs text-slate-500 mt-1">Usa la opción de abajo para crear tu primer perfil directamente.</p>
+        </div>
+      `;
     }
   }
 
   selectProfile(id, name) {
     state.selectedProfileId = id;
     state.selectedProfileName = name;
+    state.unlockStep(3);
     this.renderProfiles();
+    this.updateUI();
   }
 
   setupStep3ApiKeys() {
@@ -254,14 +394,28 @@ class AppController {
     const mdblistInput = document.getElementById('mdblistApiKey');
     const traktInput = document.getElementById('traktToken');
 
+    const checkStep3Unlock = () => {
+      if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
+        state.unlockStep(4);
+        this.updateUI();
+      }
+    };
+
     if (tmdbInput) {
-      tmdbInput.addEventListener('input', (e) => { state.apiKeys.tmdb = e.target.value.trim(); });
+      tmdbInput.addEventListener('input', (e) => {
+        state.apiKeys.tmdb = e.target.value.trim();
+        checkStep3Unlock();
+      });
     }
     if (mdblistInput) {
-      mdblistInput.addEventListener('input', (e) => { state.apiKeys.mdblist = e.target.value.trim(); });
+      mdblistInput.addEventListener('input', (e) => {
+        state.apiKeys.mdblist = e.target.value.trim();
+      });
     }
     if (traktInput) {
-      traktInput.addEventListener('input', (e) => { state.apiKeys.trakt = e.target.value.trim(); });
+      traktInput.addEventListener('input', (e) => {
+        state.apiKeys.trakt = e.target.value.trim();
+      });
     }
   }
 
@@ -269,6 +423,13 @@ class AppController {
     const instanceInput = document.getElementById('aioInstanceUrl');
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
+
+    const checkStep5Unlock = () => {
+      if (state.aiometadata.password && state.aiometadata.password.length >= 4) {
+        state.unlockStep(6);
+        this.updateUI();
+      }
+    };
 
     if (instanceInput) {
       instanceInput.value = state.aiometadata.instanceUrl;
@@ -280,6 +441,7 @@ class AppController {
     if (passwordInput) {
       passwordInput.addEventListener('input', (e) => {
         state.aiometadata.password = e.target.value;
+        checkStep5Unlock();
       });
     }
 
@@ -288,6 +450,8 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
+        checkStep5Unlock();
+        this.showToast('Contraseña aleatoria generada y configurada', 'info');
       });
     }
   }
@@ -313,6 +477,15 @@ class AppController {
 
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
+        // Validar todos los pasos anteriores antes de ejecutar
+        for (let i = 1; i <= 5; i++) {
+          const val = state.validateStep(i);
+          if (!val.valid) {
+            this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
+            window.goToStep(i);
+            return;
+          }
+        }
         PipelineInjector.execute();
       });
     }
@@ -369,6 +542,8 @@ class AppController {
         btnExecute.disabled = false;
         btnExecute.innerHTML = '<i class="fa-solid fa-bolt"></i><span>Re-ejecutar Configuración</span>';
       }
+    } else if (eventType === 'STEP_UNLOCKED') {
+      this.updateUI();
     }
   }
 

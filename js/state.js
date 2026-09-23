@@ -8,6 +8,7 @@ class WizardState {
   constructor() {
     this.currentStep = 1;
     this.totalSteps = 6;
+    this.maxUnlockedStep = 1; // Control restrictivo de avance de pasos
 
     // Autenticación Nuvio (Supabase)
     this.nuvioAuth = {
@@ -64,6 +65,82 @@ class WizardState {
 
   notify(changeType = 'GENERAL') {
     this.subscribers.forEach(cb => cb(this, changeType));
+  }
+
+  /**
+   * Valida si un paso cumple con los requisitos obligatorios para poder avanzar
+   * @param {number} stepNumber
+   * @returns {{ valid: boolean, error: string | null }}
+   */
+  validateStep(stepNumber) {
+    switch (stepNumber) {
+      case 1:
+        if (!this.nuvioAuth.isAuthenticated || !this.nuvioAuth.accessToken) {
+          return {
+            valid: false,
+            error: 'Debes iniciar sesión con tu cuenta de Nuvio (pulsa "Conectar Cuenta") para continuar al siguiente paso.'
+          };
+        }
+        return { valid: true, error: null };
+
+      case 2:
+        if (!this.selectedProfileId) {
+          return {
+            valid: false,
+            error: 'Debes seleccionar un perfil de destino para continuar.'
+          };
+        }
+        return { valid: true, error: null };
+
+      case 3:
+        if (!this.apiKeys.tmdb || this.apiKeys.tmdb.trim().length < 8) {
+          return {
+            valid: false,
+            error: 'La TMDB API Key es obligatoria para obtener la información de películas y series.'
+          };
+        }
+        return { valid: true, error: null };
+
+      case 4: {
+        let activeCount = 0;
+        this.collections.forEach(sec => {
+          if (sec.enabled !== false) {
+            (sec.folders || []).forEach(f => {
+              if (f.enabled !== false) activeCount++;
+            });
+          }
+        });
+        if (activeCount === 0) {
+          return {
+            valid: false,
+            error: 'Debes tener activada al menos una colección en el Mini NUVIO.'
+          };
+        }
+        return { valid: true, error: null };
+      }
+
+      case 5:
+        if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {
+          return {
+            valid: false,
+            error: 'Debes definir una contraseña de al menos 4 caracteres para tu addon de AIOMetadata (o pulsar "Generar aleatoria").'
+          };
+        }
+        return { valid: true, error: null };
+
+      case 6:
+        return { valid: true, error: null };
+
+      default:
+        return { valid: true, error: null };
+    }
+  }
+
+  unlockStep(stepNumber) {
+    if (stepNumber > this.maxUnlockedStep) {
+      this.maxUnlockedStep = Math.min(stepNumber, this.totalSteps);
+      this.notify('STEP_UNLOCKED');
+    }
   }
 
   /**
