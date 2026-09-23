@@ -25,7 +25,7 @@ class AppController {
     this.setupNavigation();
     this.setupStep1Events();
     this.setupStep2Profiles();
-    this.setupStep4ApiKeys();
+    this.setupStep3ApiKeys();
     this.setupStep5Injection();
 
     // 3. Suscribirse al estado para actualizar la UI reactiva
@@ -213,8 +213,10 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 5, refrescar resumen
-    if (currentStep === 5) {
+    // Si estamos en el paso 4 o 5, refrescar o desbloquear
+    if (currentStep === 4) {
+      state.unlockStep(5);
+    } else if (currentStep === 5) {
       this.refreshStep5Summary();
     }
   }
@@ -586,7 +588,7 @@ class AppController {
     this.updateUI();
   }
 
-  setupStep4ApiKeys() {
+  setupStep3ApiKeys() {
     const tmdbInput = document.getElementById('tmdbApiKey');
     const tvdbInput = document.getElementById('tvdbApiKey');
     const mdblistInput = document.getElementById('mdblistApiKey');
@@ -600,9 +602,9 @@ class AppController {
     const geminiInput = document.getElementById('geminiApiKey');
     const openrouterInput = document.getElementById('openrouterApiKey');
 
-    const checkStep4Unlock = () => {
+    const checkStep3Unlock = () => {
       if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
-        state.unlockStep(5); // Desbloquea Paso 5 (Inyección)
+        state.unlockStep(4); // Desbloquea Paso 4 (Colecciones / Mini Nuvio)
         this.updateUI();
       }
     };
@@ -613,7 +615,7 @@ class AppController {
       el.value = state.apiKeys[key] || isDefault || '';
       el.addEventListener('input', (e) => {
         state.apiKeys[key] = e.target.value.trim() || (isDefault || '');
-        if (triggerUnlock) checkStep4Unlock();
+        if (triggerUnlock) checkStep3Unlock();
       });
     };
 

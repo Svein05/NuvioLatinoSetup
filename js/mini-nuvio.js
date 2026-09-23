@@ -1,9 +1,11 @@
 /**
  * Componente: Mini NUVIO Interactivo
  * Simulador visual del Home de Nuvio con Hero Backdrop, carruseles por sección,
- * controles de reordenación, toggles y modal de personalización en Español Latino.
+ * controles de reordenación, toggles, explorador de catálogos con pósters en vivo (TMDB)
+ * y modal de personalización en Español Latino.
  */
 import { state } from './state.js';
+import { TmdbService } from './tmdb-service.js';
 
 export class MiniNuvio {
   constructor(containerId) {
@@ -90,6 +92,11 @@ export class MiniNuvio {
             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono">
               ${activeFolders}/${totalFolders} activas
             </span>
+            ${state.apiKeys.tmdb ? `
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1">
+                <i class="fa-solid fa-bolt text-[9px]"></i> TMDB en vivo (es-MX)
+              </span>
+            ` : ''}
           </div>
 
           <div class="flex items-center gap-2">
@@ -240,7 +247,7 @@ export class MiniNuvio {
       <div 
         class="group relative ${sizeClasses} rounded-xl overflow-hidden border ${isFocused ? 'border-brand-500 ring-2 ring-brand-500/30' : isEnabled ? 'border-slate-800 hover:border-slate-700' : 'border-slate-900 opacity-40'} bg-slate-900 cursor-pointer select-none transition-all duration-200"
         onmouseenter="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
-        onclick="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
+        onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')"
       >
         <!-- Imagen de Portada -->
         <img src="${imageSrc}" alt="${folder.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
@@ -265,18 +272,25 @@ export class MiniNuvio {
         </div>
 
         <!-- Overlay con Acciones Rápidas (Visible en Hover) -->
-        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-2 z-30 transition-opacity" onclick="event.stopPropagation()">
-          <button onclick="window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, -1)" ${fIndex === 0 ? 'disabled class="opacity-30"' : 'class="hover:text-white"'} title="Mover izquierda">
-            <i class="fa-solid fa-chevron-left text-xs bg-slate-800 p-1.5 rounded-lg"></i>
-          </button>
-          
-          <button onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="bg-brand-600 hover:bg-brand-500 text-white p-1.5 rounded-lg shadow" title="Editar detalles de la fila">
-            <i class="fa-solid fa-sliders text-xs"></i>
+        <div class="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity" onclick="event.stopPropagation()">
+          <button onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg shadow-brand-600/30 flex items-center gap-1.5 transform hover:scale-105 transition-all">
+            <i class="fa-solid fa-layer-group text-[11px]"></i>
+            <span>Ver Catálogos</span>
           </button>
 
-          <button onclick="window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, 1)" ${fIndex === section.folders.length - 1 ? 'disabled class="opacity-30"' : 'class="hover:text-white"'} title="Mover derecha">
-            <i class="fa-solid fa-chevron-right text-xs bg-slate-800 p-1.5 rounded-lg"></i>
-          </button>
+          <div class="flex items-center gap-2 mt-0.5">
+            <button onclick="window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, -1)" ${fIndex === 0 ? 'disabled class="opacity-30"' : 'class="hover:text-white"'} title="Mover izquierda">
+              <i class="fa-solid fa-chevron-left text-xs bg-slate-800 p-1.5 rounded-lg text-slate-300"></i>
+            </button>
+            
+            <button onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-1.5 rounded-lg border border-slate-700 shadow" title="Personalizar diseño de fila">
+              <i class="fa-solid fa-sliders text-xs"></i>
+            </button>
+
+            <button onclick="window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, 1)" ${fIndex === section.folders.length - 1 ? 'disabled class="opacity-30"' : 'class="hover:text-white"'} title="Mover derecha">
+              <i class="fa-solid fa-chevron-right text-xs bg-slate-800 p-1.5 rounded-lg text-slate-300"></i>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -340,6 +354,198 @@ export class MiniNuvio {
   }
 
   /**
+   * Explorador Visual de Catálogos y Pósters Reales en Español Latino
+   * Permite ver exactamente qué catálogos componen la colección seleccionada,
+   * consumiendo la API de TMDB con la clave ingresada y alertando si requiere Trakt.
+   */
+  async openCatalogExplorer(sectionId, folderId) {
+    const sec = state.collections.find(s => s.id === sectionId);
+    if (!sec) return;
+    const folder = (sec.folders || []).find(f => f.id === folderId);
+    if (!folder) return;
+
+    this.focusFolder(sectionId, folderId);
+    const modalContainer = this.ensureModalContainer();
+
+    const sources = folder.sources || folder.catalogSources || [];
+    const allCatalogs = state.rawMetadataTemplate?.config?.catalogs || state.rawMetadataTemplate?.catalogs || [];
+    const catalogMap = new Map();
+    allCatalogs.forEach(cat => {
+      if (cat.id) catalogMap.set(cat.id, cat);
+    });
+
+    const cover = folder.coverImageUrl || folder.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
+    const tmdbKey = state.apiKeys.tmdb || '';
+
+    modalContainer.innerHTML = `
+      <div id="catalogExplorerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-opacity">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[90vh] text-slate-200">
+          
+          <!-- Encabezado de la Colección -->
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl overflow-hidden border border-slate-700 shrink-0 bg-slate-950">
+                <img src="${cover}" alt="${folder.title}" class="w-full h-full object-cover">
+              </div>
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <span>${folder.coverEmoji || '🎬'}</span>
+                  <span>${folder.title}</span>
+                </h3>
+                <p class="text-[11px] text-slate-400">
+                  Sección: <span class="text-slate-300 font-medium">${sec.title || sec.id}</span> • ${sources.length} catálogos en esta fila
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              ${tmdbKey ? `
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono">
+                  <i class="fa-solid fa-check"></i> TMDB Latino (es-MX)
+                </span>
+              ` : `
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-mono">
+                  <i class="fa-solid fa-bolt"></i> Modo Vista Previa
+                </span>
+              `}
+              <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Cuerpo con Lista de Catálogos y Carruseles de Pósters -->
+          <div id="catalogExplorerBody" class="overflow-y-auto space-y-6 pr-1.5 scrollbar-thin scrollbar-thumb-slate-700 flex-1">
+            <div class="py-16 text-center text-slate-400">
+              <i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500 mb-3"></i>
+              <p class="text-sm font-medium text-slate-200">Consultando catálogos y pósters de TMDB en español latino...</p>
+              <p class="text-xs text-slate-500 mt-1">Cargando portadas en alta definición y puntuaciones oficiales.</p>
+            </div>
+          </div>
+
+          <!-- Pie del Modal -->
+          <div class="flex items-center justify-between pt-4 mt-4 border-t border-slate-800 shrink-0">
+            <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${folder.id}')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-brand-400 hover:text-brand-300 hover:bg-slate-800/80 border border-brand-500/30 transition-all flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders"></i>
+              <span>Personalizar Portadas y Logos</span>
+            </button>
+
+            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors">
+              Cerrar Explorador
+            </button>
+          </div>
+
+        </div>
+      </div>
+    `;
+
+    // Cargar asíncronamente cada catálogo y sus pósters
+    this.loadCatalogExplorerContent(sources, catalogMap, tmdbKey);
+  }
+
+  /**
+   * Carga y renderiza el contenido de cada catálogo dentro del Explorador
+   */
+  async loadCatalogExplorerContent(sources, catalogMap, tmdbKey) {
+    const bodyEl = document.getElementById('catalogExplorerBody');
+    if (!bodyEl) return;
+
+    if (sources.length === 0) {
+      bodyEl.innerHTML = `
+        <div class="p-8 text-center text-slate-400">
+          <i class="fa-solid fa-film text-3xl text-slate-600 mb-2"></i>
+          <p class="text-sm">Esta colección utiliza catálogos globales de TMDB.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const renderedCatalogs = [];
+
+    for (const s of sources) {
+      const catId = s.catalogId || s.id || '';
+      const catMeta = catalogMap.get(catId) || { name: s.title || catId, type: s.type };
+      const resolved = await TmdbService.resolveCatalogPreview(catId, catMeta, tmdbKey);
+      renderedCatalogs.push(resolved);
+    }
+
+    bodyEl.innerHTML = renderedCatalogs.map(cat => {
+      const typeLabel = cat.mediaType === 'series' || cat.mediaType === 'tv' ? 'Series' : cat.mediaType === 'anime' ? 'Anime' : 'Películas';
+      
+      // Caso 1: Catálogo que requiere sincronización de Trakt
+      if (cat.isTrakt) {
+        return `
+          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h4 class="text-xs font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-tv text-amber-400"></i>
+                <span>${cat.title}</span>
+              </h4>
+              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
+            </div>
+
+            <!-- Alerta Sincronización Trakt -->
+            <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-2.5">
+              <i class="fa-solid fa-lock text-amber-400 text-xs mt-0.5 shrink-0"></i>
+              <div class="text-[11px] text-amber-200/90 leading-relaxed">
+                <span class="font-bold text-amber-300">(Solo disponible si sincronizas a través de AIOMetadata)</span>:
+                Este catálogo conecta con tu cuenta de Trakt.tv para generar recomendaciones basadas en tu historial de reproducción personal.
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Caso 2: Catálogo con pósters de TMDB en vivo
+      const items = cat.items || [];
+      return `
+        <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="text-xs font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-film text-brand-400"></i>
+              <span>${cat.title}</span>
+            </h4>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
+              <span class="text-[10px] text-slate-500 font-mono">${items.length} títulos en latino</span>
+            </div>
+          </div>
+
+          <!-- Carrusel de Pósters Reales en Español Latino -->
+          <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+            ${items.map(item => {
+              const posterUrl = TmdbService.getPosterUrl(item.poster_path);
+              const title = item.title || item.name || 'Título';
+              const year = (item.release_date || item.first_air_date || '').split('-')[0] || '';
+              const vote = item.vote_average ? Number(item.vote_average).toFixed(1) : null;
+
+              return `
+                <div class="w-28 sm:w-32 shrink-0 space-y-1.5 group select-none">
+                  <div class="aspect-[2/3] rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-md relative">
+                    <img src="${posterUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" loading="lazy">
+                    ${vote ? `
+                      <div class="absolute top-1.5 right-1.5 bg-black/80 backdrop-blur-sm px-1.5 py-0.5 rounded text-[9px] font-mono text-amber-400 flex items-center gap-0.5 font-bold shadow">
+                        <i class="fa-solid fa-star text-[8px]"></i>
+                        <span>${vote}</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                  <div class="text-[11px] font-semibold text-slate-200 truncate group-hover:text-white" title="${title}">
+                    ${title}
+                  </div>
+                  <div class="text-[10px] text-slate-500 font-mono">
+                    ${year || 'Latino'}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /**
    * Modal Integrado de Edición de Sección Completa
    * Permite renombrar la sección, cambiar visibilidad y reordenar/editar todas las filas que contiene.
    * Montado en document.body para centrado absoluto en el monitor.
@@ -398,7 +604,7 @@ export class MiniNuvio {
                 <label class="text-[11px] font-semibold text-slate-300 uppercase tracking-wider">
                   Filas contenidas en esta Sección (${folders.length})
                 </label>
-                <span class="text-[10px] text-slate-500 font-mono">Reordena o renombra libremente</span>
+                <span class="text-[10px] text-slate-500 font-mono">Reordena, renombra o explora pósters</span>
               </div>
 
               <div class="space-y-2">
@@ -419,7 +625,7 @@ export class MiniNuvio {
                       </div>
 
                       <!-- Mini Preview -->
-                      <div class="w-12 h-8 rounded-lg overflow-hidden shrink-0 border border-slate-800 bg-slate-900">
+                      <div class="w-12 h-8 rounded-lg overflow-hidden shrink-0 border border-slate-800 bg-slate-900 cursor-pointer" onclick="window.miniNuvioInstance.openCatalogExplorer('${sec.id}', '${f.id}')" title="Ver pósters de esta fila">
                         <img src="${cover}" alt="${f.title}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
                       </div>
 
@@ -429,14 +635,19 @@ export class MiniNuvio {
                         <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-mono shrink-0">${f.tileShape || 'LANDSCAPE'}</span>
                       </div>
 
-                      <!-- Actions: Details & Toggle -->
-                      <div class="flex items-center gap-2 shrink-0">
-                        <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${f.id}')" class="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-brand-400 hover:text-brand-300 flex items-center gap-1" title="Personalizar portada, póster y logos">
-                          <i class="fa-solid fa-sliders text-[10px]"></i>
-                          <span class="hidden sm:inline">Detalles</span>
+                      <!-- Actions: Explore, Details & Toggle -->
+                      <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="button" onclick="window.miniNuvioInstance.openCatalogExplorer('${sec.id}', '${f.id}')" class="px-2 py-1 rounded bg-brand-600/20 hover:bg-brand-600/40 border border-brand-500/30 text-[11px] text-brand-300 flex items-center gap-1 transition-colors" title="Explorar catálogos y pósters reales">
+                          <i class="fa-solid fa-film text-[10px]"></i>
+                          <span class="hidden sm:inline">Pósters</span>
                         </button>
 
-                        <input type="checkbox" ${isFEnabled ? 'checked' : ''} onchange="window.miniNuvioInstance.toggleFolder('${sec.id}', '${f.id}')" class="w-4 h-4 rounded text-brand-600 bg-slate-950 border-slate-700 cursor-pointer" title="${isFEnabled ? 'Desactivar fila' : 'Activar fila'}">
+                        <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${f.id}')" class="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white flex items-center gap-1" title="Personalizar portada, diseño y logos">
+                          <i class="fa-solid fa-sliders text-[10px]"></i>
+                          <span class="hidden sm:inline">Diseño</span>
+                        </button>
+
+                        <input type="checkbox" ${isFEnabled ? 'checked' : ''} onchange="window.miniNuvioInstance.toggleFolder('${sec.id}', '${f.id}')" class="w-4 h-4 rounded text-brand-600 bg-slate-950 border-slate-700 cursor-pointer ml-0.5" title="${isFEnabled ? 'Desactivar fila' : 'Activar fila'}">
                       </div>
 
                     </div>
@@ -523,7 +734,7 @@ export class MiniNuvio {
           <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-4 shrink-0">
             <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
               <i class="fa-solid fa-sliders text-brand-500"></i>
-              <span>Personalizar Fila: ${folder.title}</span>
+              <span>Diseño de Fila: ${folder.title}</span>
             </h3>
             <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-slate-800 transition-colors">
               <i class="fa-solid fa-xmark text-lg"></i>
@@ -580,13 +791,20 @@ export class MiniNuvio {
           </div>
 
           <!-- Footer -->
-          <div class="flex justify-end gap-2 pt-3 mt-3 border-t border-slate-800 shrink-0">
-            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 text-xs">
-              Cancelar
+          <div class="flex justify-between items-center pt-3 mt-3 border-t border-slate-800 shrink-0">
+            <button type="button" onclick="window.miniNuvioInstance.openCatalogExplorer('${sectionId}', '${folderId}')" class="px-3.5 py-2 rounded-xl bg-brand-600/20 text-brand-300 hover:bg-brand-600/30 text-xs font-medium flex items-center gap-1.5 transition-colors">
+              <i class="fa-solid fa-layer-group"></i>
+              <span>Ver Catálogos de esta Fila</span>
             </button>
-            <button type="button" onclick="window.miniNuvioInstance.saveEditModal()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs transition-all shadow-md">
-              Guardar Cambios
-            </button>
+
+            <div class="flex gap-2">
+              <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="px-4 py-2 rounded-xl text-slate-400 hover:bg-slate-800 text-xs">
+                Cancelar
+              </button>
+              <button type="button" onclick="window.miniNuvioInstance.saveEditModal()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-xs transition-all shadow-md">
+                Guardar Cambios
+              </button>
+            </div>
           </div>
 
         </div>
