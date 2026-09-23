@@ -25,7 +25,7 @@ class AppController {
     this.setupNavigation();
     this.setupStep1Events();
     this.setupStep2Profiles();
-    this.setupStep3ApiKeys();
+    this.setupStep4ApiKeys();
     this.setupStep5AIOMetadata();
     this.setupStep6Execution();
 
@@ -89,23 +89,27 @@ class AppController {
     window.goToStep = (targetStep) => {
       if (targetStep === state.currentStep) return;
 
-      // Retroceder siempre está permitido
+      // Retroceder siempre está permitido para revisar datos previos
       if (targetStep < state.currentStep) {
         state.currentStep = targetStep;
         this.updateUI();
         return;
       }
 
-      // Avanzar: validar todos los pasos anteriores estrictamente
-      for (let s = 1; s < targetStep; s++) {
-        const val = state.validateStep(s);
-        if (!val.valid) {
-          this.showToast(`Paso ${s}: ${val.error}`, 'warning');
-          return;
-        }
-        state.unlockStep(s + 1);
+      // Restricción: avanzar estrictamente un paso a la vez (+1)
+      if (targetStep > state.currentStep + 1) {
+        this.showToast('Solo puedes avanzar un paso a la vez tras completar el actual.', 'warning');
+        return;
       }
 
+      // Avanzar al paso inmediatamente siguiente: validar el paso actual
+      const val = state.validateStep(state.currentStep);
+      if (!val.valid) {
+        this.showToast(val.error, 'warning');
+        return;
+      }
+
+      state.unlockStep(targetStep);
       state.currentStep = targetStep;
       this.updateUI();
     };
@@ -114,14 +118,14 @@ class AppController {
       const next = state.currentStep + delta;
       if (next < 1 || next > state.totalSteps) return;
 
-      // Retroceder
+      // Retroceder 1 paso
       if (delta < 0) {
         state.currentStep = next;
         this.updateUI();
         return;
       }
 
-      // Avanzar: validar el paso actual estrictamente
+      // Avanzar 1 paso: validar paso actual
       const val = state.validateStep(state.currentStep);
       if (!val.valid) {
         this.showToast(val.error, 'warning');
@@ -145,34 +149,30 @@ class AppController {
       }
     }
 
-    // Actualizar botones de navegación lateral con estado visual estricto
+    // Actualizar botones de navegación superior en cápsulas (Pills)
     for (let i = 1; i <= totalSteps; i++) {
-      const btn = document.getElementById(`nav-btn-${i}`);
-      if (!btn) continue;
+      const capsule = document.getElementById(`capsule-step-${i}`);
+      if (!capsule) continue;
 
       const isCurrent = (i === currentStep);
       const isUnlocked = (i <= maxUnlockedStep);
-      const lockIcon = btn.querySelector('.step-lock-icon');
+      const statusIcon = capsule.querySelector('.step-icon-status');
 
       if (isCurrent) {
-        btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors bg-brand-600/10 text-brand-400 font-medium border border-brand-500/30";
-        if (lockIcon) {
-          lockIcon.className = "step-lock-icon hidden";
-        }
+        capsule.className = "step-capsule active";
+        if (statusIcon) statusIcon.className = "step-icon-status hidden";
+      } else if (i < currentStep) {
+        // Pasos anteriores ya completados
+        capsule.className = "step-capsule completed";
+        if (statusIcon) statusIcon.className = "fa-solid fa-circle-check text-emerald-400 text-xs step-icon-status";
       } else if (isUnlocked) {
-        btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-300 hover:bg-slate-900 hover:text-slate-100 border border-transparent cursor-pointer";
-        if (lockIcon) {
-          if (i < currentStep) {
-            lockIcon.className = "fa-solid fa-circle-check text-emerald-400 text-xs step-lock-icon";
-          } else {
-            lockIcon.className = "step-lock-icon hidden";
-          }
-        }
+        // Siguiente paso desbloqueado disponible
+        capsule.className = "step-capsule completed";
+        if (statusIcon) statusIcon.className = "step-icon-status hidden";
       } else {
-        btn.className = "w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-600 border border-transparent cursor-not-allowed opacity-60";
-        if (lockIcon) {
-          lockIcon.className = "fa-solid fa-lock text-slate-600 text-xs step-lock-icon";
-        }
+        // Paso bloqueado
+        capsule.className = "step-capsule locked";
+        if (statusIcon) statusIcon.className = "fa-solid fa-lock text-slate-500 text-[10px] step-icon-status";
       }
     }
 
@@ -247,10 +247,10 @@ class AppController {
           if (profiles.length > 0) {
             state.selectedProfileId = profiles[0].id;
             state.selectedProfileName = profiles[0].name || profiles[0].title || 'Perfil Principal';
-            state.unlockStep(3);
+            state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
           }
 
-          state.unlockStep(2);
+          state.unlockStep(2); // Desbloquea Paso 2 (Elegir Perfil)
           this.renderProfiles();
           this.setAuthBadge(true);
           this.showToast('✓ ¡Sesión iniciada con éxito! Perfiles sincronizados.', 'success');
@@ -319,7 +319,7 @@ class AppController {
           state.profiles.push(newProfile);
           state.selectedProfileId = newProfile.id;
           state.selectedProfileName = newProfile.name || name;
-          state.unlockStep(3);
+          state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
 
           this.renderProfiles();
           nameInput.value = '';
@@ -353,7 +353,7 @@ class AppController {
         if (isSelected && !state.selectedProfileId) {
           state.selectedProfileId = p.id;
           state.selectedProfileName = p.name || p.title || `Perfil ${idx + 1}`;
-          state.unlockStep(3);
+          state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
         }
 
         const name = p.name || p.title || `Perfil ${idx + 1}`;
@@ -384,19 +384,19 @@ class AppController {
   selectProfile(id, name) {
     state.selectedProfileId = id;
     state.selectedProfileName = name;
-    state.unlockStep(3);
+    state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
     this.renderProfiles();
     this.updateUI();
   }
 
-  setupStep3ApiKeys() {
+  setupStep4ApiKeys() {
     const tmdbInput = document.getElementById('tmdbApiKey');
     const mdblistInput = document.getElementById('mdblistApiKey');
     const traktInput = document.getElementById('traktToken');
 
-    const checkStep3Unlock = () => {
+    const checkStep4Unlock = () => {
       if (state.apiKeys.tmdb && state.apiKeys.tmdb.length >= 8) {
-        state.unlockStep(4);
+        state.unlockStep(5); // Desbloquea Paso 5 (AIOMetadata)
         this.updateUI();
       }
     };
@@ -404,7 +404,7 @@ class AppController {
     if (tmdbInput) {
       tmdbInput.addEventListener('input', (e) => {
         state.apiKeys.tmdb = e.target.value.trim();
-        checkStep3Unlock();
+        checkStep4Unlock();
       });
     }
     if (mdblistInput) {
@@ -426,7 +426,7 @@ class AppController {
 
     const checkStep5Unlock = () => {
       if (state.aiometadata.password && state.aiometadata.password.length >= 4) {
-        state.unlockStep(6);
+        state.unlockStep(6); // Desbloquea Paso 6 (Inyección)
         this.updateUI();
       }
     };
