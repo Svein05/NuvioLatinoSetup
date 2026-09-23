@@ -44,11 +44,17 @@
       </h1>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2.5">
       <a href="https://discord.gg/" target="_blank" rel="noopener noreferrer" 
          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
         <i class="fa-brands fa-discord"></i>
         <span class="hidden sm:inline">Addon LAT-ADD</span>
+      </a>
+
+      <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" 
+         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all shadow-sm">
+        <i class="fa-brands fa-github text-sm"></i>
+        <span class="hidden sm:inline">GitHub</span>
       </a>
 
       <!-- Botón de Menú de 3 Líneas para abrir el Índice -->
@@ -62,8 +68,22 @@
   <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 md:p-6 gap-4">
 
     <!-- Contenido de los Pasos (Espacio de Trabajo Principal a Pantalla Completa) -->
-    <main class="flex-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden">
+    <main class="flex-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col shadow-2xl overflow-hidden">
       
+      <!-- Barra de Navegación Superior Fija (Anterior / Paso X de 5 / Siguiente) -->
+      <div class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md pb-4 pt-1 border-b border-slate-800/80 mb-6 flex items-center justify-between">
+        <button id="btnBack" onclick="changeStep(-1)" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:text-white transition-all invisible flex items-center gap-1.5 shadow-sm">
+          <i class="fa-solid fa-chevron-left text-[10px]"></i> <span>Anterior</span>
+        </button>
+
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-slate-400 font-mono font-medium bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800" id="stepCounter">Paso 1 de 5</span>
+          <button id="btnNext" onclick="changeStep(1)" class="px-5 py-2 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+            <span>Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- ========================================== -->
       <!-- PASO 1: AUTENTICACIÓN / REGISTRO NUVIO     -->
       <!-- ========================================== -->
@@ -140,6 +160,14 @@
           <!-- Renderizado dinámico desde js/app.js -->
         </div>
 
+        <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente -->
+        <div id="profileOverwriteWarning" class="mt-4 p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3 max-w-2xl hidden transition-all duration-200">
+          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
+          <div class="text-xs text-amber-200/90 leading-relaxed">
+            <span class="font-bold text-amber-300">Atención:</span> Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración latino.
+          </div>
+        </div>
+
         <!-- Sección para Crear un Nuevo Perfil en Nuvio -->
         <div class="mt-6 pt-5 border-t border-slate-800/80 max-w-2xl">
           <div class="flex items-center justify-between mb-2">
@@ -192,33 +220,36 @@
           <!-- GRID DE CLAVES BASE (2 Columnas) -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             
-            <!-- 1. TMDB API Key (Requerida) -->
-            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
+            <!-- 1. TMDB API Key (Heroica / Principal) -->
+            <div class="p-4 bg-slate-900/90 border border-brand-500/40 rounded-xl flex flex-col justify-between md:col-span-2 shadow-lg shadow-brand-500/5 ring-1 ring-brand-500/20">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200 flex items-center gap-1">
+                  <label class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-film text-brand-400"></i>
                     <span>TMDB API Key</span>
-                    <span class="text-rose-400 font-bold">*</span>
+                    <span class="text-[10px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider">Requerida</span>
                   </label>
-                  <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
-                    <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-xs text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium">
+                    <span>Obtener Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                   </a>
                 </div>
-                <div class="relative">
-                  <input id="tmdbApiKey" type="password" placeholder="Pega tu API key de TMDB aquí" class="w-full pl-3 pr-10 py-2 rounded-lg bg-slate-950 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-xs text-slate-200 font-mono transition-colors">
-                  <button type="button" class="btn-toggle-key absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="tmdbApiKey">
+                <div class="relative mt-2">
+                  <input id="tmdbApiKey" type="password" placeholder="Pega tu API key de TMDB (v3 auth) aquí..." class="w-full pl-3 pr-10 py-2.5 rounded-lg bg-slate-950 border border-slate-700 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 text-xs text-slate-100 font-mono transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" data-target="tmdbApiKey">
                     <i class="fa-solid fa-eye"></i>
                   </button>
                 </div>
               </div>
-              <p class="text-[10px] text-slate-400 mt-1.5">Obligatoria. Base para pósters, sinopsis y actores de películas y series.</p>
+              <p class="text-xs text-slate-400 mt-2">Motor principal para pósters, sinopsis, reparto y enriquecimiento de películas y series en español latino.</p>
             </div>
 
             <!-- 2. TheTVDB API Key -->
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">TheTVDB API Key</label>
+                  <label class="text-xs font-semibold text-slate-200">
+                    TheTVDB API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  </label>
                   <a href="https://thetvdb.com/dashboard/account/apikeys" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                   </a>
@@ -230,14 +261,16 @@
                   </button>
                 </div>
               </div>
-              <p class="text-[10px] text-slate-400 mt-1.5">Opcional. Proveedor de orden cronológico para series y anime.</p>
+              <p class="text-[10px] text-slate-400 mt-1.5">Proveedor de orden cronológico para series y anime.</p>
             </div>
 
             <!-- 3. MDBList API Key -->
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">MDBList API Key</label>
+                  <label class="text-xs font-semibold text-slate-200">
+                    MDBList API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  </label>
                   <a href="https://mdblist.com/preferences/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                   </a>
@@ -256,7 +289,9 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">RPDB API Key</label>
+                  <label class="text-xs font-semibold text-slate-200">
+                    RPDB API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  </label>
                   <a href="https://ratingposterdb.com/api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                   </a>
@@ -275,7 +310,9 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">Fanart.tv API Key</label>
+                  <label class="text-xs font-semibold text-slate-200">
+                    Fanart.tv API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  </label>
                   <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                   </a>
@@ -294,7 +331,9 @@
             <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">TOP Posters API Key</label>
+                  <label class="text-xs font-semibold text-slate-200">
+                    TOP Posters API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  </label>
                   <a href="https://topposters.top/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                   </a>
@@ -310,10 +349,12 @@
             </div>
 
             <!-- 7. PublicMetaDB API Key -->
-            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between md:col-span-2">
+            <div class="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex flex-col justify-between">
               <div>
                 <div class="flex justify-between items-center mb-1.5">
-                  <label class="text-xs font-semibold text-slate-200">PublicMetaDB API Key</label>
+                  <label class="text-xs font-semibold text-slate-200">
+                    PublicMetaDB API Key <span class="text-[10px] text-slate-400 font-normal ml-1">(Opcional)</span>
+                  </label>
                   <a href="https://publicmetadb.com/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
                     <span>Get Key</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                   </a>
@@ -480,20 +521,6 @@
           <button id="btnDownloadAioConfig" class="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs transition-all flex items-center gap-2" title="Descargar configuración filtrada para AIOMetadata">
             <i class="fa-solid fa-file-code"></i>
             <span>Descargar Config AIOMetadata</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Barra de Navegación Inferior (Atrás / Siguiente) -->
-      <div class="pt-6 border-t border-slate-800/80 flex items-center justify-between mt-8">
-        <button id="btnBack" onclick="changeStep(-1)" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-all invisible">
-          <i class="fa-solid fa-chevron-left mr-1"></i> Anterior
-        </button>
-
-        <div class="flex items-center gap-3">
-          <span class="text-xs text-slate-500 font-mono" id="stepCounter">Paso 1 de 5</span>
-          <button id="btnNext" onclick="changeStep(1)" class="px-5 py-2 rounded-xl text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all flex items-center gap-1.5">
-            <span>Siguiente</span> <i class="fa-solid fa-chevron-right ml-1"></i>
           </button>
         </div>
       </div>

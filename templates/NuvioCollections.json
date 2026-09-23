@@ -4451,7 +4451,7 @@
           }
         ],
         "hideTitle": false,
-        "tileShape": "POSTER",
+        "tileShape": "LANDSCAPE",
         "coverEmoji": "🎭",
         "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/crime.webp",
         "heroVideoUrl": null,
@@ -4510,7 +4510,7 @@
           }
         ],
         "hideTitle": false,
-        "tileShape": "POSTER",
+        "tileShape": "LANDSCAPE",
         "coverEmoji": "🎭",
         "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/family.webp",
         "heroVideoUrl": null,
@@ -4584,7 +4584,7 @@
           }
         ],
         "hideTitle": false,
-        "tileShape": "POSTER",
+        "tileShape": "LANDSCAPE",
         "coverEmoji": "🎭",
         "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/history.webp",
         "heroVideoUrl": null,
@@ -4649,7 +4649,7 @@
           }
         ],
         "hideTitle": false,
-        "tileShape": "POSTER",
+        "tileShape": "LANDSCAPE",
         "coverEmoji": "🎭",
         "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/mystery.webp",
         "heroVideoUrl": null,
@@ -4708,7 +4708,7 @@
           }
         ],
         "hideTitle": false,
-        "tileShape": "POSTER",
+        "tileShape": "LANDSCAPE",
         "coverEmoji": "🎭",
         "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/reality.webp",
         "heroVideoUrl": null,
@@ -4752,7 +4752,7 @@
           }
         ],
         "hideTitle": false,
-        "tileShape": "POSTER",
+        "tileShape": "LANDSCAPE",
         "coverEmoji": "🎭",
         "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/tv.webp",
         "heroVideoUrl": null,

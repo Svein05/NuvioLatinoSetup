@@ -469,12 +469,14 @@ class AppController {
           });
 
           // Agregar a la lista de perfiles y auto-seleccionar
+          state.newlyCreatedProfileIds.add(String(newProfile.id));
           state.profiles.push(newProfile);
           state.selectedProfileId = newProfile.id;
           state.selectedProfileName = newProfile.name || name;
           state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
 
           this.renderProfiles();
+          this.updateProfileWarning(newProfile.id, newProfile.name || name);
           nameInput.value = '';
           this.showToast(`¡Perfil "${name}" creado y seleccionado con éxito!`, 'success');
         } catch (err) {
@@ -493,6 +495,25 @@ class AppController {
           handleCreate();
         }
       });
+    }
+  }
+
+  updateProfileWarning(profileId, profileName) {
+    const warningContainer = document.getElementById('profileOverwriteWarning');
+    const nameEl = document.getElementById('warningProfileName');
+    if (!warningContainer) return;
+
+    if (!profileId) {
+      warningContainer.classList.add('hidden');
+      return;
+    }
+
+    const isNew = state.isProfileNew(profileId);
+    if (!isNew) {
+      if (nameEl) nameEl.innerText = `"${profileName || 'seleccionado'}"`;
+      warningContainer.classList.remove('hidden');
+    } else {
+      warningContainer.classList.add('hidden');
     }
   }
 
@@ -542,6 +563,8 @@ class AppController {
           </div>
         `;
       }).join('');
+
+      this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
     } else {
       container.innerHTML = `
         <div class="col-span-full py-8 text-center bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
@@ -550,6 +573,7 @@ class AppController {
           <p class="text-xs text-slate-500 mt-1">Usa la opción de abajo para crear tu primer perfil directamente.</p>
         </div>
       `;
+      this.updateProfileWarning(null, '');
     }
   }
 
@@ -558,6 +582,7 @@ class AppController {
     state.selectedProfileName = name;
     state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
     this.renderProfiles();
+    this.updateProfileWarning(id, name);
     this.updateUI();
   }
 

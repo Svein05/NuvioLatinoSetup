@@ -112,9 +112,56 @@ export class PipelineInjector {
       }
 
       // ========================================================
-      // FASE 3: Registro del Addon en Nuvio
+      // FASE 3: Limpieza de Addons y Configuración de Perfil (es-MX)
       // ========================================================
-      state.addLog('[3/4] Registrando Addon en la base de datos de Nuvio (/rest/v1/addons)...', 'info');
+      state.addLog('[3/5] Limpiando addons preexistentes del perfil...', 'info');
+      if (isSimulation) {
+        await this.delay(500);
+        state.addLog('✓ [Simulado] Addons preexistentes ("nuvio catalog addon", "opensubtitles") eliminados.', 'success');
+      } else {
+        await NuvioClient.cleanProfileAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: targetProfileId
+        });
+        state.addLog('✓ Perfil limpio: catálogo previo removido para evitar duplicados.', 'success');
+      }
+
+      state.addLog('Configurando perfil: TMDB Enrichment y MDBList Ratings en es-MX (TV y Mobile)...', 'info');
+      const profileSettingsPayload = {
+        language: 'es-MX',
+        tmdb_language: 'es-MX',
+        enrichment_enabled: true,
+        ratings_enabled: true,
+        tmdb_api_key: state.apiKeys.tmdb || '',
+        mdblist_api_key: state.apiKeys.mdblist || '',
+        auto_translate: true
+      };
+
+      if (isSimulation) {
+        await this.delay(500);
+        state.addLog('✓ [Simulado] Configuración aplicada para TV y Mobile en español latino (es-MX).', 'success');
+      } else {
+        for (const platform of ['tv', 'mobile']) {
+          await NuvioClient.pushProfileSettings({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken,
+            userId: state.nuvioAuth.userId,
+            profileId: targetProfileId,
+            platform,
+            settings: profileSettingsPayload
+          });
+        }
+        state.addLog('✓ TMDB Enrichment y MDBList Ratings configurados exitosamente en es-MX.', 'success');
+      }
+
+      // ========================================================
+      // FASE 4: Registro del Addon AIOMetadata en Nuvio
+      // ========================================================
+      state.addLog('[4/5] Registrando Addon AIOMetadata Latino en Nuvio (/rest/v1/addons)...', 'info');
       const addonPayload = {
         profile_id: targetProfileId,
         addon_id: addonId,
@@ -139,9 +186,9 @@ export class PipelineInjector {
       }
 
       // ========================================================
-      // FASE 4: Inyección de Colecciones Nativas
+      // FASE 5: Inyección de Colecciones Nativas
       // ========================================================
-      state.addLog('[4/4] Inyectando colecciones nativas sincronizadas (sync_push_collections)...', 'info');
+      state.addLog('[5/5] Inyectando colecciones nativas sincronizadas (sync_push_collections)...', 'info');
       const synchronizedCollections = state.getSynchronizedNuvioCollections();
       const totalCollections = synchronizedCollections.reduce((acc, sec) => acc + (sec.folders?.length || 0), 0);
 

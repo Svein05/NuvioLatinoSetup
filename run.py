@@ -6,6 +6,12 @@ import time
 import os
 import sys
 
+# Asegurar codificación UTF-8 en terminales Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8')
+
 # Asegurar que el servidor se ejecute desde la raíz del proyecto
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASE_DIR)

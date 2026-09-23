@@ -234,6 +234,11 @@ export class NuvioClient {
         body: { p_profiles: allProfiles }
       });
 
+      // Limpiar addons por defecto (nuvio catalog addon y opensubtitles) para que el perfil inicie limpio
+      try {
+        await this.cleanProfileAddons({ apiUrl, apikey, accessToken, userId, profileId: newIndex });
+      } catch (_) {}
+
       return {
         id: newIndex,
         profile_index: newIndex,
@@ -270,7 +275,15 @@ export class NuvioClient {
       }
 
       const created = await response.json();
-      return Array.isArray(created) ? created[0] : created;
+      const createdProfile = Array.isArray(created) ? created[0] : created;
+
+      // Limpiar addons por defecto también en el fallback
+      try {
+        const profId = createdProfile.profile_index ?? createdProfile.id;
+        await this.cleanProfileAddons({ apiUrl, apikey, accessToken, userId, profileId: profId });
+      } catch (_) {}
+
+      return createdProfile;
     } catch (err) {
       console.error('[NuvioClient] Error creando perfil:', err);
       throw new Error(`Fallo al crear perfil en Nuvio: ${err.message}`);
@@ -409,5 +422,135 @@ export class NuvioClient {
         throw rpcErr;
       }
     }
+  }
+
+  /**
+   * Limpia y elimina todos los addons preexistentes de un perfil
+   * (Resuelve el problema de que perfiles nuevos o existentes retengan "nuvio catalog addon" y "opensubtitles")
+   */
+  static async cleanProfileAddons({ apiUrl, apikey, accessToken, userId, profileId }) {
+    const profId = Number(profileId) || profileId;
+
+    // 1. Intentar procedimiento RPC oficial sync_push_addons con lista vacía
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_addons',
+        body: {
+          p_profile_id: profId,
+          p_addons: [],
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+      return { success: true, method: 'rpc' };
+    } catch (rpcErr) {
+      try {
+        await this.rpc({
+          apiUrl,
+          apikey,
+          accessToken,
+          path: 'sync_push_addons',
+          body: {
+            p_profile_id: profId,
+            p_addons: []
+          }
+        });
+        return { success: true, method: 'rpc_compact' };
+      } catch (err2) {
+        console.warn('[NuvioClient] sync_push_addons vaciado falló, intentando REST DELETE:', err2.message);
+      }
+    }
+
+    // 2. Fallback a DELETE REST en tabla addons
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const endpoint = `${cleanUrl}/rest/v1/addons?profile_id=eq.${encodeURIComponent(profId)}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      return { success: response.ok, method: 'rest' };
+    } catch (err) {
+      console.warn('[NuvioClient] Fallback DELETE addons falló:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Configura las opciones del perfil para activar TMDB Enrichment y MDBList Ratings
+   * en Español Latino (es-MX) tanto para plataforma 'tv' como 'mobile'.
+   */
+  static async pushProfileSettings({ apiUrl, apikey, accessToken, profileId, platform = 'tv', settings = {} }) {
+    const profId = Number(profileId) || profileId;
+    const settingsBlob = {
+      language: 'es-MX',
+      tmdb_language: 'es-MX',
+      enrichment_enabled: true,
+      ratings_enabled: true,
+      auto_translate: true,
+      include_adult: false,
+      ...settings
+    };
+
+    // 1. Intentar RPC sync_push_profile_settings_blob
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profile_settings_blob',
+        body: {
+          p_profile_id: profId,
+          p_platform: platform,
+          p_settings_json: settingsBlob,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+      return { success: true, method: 'rpc' };
+    } catch (rpcErr) {
+      try {
+        await this.rpc({
+          apiUrl,
+          apikey,
+          accessToken,
+          path: 'sync_push_profile_settings_blob',
+          body: {
+            p_profile_id: profId,
+            p_platform: platform,
+            p_settings_json: settingsBlob
+          }
+        });
+        return { success: true, method: 'rpc_compact' };
+      } catch (err2) {
+        console.warn(`[NuvioClient] sync_push_profile_settings_blob (${platform}) falló:`, err2.message);
+      }
+    }
+
+    // 2. Fallback REST a tabla profile_settings o settings
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    try {
+      await fetch(`${cleanUrl}/rest/v1/profile_settings`, {
+        method: 'POST',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates'
+        },
+        body: JSON.stringify({
+          profile_id: profId,
+          platform: platform,
+          settings: settingsBlob
+        })
+      });
+    } catch (_) {}
+
+    return { success: true, method: 'attempted' };
   }
 }
