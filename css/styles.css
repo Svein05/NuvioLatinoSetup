@@ -4,21 +4,12 @@
 
 /* Control de Pasos del Asistente */
 .step-content {
-  display: none;
+  display: none !important;
   animation: fadeIn 0.25s ease-out forwards;
 }
 
 .step-content.active {
-  display: block;
-}
-
-#step-1.active {
-  display: flex !important;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  min-height: 52vh;
+  display: block !important;
 }
 
 @keyframes fadeIn {
