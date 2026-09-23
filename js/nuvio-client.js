@@ -89,6 +89,50 @@ export class NuvioClient {
   }
 
   /**
+   * Crea un nuevo perfil en la cuenta de Nuvio
+   * @param {string} apiUrl
+   * @param {string} apikey
+   * @param {string} accessToken
+   * @param {string} userId
+   * @param {string} name Nombre del nuevo perfil
+   * @param {string} [avatarUrl] URL del avatar opcional
+   * @returns {Promise<object>} El perfil creado
+   */
+  static async createProfile({ apiUrl, apikey, accessToken, userId, name, avatarUrl }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const endpoint = `${cleanUrl}/rest/v1/profiles`;
+    const avatar = avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name.trim())}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          name: name.trim(),
+          avatar_url: avatar
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error creando perfil (${response.status}): ${errorText}`);
+      }
+
+      const created = await response.json();
+      return Array.isArray(created) ? created[0] : created;
+    } catch (err) {
+      console.error('[NuvioClient] Error creando perfil:', err);
+      throw new Error(`Fallo al crear perfil en Nuvio: ${err.message}`);
+    }
+  }
+
+  /**
    * Registra el addon en el perfil seleccionado
    * @param {string} apiUrl
    * @param {string} apikey

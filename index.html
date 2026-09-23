@@ -55,8 +55,8 @@
       <div id="authStatusBadge" class="text-xs bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
         <i class="fa-solid fa-circle text-[8px]"></i> No autenticado
       </div>
-      <span class="hidden sm:inline-block text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-mono">
-        Navegación Libre
+      <span class="hidden sm:inline-block text-xs bg-brand-500/10 text-brand-300 border border-brand-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5">
+        <i class="fa-solid fa-list-check"></i> Asistente Secuencial
       </span>
     </div>
   </header>
@@ -70,34 +70,52 @@
         Secciones del Asistente
       </div>
       
-      <button onclick="goToStep(1)" id="nav-btn-1" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors bg-brand-600/10 text-brand-500 font-medium border border-brand-500/20">
-        <i class="fa-solid fa-user-lock w-5 text-center"></i>
-        <span>1. Cuenta Nuvio</span>
+      <button onclick="goToStep(1)" id="nav-btn-1" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors bg-brand-600/10 text-brand-400 font-medium border border-brand-500/30">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-user-lock w-4 text-center"></i>
+          <span>1. Cuenta Nuvio</span>
+        </div>
+        <i class="step-lock-icon hidden"></i>
       </button>
 
-      <button onclick="goToStep(2)" id="nav-btn-2" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent">
-        <i class="fa-solid fa-users w-5 text-center"></i>
-        <span>2. Perfiles</span>
+      <button onclick="goToStep(2)" id="nav-btn-2" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-users w-4 text-center"></i>
+          <span>2. Perfiles</span>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
       </button>
 
-      <button onclick="goToStep(3)" id="nav-btn-3" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent">
-        <i class="fa-solid fa-key w-5 text-center"></i>
-        <span>3. Claves API</span>
+      <button onclick="goToStep(3)" id="nav-btn-3" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-key w-4 text-center"></i>
+          <span>3. Claves API</span>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
       </button>
 
-      <button onclick="goToStep(4)" id="nav-btn-4" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent">
-        <i class="fa-solid fa-tv w-5 text-center"></i>
-        <span>4. Mini NUVIO</span>
+      <button onclick="goToStep(4)" id="nav-btn-4" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-tv w-4 text-center"></i>
+          <span>4. Mini NUVIO</span>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
       </button>
 
-      <button onclick="goToStep(5)" id="nav-btn-5" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent">
-        <i class="fa-solid fa-shield-halved w-5 text-center"></i>
-        <span>5. AIOMetadata</span>
+      <button onclick="goToStep(5)" id="nav-btn-5" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-shield-halved w-4 text-center"></i>
+          <span>5. AIOMetadata</span>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
       </button>
 
-      <button onclick="goToStep(6)" id="nav-btn-6" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-400 hover:bg-slate-900 hover:text-slate-200 border border-transparent">
-        <i class="fa-solid fa-rocket w-5 text-center"></i>
-        <span>6. Inyección y Log</span>
+      <button onclick="goToStep(6)" id="nav-btn-6" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm text-left transition-colors text-slate-500 border border-transparent cursor-not-allowed opacity-60">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-rocket w-4 text-center"></i>
+          <span>6. Inyección y Log</span>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] step-lock-icon"></i>
       </button>
 
       <!-- Botón de Discord Permanente en Sidebar -->
@@ -140,17 +158,8 @@
             <span>Conectar Cuenta</span>
           </button>
 
-          <!-- Configuración Avanzada de Clave Pública Nuvio -->
-          <details class="text-xs text-slate-400 bg-slate-950/40 p-3 rounded-xl border border-slate-800/80">
-            <summary class="cursor-pointer font-medium hover:text-slate-300 select-none">
-              <i class="fa-solid fa-sliders text-slate-500 mr-1.5"></i> Configuración Avanzada (API Key Pública)
-            </summary>
-            <div class="mt-3 space-y-1.5">
-              <label class="block text-[11px] text-slate-500">Nuvio Publishable Anon Key</label>
-              <input id="nuvioApikey" type="text" class="w-full px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 font-mono text-[11px] text-slate-300">
-              <p class="text-[10px] text-slate-500">Por defecto: <code>sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN</code></p>
-            </div>
-          </details>
+          <!-- Clave pública interna oculta para producción -->
+          <input id="nuvioApikey" type="hidden" value="sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN">
 
           <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-start gap-3 text-xs text-slate-400">
             <i class="fa-solid fa-lock text-slate-500 mt-0.5"></i>
@@ -173,6 +182,23 @@
 
         <div id="profilesContainer" class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
           <!-- Renderizado dinámico desde js/app.js -->
+        </div>
+
+        <!-- Sección para Crear un Nuevo Perfil en Nuvio -->
+        <div class="mt-6 pt-5 border-t border-slate-800/80 max-w-2xl">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-plus text-brand-400"></i> ¿Deseas un nuevo perfil dedicado?
+            </label>
+            <span class="text-[11px] text-slate-500">Crea un perfil limpio sin tocar los existentes</span>
+          </div>
+          <div class="flex gap-2">
+            <input id="newProfileName" type="text" placeholder="Ej: Setup Latino, Cine 4K, Niños..." class="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+            <button id="btnCreateProfile" type="button" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-brand-600 text-slate-200 hover:text-white font-medium text-xs transition-all flex items-center gap-1.5 shrink-0 shadow-sm">
+              <i class="fa-solid fa-plus"></i>
+              <span>Crear Perfil</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -347,6 +373,9 @@
 
     </main>
   </div>
+
+  <!-- Contenedor de notificaciones flotantes (Toasts) -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
 
 </body>
 </html>
