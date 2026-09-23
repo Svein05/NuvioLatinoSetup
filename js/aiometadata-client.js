@@ -29,13 +29,14 @@ export class AIOMetadataClient {
 
       const data = await response.json();
       
-      // La API suele responder con { uuid: "..." } o { id: "..." }
-      const uuid = data.uuid || data.id || data.configId;
+      // La API oficial responde con userUUID o uuid/id
+      const uuid = data.userUUID || data.uuid || data.id || data.configId;
       if (!uuid) {
         throw new Error('La respuesta de AIOMetadata no contiene un UUID válido.');
       }
 
-      const manifestUrl = `${cleanUrl}/stremio/${uuid}/manifest.json`;
+      // La API oficial también retorna directamente installUrl
+      const manifestUrl = data.installUrl || `${cleanUrl}/stremio/${uuid}/manifest.json`;
 
       return {
         uuid,
