@@ -425,13 +425,79 @@ export class NuvioClient {
   }
 
   /**
+   * Lista los addons registrados en un perfil específico
+   */
+  static async listAddons({ apiUrl, apikey, accessToken, userId, profileId }) {
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const profId = Number(profileId) || profileId;
+    const query = new URLSearchParams({
+      select: '*',
+      user_id: `eq.${ownerId}`,
+      profile_id: `eq.${profId}`,
+      order: 'sort_order.asc,created_at.asc'
+    });
+
+    try {
+      const response = await fetch(`${cleanUrl}/rest/v1/addons?${query.toString()}`, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  /**
    * Limpia y elimina todos los addons preexistentes de un perfil
-   * (Resuelve el problema de que perfiles nuevos o existentes retengan "nuvio catalog addon" y "opensubtitles")
+   * (Metodología probada en stremio-perfect-setup: listar por perfil y eliminar por ID atómicamente)
    */
   static async cleanProfileAddons({ apiUrl, apikey, accessToken, userId, profileId }) {
     const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
 
-    // 1. Intentar procedimiento RPC oficial sync_push_addons con lista vacía
+    // 1. Intentar listar y borrar cada addon por su ID (metodología stremio-perfect-setup)
+    try {
+      const existing = await this.listAddons({ apiUrl, apikey, accessToken, userId, profileId: profId });
+      if (existing.length > 0) {
+        await Promise.all(existing.map(addon => {
+          const deleteUrl = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addon.id)}&profile_id=eq.${encodeURIComponent(profId)}`;
+          return fetch(deleteUrl, {
+            method: 'DELETE',
+            headers: {
+              'apikey': apikey,
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+        }));
+      }
+    } catch (listErr) {
+      console.warn('[NuvioClient] Error eliminando addons individuales por ID:', listErr.message);
+    }
+
+    // 2. Ejecutar además DELETE masivo por profile_id
+    try {
+      await fetch(`${cleanUrl}/rest/v1/addons?profile_id=eq.${encodeURIComponent(profId)}`, {
+        method: 'DELETE',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+    } catch (_) {}
+
+    // 3. Fallback adicional con RPC sync_push_addons con lista vacía
     try {
       await this.rpc({
         apiUrl,
@@ -440,46 +506,12 @@ export class NuvioClient {
         path: 'sync_push_addons',
         body: {
           p_profile_id: profId,
-          p_addons: [],
-          p_origin_client_id: 'nuvio-setup-web'
+          p_addons: []
         }
       });
-      return { success: true, method: 'rpc' };
-    } catch (rpcErr) {
-      try {
-        await this.rpc({
-          apiUrl,
-          apikey,
-          accessToken,
-          path: 'sync_push_addons',
-          body: {
-            p_profile_id: profId,
-            p_addons: []
-          }
-        });
-        return { success: true, method: 'rpc_compact' };
-      } catch (err2) {
-        console.warn('[NuvioClient] sync_push_addons vaciado falló, intentando REST DELETE:', err2.message);
-      }
-    }
+    } catch (_) {}
 
-    // 2. Fallback a DELETE REST en tabla addons
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-    const endpoint = `${cleanUrl}/rest/v1/addons?profile_id=eq.${encodeURIComponent(profId)}`;
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'DELETE',
-        headers: {
-          'apikey': apikey,
-          'Authorization': `Bearer ${accessToken}`
-        }
-      });
-      return { success: response.ok, method: 'rest' };
-    } catch (err) {
-      console.warn('[NuvioClient] Fallback DELETE addons falló:', err.message);
-      return { success: false, error: err.message };
-    }
+    return { success: true };
   }
 
   /**

@@ -1256,7 +1256,26 @@ class AppController {
         }, 800);
       } else {
         if (titleEl) {
-          titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i><span class="text-rose-400">Error durante la inyección</span>';
+          titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i><span class="text-rose-400 font-bold">Error durante la inyección</span>';
+        }
+        if (barEl) {
+          barEl.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
+        }
+        const errorDetail = state.execution.error || 'Ocurrió un error inesperado al procesar la inyección.';
+        if (detailEl) {
+          detailEl.innerHTML = `
+            <div class="mt-2 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-1.5">
+              <div class="flex items-center gap-2 text-rose-400 font-semibold text-xs">
+                <i class="fa-solid fa-bug"></i>
+                <span>Detalle técnico del error:</span>
+              </div>
+              <p class="text-rose-200 text-xs font-mono break-words leading-relaxed select-text">${errorDetail}</p>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">
+              💡 Puedes reintentar o usar los botones de <strong>Descargar Colecciones JSON</strong> y <strong>Descargar Config AIOMetadata</strong> para importar manualmente.
+            </p>
+          `;
+          detailEl.className = 'text-xs text-slate-300';
         }
         this.showToast('Ocurrió un error durante la inyección. Revisa el detalle.', 'error');
       }

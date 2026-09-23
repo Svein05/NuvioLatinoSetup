@@ -6,8 +6,14 @@ export const CONFIG = {
   NUVIO_API_URL: "https://api.nuvio.tv",
   NUVIO_PUBLIC_ANON_KEY: "sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN",
 
-  // Instancia de AIOMetadata predeterminada
-  DEFAULT_AIOMETADATA_URL: "https://aiometadata.elfhosted.com",
+  // Pool de instancias de AIOMetadata con soporte para fallback automático
+  AIOMETADATA_INSTANCES: [
+    "https://aiometadatafortheweebs.midnightignite.me",
+    "https://aiometadata.viren070.me",
+    "https://aiometadata.fortheweak.cloud",
+    "https://aiometadata.elfhosted.com"
+  ],
+  DEFAULT_AIOMETADATA_URL: "https://aiometadatafortheweebs.midnightignite.me",
 
   // URLs de plantillas locales
   TEMPLATES: {

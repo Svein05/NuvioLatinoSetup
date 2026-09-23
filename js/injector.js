@@ -27,9 +27,9 @@ export class PipelineInjector {
       // ========================================================
       // FASE 1: Filtrado y Guardado en AIOMetadata
       // ========================================================
-      state.addLog('[1/4] Compilando configuración de AIOMetadata (Español Latino)...', 'info');
+      state.addLog('[1/5] Compilando configuración de AIOMetadata (Español Latino)...', 'info');
       const metaPayload = state.getSynchronizedMetadataPayload();
-      const activeCatalogsCount = metaPayload.catalogs.length;
+      const activeCatalogsCount = (metaPayload.config?.catalogs || metaPayload.catalogs || []).length;
       state.addLog(`✓ ${activeCatalogsCount} catálogos sincronizados en modo Ghost (inHome: false).`, 'info');
 
       let manifestUrl = '';
@@ -43,9 +43,17 @@ export class PipelineInjector {
         state.addLog(`✓ [Simulado] UUID generado: ${mockUuid}`, 'success');
         state.addLog(`✓ [Simulado] Manifest URL: ${manifestUrl}`, 'success');
       } else {
-        state.addLog(`Enviando configuración a ${state.aiometadata.instanceUrl} (/api/config/save)...`, 'info');
-        const saveRes = await AIOMetadataClient.saveConfiguration(state.aiometadata.instanceUrl, metaPayload);
+        state.addLog('[1/5] Guardando configuración en AIOMetadata con pool de instancias...', 'info');
+        const saveRes = await AIOMetadataClient.saveWithFallbacks(
+          CONFIG.AIOMETADATA_INSTANCES,
+          metaPayload,
+          (instance, current, total) => {
+            state.addLog(`[1/5] Conectando con AIOMetadata (${current}/${total}): ${instance}...`, 'info');
+          }
+        );
         manifestUrl = saveRes.manifestUrl;
+        state.aiometadata.instanceUrl = saveRes.instanceUrl;
+        state.addLog(`✓ Configuración guardada en ${saveRes.instanceUrl}`, 'success');
         state.addLog(`✓ UUID generado: ${saveRes.uuid}`, 'success');
         state.addLog(`✓ Manifest generado: ${manifestUrl}`, 'success');
 
@@ -60,7 +68,7 @@ export class PipelineInjector {
       // ========================================================
       // FASE 2: Verificación de Sesión y Perfil en Nuvio
       // ========================================================
-      state.addLog('[2/4] Verificando autenticación y perfil de Nuvio...', 'info');
+      state.addLog('[2/5] Verificando autenticación y perfil de Nuvio...', 'info');
       let accessToken = state.nuvioAuth.accessToken;
       let targetProfileId = state.selectedProfileId;
       let targetProfileName = state.selectedProfileName || 'Perfil Principal';
@@ -221,8 +229,9 @@ export class PipelineInjector {
       state.addLog('🎉 ¡Configuración completada con éxito! Tu Nuvio está listo.', 'success');
     } catch (err) {
       console.error('[PipelineInjector] Error:', err);
-      state.addLog(`❌ Error en el proceso: ${err.message}`, 'error');
-      state.addLog('💡 Sugerencia: Si es un error de CORS o red, verifica que tu proveedor de internet no bloquee api.nuvio.tv o usa el botón de descarga manual de JSON.', 'warning');
+      const errMsg = err?.message || String(err);
+      state.execution.error = errMsg;
+      state.addLog(`❌ Error en el proceso: ${errMsg}`, 'error');
     } finally {
       state.execution.isRunning = false;
       state.notify('EXECUTION_FINISHED');

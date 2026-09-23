@@ -553,9 +553,7 @@ class WizardState {
 
     return {
       password,
-      ...configObj,
-      config: configObj,
-      catalogs: configObj.catalogs || template.catalogs || []
+      config: configObj
     };
   }
 
