@@ -19,3 +19,7 @@ scripts/
 Plantilla.html
 run.py
 
+# Debug / analysis files (not part of source)
+collectionResultante.json
+metadataResultante.json
+

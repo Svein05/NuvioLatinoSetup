@@ -107,7 +107,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.top_rated",
+            "catalogId": "tmdb.top_movie",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -176,7 +176,7 @@
             "type": "movie",
             "genre": "None",
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_rated"
+            "catalogId": "tmdb.top_movie"
           },
           {
             "type": "series",
@@ -363,7 +363,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.trending",
+            "catalogId": "tmdb.trending_movie",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -379,21 +379,6 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "tmdb.trending",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.14",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -435,19 +420,13 @@
             "type": "movie",
             "genre": "Day",
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending"
+            "catalogId": "tmdb.trending_movie"
           },
           {
             "type": "series",
             "genre": "Day",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.trending"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.14"
           }
         ],
         "focusGifEnabled": false,
@@ -527,7 +506,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.top_rated",
+            "catalogId": "tmdb.top_movie",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -599,7 +578,7 @@
             "type": "movie",
             "genre": "None",
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_rated"
+            "catalogId": "tmdb.top_movie"
           },
           {
             "type": "series",
@@ -700,7 +679,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.top",
+            "catalogId": "tmdb.top_movie",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -763,7 +742,7 @@
             "type": "movie",
             "genre": "None",
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top"
+            "catalogId": "tmdb.top_movie"
           },
           {
             "type": "series",
