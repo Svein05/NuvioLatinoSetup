@@ -89,6 +89,66 @@
     "timezone": "UTC",
     "catalogs": [
       {
+        "id": "tmdb.trending",
+        "name": "Lo que todo el mundo esta viendo según TMDB",
+        "type": "movie",
+        "source": "tmdb",
+        "enabled": true,
+        "showInHome": false,
+        "enableRatingPosters": true,
+        "randomizePerPage": false,
+        "displayType": "movie",
+        "tags": [
+          "Ahora en Nuvio",
+          "Tendencia"
+        ]
+      },
+      {
+        "id": "tmdb.trending",
+        "name": "Lo que todo el mundo esta viendo según TMDB",
+        "type": "series",
+        "source": "tmdb",
+        "enabled": true,
+        "showInHome": false,
+        "enableRatingPosters": true,
+        "randomizePerPage": false,
+        "displayType": "series",
+        "tags": [
+          "Ahora en Nuvio",
+          "Tendencia"
+        ]
+      },
+      {
+        "id": "tmdb.top",
+        "name": "Lo más popular de hoy",
+        "type": "movie",
+        "source": "tmdb",
+        "enabled": true,
+        "showInHome": false,
+        "enableRatingPosters": true,
+        "randomizePerPage": false,
+        "displayType": "movie",
+        "tags": [
+          "Ahora en Nuvio",
+          "Populares"
+        ]
+      },
+      {
+        "id": "tmdb.top",
+        "name": "Lo más popular de hoy",
+        "type": "series",
+        "source": "tmdb",
+        "enabled": true,
+        "showInHome": false,
+        "enableRatingPosters": true,
+        "randomizePerPage": false,
+        "displayType": "series",
+        "tags": [
+          "Ahora en Nuvio",
+          "Populares"
+        ]
+      },
+      {
         "id": "trakt.recommendations.movies",
         "type": "movie",
         "name": "Recomendaciones de Trakt",
@@ -11769,6 +11829,66 @@
     "enabledCatalogs": 201
   },
   "catalogs": [
+    {
+      "id": "tmdb.trending",
+      "name": "Lo que todo el mundo esta viendo según TMDB",
+      "type": "movie",
+      "source": "tmdb",
+      "enabled": true,
+      "showInHome": false,
+      "enableRatingPosters": true,
+      "randomizePerPage": false,
+      "displayType": "movie",
+      "tags": [
+        "Ahora en Nuvio",
+        "Tendencia"
+      ]
+    },
+    {
+      "id": "tmdb.trending",
+      "name": "Lo que todo el mundo esta viendo según TMDB",
+      "type": "series",
+      "source": "tmdb",
+      "enabled": true,
+      "showInHome": false,
+      "enableRatingPosters": true,
+      "randomizePerPage": false,
+      "displayType": "series",
+      "tags": [
+        "Ahora en Nuvio",
+        "Tendencia"
+      ]
+    },
+    {
+      "id": "tmdb.top",
+      "name": "Lo más popular de hoy",
+      "type": "movie",
+      "source": "tmdb",
+      "enabled": true,
+      "showInHome": false,
+      "enableRatingPosters": true,
+      "randomizePerPage": false,
+      "displayType": "movie",
+      "tags": [
+        "Ahora en Nuvio",
+        "Populares"
+      ]
+    },
+    {
+      "id": "tmdb.top",
+      "name": "Lo más popular de hoy",
+      "type": "series",
+      "source": "tmdb",
+      "enabled": true,
+      "showInHome": false,
+      "enableRatingPosters": true,
+      "randomizePerPage": false,
+      "displayType": "series",
+      "tags": [
+        "Ahora en Nuvio",
+        "Populares"
+      ]
+    },
     {
       "id": "trakt.recommendations.movies",
       "type": "movie",
