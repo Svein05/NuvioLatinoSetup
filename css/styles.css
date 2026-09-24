@@ -254,3 +254,107 @@
   box-shadow: 0 0 25px -3px rgba(99, 102, 241, 0.35), inset 0 0 15px rgba(99, 102, 241, 0.08);
 }
 
+/* ========================================== */
+/* DRAG & DROP, WIGGLE & CONTORNOS AZULES     */
+/* ========================================== */
+
+@keyframes wiggle {
+  0% {
+    transform: rotate(0deg) scale(1.02);
+  }
+  25% {
+    transform: rotate(-1.5deg) scale(1.02);
+  }
+  50% {
+    transform: rotate(0deg) scale(1.02);
+  }
+  75% {
+    transform: rotate(1.5deg) scale(1.02);
+  }
+  100% {
+    transform: rotate(0deg) scale(1.02);
+  }
+}
+
+/* Elementos activos o en arrastre */
+.is-dragging {
+  animation: wiggle 0.28s ease-in-out infinite !important;
+  opacity: 0.88 !important;
+  cursor: grabbing !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 14px 28px -5px rgba(99, 102, 241, 0.5), 0 0 0 2px #6366f1 !important;
+  z-index: 50 !important;
+}
+
+/* Cápsula de Colección (Mini Tarjetas) */
+.draggable-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  cursor: grab;
+}
+
+.draggable-card:active {
+  animation: wiggle 0.28s ease-in-out infinite;
+  cursor: grabbing;
+}
+
+.draggable-card:hover {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 22px -2px rgba(99, 102, 241, 0.45), inset 0 0 12px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+.draggable-card.drag-over {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 25px -2px rgba(56, 189, 248, 0.6), inset 0 0 15px rgba(56, 189, 248, 0.2) !important;
+  transform: scale(0.97);
+}
+
+/* Contenedor de Sección (Caja Grande) */
+.section-container {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Contorno azul en toda la caja de la sección al posar el cursor sobre la cabecera */
+.section-container:has(.section-header:hover),
+.section-container.header-hovered {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 25px -4px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.06);
+}
+
+.section-container.drag-over-section {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 30px -2px rgba(56, 189, 248, 0.55), inset 0 0 15px rgba(56, 189, 248, 0.1) !important;
+}
+
+.section-drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+.section-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Filas de Catálogo en el Explorador */
+.catalog-explorer-row {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: grab;
+}
+
+.catalog-explorer-row:active {
+  animation: wiggle 0.28s ease-in-out infinite;
+  cursor: grabbing;
+}
+
+.catalog-explorer-row:hover {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 18px -3px rgba(99, 102, 241, 0.38);
+}
+
+.catalog-explorer-row.drag-over-catalog {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 22px -2px rgba(56, 189, 248, 0.55) !important;
+  transform: scale(0.99);
+}
+
+

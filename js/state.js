@@ -184,9 +184,10 @@ class WizardState {
    */
   async loadTemplates() {
     try {
+      const cacheBuster = `?v=${Date.now()}`;
       const [metaRes, colRes] = await Promise.all([
-        fetch(CONFIG.TEMPLATES.METADATA_LATINO),
-        fetch(CONFIG.TEMPLATES.NUVIO_COLLECTIONS)
+        fetch(`${CONFIG.TEMPLATES.METADATA_LATINO}${cacheBuster}`, { cache: 'no-store' }),
+        fetch(`${CONFIG.TEMPLATES.NUVIO_COLLECTIONS}${cacheBuster}`, { cache: 'no-store' })
       ]);
 
       if (!metaRes.ok || !colRes.ok) {
@@ -283,7 +284,21 @@ class WizardState {
   }
 
   /**
-   * Reordena carpetas dentro de una sección
+   * Reordena carpetas dentro de una sección por índice directo (drag and drop)
+   */
+  reorderFolder(sectionId, fromIndex, toIndex) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return false;
+    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= section.folders.length || toIndex < 0 || toIndex >= section.folders.length) return false;
+
+    const [moved] = section.folders.splice(fromIndex, 1);
+    section.folders.splice(toIndex, 0, moved);
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Reordena carpetas dentro de una sección (dirección relativa: -1 o 1)
    */
   moveFolder(sectionId, folderIndex, direction) {
     const section = this.collections.find(s => s.id === sectionId);
@@ -298,11 +313,36 @@ class WizardState {
   }
 
   /**
-   * Reordena secciones completas
+   * Reordena secciones completas por índice directo (drag and drop)
+   */
+  reorderSection(fromIndex, toIndex) {
+    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= this.collections.length || toIndex < 0 || toIndex >= this.collections.length) return false;
+
+    const [moved] = this.collections.splice(fromIndex, 1);
+    this.collections.splice(toIndex, 0, moved);
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Reordena secciones completas (dirección relativa: -1 o 1)
    */
   moveSection(sectionIndex, direction) {
     const targetIndex = sectionIndex + direction;
     if (targetIndex < 0 || targetIndex >= this.collections.length) return;
+
+    const [moved] = this.collections.splice(sectionIndex, 1);
+    this.collections.splice(targetIndex, 0, moved);
+    this.notify('COLLECTIONS_UPDATED');
+  }
+
+  /**
+   * Mueve una sección a los extremos: 'top' (al cielo / posición 0) o 'bottom' (al fondo / última posición)
+   */
+  moveSectionExtreme(sectionIndex, destination) {
+    if (sectionIndex < 0 || sectionIndex >= this.collections.length) return;
+    const targetIndex = destination === 'top' ? 0 : this.collections.length - 1;
+    if (sectionIndex === targetIndex) return;
 
     const [moved] = this.collections.splice(sectionIndex, 1);
     this.collections.splice(targetIndex, 0, moved);
@@ -320,7 +360,32 @@ class WizardState {
   }
 
   /**
-   * Reordena un catálogo dentro de una carpeta (subir o bajar)
+   * Reordena un catálogo dentro de una carpeta por índice directo (drag and drop)
+   */
+  reorderCatalogInFolder(sectionId, folderId, fromIndex, toIndex) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return false;
+    const folder = section.folders.find(f => f.id === folderId);
+    if (!folder || !folder.sources) return false;
+
+    const sources = folder.sources || [];
+    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= sources.length || toIndex < 0 || toIndex >= sources.length) return false;
+
+    const [movedSource] = sources.splice(fromIndex, 1);
+    sources.splice(toIndex, 0, movedSource);
+    folder.sources = sources;
+
+    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length > fromIndex) {
+      const [movedCat] = folder.catalogSources.splice(fromIndex, 1);
+      folder.catalogSources.splice(toIndex, 0, movedCat);
+    }
+
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Reordena un catálogo dentro de una carpeta (subir o bajar relativo: -1 o 1)
    */
   moveCatalogInFolder(sectionId, folderId, catalogIndex, direction) {
     const section = this.collections.find(s => s.id === sectionId);
@@ -339,6 +404,34 @@ class WizardState {
 
     // Mover en catalogSources si existe
     if (Array.isArray(folder.catalogSources) && folder.catalogSources.length === sources.length) {
+      const [movedCat] = folder.catalogSources.splice(catalogIndex, 1);
+      folder.catalogSources.splice(targetIndex, 0, movedCat);
+    }
+
+    this.notify('COLLECTIONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Mueve un catálogo a los extremos: 'top' (al cielo / posición 0) o 'bottom' (al fondo / última posición)
+   */
+  moveCatalogExtreme(sectionId, folderId, catalogIndex, destination) {
+    const section = this.collections.find(s => s.id === sectionId);
+    if (!section || !section.folders) return false;
+    const folder = section.folders.find(f => f.id === folderId);
+    if (!folder || !folder.sources) return false;
+
+    const sources = folder.sources || [];
+    if (catalogIndex < 0 || catalogIndex >= sources.length) return false;
+
+    const targetIndex = destination === 'top' ? 0 : sources.length - 1;
+    if (catalogIndex === targetIndex) return false;
+
+    const [movedSource] = sources.splice(catalogIndex, 1);
+    sources.splice(targetIndex, 0, movedSource);
+    folder.sources = sources;
+
+    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length > catalogIndex) {
       const [movedCat] = folder.catalogSources.splice(catalogIndex, 1);
       folder.catalogSources.splice(targetIndex, 0, movedCat);
     }
