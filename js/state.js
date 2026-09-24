@@ -488,13 +488,21 @@ class WizardState {
         // Extraer de catalogSources
         if (Array.isArray(folder.catalogSources)) {
           folder.catalogSources.forEach(cs => {
-            if (cs && cs.catalogId) activeCatalogIds.add(cs.catalogId);
+            if (cs && cs.catalogId) {
+              activeCatalogIds.add(cs.catalogId);
+              if (cs.catalogId.startsWith('tmdb.trending')) activeCatalogIds.add('tmdb.trending');
+              if (cs.catalogId.startsWith('tmdb.top')) activeCatalogIds.add('tmdb.top');
+            }
           });
         }
         // Extraer de sources
         if (Array.isArray(folder.sources)) {
           folder.sources.forEach(s => {
-            if (s && s.catalogId) activeCatalogIds.add(s.catalogId);
+            if (s && s.catalogId) {
+              activeCatalogIds.add(s.catalogId);
+              if (s.catalogId.startsWith('tmdb.trending')) activeCatalogIds.add('tmdb.trending');
+              if (s.catalogId.startsWith('tmdb.top')) activeCatalogIds.add('tmdb.top');
+            }
           });
         }
       });
