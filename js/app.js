@@ -17,6 +17,7 @@ class AppController {
     // 1. Inicializar Mini Nuvio y Cargar Plantillas
     this.miniNuvio = new MiniNuvio('miniNuvioContainer');
     window.miniNuvioInstance = this.miniNuvio;
+    window.appController = this;
 
     await state.loadTemplates();
     this.miniNuvio.init();
@@ -33,8 +34,77 @@ class AppController {
       this.handleStateUpdate(s, eventType);
     });
 
-    // 4. Mostrar paso inicial
+    // 4. Mostrar paso inicial del asistente
     this.updateUI();
+
+    // 5. Control inicial de vistas (Landing por defecto, o Asistente si hay hash)
+    if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
+      this.showWizardView(false);
+    } else {
+      this.showLandingView(false);
+    }
+
+    // Escuchar cambios de navegación en el historial
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
+        this.showWizardView(false);
+      } else {
+        this.showLandingView(false);
+      }
+    });
+  }
+
+  /**
+   * Muestra la Landing Page de Presentación inicial
+   */
+  showLandingView(updateHash = true) {
+    const landing = document.getElementById('landingView');
+    const wizard = document.getElementById('wizardView');
+    const btnText = document.getElementById('btnToggleWizardHeaderText');
+    const btnIcon = document.querySelector('#btnToggleWizardHeader i');
+    if (landing && wizard) {
+      landing.classList.remove('hidden');
+      wizard.classList.add('hidden');
+      if (btnText) btnText.innerText = 'Iniciar Asistente';
+      if (btnIcon) btnIcon.className = 'fa-solid fa-wand-magic-sparkles text-[11px]';
+      if (updateHash && window.location.hash) {
+        history.pushState('', document.title, window.location.pathname + window.location.search);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Muestra el Asistente de Configuración (5 Pasos)
+   */
+  showWizardView(updateHash = true) {
+    const landing = document.getElementById('landingView');
+    const wizard = document.getElementById('wizardView');
+    const btnText = document.getElementById('btnToggleWizardHeaderText');
+    const btnIcon = document.querySelector('#btnToggleWizardHeader i');
+    if (landing && wizard) {
+      landing.classList.add('hidden');
+      wizard.classList.remove('hidden');
+      if (btnText) btnText.innerText = 'Ver Presentación';
+      if (btnIcon) btnIcon.className = 'fa-solid fa-house text-[11px]';
+      if (updateHash) {
+        window.location.hash = '#wizard';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.updateUI();
+    }
+  }
+
+  /**
+   * Alterna dinámicamente entre la Landing y el Asistente
+   */
+  toggleView() {
+    const landing = document.getElementById('landingView');
+    if (landing && !landing.classList.contains('hidden')) {
+      this.showWizardView();
+    } else {
+      this.showLandingView();
+    }
   }
 
   /**
@@ -409,7 +479,7 @@ class AppController {
         if (tabSignup) {
           tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
         }
-        if (headingText) headingText.innerText = "Conectar con tu cuenta";
+        if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
@@ -420,7 +490,7 @@ class AppController {
         if (tabLogin) {
           tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
         }
-        if (headingText) headingText.innerText = "Crear una nueva cuenta";
+        if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
         if (hintText) hintText.classList.remove('hidden');
         if (btnConnect) btnConnect.style.display = 'none';
         if (btnSignup) btnSignup.style.display = 'flex';
