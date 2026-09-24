@@ -254,7 +254,7 @@
           {
             "type": "movie",
             "genre": "Day",
-            "title": null,
+            "title": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -269,7 +269,7 @@
           {
             "type": "series",
             "genre": "Day",
-            "title": null,
+            "title": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -284,7 +284,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Los ánimes que todos estan viendo (Películas)",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -292,21 +292,6 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "mdblist.88468",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.16086",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -323,26 +308,23 @@
           {
             "type": "movie",
             "genre": "Day",
+            "title": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.trending_movie"
           },
           {
             "type": "series",
             "genre": "Day",
+            "title": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.trending_series"
           },
           {
             "type": "movie",
             "genre": null,
+            "title": "Los ánimes que todos estan viendo (Películas)",
             "addonId": "aio-metadata",
             "catalogId": "mdblist.88468"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.16086"
           }
         ],
         "focusGifEnabled": false,
@@ -456,7 +438,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo más popular de hoy (Películas)",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -471,7 +453,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las más populares para los pequeños en casa",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -486,7 +468,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Lo más popular de hoy (Series)",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -501,7 +483,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Lo que todos estan viendo en Ánime",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -509,21 +491,6 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "mdblist.6928",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.133223",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -540,32 +507,30 @@
           {
             "type": "movie",
             "genre": null,
+            "title": "Lo más popular de hoy (Películas)",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_movie"
           },
           {
             "type": "movie",
             "genre": null,
+            "title": "Las más populares para los pequeños en casa",
             "addonId": "aio-metadata",
             "catalogId": "mdblist.121922"
           },
           {
             "type": "series",
             "genre": null,
+            "title": "Lo más popular de hoy (Series)",
             "addonId": "aio-metadata",
             "catalogId": "tmdb.top_series"
           },
           {
             "type": "series",
             "genre": null,
+            "title": "Lo que todos estan viendo en Ánime",
             "addonId": "aio-metadata",
             "catalogId": "mdblist.6928"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.133223"
           }
         ],
         "focusGifEnabled": false,

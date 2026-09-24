@@ -115,13 +115,16 @@ export class MiniNuvio {
         <!-- Hero Header: Live Backdrop Preview -->
         ${this.renderHeroBanner()}
 
-        <!-- Carruseles por Sección -->
-        <div class="space-y-6">
+        <!-- Carruseles por Sección con contenedor Sortable -->
+        <div id="miniNuvioSectionsList" class="space-y-6">
           ${state.collections.map((section, sIndex) => this.renderSection(section, sIndex)).join('')}
         </div>
 
       </div>
     `;
+
+    // Inicializar SortableJS para reordenación fluida y animaciones en tiempo real
+    this.initSortables();
   }
 
   /**
@@ -189,28 +192,45 @@ export class MiniNuvio {
     const isSectionEnabled = section.enabled !== false;
     const folders = section.folders || [];
     const activeCount = folders.filter(f => f.enabled !== false).length;
+    const isFirstSection = sIndex === 0;
+    const isLastSection = sIndex === state.collections.length - 1;
 
     return `
-      <div class="bg-slate-950/60 border ${isSectionEnabled ? 'border-slate-800' : 'border-slate-900 opacity-60'} rounded-2xl p-4 transition-all">
-        <!-- Cabecera de la Sección -->
-        <div class="flex items-center justify-between mb-3 px-1">
-          <div class="flex items-center gap-3">
-            <button onclick="window.miniNuvioInstance.toggleSection('${section.id}')" class="text-slate-400 hover:text-brand-400 transition-colors" title="${isSectionEnabled ? 'Desactivar sección' : 'Activar sección'}">
+      <div 
+        id="sectionContainer_${section.id}"
+        data-section-index="${sIndex}"
+        data-section-id="${section.id}"
+        class="section-container bg-slate-950/60 border ${isSectionEnabled ? 'border-slate-800' : 'border-slate-900 opacity-60'} rounded-2xl p-4 transition-all"
+      >
+        <!-- Cabecera de la Sección con contorno dinámico al hover y agarre para arrastrar -->
+        <div 
+          class="section-header flex items-center justify-between mb-3 px-1 rounded-lg"
+          onmouseenter="window.miniNuvioInstance.onSectionHeaderHover('${section.id}', true)"
+          onmouseleave="window.miniNuvioInstance.onSectionHeaderHover('${section.id}', false)"
+        >
+          <div 
+            class="section-drag-handle flex items-center gap-3 cursor-grab select-none"
+            title="Arrastra desde aquí para reordenar esta sección verticalmente"
+          >
+            <span class="text-slate-500 hover:text-brand-400 transition-colors p-1" title="Arrastrar sección">
+              <i class="fa-solid fa-grip-vertical text-xs"></i>
+            </span>
+            <button type="button" onclick="event.stopPropagation(); window.miniNuvioInstance.toggleSection('${section.id}')" class="no-drag text-slate-400 hover:text-brand-400 transition-colors" title="${isSectionEnabled ? 'Desactivar sección' : 'Activar sección'}">
               <i class="fa-solid ${isSectionEnabled ? 'fa-eye text-brand-500' : 'fa-eye-slash text-slate-600'}"></i>
             </button>
-            <h3 onclick="window.miniNuvioInstance.openSectionModal('${section.id}')" class="text-sm font-bold text-slate-200 tracking-wide flex items-center gap-2 cursor-pointer hover:text-white transition-colors" title="Haz click para personalizar esta sección">
+            <h3 onclick="event.stopPropagation(); window.miniNuvioInstance.openSectionModal('${section.id}')" class="no-drag text-sm font-bold text-slate-200 tracking-wide flex items-center gap-2 cursor-pointer hover:text-white transition-colors" title="Haz click para personalizar esta sección">
               <span>${section.title || section.id}</span>
               <span class="text-[11px] font-mono text-slate-500 font-normal">(${activeCount}/${folders.length})</span>
             </h3>
           </div>
 
-          <!-- Controles de Sección -->
-          <div class="flex items-center gap-1.5 text-xs">
-            <button onclick="window.miniNuvioInstance.moveSection(${sIndex}, -1)" ${sIndex === 0 ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:text-slate-200 text-slate-400"'} title="Mover sección arriba">
-              <i class="fa-solid fa-arrow-up px-1.5 py-1"></i>
+          <!-- Controles de Sección: Flechas Dobles (Cielo / Fondo) -->
+          <div class="flex items-center gap-1.5 text-xs no-drag">
+            <button onclick="window.miniNuvioInstance.moveSectionExtreme(${sIndex}, 'top')" ${isFirstSection ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:text-brand-300 text-slate-400 transition-colors"'} title="Mover sección al cielo (primera posición)">
+              <i class="fa-solid fa-angles-up px-1.5 py-1"></i>
             </button>
-            <button onclick="window.miniNuvioInstance.moveSection(${sIndex}, 1)" ${sIndex === state.collections.length - 1 ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:text-slate-200 text-slate-400"'} title="Mover sección abajo">
-              <i class="fa-solid fa-arrow-down px-1.5 py-1"></i>
+            <button onclick="window.miniNuvioInstance.moveSectionExtreme(${sIndex}, 'bottom')" ${isLastSection ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:text-brand-300 text-slate-400 transition-colors"'} title="Tirar sección al fondo (última posición)">
+              <i class="fa-solid fa-angles-down px-1.5 py-1"></i>
             </button>
             <button onclick="window.miniNuvioInstance.openSectionModal('${section.id}')" class="hover:text-brand-300 text-slate-300 ml-1 px-2 py-1 rounded bg-slate-900 border border-slate-800 flex items-center gap-1 transition-all" title="Personalizar y editar filas de la sección">
               <i class="fa-solid fa-sliders text-[11px] text-brand-400"></i>
@@ -219,8 +239,12 @@ export class MiniNuvio {
           </div>
         </div>
 
-        <!-- Carrusel Horizontal de Tarjetas (Rail con items-start para evitar deformaciones) -->
-        <div class="flex gap-3 overflow-x-auto items-start pb-2 pt-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+        <!-- Carrusel Horizontal de Tarjetas (Rail Sortable interactivo) -->
+        <div 
+          id="carouselRail_${section.id}" 
+          data-section-id="${section.id}"
+          class="flex gap-3 overflow-x-auto items-start pb-2 pt-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent"
+        >
           ${folders.map((folder, fIndex) => this.renderFolderCard(section, folder, fIndex)).join('')}
         </div>
       </div>
@@ -245,26 +269,36 @@ export class MiniNuvio {
 
     return `
       <div 
-        class="group relative ${sizeClasses} rounded-xl overflow-hidden border ${isFocused ? 'border-brand-500 ring-2 ring-brand-500/30' : isEnabled ? 'border-slate-800 hover:border-slate-700' : 'border-slate-900 opacity-40'} bg-slate-900 cursor-pointer select-none transition-all duration-200"
+        id="folderCard_${section.id}_${folder.id}"
+        data-section-id="${section.id}"
+        data-folder-index="${fIndex}"
+        data-folder-id="${folder.id}"
+        class="draggable-card group relative ${sizeClasses} rounded-xl overflow-hidden border ${isFocused ? 'border-brand-500 ring-2 ring-brand-500/40 shadow-lg shadow-brand-500/20' : isEnabled ? 'border-slate-800' : 'border-slate-900 opacity-40'} bg-slate-900 select-none cursor-grab"
         onmouseenter="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
         onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')"
       >
         <!-- Imagen de Portada -->
-        <img src="${imageSrc}" alt="${folder.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+        <img src="${imageSrc}" alt="${folder.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none"></div>
 
-        <!-- Checkbox de Activación (Esquina Superior Derecha) -->
-        <div class="absolute top-2 right-2 z-20" onclick="event.stopPropagation()">
+        <!-- Checkbox de Activación (Esquina Superior Derecha, aislado de arrastre) -->
+        <div 
+          class="no-drag absolute top-2 right-2 z-20 cursor-pointer p-1" 
+          onclick="event.stopPropagation()" 
+          onmousedown="event.stopPropagation()" 
+          onpointerdown="event.stopPropagation()"
+          title="${isEnabled ? 'Desmarcar colección' : 'Activar colección'}"
+        >
           <input 
             type="checkbox" 
             ${isEnabled ? 'checked' : ''} 
             onchange="window.miniNuvioInstance.toggleFolder('${section.id}', '${folder.id}')"
-            class="w-4 h-4 rounded text-brand-600 bg-slate-950 border-slate-700 focus:ring-0 cursor-pointer shadow"
+            class="no-drag w-4 h-4 rounded text-brand-600 bg-slate-950 border-slate-700 focus:ring-0 cursor-pointer shadow"
           >
         </div>
 
         <!-- Indicador de Emoji y Título en el Pie de Tarjeta -->
-        <div class="absolute bottom-2 left-2 right-2 z-10">
+        <div class="absolute bottom-2 left-2 right-2 z-10 pointer-events-none">
           <div class="text-xs font-semibold text-white drop-shadow truncate flex items-center gap-1.5">
             <span>${folder.coverEmoji || '🎬'}</span>
             <span class="truncate">${folder.title}</span>
@@ -272,24 +306,20 @@ export class MiniNuvio {
         </div>
 
         <!-- Overlay con Acciones Rápidas (Visible en Hover) -->
-        <div class="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity" onclick="event.stopPropagation()">
-          <button onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg shadow-brand-600/30 flex items-center gap-1.5 transform hover:scale-105 transition-all">
+        <div class="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity" onclick="event.stopPropagation()">
+          <button onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')" class="no-drag px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-lg shadow-brand-600/30 flex items-center gap-1.5 transform hover:scale-105 transition-all">
             <i class="fa-solid fa-layer-group text-[11px]"></i>
             <span>Ver Catálogos</span>
           </button>
 
-          <div class="flex items-center gap-2 mt-0.5">
-            <button onclick="window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, -1)" ${fIndex === 0 ? 'disabled class="opacity-30"' : 'class="hover:text-white"'} title="Mover izquierda">
-              <i class="fa-solid fa-chevron-left text-xs bg-slate-800 p-1.5 rounded-lg text-slate-300"></i>
-            </button>
-            
-            <button onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-1.5 rounded-lg border border-slate-700 shadow" title="Personalizar diseño de fila">
-              <i class="fa-solid fa-sliders text-xs"></i>
-            </button>
+          <button onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="no-drag bg-slate-800/90 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 shadow text-[11px] flex items-center gap-1.5 transition-all" title="Personalizar diseño de fila">
+            <i class="fa-solid fa-sliders text-[10px] text-brand-400"></i>
+            <span>Diseño</span>
+          </button>
 
-            <button onclick="window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, 1)" ${fIndex === section.folders.length - 1 ? 'disabled class="opacity-30"' : 'class="hover:text-white"'} title="Mover derecha">
-              <i class="fa-solid fa-chevron-right text-xs bg-slate-800 p-1.5 rounded-lg text-slate-300"></i>
-            </button>
+          <div class="text-[10px] text-slate-300/80 font-medium flex items-center gap-1 mt-0.5 pointer-events-none">
+            <i class="fa-solid fa-arrows-left-right text-[9px] text-brand-400"></i>
+            <span>Arrastra para ordenar</span>
           </div>
         </div>
       </div>
@@ -337,6 +367,147 @@ export class MiniNuvio {
 
   moveSection(sIndex, direction) {
     state.moveSection(sIndex, direction);
+  }
+
+  moveSectionExtreme(sIndex, destination) {
+    state.moveSectionExtreme(sIndex, destination);
+  }
+
+  moveCatalogExtreme(sectionId, folderId, catalogIndex, destination) {
+    const success = state.moveCatalogExtreme(sectionId, folderId, catalogIndex, destination);
+    if (success) {
+      this.refreshCatalogExplorer(sectionId, folderId);
+    }
+  }
+
+  /* =================================================== */
+  /* CONTORNO AZUL Y REORDENACIÓN FLUIDA (SORTABLEJS)    */
+  /* =================================================== */
+  onSectionHeaderHover(sectionId, isHovered) {
+    const el = document.getElementById(`sectionContainer_${sectionId}`);
+    if (el) {
+      if (isHovered) {
+        el.classList.add('header-hovered');
+      } else {
+        el.classList.remove('header-hovered');
+      }
+    }
+  }
+
+  /**
+   * Inicializa las instancias de SortableJS para reordenar secciones y tarjetas
+   * con animaciones fluidas en tiempo real donde los elementos se desplazan suavemente.
+   */
+  initSortables() {
+    if (typeof Sortable === 'undefined') return;
+
+    // 1. Sortable para Secciones Completas (Vertical)
+    const sectionsEl = document.getElementById('miniNuvioSectionsList');
+    if (sectionsEl) {
+      if (this.sectionsSortable) {
+        try { this.sectionsSortable.destroy(); } catch (e) {}
+      }
+      this.sectionsSortable = new Sortable(sectionsEl, {
+        handle: '.section-drag-handle',
+        animation: 250,
+        ghostClass: 'section-sortable-ghost',
+        chosenClass: 'is-chosen',
+        dragClass: 'is-dragging',
+        filter: 'input, button, a, .no-drag',
+        preventOnFilter: false,
+        onEnd: (evt) => {
+          if (evt.oldIndex !== evt.newIndex) {
+            state.reorderSection(evt.oldIndex, evt.newIndex);
+          }
+        }
+      });
+    }
+
+    // 2. Sortable para Carruseles de Colecciones en cada Sección (Horizontal)
+    this.folderSortables = this.folderSortables || [];
+    this.folderSortables.forEach(s => { try { s.destroy(); } catch (e) {} });
+    this.folderSortables = [];
+
+    (state.collections || []).forEach(sec => {
+      const railEl = document.getElementById(`carouselRail_${sec.id}`);
+      if (railEl) {
+        const sortable = new Sortable(railEl, {
+          direction: 'horizontal',
+          animation: 250,
+          filter: 'input, button, a, .no-drag',
+          preventOnFilter: false,
+          ghostClass: 'card-sortable-ghost',
+          chosenClass: 'is-chosen',
+          dragClass: 'is-dragging',
+          onEnd: (evt) => {
+            if (evt.oldIndex !== evt.newIndex) {
+              state.reorderFolder(sec.id, evt.oldIndex, evt.newIndex);
+            }
+          }
+        });
+        this.folderSortables.push(sortable);
+      }
+    });
+  }
+
+  /**
+   * Resuelve el nombre en Español Latino para cualquier catálogo garantizando
+   * que nunca aparezcan identificadores internos crudos como 'tmdb.trending_movie'.
+   */
+  resolveCatalogTitle(source, catalogMap) {
+    if (source && source.title && source.title.trim()) {
+      return source.title.trim();
+    }
+    const catId = source?.catalogId || source?.id || '';
+    const type = source?.type || '';
+    const meta = catalogMap ? catalogMap.get(catId) : null;
+
+    if (meta && meta.name && !meta.name.toLowerCase().startsWith('tmdb.') && !meta.name.toLowerCase().startsWith('mdblist.')) {
+      return meta.name;
+    }
+
+    // Mapeos canónicos limpios en Español Latino
+    if (catId === 'tmdb.trending_movie' || (catId.startsWith('tmdb.trending') && type === 'movie')) {
+      return 'Lo que todo el mundo esta viendo según TMDB (Películas) - Day';
+    }
+    if (catId === 'tmdb.trending_series' || (catId.startsWith('tmdb.trending') && type === 'series')) {
+      return 'Lo que todo el mundo esta viendo según TMDB (Series) - Day';
+    }
+    if (catId === 'tmdb.top_movie' || (catId.startsWith('tmdb.top') && type === 'movie')) {
+      return 'Lo más popular de hoy (Películas)';
+    }
+    if (catId === 'tmdb.top_series' || (catId.startsWith('tmdb.top') && type === 'series')) {
+      return 'Lo más popular de hoy (Series)';
+    }
+    if (catId === 'trakt.recommendations.movies') {
+      return 'Recomendaciones de Trakt (Películas)';
+    }
+    if (catId === 'trakt.recommendations.shows') {
+      return 'Recomendaciones de Trakt (Series)';
+    }
+    if (catId.startsWith('tmdb.discover.movie.streaming.')) {
+      const p = catId.replace('tmdb.discover.movie.streaming.', '').replace(/-/g, ' ');
+      const pTitle = p.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return `🎬 ${pTitle} (Películas)`;
+    }
+    if (catId.startsWith('tmdb.discover.series.streaming.')) {
+      const p = catId.replace('tmdb.discover.series.streaming.', '').replace(/-/g, ' ');
+      const pTitle = p.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return `🎬 ${pTitle} (Series)`;
+    }
+    if (catId.startsWith('tmdb.discover.movie.genres.')) {
+      const g = catId.replace('tmdb.discover.movie.genres.', '').replace(/-/g, ' ');
+      const gTitle = g.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return `🎭 ${gTitle} (Películas)`;
+    }
+    if (catId.startsWith('tmdb.discover.series.genres.')) {
+      const g = catId.replace('tmdb.discover.series.genres.', '').replace(/-/g, ' ');
+      const gTitle = g.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      return `🎭 ${gTitle} (Series)`;
+    }
+
+    if (meta && meta.name) return meta.name;
+    return catId;
   }
 
   resetDefaults() {
@@ -479,8 +650,8 @@ export class MiniNuvio {
       const catMeta = catalogMap.get(catId) || { name: s.title || catId, type: s.type };
       const resolved = await TmdbService.resolveCatalogPreview(catId, catMeta, tmdbKey);
       
-      // Respetar título personalizado si existe en sources
-      const displayTitle = s.title || resolved.title || catMeta.name || catId;
+      // Respetar título personalizado o resolver nombre amigable en español latino
+      const displayTitle = this.resolveCatalogTitle(s, catalogMap) || resolved.title || catMeta.name || catId;
       renderedCatalogs.push({ ...resolved, title: displayTitle, index: idx, catId });
     }
 
@@ -490,18 +661,23 @@ export class MiniNuvio {
       const isFirst = idx === 0;
       const isLast = idx === renderedCatalogs.length - 1;
 
-      // Barra de controles de cada catálogo: Reordenar, Renombrar y Eliminar
+      // Barra de controles de cada catálogo: Asa de arrastre Sortable, Reordenar (Cielo/Fondo), Renombrar y Eliminar
       const controlsBar = `
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
           <div class="flex items-center gap-2">
-            <!-- Botones Subir / Bajar -->
-            <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5">
-              <button type="button" onclick="window.miniNuvioInstance.moveCatalogInExplorer('${sectionId}', '${folderId}', ${idx}, -1)" ${isFirst ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"'} title="Mover arriba">
-                <i class="fa-solid fa-chevron-up text-[10px]"></i>
-              </button>
-              <button type="button" onclick="window.miniNuvioInstance.moveCatalogInExplorer('${sectionId}', '${folderId}', ${idx}, 1)" ${isLast ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"'} title="Mover abajo">
-                <i class="fa-solid fa-chevron-down text-[10px]"></i>
-              </button>
+            <!-- Asa de arrastre Sortable y Botones Extremos (Cielo / Fondo) -->
+            <div class="flex items-center gap-1">
+              <span class="catalog-drag-handle text-slate-500 hover:text-brand-400 cursor-grab p-1" title="Arrastra para reordenar este catálogo con el mouse">
+                <i class="fa-solid fa-grip-vertical text-xs"></i>
+              </span>
+              <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5 no-drag">
+                <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'top')" ${isFirst ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition-colors"'} title="Mover catálogo al cielo (primera posición)">
+                  <i class="fa-solid fa-angles-up text-[10px]"></i>
+                </button>
+                <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'bottom')" ${isLast ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition-colors"'} title="Tirar catálogo al fondo (última posición)">
+                  <i class="fa-solid fa-angles-down text-[10px]"></i>
+                </button>
+              </div>
             </div>
             
             <h4 class="text-xs font-bold text-white flex items-center gap-2">
@@ -510,7 +686,7 @@ export class MiniNuvio {
             </h4>
           </div>
 
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 no-drag">
             <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
             
             <button type="button" onclick="window.miniNuvioInstance.renameCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[10px] text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors" title="Renombrar este catálogo">
@@ -529,11 +705,14 @@ export class MiniNuvio {
       // Caso 1: Catálogo que requiere sincronización de Trakt
       if (cat.isTrakt) {
         return `
-          <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
+          <div 
+            class="catalog-explorer-row p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3"
+            data-catalog-index="${idx}"
+          >
             ${controlsBar}
 
             <!-- Alerta Sincronización Trakt -->
-            <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-2.5">
+            <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-2.5 no-drag">
               <i class="fa-solid fa-lock text-amber-400 text-xs mt-0.5 shrink-0"></i>
               <div class="text-[11px] text-amber-200/90 leading-relaxed">
                 <span class="font-bold text-amber-300">(Solo disponible si sincronizas a través de AIOMetadata)</span>:
@@ -544,14 +723,17 @@ export class MiniNuvio {
         `;
       }
 
-      // Caso 2: Catálogo con pósters de TMDB en vivo (Sin estrellas sobre pósters ni textos de conteo)
+      // Caso 2: Catálogo con pósters de TMDB en vivo
       const items = cat.items || [];
       return `
-        <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3">
+        <div 
+          class="catalog-explorer-row p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3"
+          data-catalog-index="${idx}"
+        >
           ${controlsBar}
 
-          <!-- Carrusel de Pósters Reales en Español Latino (Limpio y Cinematográfico) -->
-          <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent">
+          <!-- Carrusel de Pósters Reales en Español Latino -->
+          <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent no-drag">
             ${items.map(item => {
               const posterUrl = TmdbService.getPosterUrl(item.poster_path);
               const title = item.title || item.name || 'Título';
@@ -560,7 +742,7 @@ export class MiniNuvio {
               return `
                 <div class="w-28 sm:w-32 shrink-0 space-y-1.5 group select-none">
                   <div class="aspect-[2/3] rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-md relative">
-                    <img src="${posterUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" loading="lazy">
+                    <img src="${posterUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105 pointer-events-none" loading="lazy">
                   </div>
                   <div class="text-[11px] font-semibold text-slate-200 truncate group-hover:text-white" title="${title}">
                     ${title}
@@ -575,6 +757,28 @@ export class MiniNuvio {
         </div>
       `;
     }).join('');
+
+    // Inicializar SortableJS para reordenar los catálogos suavemente en tiempo real
+    if (typeof Sortable !== 'undefined') {
+      if (this.catalogSortable) {
+        try { this.catalogSortable.destroy(); } catch (e) {}
+      }
+      this.catalogSortable = new Sortable(bodyEl, {
+        handle: '.catalog-drag-handle',
+        animation: 250,
+        filter: 'input, button, a, .no-drag',
+        preventOnFilter: false,
+        ghostClass: 'catalog-sortable-ghost',
+        chosenClass: 'is-chosen',
+        dragClass: 'is-dragging',
+        onEnd: (evt) => {
+          if (evt.oldIndex !== evt.newIndex) {
+            state.reorderCatalogInFolder(sectionId, folderId, evt.oldIndex, evt.newIndex);
+            this.refreshCatalogExplorer(sectionId, folderId);
+          }
+        }
+      });
+    }
   }
 
   /**
@@ -605,11 +809,13 @@ export class MiniNuvio {
     const source = folder?.sources?.[catalogIndex];
     if (!source) return;
 
-    // Resolver nombre legible: 1. título personalizado previo, 2. nombre en plantilla de AIOMetadata, 3. ID de respaldo
+    // Resolver nombre legible: 1. título personalizado previo, 2. nombre canónico amigable, 3. plantilla AIOMetadata, 4. ID
     const catId = source.catalogId || source.id || '';
     const allCatalogs = state.rawMetadataTemplate?.config?.catalogs || state.rawMetadataTemplate?.catalogs || [];
-    const catMeta = allCatalogs.find(c => c.id === catId);
-    const currentTitle = source.title || catMeta?.name || catId;
+    const catalogMap = new Map();
+    allCatalogs.forEach(c => { if (c.id) catalogMap.set(c.id, c); });
+    const catMeta = catalogMap.get(catId);
+    const currentTitle = this.resolveCatalogTitle(source, catalogMap) || source.title || catMeta?.name || catId;
 
     const existing = document.getElementById('renameCatalogModal');
     if (existing) existing.remove();
@@ -853,13 +1059,19 @@ export class MiniNuvio {
                   return `
                     <div class="flex items-center justify-between gap-3 p-2.5 bg-slate-950/60 border border-slate-800 rounded-xl hover:border-slate-700 transition-colors">
                       
-                      <!-- Orden Controls -->
-                      <div class="flex flex-col gap-0.5 shrink-0">
-                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-25 text-slate-600 cursor-not-allowed"' : 'class="text-slate-400 hover:text-white"'} title="Subir">
+                      <!-- Orden Controls: Subir, Bajar y Extremos Cielo / Fondo -->
+                      <div class="flex items-center gap-0.5 shrink-0 bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-25 text-slate-600 cursor-not-allowed p-1"' : 'class="p-1 text-slate-400 hover:text-white transition-colors"'} title="Subir">
                           <i class="fa-solid fa-chevron-up text-[10px]"></i>
                         </button>
-                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, 1)" ${idx === folders.length - 1 ? 'disabled class="opacity-25 text-slate-600 cursor-not-allowed"' : 'class="text-slate-400 hover:text-white"'} title="Bajar">
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, 1)" ${idx === folders.length - 1 ? 'disabled class="opacity-25 text-slate-600 cursor-not-allowed p-1"' : 'class="p-1 text-slate-400 hover:text-white transition-colors"'} title="Bajar">
                           <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSectionExtreme('${sec.id}', ${idx}, 'top')" ${idx === 0 ? 'disabled class="opacity-25 text-slate-600 cursor-not-allowed p-1"' : 'class="p-1 text-slate-400 hover:text-brand-300 transition-colors"'} title="Mover al cielo (primera posición)">
+                          <i class="fa-solid fa-angles-up text-[10px]"></i>
+                        </button>
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSectionExtreme('${sec.id}', ${idx}, 'bottom')" ${idx === folders.length - 1 ? 'disabled class="opacity-25 text-slate-600 cursor-not-allowed p-1"' : 'class="p-1 text-slate-400 hover:text-brand-300 transition-colors"'} title="Tirar al fondo (última posición)">
+                          <i class="fa-solid fa-angles-down text-[10px]"></i>
                         </button>
                       </div>
 
@@ -915,6 +1127,14 @@ export class MiniNuvio {
 
   moveFolderInSection(sectionId, folderIndex, direction) {
     state.moveFolder(sectionId, folderIndex, direction);
+    this.openSectionModal(sectionId);
+  }
+
+  moveFolderInSectionExtreme(sectionId, folderIndex, destination) {
+    const sec = state.collections.find(s => s.id === sectionId);
+    if (!sec || !sec.folders) return;
+    const targetIndex = destination === 'top' ? 0 : sec.folders.length - 1;
+    state.reorderFolder(sectionId, folderIndex, targetIndex);
     this.openSectionModal(sectionId);
   }
 

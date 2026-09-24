@@ -3101,30 +3101,6 @@
         ]
       },
       {
-        "id": "mdblist.16086",
-        "type": "series",
-        "name": "Dramas Coreanos mas vistos por la gente",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "series",
-        "metadata": {
-          "itemCount": 123,
-          "author": "fuzi0n",
-          "url": "https://mdblist.com/lists/fuzi0n/asian-tv-trending",
-          "mediatype": "show"
-        },
-        "tags": [
-          "Ahora en Nuvio",
-          "Tendencia"
-        ]
-      },
-      {
         "id": "mdblist.6506",
         "type": "movie",
         "name": "Las mejores 25 recomendaciones de la semana",
@@ -3334,30 +3310,6 @@
           "author": "snoak",
           "url": "https://mdblist.com/lists/snoak/animationanime-movies",
           "mediatype": "movie"
-        },
-        "tags": [
-          "Ahora en Nuvio",
-          "Populares"
-        ]
-      },
-      {
-        "id": "mdblist.133223",
-        "type": "series",
-        "name": "Dramas Chinos más populares de la semana",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "series",
-        "metadata": {
-          "itemCount": 8813,
-          "author": "joeeys",
-          "url": "https://mdblist.com/lists/joeeys/popular-chinese-dramas",
-          "mediatype": "show"
         },
         "tags": [
           "Ahora en Nuvio",
@@ -6867,9 +6819,25 @@
         ]
       },
       {
+        "id": "tmdb.top_movie",
+        "type": "movie",
+        "name": "Lo más popular de hoy (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "tmdb"
+      },
+      {
         "id": "tmdb.top_series",
         "type": "series",
-        "name": "Tmdb.Top Series",
+        "name": "Lo más popular de hoy (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "tmdb"
+      },
+      {
+        "id": "tmdb.trending_movie",
+        "type": "movie",
+        "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb"
@@ -6877,7 +6845,7 @@
       {
         "id": "tmdb.trending_series",
         "type": "series",
-        "name": "Tmdb.Trending Series",
+        "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb"
@@ -10195,30 +10163,6 @@
       ]
     },
     {
-      "id": "mdblist.16086",
-      "type": "series",
-      "name": "Dramas Coreanos mas vistos por la gente",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "series",
-      "metadata": {
-        "itemCount": 123,
-        "author": "fuzi0n",
-        "url": "https://mdblist.com/lists/fuzi0n/asian-tv-trending",
-        "mediatype": "show"
-      },
-      "tags": [
-        "Ahora en Nuvio",
-        "Tendencia"
-      ]
-    },
-    {
       "id": "mdblist.6506",
       "type": "movie",
       "name": "Las mejores 25 recomendaciones de la semana",
@@ -10428,30 +10372,6 @@
         "author": "snoak",
         "url": "https://mdblist.com/lists/snoak/animationanime-movies",
         "mediatype": "movie"
-      },
-      "tags": [
-        "Ahora en Nuvio",
-        "Populares"
-      ]
-    },
-    {
-      "id": "mdblist.133223",
-      "type": "series",
-      "name": "Dramas Chinos más populares de la semana",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "series",
-      "metadata": {
-        "itemCount": 8813,
-        "author": "joeeys",
-        "url": "https://mdblist.com/lists/joeeys/popular-chinese-dramas",
-        "mediatype": "show"
       },
       "tags": [
         "Ahora en Nuvio",
@@ -13961,9 +13881,25 @@
       ]
     },
     {
+      "id": "tmdb.top_movie",
+      "type": "movie",
+      "name": "Lo más popular de hoy (Películas)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "tmdb"
+    },
+    {
       "id": "tmdb.top_series",
       "type": "series",
-      "name": "Tmdb.Top Series",
+      "name": "Lo más popular de hoy (Series)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "tmdb"
+    },
+    {
+      "id": "tmdb.trending_movie",
+      "type": "movie",
+      "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb"
@@ -13971,7 +13907,7 @@
     {
       "id": "tmdb.trending_series",
       "type": "series",
-      "name": "Tmdb.Trending Series",
+      "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb"
