@@ -357,4 +357,40 @@
   transform: scale(0.99);
 }
 
+/* ========================================== */
+/* SORTABLE GHOST & PLACEHOLDER ANIMATIONS    */
+/* ========================================== */
+
+.is-chosen {
+  animation: wiggle 0.28s ease-in-out infinite !important;
+  cursor: grabbing !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 14px 28px -5px rgba(99, 102, 241, 0.55), 0 0 0 2px #6366f1 !important;
+  z-index: 9999 !important;
+}
+
+.card-sortable-ghost {
+  opacity: 0.25 !important;
+  border: 2px dashed #6366f1 !important;
+  background: rgba(99, 102, 241, 0.12) !important;
+  box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.2) !important;
+  transform: scale(0.96);
+  border-radius: 0.75rem;
+}
+
+.section-sortable-ghost {
+  opacity: 0.3 !important;
+  border: 2px dashed #6366f1 !important;
+  background: rgba(99, 102, 241, 0.08) !important;
+  border-radius: 1rem;
+}
+
+.catalog-sortable-ghost {
+  opacity: 0.25 !important;
+  border: 2px dashed #6366f1 !important;
+  background: rgba(99, 102, 241, 0.12) !important;
+  border-radius: 0.75rem;
+}
+
+
 

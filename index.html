@@ -33,6 +33,16 @@
   <!-- Estilos propios -->
   <link rel="stylesheet" href="./css/styles.css" />
 
+  <!-- SortableJS para Reordenación Fluida y Animada (Local con fallback CDN) -->
+  <script src="./js/vendor/sortable.min.js"></script>
+  <script>
+    if (typeof Sortable === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
+
   <!-- Controlador Modular ES6 -->
   <script type="module" src="./js/app.js"></script>
 </head>
