@@ -392,5 +392,60 @@
   border-radius: 0.75rem;
 }
 
+/* ========================================== */
+/* VISTAS PRINCIPALES: LANDING VS ASISTENTE   */
+/* ========================================== */
+
+#landingView {
+  display: block;
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
+#landingView.hidden {
+  display: none !important;
+}
+
+#wizardView {
+  display: flex;
+  animation: fadeIn 0.35s ease-out forwards;
+}
+
+#wizardView.hidden {
+  display: none !important;
+}
+
+/* Efectos visuales de la Landing Page */
+.hero-glow {
+  background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.18) 0%, rgba(15, 23, 42, 0) 70%);
+}
+
+.feature-card {
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 16px 32px -8px rgba(99, 102, 241, 0.2);
+}
+
+.showcase-frame {
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.faq-details summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-details[open] summary .faq-icon {
+  transform: rotate(180deg);
+}
+
 
 
