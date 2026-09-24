@@ -119,7 +119,25 @@ class WizardState {
         }
         return { valid: true, error: null };
 
-      case 3:
+      case 3: {
+        let activeCount = 0;
+        this.collections.forEach(sec => {
+          if (sec.enabled !== false) {
+            (sec.folders || []).forEach(f => {
+              if (f.enabled !== false) activeCount++;
+            });
+          }
+        });
+        if (activeCount === 0) {
+          return {
+            valid: false,
+            error: 'Debes tener activada al menos una colección en el NUVIO.'
+          };
+        }
+        return { valid: true, error: null };
+      }
+
+      case 4:
         if (!this.apiKeys.tmdb || this.apiKeys.tmdb.trim().length < 8) {
           return {
             valid: false,
@@ -139,24 +157,6 @@ class WizardState {
           };
         }
         return { valid: true, error: null };
-
-      case 4: {
-        let activeCount = 0;
-        this.collections.forEach(sec => {
-          if (sec.enabled !== false) {
-            (sec.folders || []).forEach(f => {
-              if (f.enabled !== false) activeCount++;
-            });
-          }
-        });
-        if (activeCount === 0) {
-          return {
-            valid: false,
-            error: 'Debes tener activada al menos una colección en el NUVIO.'
-          };
-        }
-        return { valid: true, error: null };
-      }
 
       case 5:
         if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {
@@ -547,7 +547,7 @@ class WizardState {
     this.apiKeysValidated = isValid;
     this.apiKeysValidationStatus = statusMap;
     if (isValid) {
-      this.unlockStep(4);
+      this.unlockStep(5);
     }
     this.notify('API_KEYS_VALIDATED');
   }

@@ -9,36 +9,6 @@
         "sources": [
           {
             "type": "movie",
-            "genre": null,
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "trakt.recommendations.movies",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "trakt.recommendations.shows",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
             "genre": "None",
             "title": null,
             "sortBy": null,
@@ -96,6 +66,36 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "title": null,
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "trakt.recommendations.movies",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "title": null,
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "trakt.recommendations.shows",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -106,18 +106,6 @@
         "titleLogoUrl": "https://i.postimg.cc/L8ZNpMVc/recomendaciones.png",
         "coverImageUrl": "https://i.postimg.cc/VvLKQr7b/recomendaciones.jpg",
         "catalogSources": [
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "trakt.recommendations.movies"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "trakt.recommendations.shows"
-          },
           {
             "type": "movie",
             "genre": null,
@@ -141,6 +129,18 @@
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.99273"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "trakt.recommendations.movies"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "trakt.recommendations.shows"
           }
         ],
         "focusGifEnabled": false,
