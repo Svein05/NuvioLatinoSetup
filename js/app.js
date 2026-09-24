@@ -29,6 +29,9 @@ class AppController {
     this.setupStep3ApiKeys();
     this.setupStep5Injection();
 
+    // 2.1 Restaurar sesión si existe
+    this.restoreSession();
+
     // 3. Suscribirse al estado para actualizar la UI reactiva
     state.subscribe((s, eventType) => {
       this.handleStateUpdate(s, eventType);
@@ -174,6 +177,45 @@ class AppController {
       toast.classList.add('translate-y-2', 'opacity-0');
       setTimeout(() => toast.remove(), 300);
     }, duration);
+  }
+
+  saveSession() {
+    try {
+      if (typeof sessionStorage === 'undefined') return;
+      if (state.nuvioAuth.isAuthenticated && state.nuvioAuth.accessToken) {
+        sessionStorage.setItem('nuvio_wizard_auth', JSON.stringify({
+          auth: state.nuvioAuth,
+          profiles: state.profiles,
+          selectedProfileId: state.selectedProfileId,
+          selectedProfileName: state.selectedProfileName,
+          currentStep: state.currentStep,
+          maxUnlockedStep: state.maxUnlockedStep
+        }));
+      }
+    } catch (_) {}
+  }
+
+  restoreSession() {
+    try {
+      if (typeof sessionStorage === 'undefined') return;
+      const raw = sessionStorage.getItem('nuvio_wizard_auth');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data && data.auth && data.auth.isAuthenticated) {
+        state.nuvioAuth = { ...state.nuvioAuth, ...data.auth };
+        state.profiles = data.profiles || [];
+        state.selectedProfileId = data.selectedProfileId || null;
+        state.selectedProfileName = data.selectedProfileName || '';
+        state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
+        state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
+        this.setAuthBadge(true);
+        if (state.profiles.length > 0 && !state.selectedProfileId) {
+          state.selectedProfileId = state.profiles[0].id;
+          state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
+          state.unlockStep(3);
+        }
+      }
+    } catch (_) {}
   }
 
   setupNavigation() {
@@ -343,8 +385,10 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 3 o 5, refrescar o sincronizar vistas
-    if (currentStep === 3) {
+    // Si estamos en el paso 2, 3 o 5, refrescar o sincronizar vistas
+    if (currentStep === 2) {
+      this.renderProfiles();
+    } else if (currentStep === 3) {
       state.unlockStep(4);
     } else if (currentStep === 5) {
       const manualContainer = document.getElementById('manualModeContainer');
@@ -585,28 +629,51 @@ class AppController {
           state.nuvioAuth.apikey = apikey;
 
           // Obtener perfiles de la cuenta
-          const profiles = await NuvioClient.getProfiles({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey,
-            accessToken: auth.accessToken,
-            userId: auth.userId
-          });
+          let profiles = [];
+          try {
+            profiles = await NuvioClient.getProfiles({
+              apiUrl: CONFIG.NUVIO_API_URL,
+              apikey,
+              accessToken: auth.accessToken,
+              userId: auth.userId
+            });
+          } catch (pErr) {
+            console.warn('[NuvioClient] Error obteniendo perfiles:', pErr);
+            profiles = [];
+          }
 
-          state.profiles = profiles;
-          if (profiles.length > 0) {
+          // Si la cuenta no tiene perfiles, crear el perfil inicial "Principal"
+          if (!profiles || profiles.length === 0) {
+            try {
+              const defaultProfile = await NuvioClient.createProfile({
+                apiUrl: CONFIG.NUVIO_API_URL,
+                apikey,
+                accessToken: auth.accessToken,
+                userId: auth.userId,
+                name: 'Principal'
+              });
+              if (defaultProfile) {
+                profiles = [defaultProfile];
+              }
+            } catch (_) {}
+          }
+
+          state.profiles = profiles || [];
+          if (profiles && profiles.length > 0) {
             state.selectedProfileId = profiles[0].id;
             state.selectedProfileName = profiles[0].name || profiles[0].title || 'Perfil Principal';
             state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
           }
 
           state.unlockStep(2); // Desbloquea Paso 2 (Elegir Perfil)
-          this.renderProfiles();
           this.setAuthBadge(true);
+          this.saveSession();
           this.showToast('✓ ¡Sesión iniciada con éxito! Perfiles sincronizados.', 'success');
 
           // Auto-avanzar al paso 2 de manera fluida
           setTimeout(() => {
             state.currentStep = 2;
+            this.renderProfiles();
             this.updateUI();
           }, 600);
         } catch (err) {
@@ -689,10 +756,12 @@ class AppController {
           state.unlockStep(2);
           this.renderProfiles();
           this.setAuthBadge(true);
+          this.saveSession();
           this.showToast('✓ ¡Cuenta creada con éxito! Bienvenido a Nuvio.', 'success');
 
           setTimeout(() => {
             state.currentStep = 2;
+            this.renderProfiles();
             this.updateUI();
           }, 600);
         } catch (err) {
@@ -723,10 +792,40 @@ class AppController {
   setupStep2Profiles() {
     this.renderProfiles();
 
-    const btnCreate = document.getElementById('btnCreateProfile');
-    const nameInput = document.getElementById('newProfileName');
+    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
+    const modal = document.getElementById('modalNewProfile');
+    const btnCloseModal = document.getElementById('btnCloseNewProfileModal');
+    const btnCancelModal = document.getElementById('btnCancelNewProfile');
+    const btnConfirmModal = document.getElementById('btnConfirmNewProfile') || document.getElementById('btnCreateProfile');
+    const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
 
-    if (btnCreate && nameInput) {
+    if (btnOpenModal && modal) {
+      btnOpenModal.addEventListener('click', () => {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (nameInput) {
+          nameInput.value = '';
+          nameInput.focus();
+        }
+      });
+    }
+
+    const closeModal = () => {
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    if (btnConfirmModal && nameInput) {
       const handleCreate = async () => {
         const name = nameInput.value.trim();
         if (!name) {
@@ -740,8 +839,9 @@ class AppController {
           return;
         }
 
-        btnCreate.disabled = true;
-        btnCreate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando...</span>';
+        btnConfirmModal.disabled = true;
+        const originalHtml = btnConfirmModal.innerHTML;
+        btnConfirmModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Creando...';
 
         try {
           const newProfile = await NuvioClient.createProfile({
@@ -759,20 +859,23 @@ class AppController {
           state.selectedProfileName = newProfile.name || name;
           state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
 
+          closeModal();
+          this.saveSession();
           this.renderProfiles();
           this.updateProfileWarning(newProfile.id, newProfile.name || name);
+          this.updateUI();
           nameInput.value = '';
           this.showToast(`¡Perfil "${name}" creado y seleccionado con éxito!`, 'success');
         } catch (err) {
           console.error(err);
           this.showToast(`Error al crear perfil: ${err.message}`, 'error');
         } finally {
-          btnCreate.disabled = false;
-          btnCreate.innerHTML = '<i class="fa-solid fa-plus"></i><span>Crear Perfil</span>';
+          btnConfirmModal.disabled = false;
+          btnConfirmModal.innerHTML = originalHtml;
         }
       };
 
-      btnCreate.addEventListener('click', handleCreate);
+      btnConfirmModal.addEventListener('click', handleCreate);
       nameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -802,7 +905,7 @@ class AppController {
   }
 
   renderProfiles() {
-    const container = document.getElementById('profilesContainer');
+    const container = document.getElementById('profilesList') || document.getElementById('profilesContainer');
     if (!container) return;
 
     if (state.profiles && state.profiles.length > 0) {
@@ -854,7 +957,11 @@ class AppController {
         <div class="col-span-full py-8 text-center bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
           <i class="fa-solid fa-user-circle text-4xl text-slate-600 mb-2"></i>
           <p class="text-sm font-medium text-slate-300">No se encontraron perfiles en tu cuenta de Nuvio</p>
-          <p class="text-xs text-slate-500 mt-1">Usa la opción de abajo para crear tu primer perfil directamente.</p>
+          <p class="text-xs text-slate-500 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
+          <button type="button" onclick="document.getElementById('btnOpenNewProfileModal')?.click()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+            <i class="fa-solid fa-plus"></i>
+            <span>Crear mi primer perfil</span>
+          </button>
         </div>
       `;
       this.updateProfileWarning(null, '');
@@ -865,6 +972,7 @@ class AppController {
     state.selectedProfileId = id;
     state.selectedProfileName = name;
     state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
+    this.saveSession();
     this.renderProfiles();
     this.updateProfileWarning(id, name);
     this.updateUI();
