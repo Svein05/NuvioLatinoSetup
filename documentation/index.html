@@ -214,7 +214,7 @@
               <h3 class="font-bold text-white text-base">Paso 3: Gestor Visual de Colecciones (Mini Nuvio)</h3>
             </div>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              El simulador en vivo te permite reordenar secciones y filas por arrastre (drag & drop) o con saltos rápidos al cielo y al fondo, activar o desactivar plataformas (Netflix, HBO, Disney, ViX) y géneros, y organizar los catálogos de cada fila de forma instantánea mediante <strong>cápsulas movibles</strong> sin esperas de carga.
+              El simulador en vivo te permite reordenar secciones y filas por arrastre (drag & drop) o con saltos rápidos al cielo y al fondo, activar o desactivar plataformas (Netflix, HBO Max, Disney+, Prime Video) y géneros, y organizar los catálogos de cada fila de forma instantánea mediante <strong>cápsulas movibles</strong> sin esperas de carga.
             </p>
           </div>
 
@@ -326,16 +326,7 @@
         <div class="space-y-3">
           <details class="faq-details bg-slate-900/60 border border-slate-800 rounded-xl p-4">
             <summary class="font-semibold text-sm text-slate-100 cursor-pointer">
-              ¿Por qué al abrir index.html directamente en el explorador de Windows no cargaba la app?
-            </summary>
-            <p class="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Los navegadores modernos (Chrome, Edge, Firefox) bloquean los módulos JavaScript ES6 (<code class="text-brand-300">type="module"</code>) cuando se ejecutan bajo el protocolo de archivos local <code class="text-brand-300">file://</code> por estrictas políticas de seguridad CORS. Por esa razón, ahora la Landing Page inicial es HTML puro (funciona siempre) y el asistente cuenta con la opción de servirse localmente ejecutando <code class="text-brand-300 font-mono">python run.py</code> o visitando GitHub Pages directamente.
-            </p>
-          </details>
-
-          <details class="faq-details bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-            <summary class="font-semibold text-sm text-slate-100 cursor-pointer">
-              ¿Qué hago si falla la validación de claves en el Paso 3?
+              ¿Qué hago si falla la validación de claves en el Paso 4?
             </summary>
             <p class="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
               Asegúrate de que no haya espacios en blanco antes o después de la TMDB API Key. Recuerda que la clave v3 tiene aproximadamente 32 caracteres. Puedes probar abriendo la URL de prueba en tu navegador: <code class="text-brand-300 font-mono">https://api.themoviedb.org/3/authentication?api_key=TU_CLAVE</code>.
