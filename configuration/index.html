@@ -279,15 +279,33 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 3: CREDENCIALES Y API KEYS           -->
+      <!-- PASO 3: GESTOR VISUAL DE COLECCIONES       -->
       <!-- ========================================== -->
       <div id="step-3" class="step-content">
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
+            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
+            <span>NUVIO: Gestor Visual de Colecciones</span>
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Explora catálogos en cápsulas movibles, personaliza filas y carruseles. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
+        </div>
+
+        <!-- Contenedor dinámico del Mini Nuvio -->
+        <div id="miniNuvioContainer">
+          <!-- Renderizado por js/mini-nuvio.js -->
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PASO 4: CREDENCIALES Y API KEYS           -->
+      <!-- ========================================== -->
+      <div id="step-4" class="step-content">
         <div class="mb-5">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-key text-brand-500 text-base"></i>
             <span>Proveedores de Metadatos (API Keys)</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Configura las claves de los servicios para obtener pósters en alta definición y sinopsis completas en español latino.</p>
+          <p class="text-sm text-slate-400 mt-1">Configura las claves de los servicios para obtener metadatos y sinopsis completas en español latino.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,7 +322,7 @@
               </a>
             </div>
             <input id="keyTmdb" type="text" placeholder="Ingresa tu TMDB API Key v3" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs text-slate-200">
-            <p class="text-[11px] text-slate-500">Requerida para la carga de pósters, fondos y datos oficiales en Español Latino (es-MX).</p>
+            <p class="text-[11px] text-slate-500">Requerida para la carga de datos y sinopsis oficiales en Español Latino (es-MX).</p>
           </div>
 
           <!-- MDBList -->
@@ -395,24 +413,6 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 4: GESTOR VISUAL DE COLECCIONES       -->
-      <!-- ========================================== -->
-      <div id="step-4" class="step-content">
-        <div class="mb-4">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
-            <span>NUVIO: Gestor Visual de Colecciones</span>
-          </h2>
-          <p class="text-sm text-slate-400 mt-1">Explora catálogos con pósters en vivo en latino, personaliza filas y carruseles. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
-        </div>
-
-        <!-- Contenedor dinámico del Mini Nuvio -->
-        <div id="miniNuvioContainer">
-          <!-- Renderizado por js/mini-nuvio.js -->
-        </div>
-      </div>
-
-      <!-- ========================================== -->
       <!-- PASO 5: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
       <!-- ========================================== -->
       <div id="step-5" class="step-content">
@@ -451,7 +451,7 @@
           </div>
           <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
             <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Catálogos AIOMetadata</span>
-            <span id="summaryCatalogsCount" class="text-emerald-400 font-bold block truncate">Ghost Mode (inHome: false)</span>
+            <span id="summaryCatalogsCount" class="text-emerald-400 font-bold block truncate">Ghost Mode (Optimizados)</span>
           </div>
         </div>
 
@@ -560,8 +560,8 @@
       <button onclick="goToStep(3)" id="drawer-step-3" class="drawer-step-item locked">
         <span class="drawer-badge">3</span>
         <div class="flex-1 text-left">
-          <div class="font-medium text-xs">ApiKeys</div>
-          <div class="text-[10px] text-slate-400">TMDB, MDBList, TVDB...</div>
+          <div class="font-medium text-xs">Colección</div>
+          <div class="text-[10px] text-slate-400">NUVIO interactivo</div>
         </div>
         <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
       </button>
@@ -569,8 +569,8 @@
       <button onclick="goToStep(4)" id="drawer-step-4" class="drawer-step-item locked">
         <span class="drawer-badge">4</span>
         <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Colección</div>
-          <div class="text-[10px] text-slate-400">NUVIO interactivo</div>
+          <div class="font-medium text-xs">ApiKeys</div>
+          <div class="text-[10px] text-slate-400">TMDB, MDBList, TVDB...</div>
         </div>
         <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
       </button>

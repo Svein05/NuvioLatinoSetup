@@ -211,10 +211,10 @@
           <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
             <div class="flex items-center gap-3">
               <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">3</span>
-              <h3 class="font-bold text-white text-base">Paso 3: Proveedores de Metadatos y Validación</h3>
+              <h3 class="font-bold text-white text-base">Paso 3: Gestor Visual de Colecciones (Mini Nuvio)</h3>
             </div>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              Ingresa tu <strong>TMDB API Key</strong> (obligatoria). Opcionalmente puedes agregar tus claves de MDBList, TheTVDB, Fanart.tv y habilitar la Búsqueda Inteligente con IA (Gemini). Finalmente, haz clic en <strong>"Probar Claves API"</strong> para validar su conectividad antes de continuar.
+              El simulador en vivo te permite reordenar filas por arrastre (drag & drop), activar o desactivar secciones (Estrenos, Plataformas como Netflix/HBO/Disney, Géneros) y personalizar las cápsulas de catálogos que integran cada fila. Solo los catálogos activos se incluirán en el addon final.
             </p>
           </div>
 
@@ -222,10 +222,10 @@
           <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
             <div class="flex items-center gap-3">
               <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">4</span>
-              <h3 class="font-bold text-white text-base">Paso 4: Gestor Visual de Colecciones (Mini Nuvio)</h3>
+              <h3 class="font-bold text-white text-base">Paso 4: Proveedores de Metadatos y Validación</h3>
             </div>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              El simulador en vivo te permite reordenar filas por arrastre (drag & drop), activar o desactivar secciones (Estrenos, Plataformas como Netflix/HBO/Disney, Géneros) y personalizar los catálogos que integran cada fila. Solo los catálogos activos se incluirán en el addon final.
+              Ingresa tu <strong>TMDB API Key</strong> (obligatoria). Opcionalmente puedes agregar tus claves de MDBList, TheTVDB, Fanart.tv y habilitar la Búsqueda Inteligente con IA (Gemini). Finalmente, haz clic en <strong>"Probar Claves API"</strong> para validar su conectividad antes de continuar.
             </p>
           </div>
 
@@ -254,7 +254,7 @@
           Uno de los problemas más comunes al usar AIOMetadata es que el addon instala decenas o cientos de catálogos individuales en la pantalla de inicio de Nuvio (Trending Trakt, Recomendaciones, Populares, Géneros en inglés, etc.), saturando la interfaz.
         </p>
         <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-          La técnica <strong>Ghost Mode</strong> consiste en inyectar el parámetro <code class="bg-slate-900 text-indigo-300 px-2 py-0.5 rounded text-xs font-mono">showInHome: false</code> en todos los catálogos del manifiesto de AIOMetadata. De este modo:
+          La técnica <strong>Ghost Mode</strong> configura de forma invisible los catálogos secundarios en la pantalla principal de Nuvio, asegurando que solo tus colecciones ordenadas sean visibles. De este modo:
         </p>
         <ul class="space-y-2 text-xs sm:text-sm text-slate-300 list-disc pl-5">
           <li>Los catálogos siguen existiendo y funcionando para abastecer a tus Colecciones Nativas de Nuvio.</li>

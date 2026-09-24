@@ -343,9 +343,9 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 4 o 5, refrescar o sincronizar vistas
-    if (currentStep === 4) {
-      state.unlockStep(5);
+    // Si estamos en el paso 3 o 5, refrescar o sincronizar vistas
+    if (currentStep === 3) {
+      state.unlockStep(4);
     } else if (currentStep === 5) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
