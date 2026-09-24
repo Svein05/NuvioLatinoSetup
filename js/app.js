@@ -37,21 +37,29 @@ class AppController {
     // 4. Mostrar paso inicial del asistente
     this.updateUI();
 
-    // 5. Control inicial de vistas (Landing por defecto, o Asistente si hay hash)
-    if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
-      this.showWizardView(false);
+    // 5. Control inicial de vistas (Landing por defecto, o Asistente si hay hash o página dedicada)
+    const landing = document.getElementById('landingView');
+    if (!landing) {
+      // Estamos en la página dedicada de configuración (/configuration/)
+      const wizard = document.getElementById('wizardView');
+      if (wizard) wizard.classList.remove('hidden');
+      this.updateUI();
     } else {
-      this.showLandingView(false);
-    }
-
-    // Escuchar cambios de navegación en el historial
-    window.addEventListener('hashchange', () => {
       if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
         this.showWizardView(false);
       } else {
         this.showLandingView(false);
       }
-    });
+
+      // Escuchar cambios de navegación en el historial
+      window.addEventListener('hashchange', () => {
+        if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
+          this.showWizardView(false);
+        } else {
+          this.showLandingView(false);
+        }
+      });
+    }
   }
 
   /**
@@ -60,6 +68,10 @@ class AppController {
   showLandingView(updateHash = true) {
     const landing = document.getElementById('landingView');
     const wizard = document.getElementById('wizardView');
+    if (!landing && wizard) {
+      window.location.href = '../';
+      return;
+    }
     const btnText = document.getElementById('btnToggleWizardHeaderText');
     const btnIcon = document.querySelector('#btnToggleWizardHeader i');
     if (landing && wizard) {
@@ -80,6 +92,12 @@ class AppController {
   showWizardView(updateHash = true) {
     const landing = document.getElementById('landingView');
     const wizard = document.getElementById('wizardView');
+    if (!landing && wizard) {
+      wizard.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.updateUI();
+      return;
+    }
     const btnText = document.getElementById('btnToggleWizardHeaderText');
     const btnIcon = document.querySelector('#btnToggleWizardHeader i');
     if (landing && wizard) {
@@ -100,7 +118,11 @@ class AppController {
    */
   toggleView() {
     const landing = document.getElementById('landingView');
-    if (landing && !landing.classList.contains('hidden')) {
+    if (!landing) {
+      window.location.href = '../';
+      return;
+    }
+    if (!landing.classList.contains('hidden')) {
       this.showWizardView();
     } else {
       this.showLandingView();

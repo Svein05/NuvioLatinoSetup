@@ -1,6 +1,13 @@
-/**
- * Configuración central y constantes para el Setup Wizard de Nuvio & AIOMetadata
- */
+// Determinar la ruta base relativa según el nivel de directorio actual
+const getBasePath = () => {
+  if (typeof window === 'undefined' || !window.location) return './';
+  const p = window.location.pathname.toLowerCase();
+  if (p.includes('/configuration') || p.includes('/documentation') || p.includes('/home')) {
+    return '../';
+  }
+  return './';
+};
+
 export const CONFIG = {
   // Backend de Nuvio (Supabase / PostgREST)
   NUVIO_API_URL: "https://api.nuvio.tv",
@@ -15,16 +22,21 @@ export const CONFIG = {
   ],
   DEFAULT_AIOMETADATA_URL: "https://aiometadatafortheweebs.midnightignite.me",
 
-  // URLs de plantillas locales
+  // URLs de plantillas locales (resolución dinámica de ruta según página)
   TEMPLATES: {
-    METADATA_LATINO: "./templates/MetadataLatino.json",
-    NUVIO_COLLECTIONS: "./templates/NuvioCollections.json"
+    get METADATA_LATINO() {
+      return `${getBasePath()}templates/MetadataLatino.json`;
+    },
+    get NUVIO_COLLECTIONS() {
+      return `${getBasePath()}templates/NuvioCollections.json`;
+    }
   },
 
   // Enlace y texto de la comunidad
   COMMUNITY: {
     DISCORD_URL: "https://discord.gg/EubYtJVJEc",
-    DISCORD_LABEL: "Recomendación Addon LAT-ADD"
+    DISCORD_LABEL: "Recomendación Addon LAT-ADD",
+    CREDITS_DONPUERCO: "https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll"
   },
 
   // Claves de almacenamiento local para sesión y preferencias
