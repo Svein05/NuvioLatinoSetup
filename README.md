@@ -23,7 +23,7 @@
 **Nuvio Metadata Latino Setup** es una aplicación web interactiva de código abierto diseñada para simplificar y automatizar por completo la configuración de perfiles en **Nuvio**. A través de la integración directa con las APIs de **AIOMetadata**, **TheMovieDatabase (TMDB)** y los servicios en la nube de **Nuvio (Supabase RPCs)**, este asistente permite generar un entorno cinematográfico ordenado, optimizado y enfocado en la audiencia de habla hispana en Latinoamérica (`es-MX`).
 
 ### 🎯 El Problema que Resuelve
-Por defecto, la instalación masiva de catálogos en reproductores multimedia suele saturar la pantalla de inicio con listas duplicadas, desordenadas y portadas genéricas. Este asistente implementa la estrategia **"Ghost Mode"**: todos los catálogos raíz de AIOMetadata se configuran de manera invisible para la pantalla principal, mientras que la interfaz de inicio de Nuvio queda gobernada de forma limpia y exclusiva por **Colecciones Nativas** con carátulas estilizadas, carruseles temáticos en formato apaisado (`LANDSCAPE` 16:9) y previsualización interactiva.
+Por defecto, la instalación masiva de catálogos en reproductores multimedia suele saturar la pantalla de inicio con listas duplicadas, desordenadas y portadas genéricas. Este asistente implementa la estrategia **"Ghost Mode"**: todos los catálogos raíz de AIOMetadata se configuran de manera invisible para la pantalla principal (`showInHome: false`), mientras que la interfaz de inicio de Nuvio queda gobernada de forma limpia por **Colecciones Nativas** con carátulas estilizadas, carruseles temáticos en formato apaisado (`LANDSCAPE` 16:9) y previsualización interactiva.
 
 ---
 
@@ -35,8 +35,9 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
   - **Modo Manual (Sin Cuenta):** Para usuarios que prefieren no ingresar credenciales; permite personalizar las colecciones y copiar o descargar los archivos JSON listos para importar.
 - **Mini NUVIO (Simulador Visual Interactivo):**
   - Vista previa en vivo con carruseles horizontales que simulan exactamente la interfaz de Nuvio.
-  - **Gestor CRUD de Catálogos mediante Cápsulas Movibles:** Reordena posiciones al instante con arrastre fluido o botones de salto extremo (cielo y fondo), renombra con títulos comerciales amigables, elimina catálogos no deseados o añade nuevos desde la biblioteca central de AIOMetadata a velocidad instantánea y sin esperas de carga.
-  - Recomendaciones dinámicas de **Trakt** organizadas de forma no intrusiva al final de la sección correspondiente.
+  - Integración en tiempo real con la **API v3 de TMDB** para renderizar pósters, títulos y sinopsis reales en español latino.
+  - **Gestor CRUD de Catálogos:** Reordena posiciones (subir/bajar), renombra con títulos comerciales amigables, elimina catálogos no deseados o añade nuevos desde la biblioteca central de AIOMetadata.
+  - Prioridad de recomendaciones dinámicas de **Trakt** en el carrusel de recomendados.
   - Todas las filas de géneros estructuradas de forma consistente en formato `LANDSCAPE`.
 - **Enriquecimiento Nativo de Perfiles:**
   - Habilitación automática de **TMDB Enrichment** y **MDBList Ratings** con localización `es-MX`.
@@ -58,10 +59,10 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 [ Paso 2: Selección / Creación de Perfil ] (Omitido en Modo Manual)
                   │
                   ▼
-[ Paso 3: Personalización de Colecciones (Mini NUVIO) ]
+[ Paso 3: Configuración y Validación de API Keys ]
                   │
                   ▼
-[ Paso 4: Configuración y Validación de API Keys ]
+[ Paso 4: Personalización Visual en Mini NUVIO ]
                   │
                   ▼
 [ Paso 5: Seguridad de Addon e Inyección / Exportación JSON ]
@@ -69,8 +70,8 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 
 1. **Paso 1 - Autenticación Nuvio:** Inicia sesión con tus credenciales de Nuvio, crea una cuenta nueva o selecciona el botón alternativo **Continuar sin cuenta (Modo Manual)**.
 2. **Paso 2 - Selección de Perfil:** Elige el perfil de Nuvio en el que se aplicará la configuración o crea uno nuevo directamente desde el asistente. Incluye advertencias visuales de sobreescritura para perfiles existentes.
-3. **Paso 3 - Personalización de Colecciones (Mini NUVIO):** Explora y edita las secciones (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming) con reordenación interactiva, cápsulas movibles y saltos rápidos al cielo y al fondo.
-4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key (obligatoria) y proveedores opcionales. Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
+3. **Paso 3 - Claves API e Integraciones:** Ingresa tu TMDB API Key (obligatoria) y proveedores opcionales. Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
+4. **Paso 4 - Colección (Mini NUVIO):** Explora y edita las secciones (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming).
 5. **Paso 5 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
 
 ---
@@ -167,6 +168,7 @@ NuvioLatinoSetup/
 
 Este proyecto es impulsado por el esfuerzo conjunto de la comunidad latina de streaming:
 - **Colección en Español Completa (DonPuercoTroll):** Especial agradecimiento a **DonPuercoTroll** por su curaduría comunitaria de colecciones en español. Puedes explorar su colección oficial en [Nuvio TV Community Collections](https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll).
+- **AIOMetadata Addon:** Repositorio oficial del addon [AIOMetadata por cedya77](https://github.com/cedya77/aiometadata).
 - **Discord Oficial:** Únete a nuestra comunidad para asistencia técnica y feedback en [discord.gg/EubYtJVJEc](https://discord.gg/EubYtJVJEc).
 - **Addon Recomendado:** Te sugerimos complementar esta configuración con el addon **LAT-ADD**, especialmente optimizado para la comunidad latina.
 

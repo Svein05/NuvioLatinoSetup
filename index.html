@@ -90,6 +90,12 @@
     </div>
 
     <div class="flex items-center gap-2 sm:gap-2.5">
+      <!-- Botón de Navegación Directa al Asistente -->
+      <a href="./configuration/" class="px-3.5 py-1.5 rounded-full bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition-all shadow-md shadow-brand-500/20 flex items-center gap-1.5">
+        <i class="fa-solid fa-wand-magic-sparkles text-[11px]"></i>
+        <span>Iniciar Asistente</span>
+      </a>
+
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
         <i class="fa-brands fa-discord"></i>
@@ -110,7 +116,11 @@
     <div id="landingView" class="flex-1 flex flex-col w-full space-y-16 py-4">
 
       <!-- 1. Hero Section Cinemático -->
-      <section class="relative text-center max-w-4xl mx-auto pt-8 pb-4 px-3 hero-glow rounded-3xl">
+      <section class="relative text-center max-w-4xl mx-auto pt-6 pb-4 px-3 hero-glow rounded-3xl">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-medium mb-6 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Edición Latino • Setup Automatizado para Nuvio TV & Móvil</span>
+        </div>
 
         <h2 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight mb-6">
           Transforma tu Nuvio con <br class="hidden sm:inline" />
@@ -128,9 +138,19 @@
             <span>Comenzar Configuración</span>
           </a>
 
+          <a href="#como-funciona" class="px-5 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-semibold text-sm transition-all flex items-center gap-2">
+            <i class="fa-solid fa-circle-play text-xs text-brand-400"></i>
+            <span>¿Cómo Funciona?</span>
+          </a>
+
           <a href="./documentation/" class="px-5 py-3.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-semibold text-sm transition-all flex items-center gap-2">
             <i class="fa-solid fa-book-open text-xs text-brand-400"></i>
             <span>Documentación</span>
+          </a>
+
+          <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="px-5 py-3.5 rounded-xl bg-[#5865F2]/15 hover:bg-[#5865F2]/25 border border-[#5865F2]/30 text-[#5865F2] hover:text-white font-semibold text-sm transition-all flex items-center gap-2">
+            <i class="fa-brands fa-discord"></i>
+            <span>Comunidad & Soporte</span>
           </a>
         </div>
       </section>
@@ -181,7 +201,7 @@
             </div>
             <h4 class="text-lg font-bold text-white">Estrategia "Ghost Mode"</h4>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Oculta automáticamente los catálogos desordenados y duplicados de AIOMetadata de la pantalla de inicio. Solo verás tus colecciones limpias y ordenadas sin listas repetidas.
+              Oculta automáticamente los cientos de catálogos desordenados de AIOMetadata de la pantalla de inicio para mantenerla limpia y optimizada. Solo verás tus colecciones organizadas.
             </p>
           </div>
 
@@ -296,7 +316,7 @@
               <i class="fa-solid fa-chevron-down text-xs text-slate-400 faq-icon transition-transform"></i>
             </summary>
             <p class="mt-3 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Solo necesitas tu cuenta de Nuvio (o usar el modo manual) y opcionalmente una clave API gratuita de TMDB para activar la consulta de catálogos en vivo. El asistente te proporciona el enlace directo para obtener tu clave en 30 segundos.
+              Solo necesitas tu cuenta de Nuvio (o usar el Modo Manual) y una clave API gratuita de TheMovieDatabase (TMDB). Esta clave se solicita en el Paso 4 para activar el enriquecimiento oficial de metadatos en español latino (sinopsis oficiales, actores, directores y puntuaciones) en tu perfil de Nuvio. En el Paso 3 podrás organizar y personalizar todas tus colecciones con cápsulas interactivas al instante, y el asistente te dará el enlace directo para obtener tu clave en 30 segundos si aún no la tienes.
             </p>
           </details>
 
@@ -408,7 +428,7 @@
             </a>
           </li>
           <li>
-            <a href="https://github.com/mrcanard/AIOMetadata" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
+            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
               <i class="fa-solid fa-server text-[10px] text-slate-500 group-hover:text-brand-400"></i>
               <span>AIOMetadata Addon</span>
             </a>
