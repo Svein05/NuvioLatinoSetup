@@ -92,11 +92,6 @@ export class MiniNuvio {
             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono">
               ${activeFolders}/${totalFolders} activas
             </span>
-            ${state.apiKeys.tmdb ? `
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1">
-                <i class="fa-solid fa-bolt text-[9px]"></i> TMDB en vivo (es-MX)
-              </span>
-            ` : ''}
           </div>
 
           <div class="flex items-center gap-2">
@@ -525,9 +520,9 @@ export class MiniNuvio {
   }
 
   /**
-   * Explorador Visual de Catálogos (Cápsulas Movibles)
-   * Permite ordenar (drag & drop), renombrar, eliminar y añadir catálogos
-   * de forma ultrarrápida y ligera sin dependencias de carga pesada de pósters.
+   * Explorador y Gestor de Catálogos (Cápsulas Movibles)
+   * Renderizado instantáneo (0 ms) con controles Sortable, saltos al cielo/fondo,
+   * renombrado y eliminación rápida.
    */
   openCatalogExplorer(sectionId, folderId) {
     const sec = state.collections.find(s => s.id === sectionId);
@@ -549,7 +544,7 @@ export class MiniNuvio {
 
     modalContainer.innerHTML = `
       <div id="catalogExplorerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-opacity">
-        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[85vh] text-slate-200">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full p-5 sm:p-6 shadow-2xl flex flex-col max-h-[90vh] text-slate-200">
           
           <!-- Encabezado de la Colección -->
           <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 shrink-0">
@@ -569,17 +564,17 @@ export class MiniNuvio {
             </div>
 
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-brand-500/10 text-brand-300 border border-brand-500/20 text-xs font-mono">
-                <i class="fa-solid fa-layer-group text-[10px]"></i> Cápsulas de Catálogos
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 text-xs font-mono">
+                <i class="fa-solid fa-layer-group text-brand-400"></i> Gestor de Catálogos
               </span>
-              <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors" title="Cerrar ventana">
+              <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
                 <i class="fa-solid fa-xmark text-lg"></i>
               </button>
             </div>
           </div>
 
-          <!-- Cuerpo con Lista de Cápsulas Movibles (Sortable) -->
-          <div id="catalogExplorerBody" class="overflow-y-auto space-y-2 pr-1.5 scrollbar-thin scrollbar-thumb-slate-700 flex-1">
+          <!-- Cuerpo con Lista de Cápsulas Movibles -->
+          <div id="catalogExplorerBody" class="overflow-y-auto space-y-2.5 pr-1.5 scrollbar-thin scrollbar-thumb-slate-700 flex-1">
             <!-- Renderizado dinámico inmediato -->
           </div>
 
@@ -592,12 +587,12 @@ export class MiniNuvio {
               </button>
               <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${folder.id}')" class="px-3.5 py-2 rounded-xl text-xs font-medium text-brand-400 hover:text-brand-300 hover:bg-slate-800/80 border border-brand-500/30 transition-all flex items-center gap-1.5">
                 <i class="fa-solid fa-sliders"></i>
-                <span>Personalizar Portadas</span>
+                <span>Personalizar Portadas y Logos</span>
               </button>
             </div>
 
             <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs transition-colors">
-              Cerrar Gestor
+              Cerrar Explorador
             </button>
           </div>
 
@@ -605,12 +600,12 @@ export class MiniNuvio {
       </div>
     `;
 
-    // Renderizar cápsulas inmediatamente sin demoras ni peticiones pesadas de pósters
+    // Renderizar cápsulas inmediatamente
     this.renderCatalogCapsules(sectionId, folderId, sources, catalogMap);
   }
 
   /**
-   * Renderiza los catálogos como cápsulas movibles interactivas
+   * Renderiza los catálogos como cápsulas compactas y movibles sin llamadas de red a posters
    */
   renderCatalogCapsules(sectionId, folderId, sources, catalogMap) {
     const bodyEl = document.getElementById('catalogExplorerBody');
@@ -619,7 +614,7 @@ export class MiniNuvio {
     if (sources.length === 0) {
       bodyEl.innerHTML = `
         <div class="p-8 text-center text-slate-400">
-          <i class="fa-solid fa-layer-group text-3xl text-slate-600 mb-2"></i>
+          <i class="fa-solid fa-film text-3xl text-slate-600 mb-2"></i>
           <p class="text-sm">Esta colección no tiene catálogos activos asignados.</p>
           <button type="button" onclick="window.miniNuvioInstance.openAddCatalogModal('${sectionId}', '${folderId}')" class="mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold inline-flex items-center gap-1.5">
             <i class="fa-solid fa-plus"></i> Añadir Catálogo
@@ -632,58 +627,64 @@ export class MiniNuvio {
     bodyEl.innerHTML = sources.map((s, idx) => {
       const catId = s.catalogId || s.id || '';
       const catMeta = catalogMap.get(catId) || { name: s.title || catId, type: s.type };
-      const displayTitle = this.resolveCatalogTitle(s, catalogMap) || catMeta.name || catId;
-      const typeLabel = (s.type === 'series' || s.type === 'tv') ? 'Series' : (s.type === 'anime') ? 'Anime' : 'Películas';
-      const isTrakt = Boolean(catId.startsWith('trakt.'));
+      const displayTitle = this.resolveCatalogTitle(s, catalogMap) || s.title || catMeta.name || catId;
+      const isTrakt = catId.startsWith('trakt.');
+      const mediaType = s.type || catMeta.type || '';
+      const typeLabel = mediaType === 'series' || mediaType === 'tv' ? 'Series' : mediaType === 'anime' ? 'Anime' : 'Películas';
       const isFirst = idx === 0;
       const isLast = idx === sources.length - 1;
 
       return `
         <div 
-          class="catalog-explorer-row p-3 bg-slate-950/80 hover:bg-slate-950 border border-slate-800/90 hover:border-slate-700 rounded-xl flex items-center justify-between gap-3 transition-all select-none"
+          class="catalog-explorer-row p-3 bg-slate-950/70 border border-slate-800 hover:border-slate-700/80 rounded-xl transition-colors flex flex-wrap items-center justify-between gap-3"
           data-catalog-index="${idx}"
         >
-          <div class="flex items-center gap-3 min-w-0">
-            <!-- Asa de arrastre Sortable -->
-            <span class="catalog-drag-handle text-slate-500 hover:text-brand-400 cursor-grab p-1 shrink-0" title="Arrastra para reordenar este catálogo">
-              <i class="fa-solid fa-grip-vertical text-sm"></i>
-            </span>
-
-            <!-- Botones Extremos (Cielo / Fondo) -->
-            <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5 no-drag shrink-0">
-              <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'top')" ${isFirst ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition-colors"'} title="Mover catálogo al cielo (primera posición)">
-                <i class="fa-solid fa-angles-up text-[10px]"></i>
-              </button>
-              <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'bottom')" ${isLast ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition-colors"'} title="Tirar catálogo al fondo (última posición)">
-                <i class="fa-solid fa-angles-down text-[10px]"></i>
-              </button>
+          <div class="flex items-center gap-2.5 min-w-0">
+            <!-- Asa de arrastre Sortable y Botones Extremos (Cielo / Fondo) -->
+            <div class="flex items-center gap-1 shrink-0">
+              <span class="catalog-drag-handle text-slate-500 hover:text-brand-400 cursor-grab p-1" title="Arrastra para reordenar este catálogo con el mouse">
+                <i class="fa-solid fa-grip-vertical text-xs"></i>
+              </span>
+              <div class="flex items-center gap-0.5 bg-slate-900 border border-slate-800 rounded-lg p-0.5 no-drag">
+                <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'top')" ${isFirst ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition-colors"'} title="Mover catálogo al cielo (primera posición)">
+                  <i class="fa-solid fa-angles-up text-[10px]"></i>
+                </button>
+                <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'bottom')" ${isLast ? 'disabled class="w-6 h-6 rounded flex items-center justify-center text-slate-600 cursor-not-allowed"' : 'class="w-6 h-6 rounded flex items-center justify-center text-slate-400 hover:text-brand-300 hover:bg-slate-800 transition-colors"'} title="Tirar catálogo al fondo (última posición)">
+                  <i class="fa-solid fa-angles-down text-[10px]"></i>
+                </button>
+              </div>
             </div>
-
-            <!-- Información del Catálogo (Icono, Título, Badges) -->
-            <div class="flex items-center gap-2 min-w-0">
-              <i class="${isTrakt ? 'fa-solid fa-tv text-amber-400' : 'fa-solid fa-film text-brand-400'} text-xs shrink-0"></i>
-              <span class="text-xs sm:text-sm font-semibold text-white truncate" title="${displayTitle}">${displayTitle}</span>
-              <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono shrink-0">${typeLabel}</span>
-              ${isTrakt ? '<span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono shrink-0">Trakt</span>' : ''}
+            
+            <div class="min-w-0">
+              <h4 class="text-xs font-bold text-white flex items-center gap-2 truncate">
+                <i class="${isTrakt ? 'fa-solid fa-tv text-amber-400' : 'fa-solid fa-film text-brand-400'} shrink-0 text-xs"></i>
+                <span class="truncate">${displayTitle}</span>
+              </h4>
+              <p class="text-[10px] text-slate-400 font-mono truncate flex items-center gap-1.5 mt-0.5">
+                <span>${catId}</span>
+                ${isTrakt ? '<span class="text-amber-400 font-medium font-sans">• Requiere login en Trakt</span>' : ''}
+              </p>
             </div>
           </div>
 
-          <!-- Acciones: Renombrar y Eliminar -->
-          <div class="flex items-center gap-1.5 no-drag shrink-0">
-            <button type="button" onclick="window.miniNuvioInstance.renameCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[10px] sm:text-xs text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors" title="Renombrar este catálogo">
+          <div class="flex items-center gap-1.5 shrink-0 no-drag">
+            <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
+            
+            <button type="button" onclick="window.miniNuvioInstance.renameCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[10px] text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors" title="Renombrar este catálogo">
               <i class="fa-solid fa-pen-to-square text-[9px] text-brand-400"></i>
-              <span class="hidden sm:inline">Renombrar</span>
+              <span>Renombrar</span>
             </button>
-            <button type="button" onclick="window.miniNuvioInstance.deleteCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-[10px] sm:text-xs text-red-400 hover:text-red-300 flex items-center gap-1.5 transition-colors" title="Quitar de esta colección">
+
+            <button type="button" onclick="window.miniNuvioInstance.deleteCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-[10px] text-red-400 hover:text-red-300 flex items-center gap-1.5 transition-colors" title="Quitar de esta colección">
               <i class="fa-solid fa-trash-can text-[9px]"></i>
-              <span class="hidden sm:inline">Quitar</span>
+              <span>Quitar</span>
             </button>
           </div>
         </div>
       `;
     }).join('');
 
-    // Inicializar SortableJS para reordenación directa de las cápsulas
+    // Inicializar SortableJS para reordenar las cápsulas suavemente
     if (typeof Sortable !== 'undefined') {
       if (this.catalogSortable) {
         try { this.catalogSortable.destroy(); } catch (e) {}
