@@ -116,12 +116,29 @@ Si deseas clonar el repositorio y ejecutarlo en tu propio entorno:
 
 ---
 
-## 📂 Estructura del Repositorio
+---
+
+## 📂 Estructura del Repositorio y Arquitectura Multi-Página
+
+El proyecto está organizado en páginas modulares siguiendo las mejores prácticas de la web moderna:
+
+* **`/` (o `/home`):** Landing page y presentación visual de la herramienta (cero dependencias de carga pesada).
+* **`/configuration/`:** Asistente interactivo guiado en 5 pasos con simulador visual Mini Nuvio y CRUD en tiempo real.
+* **`/documentation/`:** Portal de documentación exhaustiva, tutoriales paso a paso y resolución de incidencias.
 
 ```
 NuvioLatinoSetup/
+├── index.html                  # Landing Page / Home de Presentación
+├── home/
+│   └── index.html              # Alias / Redirección canónica a /
+├── configuration/
+│   └── index.html              # Asistente de Configuración en 5 Pasos
+├── documentation/
+│   └── index.html              # Portal de Documentación y Guías
 ├── assets/
-│   └── collections/            # 100 imágenes locales optimizadas (carátulas, backdrops y logos)
+│   ├── collections/            # 100 imágenes locales optimizadas (carátulas, backdrops y logos)
+│   ├── logo/                   # Logotipos de la aplicación
+│   └── preview/                # Capturas de pantalla e incrustación para Discord
 ├── css/
 │   └── styles.css              # Estilos personalizados, animaciones y soporte para glassmorphism
 ├── js/
@@ -141,17 +158,17 @@ NuvioLatinoSetup/
 ├── templates/
 │   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (356 catálogos etiquetados)
 │   └── NuvioCollections.json   # Plantilla unificada de colecciones nativas Nuvio
-├── index.html                  # Punto de entrada de la Single Page Application
 ├── run.py                      # Servidor HTTP local con soporte UTF-8 y auto-apertura
 └── README.md                   # Documentación técnica del proyecto
 ```
 
 ---
 
-## 🤝 Comunidad y Soporte
+## 🤝 Créditos y Comunidad
 
-¿Tienes dudas, sugerencias o requieres soporte para configurar tu reproductor?
-- **Discord Oficial:** Únete a nuestra comunidad en [discord.gg/EubYtJVJEc](https://discord.gg/EubYtJVJEc).
+Este proyecto es impulsado por el esfuerzo conjunto de la comunidad latina de streaming:
+- **Colección en Español Completa (DonPuercoTroll):** Especial agradecimiento a **DonPuercoTroll** por su curaduría comunitaria de colecciones en español. Puedes explorar su colección oficial en [Nuvio TV Community Collections](https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll).
+- **Discord Oficial:** Únete a nuestra comunidad para asistencia técnica y feedback en [discord.gg/EubYtJVJEc](https://discord.gg/EubYtJVJEc).
 - **Addon Recomendado:** Te sugerimos complementar esta configuración con el addon **LAT-ADD**, especialmente optimizado para la comunidad latina.
 
 ---
