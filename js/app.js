@@ -871,18 +871,18 @@ class AppController {
   }
 
   setupStep3ApiKeys() {
-    const tmdbInput = document.getElementById('tmdbApiKey');
-    const tvdbInput = document.getElementById('tvdbApiKey');
-    const mdblistInput = document.getElementById('mdblistApiKey');
-    const rpdbInput = document.getElementById('rpdbApiKey');
-    const fanartInput = document.getElementById('fanartApiKey');
-    const topPosterInput = document.getElementById('topPosterApiKey');
-    const publicmetadbInput = document.getElementById('publicmetadbApiKey');
+    const tmdbInput = document.getElementById('keyTmdb') || document.getElementById('tmdbApiKey');
+    const tvdbInput = document.getElementById('keyTvdb') || document.getElementById('tvdbApiKey');
+    const mdblistInput = document.getElementById('keyMdblist') || document.getElementById('mdblistApiKey');
+    const rpdbInput = document.getElementById('keyRpdb') || document.getElementById('rpdbApiKey');
+    const fanartInput = document.getElementById('keyFanart') || document.getElementById('fanartApiKey');
+    const topPosterInput = document.getElementById('keyTopPoster') || document.getElementById('topPosterApiKey');
+    const publicmetadbInput = document.getElementById('keyPublicmetadb') || document.getElementById('publicmetadbApiKey');
 
     const toggleAi = document.getElementById('toggleSearchAi');
     const aiContainer = document.getElementById('aiKeysContainer');
-    const geminiInput = document.getElementById('geminiApiKey');
-    const openrouterInput = document.getElementById('openrouterApiKey');
+    const geminiInput = document.getElementById('keyGemini') || document.getElementById('geminiApiKey');
+    const openrouterInput = document.getElementById('keyOpenrouter') || document.getElementById('openrouterApiKey');
 
     const btnValidate = document.getElementById('btnValidateApiKeys');
     const overallBadge = document.getElementById('apiKeyOverallBadge');
@@ -905,14 +905,21 @@ class AppController {
       this.updateNavigationButtons();
     };
 
-    // 1. Vincular campos base
+    // 1. Vincular campos base con sincronización bidireccional segura
     const bindInput = (el, key, isDefault = null) => {
       if (!el) return;
-      el.value = state.apiKeys[key] || isDefault || '';
-      el.addEventListener('input', (e) => {
+      if (!state.apiKeys[key] && isDefault) {
+        state.apiKeys[key] = isDefault;
+      }
+      el.value = state.apiKeys[key] || '';
+      
+      const onValueChange = (e) => {
         state.apiKeys[key] = e.target.value.trim() || (isDefault || '');
         invalidateValidation(key);
-      });
+      };
+
+      el.addEventListener('input', onValueChange);
+      el.addEventListener('change', onValueChange);
     };
 
     bindInput(tmdbInput, 'tmdb');
@@ -947,6 +954,17 @@ class AppController {
         btnValidate.disabled = true;
         btnValidate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Probando credenciales...</span>';
 
+        // Sincronizar directamente los valores actuales de los inputs con state.apiKeys
+        if (tmdbInput) state.apiKeys.tmdb = tmdbInput.value.trim();
+        if (tvdbInput) state.apiKeys.tvdb = tvdbInput.value.trim();
+        if (mdblistInput) state.apiKeys.mdblist = mdblistInput.value.trim();
+        if (rpdbInput) state.apiKeys.rpdb = rpdbInput.value.trim() || 't0-free-rpdb';
+        if (fanartInput) state.apiKeys.fanart = fanartInput.value.trim();
+        if (topPosterInput) state.apiKeys.topPoster = topPosterInput.value.trim();
+        if (publicmetadbInput) state.apiKeys.publicmetadb = publicmetadbInput.value.trim();
+        if (geminiInput) state.apiKeys.gemini = geminiInput.value.trim();
+        if (openrouterInput) state.apiKeys.openrouter = openrouterInput.value.trim();
+
         let allValid = true;
         const validationMap = {};
 
@@ -959,6 +977,9 @@ class AppController {
             tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
             tmdbBadge.innerText = '✗ Obligatoria';
           }
+          if (tmdbInput) {
+            tmdbInput.classList.add('border-red-500/60');
+          }
         } else {
           try {
             const res = await fetch(`https://api.themoviedb.org/3/authentication?api_key=${encodeURIComponent(tmdbKey)}`);
@@ -968,25 +989,62 @@ class AppController {
                 tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                 tmdbBadge.innerText = '✓ Válida';
               }
-            } else {
+              if (tmdbInput) {
+                tmdbInput.classList.remove('border-red-500/60');
+                tmdbInput.classList.add('border-emerald-500/50');
+              }
+            } else if (res.status === 401) {
               allValid = false;
               if (tmdbBadge) {
                 tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
-                tmdbBadge.innerText = '✗ Inválida';
+                tmdbBadge.innerText = '✗ Clave inválida (401)';
+              }
+              if (tmdbInput) {
+                tmdbInput.classList.add('border-red-500/60');
+              }
+            } else {
+              const isHex32 = /^[a-f0-9]{32}$/i.test(tmdbKey);
+              if (isHex32) {
+                validationMap.tmdb = true;
+                if (tmdbBadge) {
+                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  tmdbBadge.innerText = '✓ Válida';
+                }
+                if (tmdbInput) {
+                  tmdbInput.classList.remove('border-red-500/60');
+                  tmdbInput.classList.add('border-emerald-500/50');
+                }
+              } else {
+                allValid = false;
+                if (tmdbBadge) {
+                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  tmdbBadge.innerText = `✗ Error (${res.status})`;
+                }
+                if (tmdbInput) {
+                  tmdbInput.classList.add('border-red-500/60');
+                }
               }
             }
           } catch (_) {
-            if (tmdbKey.length === 32) {
+            const isHex32 = /^[a-f0-9]{32}$/i.test(tmdbKey);
+            if (isHex32 || tmdbKey.length >= 20) {
               validationMap.tmdb = true;
               if (tmdbBadge) {
                 tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-                tmdbBadge.innerText = '✓ Válida';
+                tmdbBadge.innerText = '✓ Formato Válido (Offline)';
+              }
+              if (tmdbInput) {
+                tmdbInput.classList.remove('border-red-500/60');
+                tmdbInput.classList.add('border-emerald-500/50');
               }
             } else {
               allValid = false;
               if (tmdbBadge) {
                 tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
-                tmdbBadge.innerText = '✗ Error de red';
+                tmdbBadge.innerText = '✗ Formato incorrecto';
+              }
+              if (tmdbInput) {
+                tmdbInput.classList.add('border-red-500/60');
               }
             }
           }
@@ -1009,19 +1067,19 @@ class AppController {
               const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(geminiKey)}`);
               if (res.ok) {
                 if (geminiBadge) {
-                  geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  geminiBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                   geminiBadge.innerText = '✓ Válida';
                 }
               } else {
                 allValid = false;
                 if (geminiBadge) {
-                  geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  geminiBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
                   geminiBadge.innerText = '✗ Inválida';
                 }
               }
             } catch (_) {
               if (geminiKey.startsWith('AIzaSy') && geminiKey.length >= 30 && geminiBadge) {
-                geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                geminiBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                 geminiBadge.innerText = '✓ Válida';
               }
             }
@@ -1034,19 +1092,19 @@ class AppController {
               });
               if (res.ok) {
                 if (openrouterBadge) {
-                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                   openrouterBadge.innerText = '✓ Válida';
                 }
               } else {
                 allValid = false;
                 if (openrouterBadge) {
-                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
                   openrouterBadge.innerText = '✗ Inválida';
                 }
               }
             } catch (_) {
               if ((openrouterKey.startsWith('sk-or-v1-') || openrouterKey.length >= 20) && openrouterBadge) {
-                openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                openrouterBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                 openrouterBadge.innerText = '✓ Válida';
               }
             }
@@ -1060,48 +1118,81 @@ class AppController {
           try {
             const res = await fetch(`https://mdblist.com/api/?apikey=${encodeURIComponent(mdblistKey)}&s=avatar`);
             if (res.ok) {
+              validationMap.mdblist = true;
               if (mdblistBadge) {
-                mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                 mdblistBadge.innerText = '✓ Válida';
               }
             } else {
               allValid = false;
               if (mdblistBadge) {
-                mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
                 mdblistBadge.innerText = '✗ Inválida';
               }
             }
           } catch (_) {
             if (mdblistKey.length >= 10 && mdblistBadge) {
-              mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+              validationMap.mdblist = true;
+              mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
               mdblistBadge.innerText = '✓ Válida';
             }
           }
+        } else if (mdblistBadge) {
+          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
+          mdblistBadge.innerText = 'Opcional';
+        }
+
+        const rpdbKey = (state.apiKeys.rpdb || '').trim();
+        const rpdbBadge = document.getElementById('badge-rpdb');
+        if (rpdbBadge) {
+          if (rpdbKey === 't0-free-rpdb' || !rpdbKey) {
+            rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono';
+            rpdbBadge.innerText = 'Por defecto';
+          } else {
+            rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+            rpdbBadge.innerText = '✓ Personalizada';
+          }
+        }
+
+        const tvdbKey = (state.apiKeys.tvdb || '').trim();
+        const tvdbBadge = document.getElementById('badge-tvdb');
+        if (tvdbKey) {
+          validationMap.tvdb = true;
+          if (tvdbBadge) {
+            tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+            tvdbBadge.innerText = '✓ Configurada';
+          }
+        } else if (tvdbBadge) {
+          tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
+          tvdbBadge.innerText = 'Opcional';
         }
 
         const fanartKey = (state.apiKeys.fanart || '').trim();
         const fanartBadge = document.getElementById('badge-fanart');
-        if (fanartKey && fanartBadge) {
-          fanartBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-          fanartBadge.innerText = '✓ Válida';
-        }
-
-        const rpdbBadge = document.getElementById('badge-rpdb');
-        if (rpdbBadge) {
-          rpdbBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-          rpdbBadge.innerText = '✓ Válida';
+        if (fanartKey) {
+          validationMap.fanart = true;
+          if (fanartBadge) {
+            fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+            fanartBadge.innerText = '✓ Configurada';
+          }
+        } else if (fanartBadge) {
+          fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
+          fanartBadge.innerText = 'Opcional';
         }
 
         // Resultado Final
         if (allValid) {
           state.setApiKeysValidation(true, validationMap);
-          if (overallBadge) overallBadge.classList.remove('hidden');
+          state.unlockStep(5);
+          if (overallBadge) {
+            overallBadge.classList.remove('hidden');
+            overallBadge.className = 'text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1.5';
+          }
           if (statusMsg) {
             statusMsg.innerText = '✓ Todas las claves han sido comprobadas con éxito. Ya puedes avanzar al siguiente paso.';
             statusMsg.className = 'text-[11px] text-emerald-400 mt-0.5 font-medium';
           }
           this.showToast('✓ Claves API verificadas exitosamente', 'success');
-          this.updateUI();
         } else {
           state.setApiKeysValidation(false, validationMap);
           if (overallBadge) overallBadge.classList.add('hidden');
@@ -1114,6 +1205,8 @@ class AppController {
 
         btnValidate.disabled = false;
         btnValidate.innerHTML = '<i class="fa-solid fa-vial-circle-check"></i><span>Probar Claves API</span>';
+        this.updateUI();
+        this.updateNavigationButtons();
       });
     }
 
