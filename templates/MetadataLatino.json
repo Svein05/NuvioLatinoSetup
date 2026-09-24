@@ -6819,9 +6819,25 @@
         ]
       },
       {
+        "id": "tmdb.top_movie",
+        "type": "movie",
+        "name": "Lo más popular de hoy (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "tmdb"
+      },
+      {
         "id": "tmdb.top_series",
         "type": "series",
-        "name": "Tmdb.Top Series",
+        "name": "Lo más popular de hoy (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "tmdb"
+      },
+      {
+        "id": "tmdb.trending_movie",
+        "type": "movie",
+        "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb"
@@ -6829,7 +6845,7 @@
       {
         "id": "tmdb.trending_series",
         "type": "series",
-        "name": "Tmdb.Trending Series",
+        "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb"
@@ -13865,9 +13881,25 @@
       ]
     },
     {
+      "id": "tmdb.top_movie",
+      "type": "movie",
+      "name": "Lo más popular de hoy (Películas)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "tmdb"
+    },
+    {
       "id": "tmdb.top_series",
       "type": "series",
-      "name": "Tmdb.Top Series",
+      "name": "Lo más popular de hoy (Series)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "tmdb"
+    },
+    {
+      "id": "tmdb.trending_movie",
+      "type": "movie",
+      "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb"
@@ -13875,7 +13907,7 @@
     {
       "id": "tmdb.trending_series",
       "type": "series",
-      "name": "Tmdb.Trending Series",
+      "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb"
