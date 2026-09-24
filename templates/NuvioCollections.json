@@ -295,21 +295,6 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.16086",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -337,12 +322,6 @@
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.88468"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.16086"
           }
         ],
         "focusGifEnabled": false,
@@ -512,21 +491,6 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.133223",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -560,12 +524,6 @@
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.6928"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.133223"
           }
         ],
         "focusGifEnabled": false,
