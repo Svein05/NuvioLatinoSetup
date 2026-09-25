@@ -174,17 +174,27 @@ export class PipelineInjector {
         }
       }
 
-      state.addLog('Activando TMDB Enrichment y MDBList Ratings en es-MX (TV y Mobile)...', 'info');
+      const hasMdblistKey = Boolean(state.apiKeys.mdblist && state.apiKeys.mdblist.trim());
+      const hasTmdbKey = Boolean(state.apiKeys.tmdb && state.apiKeys.tmdb.trim());
+
+      state.addLog('Configurando perfil: TMDB Enrichment en es-MX (TV y Mobile)...', 'info');
       const profileSettingsPayload = {
         language: 'es-MX',
         tmdb_language: 'es-MX',
         enrichment_enabled: true,
-        ratings_enabled: Boolean(state.apiKeys.mdblist && state.apiKeys.mdblist.trim())
+        ratings_enabled: hasMdblistKey,
+        tmdb_api_key: hasTmdbKey ? state.apiKeys.tmdb.trim() : '',
+        mdblist_api_key: hasMdblistKey ? state.apiKeys.mdblist.trim() : ''
       };
 
       if (isSimulation) {
         await this.delay(400);
         state.addLog('✓ [Simulado] TMDB Enrichment activado en TV y Mobile (es-MX).', 'success');
+        if (hasMdblistKey) {
+          state.addLog('✓ [Simulado] Calificaciones de MDBList activadas con tu clave para TV y Mobile.', 'success');
+        } else {
+          state.addLog('ℹ️ [Simulado] Calificaciones de MDBList desactivadas (no se ingresó clave en el Paso 4).', 'info');
+        }
       } else {
         for (const platform of ['tv', 'mobile']) {
           await NuvioClient.pushProfileSettings({
@@ -197,7 +207,12 @@ export class PipelineInjector {
             settings: profileSettingsPayload
           });
         }
-        state.addLog('✓ TMDB Enrichment y MDBList Ratings configurados exitosamente en es-MX (TV y Mobile).', 'success');
+        state.addLog('✓ TMDB Enrichment activado exitosamente en es-MX (TV y Mobile).', 'success');
+        if (hasMdblistKey) {
+          state.addLog('✓ Calificaciones de MDBList activadas con tu clave para TV y Mobile.', 'success');
+        } else {
+          state.addLog('ℹ️ Calificaciones de MDBList desactivadas (no se ingresó clave en el Paso 4).', 'info');
+        }
       }
 
       // ========================================================
