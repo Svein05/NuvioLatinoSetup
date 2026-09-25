@@ -1108,7 +1108,7 @@ class AppController {
         if (!tmdbKey || tmdbKey.length < 8) {
           allValid = false;
           if (tmdbBadge) {
-            tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+            tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
             tmdbBadge.innerText = '✗ Obligatoria';
           }
           if (tmdbInput) {
@@ -1120,7 +1120,7 @@ class AppController {
             if (res.ok) {
               validationMap.tmdb = true;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 tmdbBadge.innerText = '✓ Válida';
               }
               if (tmdbInput) {
@@ -1130,7 +1130,7 @@ class AppController {
             } else if (res.status === 401) {
               allValid = false;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 tmdbBadge.innerText = '✗ Clave inválida (401)';
               }
               if (tmdbInput) {
@@ -1141,7 +1141,7 @@ class AppController {
               if (isHex32) {
                 validationMap.tmdb = true;
                 if (tmdbBadge) {
-                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                   tmdbBadge.innerText = '✓ Válida';
                 }
                 if (tmdbInput) {
@@ -1151,7 +1151,7 @@ class AppController {
               } else {
                 allValid = false;
                 if (tmdbBadge) {
-                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                   tmdbBadge.innerText = `✗ Error (${res.status})`;
                 }
                 if (tmdbInput) {
@@ -1164,7 +1164,7 @@ class AppController {
             if (isHex32 || tmdbKey.length >= 20) {
               validationMap.tmdb = true;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 tmdbBadge.innerText = '✓ Formato Válido (Offline)';
               }
               if (tmdbInput) {
@@ -1174,7 +1174,7 @@ class AppController {
             } else {
               allValid = false;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 tmdbBadge.innerText = '✗ Formato incorrecto';
               }
               if (tmdbInput) {
@@ -1260,20 +1260,20 @@ class AppController {
             if (res.ok) {
               validationMap.mdblist = true;
               if (mdblistBadge) {
-                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✓ Válida';
               }
             } else {
               allValid = false;
               if (mdblistBadge) {
-                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✗ Inválida';
               }
             }
           } catch (_) {
             if (mdblistKey.length >= 10 && mdblistBadge) {
               validationMap.mdblist = true;
-              mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+              mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
               mdblistBadge.innerText = '✓ Válida';
             }
           }
@@ -1291,7 +1291,7 @@ class AppController {
             if (res.ok && text.includes('"valid":true')) {
               validationMap.rpdb = true;
               if (rpdbBadge) {
-                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 rpdbBadge.innerText = '✓ Válida';
               }
               if (rpdbInput) {
@@ -1301,7 +1301,7 @@ class AppController {
             } else {
               allValid = false;
               if (rpdbBadge) {
-                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 rpdbBadge.innerText = '✗ Inválida';
               }
               if (rpdbInput) {
@@ -1312,7 +1312,7 @@ class AppController {
             if (rpdbKey === 't0-free-rpdb' || rpdbKey.length >= 6) {
               validationMap.rpdb = true;
               if (rpdbBadge) {
-                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 rpdbBadge.innerText = '✓ Válida';
               }
               if (rpdbInput) {
@@ -1331,7 +1331,7 @@ class AppController {
         if (tvdbKey) {
           validationMap.tvdb = true;
           if (tvdbBadge) {
-            tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+            tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
             tvdbBadge.innerText = '✓ Configurada';
           }
         } else if (tvdbBadge) {
@@ -1344,7 +1344,7 @@ class AppController {
         if (fanartKey) {
           validationMap.fanart = true;
           if (fanartBadge) {
-            fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+            fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
             fanartBadge.innerText = '✓ Configurada';
           }
         } else if (fanartBadge) {
