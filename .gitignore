@@ -1,6 +1,8 @@
-# Context memory rules
+# Context memory rules & Agent internal workspace
 .contexts/
 context.md
+.agents/
+.agent/
 
 # OS / Editor files
 .DS_Store
