@@ -153,7 +153,7 @@
         "type": "movie",
         "name": "Recomendaciones de Trakt",
         "enabled": true,
-        "showInHome": true,
+        "showInHome": false,
         "source": "trakt",
         "displayType": "movie",
         "tags": [
@@ -165,7 +165,7 @@
         "type": "series",
         "name": "Recomendaciones de Trakt",
         "enabled": true,
-        "showInHome": true,
+        "showInHome": false,
         "source": "trakt",
         "displayType": "series",
         "tags": [
@@ -7215,7 +7215,7 @@
       "type": "movie",
       "name": "Recomendaciones de Trakt",
       "enabled": true,
-      "showInHome": true,
+      "showInHome": false,
       "source": "trakt",
       "displayType": "movie",
       "tags": [
@@ -7227,7 +7227,7 @@
       "type": "series",
       "name": "Recomendaciones de Trakt",
       "enabled": true,
-      "showInHome": true,
+      "showInHome": false,
       "source": "trakt",
       "displayType": "series",
       "tags": [
