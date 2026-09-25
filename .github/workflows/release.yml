@@ -26,27 +26,22 @@ jobs:
           echo "Extracting release notes for version ${VERSION}..."
           
           if [ -f CHANGELOG.md ]; then
-            NOTES=$(awk -v ver="$VERSION" '
+            awk -v ver="$VERSION" '
               BEGIN { found=0; }
               $0 ~ "^## \\[" ver "\\]" { found=1; next; }
               found && /^## \[/ { exit; }
               found { print; }
-            ' CHANGELOG.md | sed -e '1{/^$/d;}' -e '${/^$/d;}')
+            ' CHANGELOG.md | sed -e '1{/^$/d;}' -e '${/^$/d;}' > release_notes.md
           fi
 
-          if [ -z "$NOTES" ]; then
-            echo "No specific notes found in CHANGELOG.md, using default title."
-            NOTES="Lanzamiento oficial de Nuvio Metadata Latino ${GITHUB_REF_NAME}."
+          if [ ! -s release_notes.md ]; then
+            echo "Lanzamiento oficial de Nuvio Metadata Latino ${GITHUB_REF_NAME}." > release_notes.md
           fi
-
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$NOTES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Official Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "Nuvio Metadata Latino ${{ github.ref_name }}" \
-            --notes "${{ steps.changelog.outputs.notes }}"
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Nuvio Metadata Latino $GITHUB_REF_NAME" \
+            --notes-file release_notes.md
