@@ -806,6 +806,10 @@ class AppController {
 
     if (btnOpenModal && modal) {
       btnOpenModal.addEventListener('click', () => {
+        if (state.profiles && state.profiles.length >= 6) {
+          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
+          return;
+        }
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         if (nameInput) {
@@ -832,6 +836,12 @@ class AppController {
 
     if (btnConfirmModal && nameInput) {
       const handleCreate = async () => {
+        if (state.profiles && state.profiles.length >= 6) {
+          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
+          closeModal();
+          return;
+        }
+
         const name = nameInput.value.trim();
         if (!name) {
           this.showToast('Por favor escribe un nombre para el nuevo perfil.', 'warning');
@@ -912,6 +922,17 @@ class AppController {
   renderProfiles() {
     const container = document.getElementById('profilesList') || document.getElementById('profilesContainer');
     if (!container) return;
+
+    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
+    if (btnOpenModal) {
+      if (state.profiles && state.profiles.length >= 6) {
+        btnOpenModal.classList.add('opacity-50', 'cursor-not-allowed');
+        btnOpenModal.setAttribute('title', 'Límite máximo de 6 perfiles alcanzado en tu cuenta de Nuvio');
+      } else {
+        btnOpenModal.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnOpenModal.removeAttribute('title');
+      }
+    }
 
     if (state.profiles && state.profiles.length > 0) {
       container.innerHTML = state.profiles.map((p, idx) => {
@@ -1255,15 +1276,44 @@ class AppController {
           mdblistBadge.innerText = 'Opcional';
         }
 
-        const rpdbKey = (state.apiKeys.rpdb || '').trim();
+        const rpdbKey = (state.apiKeys.rpdb || 't0-free-rpdb').trim();
         const rpdbBadge = document.getElementById('badge-rpdb');
-        if (rpdbBadge) {
-          if (rpdbKey === 't0-free-rpdb' || !rpdbKey) {
-            rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono';
-            rpdbBadge.innerText = 'Por defecto';
-          } else {
-            rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-            rpdbBadge.innerText = '✓ Personalizada';
+        if (rpdbKey) {
+          try {
+            const res = await fetch(`https://api.ratingposterdb.com/${encodeURIComponent(rpdbKey)}/isValid`);
+            const text = await res.text();
+            if (res.ok && text.includes('"valid":true')) {
+              validationMap.rpdb = true;
+              if (rpdbBadge) {
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                rpdbBadge.innerText = '✓ Válida';
+              }
+              if (rpdbInput) {
+                rpdbInput.classList.remove('border-red-500/60');
+                rpdbInput.classList.add('border-emerald-500/50');
+              }
+            } else {
+              allValid = false;
+              if (rpdbBadge) {
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                rpdbBadge.innerText = '✗ Inválida';
+              }
+              if (rpdbInput) {
+                rpdbInput.classList.add('border-red-500/60');
+              }
+            }
+          } catch (_) {
+            if (rpdbKey === 't0-free-rpdb' || rpdbKey.length >= 6) {
+              validationMap.rpdb = true;
+              if (rpdbBadge) {
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                rpdbBadge.innerText = '✓ Válida';
+              }
+              if (rpdbInput) {
+                rpdbInput.classList.remove('border-red-500/60');
+                rpdbInput.classList.add('border-emerald-500/50');
+              }
+            }
           }
         }
 
