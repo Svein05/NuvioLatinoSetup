@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.1.0-6366f1.svg?style=flat-square" alt="Versión 1.1.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -59,19 +60,19 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 [ Paso 2: Selección / Creación de Perfil ] (Omitido en Modo Manual)
                   │
                   ▼
-[ Paso 3: Configuración y Validación de API Keys ]
+[ Paso 3: Personalización Visual en Mini NUVIO ]
                   │
                   ▼
-[ Paso 4: Personalización Visual en Mini NUVIO ]
+[ Paso 4: Configuración y Validación de API Keys ]
                   │
                   ▼
 [ Paso 5: Seguridad de Addon e Inyección / Exportación JSON ]
 ```
 
 1. **Paso 1 - Autenticación Nuvio:** Inicia sesión con tus credenciales de Nuvio, crea una cuenta nueva o selecciona el botón alternativo **Continuar sin cuenta (Modo Manual)**.
-2. **Paso 2 - Selección de Perfil:** Elige el perfil de Nuvio en el que se aplicará la configuración o crea uno nuevo directamente desde el asistente. Incluye advertencias visuales de sobreescritura para perfiles existentes.
-3. **Paso 3 - Claves API e Integraciones:** Ingresa tu TMDB API Key (obligatoria) y proveedores opcionales. Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
-4. **Paso 4 - Colección (Mini NUVIO):** Explora y edita las secciones (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming).
+2. **Paso 2 - Selección de Perfil:** Elige el perfil de Nuvio en el que se aplicará la configuración o crea uno nuevo directamente desde el asistente. Incluye advertencias visuales de sobreescritura para perfiles existentes y respeta el límite estricto de 6 perfiles.
+3. **Paso 3 - Personalización Visual en Mini NUVIO:** Explora y edita las colecciones nativas (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming) con carátulas en alta resolución y control total de catálogos.
+4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key (obligatoria) y proveedores opcionales (MDBList, RPDB, TheTVDB, Fanart, Gemini). Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
 5. **Paso 5 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
 
 ---
@@ -81,9 +82,9 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 | Proveedor | Estado | Propósito | Enlace de Registro |
 | :--- | :---: | :--- | :--- |
 | **TheMovieDatabase (TMDB)** | **Obligatoria** | Metadatos en español latino, pósters, sinopsis y reparto. | [themoviedb.org](https://www.themoviedb.org/settings/api) |
+| **MDBList** | **Recomendado** | Calificaciones externas (IMDb, Rotten Tomatoes, Metacritic, Trakt) en TV y Mobile. | [mdblist.com](https://mdblist.com/preferences/) |
 | **TheTVDB** | Opcional | Identificación y carátulas de series de televisión. | [thetvdb.com](https://thetvdb.com/dashboard/account/apikeys) |
-| **MDBList** | Opcional | Calificaciones críticas (IMDb, Rotten Tomatoes, Metacritic). | [mdblist.com](https://mdblist.com/preferences/) |
-| **RPDB (Rating Poster DB)** | Opcional | Pósters cinematográficos con calificaciones incrustadas. | [ratingposterdb.com](https://ratingposterdb.com/) |
+| **RPDB (Rating Poster DB)** | Opcional | Clave para pósters cinematográficos con calificaciones incrustadas. | [ratingposterdb.com](https://ratingposterdb.com/) |
 | **Fanart.tv** | Opcional | Logos en formato PNG transparente, fondos en HD y disco-arte. | [fanart.tv](https://fanart.tv/get-an-api-key/) |
 | **Google Gemini** | Opcional | Motor de búsqueda semántica con Inteligencia Artificial. | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
 | **OpenRouter** | Opcional | Modelos alternativos para búsqueda con Inteligencia Artificial. | [openrouter.ai](https://openrouter.ai/keys) |
