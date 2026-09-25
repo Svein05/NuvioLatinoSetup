@@ -631,17 +631,37 @@ export class NuvioClient {
       tmdb_use_collections: { type: 'boolean', value: true }
     };
 
+    if (settings.tmdb_api_key && String(settings.tmdb_api_key).trim()) {
+      tmdbFeatures.tmdb_api_key = { type: 'string', value: String(settings.tmdb_api_key).trim() };
+    }
+
+    const hasMdblistKey = Boolean(settings.mdblist_api_key && String(settings.mdblist_api_key).trim()) || Boolean(settings.ratings_enabled);
     const mdblistFeatures = {
-      mdblist_enabled: { type: 'boolean', value: Boolean(settings.ratings_enabled ?? true) },
-      mdblist_show_trakt: { type: 'boolean', value: true },
-      mdblist_show_imdb: { type: 'boolean', value: true },
-      mdblist_show_tmdb: { type: 'boolean', value: true },
-      mdblist_show_letterboxd: { type: 'boolean', value: true },
-      mdblist_show_tomatoes: { type: 'boolean', value: true },
-      mdblist_show_audience: { type: 'boolean', value: true },
-      mdblist_show_metacritic: { type: 'boolean', value: true },
-      mdblist_show_mal: { type: 'boolean', value: true }
+      mdblist_enabled: { type: 'boolean', value: hasMdblistKey },
+      mdblist_api_key: { type: 'string', value: hasMdblistKey ? String(settings.mdblist_api_key || '').trim() : '' }
     };
+
+    if (hasMdblistKey) {
+      // Claves canónicas para Nuvio TV (prefijo mdblist_show_*)
+      mdblistFeatures.mdblist_show_trakt = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_imdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_tmdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_letterboxd = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_tomatoes = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_audience = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_metacritic = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_mal = { type: 'boolean', value: true };
+
+      // Claves canónicas para Nuvio Mobile (prefijo mdblist_use_*)
+      mdblistFeatures.mdblist_use_imdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_tmdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_tomatoes = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_metacritic = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_trakt = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_letterboxd = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_audience = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_mal = { type: 'boolean', value: true };
+    }
 
     const settingsBlob = {
       version: 1,
@@ -654,7 +674,7 @@ export class NuvioClient {
       language: settings.language || 'es-MX',
       tmdb_language: settings.tmdb_language || 'es-MX',
       enrichment_enabled: true,
-      ratings_enabled: true,
+      ratings_enabled: hasMdblistKey,
       auto_translate: true
     };
 

@@ -1272,8 +1272,8 @@ class AppController {
             }
           }
         } else if (mdblistBadge) {
-          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
-          mdblistBadge.innerText = 'Opcional';
+          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono';
+          mdblistBadge.innerText = 'Recomendado';
         }
 
         const rpdbKey = (state.apiKeys.rpdb || 't0-free-rpdb').trim();
