@@ -607,6 +607,7 @@ class WizardState {
       return list.filter(cat => {
         const isIncluded = activeCatalogIds.has(cat.id);
         cat.showInHome = false;
+        cat.enableRatingPosters = false;
         return isIncluded;
       });
     };
@@ -632,8 +633,13 @@ class WizardState {
     configObj.apiKeys.openrouter = (this.apiKeys.openrouter || '').trim();
     configObj.apiKeys.traktTokenId = '';
 
-    // Proveedor de calificaciones en pósters configurado estrictamente en "none"
+    // Proveedor de calificaciones en pósters configurado estrictamente en "none" y carátulas limpias
     configObj.posterRatingProvider = "none";
+    configObj.customPosterUrlPattern = "";
+    configObj.enableRatingPostersForLibrary = false;
+    if (template.customPosterUrlPattern !== undefined) {
+      template.customPosterUrlPattern = "";
+    }
 
     // 3.1 Configurar Búsqueda con IA
     if (!configObj.search) configObj.search = {};

@@ -80,7 +80,7 @@
     "simklWatchTracking": false,
     "traktWatchTracking": false,
     "publicmetadbWatchTracking": false,
-    "enableRatingPostersForLibrary": true,
+    "enableRatingPostersForLibrary": false,
     "showRateMeButton": false,
     "ageRating": "None",
     "searchEnabled": true,
@@ -6915,7 +6915,7 @@
     "streaming": [
       "nfx"
     ],
-    "customPosterUrlPattern": "https://btttr.cc/poster-n/imdb/poster-default/{imdb_id}.jpg?lang=es",
+    "customPosterUrlPattern": "",
     "customBackgroundUrlPattern": "",
     "customLandscapeUrlPattern": "",
     "customLogoUrlPattern": "",

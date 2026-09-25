@@ -198,10 +198,18 @@ export class NuvioClient {
         existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
       } catch (_) {}
 
+      if (existing.length >= 6) {
+        throw new Error('Has alcanzado el límite máximo de 6 perfiles en Nuvio. Selecciona uno existente.');
+      }
+
       const usedIndexes = new Set(existing.map(p => Number(p.profile_index || p.id)).filter(Number.isFinite));
       let newIndex = 1;
-      while (usedIndexes.has(newIndex)) {
+      while (usedIndexes.has(newIndex) && newIndex <= 6) {
         newIndex++;
+      }
+
+      if (newIndex > 6) {
+        throw new Error('Todos los espacios de perfil (1 al 6) están ocupados en tu cuenta de Nuvio.');
       }
 
       const newProfile = {
