@@ -2,109 +2,125 @@
 name: release-congruence
 description: >-
   Audits and enforces exhaustive 100% congruence between the codebase implementation,
-  the web application interfaces, README.md, documentation pages, and GitHub releases.
-  Use this skill whenever preparing, bumping, auditing, or publishing a new release,
-  or when verifying that features claimed in documentation match actual code.
+  the web application interfaces, README.md, documentation pages, and GitHub releases
+  through direct, manual inspection by the agent. Use this skill whenever preparing,
+  bumping, auditing, or publishing a new release.
 ---
 
-# Release Congruence & Deep Codebase Audit Skill
+# Release Congruence & Manual Inspection Protocol
 
-Este skill establece el protocolo riguroso e inquebrantable para contrastar **todo el código fuente real** con lo declarado en `README.md`, el portal de documentación (`documentation/index.html`), las vistas web (`index.html`, `configuration/index.html`) y el sistema de versionado (`version.json`, `CHANGELOG.md`).
+Este skill define el protocolo obligatorio de **inspección manual y análisis cognitivo directo** que el asistente debe realizar personalmente cada vez que se prepare, incremente o publique un nuevo **Release** o versión del proyecto.
 
-## 🎯 Principio Rector: Cero Discrepancias
-> **"Si una funcionalidad, paso, proveedor de API, límite o URL está escrito en la documentación o en la web, el código fuente debe implementarlo con total exactitud. Si algo cambia en el código, la documentación debe reflejarlo de inmediato antes de cualquier release."**
+> [!CAUTION]
+> **PROHIBICIÓN ESTRICTA DE SCRIPTS DE AUDITORÍA DESECHABLES:**
+> NUNCA crees ni utilices scripts temporales de Python/Bash para intentar delegar la verificación mediante expresiones regulares o pattern-matching. Los scripts pueden generar falsos positivos, fallos silenciosos y ensucian el repositorio público con archivos poco profesionales.
+> **TÚ, como asistente de ingeniería, debes leer directamente los archivos con `view_file` y contrastar cada punto con juicio crítico.**
 
 ---
 
-## 🔍 Matriz de Contraste Profundo (Code vs Web vs Docs)
+## 🎯 Principio Fundamental
+**"Lo que dice la documentación debe coincidir con total exactitud con lo que hace y muestra la aplicación web y con el código fuente real."**
 
-Cada vez que se prepare un release, debes contrastar los siguientes 10 vectores:
+Si una característica, proveedor, paso o URL cambia en el código, debes actualizar la documentación de inmediato. Si la documentación promete algo, el código debe implementarlo de forma verificable.
 
-### 1. Secuencia y Títulos de Pasos
-* **Web Wizard (`configuration/index.html`):**
-  - Paso 1: Conexión con Cuenta de Nuvio / Modo Manual (`#step-1`)
-  - Paso 2: Selección o Creación de Perfil (`#step-2`)
-  - Paso 3: Mini NUVIO Colecciones Interactivas (`#step-3`)
-  - Paso 4: Claves API e Integraciones (`#step-4`)
-  - Paso 5: Seguridad e Inyección Automatizada (`#step-5`)
-* **README (`README.md`):** Sección *"🗺️ Flujo de los 5 Pasos del Asistente"* debe tener exactamente este orden (Paso 3 = Mini Nuvio, Paso 4 = Claves API).
-* **Documentación (`documentation/index.html`):** Sección *"3. Guía del Asistente en 5 Pasos"* debe mantener títulos y descripciones congruentes.
+---
 
-### 2. Proveedores de API Soportados
-* Contrastar los 7 proveedores declarados:
-  1. `TheMovieDatabase (TMDB)`: Obligatoria (`#keyTmdb`, `state.apiKeys.tmdb`)
-  2. `MDBList`: Opcional pero recomendado (`#keyMdblist`, `state.apiKeys.mdblist`)
-  3. `RPDB`: Opcional (`#keyRpdb`, `state.apiKeys.rpdb`)
-  4. `TheTVDB`: Opcional (`#keyTvdb`, `state.apiKeys.tvdb`)
-  5. `Fanart.tv`: Opcional (`#keyFanart`, `state.apiKeys.fanart`)
-  6. `Google Gemini`: Opcional (`#keyGemini`, `state.apiKeys.gemini`)
-  7. `OpenRouter`: Opcional (`#keyOpenrouter`, `state.apiKeys.openrouter`)
+## 📋 Protocolo de Inspección Manual en 10 Puntos
+
+Antes de proponer cualquier release o merge a `main`, abre y lee manualmente (`view_file`) los archivos indicados en cada punto:
+
+### 1. Flujo de los 5 Pasos (Web vs README vs Docs)
+* **Archivos a inspeccionar:**
+  - `configuration/index.html` (buscar IDs `step-1`, `step-2`, `step-3`, `step-4`, `step-5`)
+  - `README.md` (sección *"🗺️ Flujo de los 5 Pasos del Asistente"*)
+  - `documentation/index.html` (sección *"3. Guía del Asistente en 5 Pasos"*)
+* **Verificar manualmente:**
+  - Paso 1: Cuenta Nuvio / Modo Manual
+  - Paso 2: Selección / Creación de Perfil (Omitido en Modo Manual)
+  - Paso 3: Mini NUVIO Colecciones Interactivas
+  - Paso 4: Claves API e Integraciones (TMDB, MDBList, etc.)
+  - Paso 5: Seguridad de Addon e Inyección / Modo Manual
+
+### 2. Proveedores de API e Integraciones
+* **Archivos a inspeccionar:**
+  - `configuration/index.html` (inputs `#keyTmdb`, `#keyMdblist`, `#keyRpdb`, `#keyTvdb`, `#keyFanart`, `#keyGemini`, `#keyOpenrouter`)
+  - `js/state.js` (objeto `apiKeys`)
+  - `README.md` (tabla *"🔑 Proveedores de Metadatos Soportados"*)
+* **Verificar manualmente:**
+  - TMDB catalogado como **Obligatoria** para metadatos en español latino.
+  - MDBList catalogado como **Recomendado** para calificaciones en TV y Mobile.
+  - Enlaces de obtención y etiquetas congruentes sin redundancias.
 
 ### 3. Ghost Mode de AIOMetadata
-* `templates/MetadataLatino.json`: El 100% de los catálogos en `catalogs` raíz y en `config.catalogs` deben tener `"showInHome": false`.
-* Ningún catálogo debe saturar el Home de Nuvio.
+* **Archivos a inspeccionar:**
+  - `templates/MetadataLatino.json`
+* **Verificar manualmente:**
+  - Los catálogos en `catalogs` (tanto en la raíz como dentro del bloque `config`) deben tener `"showInHome": false` para evitar saturación de la pantalla principal de Nuvio.
 
 ### 4. Carátulas HD Limpias
-* `templates/MetadataLatino.json`: `customPosterUrlPattern` debe ser cadena vacía `""`.
-* `js/state.js`: `posterRatingProvider` debe estar inicializado en `"none"`.
+* **Archivos a inspeccionar:**
+  - `templates/MetadataLatino.json`
+  - `js/state.js`
+* **Verificar manualmente:**
+  - `customPosterUrlPattern` debe ser cadena vacía `""` (sin overlays forzados de terceros).
+  - `posterRatingProvider` debe estar inicializado en `"none"`.
 
 ### 5. Límite de Seguridad de Perfiles
-* `js/nuvio-client.js`: Límite estricto de máximo 6 perfiles permitidos en Nuvio (`>= 6`), con alertas preventivas al usuario si intenta excederlo.
+* **Archivos a inspeccionar:**
+  - `js/nuvio-client.js`
+  - `js/app.js`
+* **Verificar manualmente:**
+  - Verificación del límite de seguridad (`profiles.length >= 6`) con toasts informativos de advertencia para no exceder los 6 perfiles permitidos en Nuvio.
 
-### 6. Enriquecimiento Oficial y Sincronización
-* `js/nuvio-client.js`: Métodos `sync_push_provider_credentials`, `tmdb_settings` y `mdblist_settings` para TV y Mobile sincronizados reactivamente.
+### 6. Enriquecimiento TMDB y Ratings MDBList
+* **Archivos a inspeccionar:**
+  - `js/nuvio-client.js`
+* **Verificar manualmente:**
+  - Sincronización oficial de credenciales (`sync_push_provider_credentials`) y blobs de configuración para plataformas `tv` y `mobile` activando `tmdb_settings` y `mdblist_settings`.
 
-### 7. Modo Manual sin Cuenta
-* `configuration/index.html` y `js/app.js`: Botones `#btnCopyCollectionsJson` y `#btnCopyAioConfig` activos, con copia al portapapeles y validación de contraseña mínima de 4 caracteres.
+### 7. Modo Manual sin Cuenta Nuvio
+* **Archivos a inspeccionar:**
+  - `configuration/index.html` (`#manualModeContainer`, `#btnCopyCollectionsJson`, `#btnCopyAioConfig`)
+  - `js/app.js` (métodos de copia al portapapeles y validación de contraseña mínima de 4 caracteres)
+* **Verificar manualmente:**
+  - El botón de copiar metadata debe estar deshabilitado reactivamente hasta ingresar una contraseña válida.
 
-### 8. Recursos Gráficos Físicos
-* `templates/NuvioCollections.json`: Todas las URLs locales de `assets/collections/*.png` deben existir físicamente en el repositorio.
+### 8. Recursos Gráficos Físicos de Colecciones
+* **Archivos a inspeccionar:**
+  - `templates/NuvioCollections.json`
+  - Carpeta `assets/collections/`
+* **Verificar manualmente:**
+  - Que los logos, backdrops y carátulas locales referenciados existan en el disco.
 
-### 9. Sincronización Estricta de Versión
-* `version.json`: `"version": "X.Y.Z"` (Fuente de la verdad)
-* `js/config.js`: `VERSION: "X.Y.Z"`
-* `js/version.js`: Inyección dinámica en elementos `.app-version-badge`
-* `README.md`: Badge `Version-vX.Y.Z`
-* `CHANGELOG.md`: Sección `## [X.Y.Z] - AAAA-MM-DD`
-* `LICENSE`: Licencia MIT oficial atribuida a Svein (`Svein05`).
+### 9. Versionado Semántico Unificado (SemVer)
+* **Archivos a inspeccionar:**
+  - `version.json` (única fuente de verdad: `"version": "X.Y.Z"`)
+  - `js/config.js` (`VERSION: "X.Y.Z"`)
+  - `js/version.js` (script dinámico que alimenta a `.app-version-badge`)
+  - `index.html`, `configuration/index.html`, `documentation/index.html` (badges que muestran `vX.Y.Z` y enlazan a Releases)
+  - `README.md` (badge de Shields.io `Version-vX.Y.Z`)
+  - `CHANGELOG.md` (sección `## [X.Y.Z] - AAAA-MM-DD` con notas claras)
+  - `LICENSE` (Licencia MIT oficial con créditos a `Svein (Svein05)`)
 
 ### 10. Enlaces Canónicos Unificados
-* Discord Oficial: `https://discord.gg/EubYtJVJEc`
-* Repositorio GitHub: `https://github.com/Svein05/NuvioLatinoSetup`
-* GitHub Pages: `https://svein05.github.io/NuvioLatinoSetup/`
+* **Verificar manualmente:**
+  - Discord: `https://discord.gg/EubYtJVJEc`
+  - Repositorio GitHub: `https://github.com/Svein05/NuvioLatinoSetup`
+  - GitHub Pages: `https://svein05.github.io/NuvioLatinoSetup/`
 
 ---
 
-## 🛠️ Herramientas de Auditoría Automatizada
+## 🚀 Flujo para Crear y Publicar un Release
 
-Antes de aprobar o empacar cualquier release, ejecuta obligatoriamente:
-
-```bash
-python scripts/deep_audit_congruence.py
-```
-
-El script validará automáticamente los 10 vectores y debe retornar:
-```text
-🏆 RESULTADO: CONGRUENCIA TOTAL Y ABSOLUTA (100%)
-   Todas las características declaradas en README y la web coinciden
-   con la implementación real del código fuente.
-```
-
-Si el resultado muestra cualquier `❌`, el proceso de release queda bloqueado hasta que el código o la documentación sean corregidos.
-
----
-
-## 🚀 Flujo de Publicación de Release
-
-1. **Desarrollo:** Trabajar en rama `feature/` o `bugfix/` derivada de `develop`.
-2. **Ejecutar auditoría:** `python scripts/deep_audit_congruence.py`.
-3. **Bump de versión:** `python scripts/release.py <minor|patch|major>`.
-4. **Merge a develop:** `git checkout develop && git merge --no-ff <rama>`.
-5. **Aprobación del usuario:** Solicitar confirmación explícita antes de tocar `main`.
-6. **Merge a main y Tag:**
+1. **Trabajar en sub-rama:** `feature/` o `bugfix/` nacida de `develop`.
+2. **Ejecutar la Inspección Manual en 10 Puntos:** Leer manualmente cada archivo y contrastar.
+3. **Actualizar la versión:** Modificar manualmente `version.json`, `js/config.js`, `CHANGELOG.md`, `README.md` y los HTMLs.
+4. **Merge a `develop`:** `git checkout develop && git merge --no-ff <rama>`.
+5. **Solicitar autorización:** Esperar la aprobación explícita del usuario antes de tocar `main`.
+6. **Merge a `main` y etiquetado:**
    ```bash
    git checkout main
-   git merge --no-ff develop -m "merge: release vX.Y.Z"
+   git merge --no-ff develop -m "merge: release vX.Y.Z into main"
    git tag -a vX.Y.Z -m "Release vX.Y.Z"
    ```
-7. **Publicación:** `git push origin main --tags` activa el workflow automatizado de GitHub Actions.
+7. **Publicación:** `git push origin main --tags` (solo si el usuario lo solicita y existe remoto).
