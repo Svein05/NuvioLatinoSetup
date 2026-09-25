@@ -80,7 +80,7 @@
     "simklWatchTracking": false,
     "traktWatchTracking": false,
     "publicmetadbWatchTracking": false,
-    "enableRatingPostersForLibrary": true,
+    "enableRatingPostersForLibrary": false,
     "showRateMeButton": false,
     "ageRating": "None",
     "searchEnabled": true,
@@ -153,7 +153,7 @@
         "type": "movie",
         "name": "Recomendaciones de Trakt",
         "enabled": true,
-        "showInHome": true,
+        "showInHome": false,
         "source": "trakt",
         "displayType": "movie",
         "tags": [
@@ -165,7 +165,7 @@
         "type": "series",
         "name": "Recomendaciones de Trakt",
         "enabled": true,
-        "showInHome": true,
+        "showInHome": false,
         "source": "trakt",
         "displayType": "series",
         "tags": [
@@ -6915,7 +6915,7 @@
     "streaming": [
       "nfx"
     ],
-    "customPosterUrlPattern": "https://btttr.cc/poster-n/imdb/poster-default/{imdb_id}.jpg?lang=es",
+    "customPosterUrlPattern": "",
     "customBackgroundUrlPattern": "",
     "customLandscapeUrlPattern": "",
     "customLogoUrlPattern": "",
@@ -7215,7 +7215,7 @@
       "type": "movie",
       "name": "Recomendaciones de Trakt",
       "enabled": true,
-      "showInHome": true,
+      "showInHome": false,
       "source": "trakt",
       "displayType": "movie",
       "tags": [
@@ -7227,7 +7227,7 @@
       "type": "series",
       "name": "Recomendaciones de Trakt",
       "enabled": true,
-      "showInHome": true,
+      "showInHome": false,
       "source": "trakt",
       "displayType": "series",
       "tags": [

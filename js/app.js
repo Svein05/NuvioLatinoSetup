@@ -17,6 +17,7 @@ class AppController {
     // 1. Inicializar Mini Nuvio y Cargar Plantillas
     this.miniNuvio = new MiniNuvio('miniNuvioContainer');
     window.miniNuvioInstance = this.miniNuvio;
+    window.appController = this;
 
     await state.loadTemplates();
     this.miniNuvio.init();
@@ -28,13 +29,107 @@ class AppController {
     this.setupStep3ApiKeys();
     this.setupStep5Injection();
 
+    // 2.1 Restaurar sesión si existe
+    this.restoreSession();
+
     // 3. Suscribirse al estado para actualizar la UI reactiva
     state.subscribe((s, eventType) => {
       this.handleStateUpdate(s, eventType);
     });
 
-    // 4. Mostrar paso inicial
+    // 4. Mostrar paso inicial del asistente
     this.updateUI();
+
+    // 5. Control inicial de vistas (Landing por defecto, o Asistente si hay hash o página dedicada)
+    const landing = document.getElementById('landingView');
+    if (!landing) {
+      // Estamos en la página dedicada de configuración (/configuration/)
+      const wizard = document.getElementById('wizardView');
+      if (wizard) wizard.classList.remove('hidden');
+      this.updateUI();
+    } else {
+      if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
+        this.showWizardView(false);
+      } else {
+        this.showLandingView(false);
+      }
+
+      // Escuchar cambios de navegación en el historial
+      window.addEventListener('hashchange', () => {
+        if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
+          this.showWizardView(false);
+        } else {
+          this.showLandingView(false);
+        }
+      });
+    }
+  }
+
+  /**
+   * Muestra la Landing Page de Presentación inicial
+   */
+  showLandingView(updateHash = true) {
+    const landing = document.getElementById('landingView');
+    const wizard = document.getElementById('wizardView');
+    if (!landing && wizard) {
+      window.location.href = '../';
+      return;
+    }
+    const btnText = document.getElementById('btnToggleWizardHeaderText');
+    const btnIcon = document.querySelector('#btnToggleWizardHeader i');
+    if (landing && wizard) {
+      landing.classList.remove('hidden');
+      wizard.classList.add('hidden');
+      if (btnText) btnText.innerText = 'Iniciar Asistente';
+      if (btnIcon) btnIcon.className = 'fa-solid fa-wand-magic-sparkles text-[11px]';
+      if (updateHash && window.location.hash) {
+        history.pushState('', document.title, window.location.pathname + window.location.search);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  /**
+   * Muestra el Asistente de Configuración (5 Pasos)
+   */
+  showWizardView(updateHash = true) {
+    const landing = document.getElementById('landingView');
+    const wizard = document.getElementById('wizardView');
+    if (!landing && wizard) {
+      wizard.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.updateUI();
+      return;
+    }
+    const btnText = document.getElementById('btnToggleWizardHeaderText');
+    const btnIcon = document.querySelector('#btnToggleWizardHeader i');
+    if (landing && wizard) {
+      landing.classList.add('hidden');
+      wizard.classList.remove('hidden');
+      if (btnText) btnText.innerText = 'Ver Presentación';
+      if (btnIcon) btnIcon.className = 'fa-solid fa-house text-[11px]';
+      if (updateHash) {
+        window.location.hash = '#wizard';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      this.updateUI();
+    }
+  }
+
+  /**
+   * Alterna dinámicamente entre la Landing y el Asistente
+   */
+  toggleView() {
+    const landing = document.getElementById('landingView');
+    if (!landing) {
+      window.location.href = '../';
+      return;
+    }
+    if (!landing.classList.contains('hidden')) {
+      this.showWizardView();
+    } else {
+      this.showLandingView();
+    }
   }
 
   /**
@@ -82,6 +177,50 @@ class AppController {
       toast.classList.add('translate-y-2', 'opacity-0');
       setTimeout(() => toast.remove(), 300);
     }, duration);
+  }
+
+  saveSession() {
+    try {
+      if (typeof sessionStorage === 'undefined') return;
+      if (state.nuvioAuth.isAuthenticated && state.nuvioAuth.accessToken) {
+        sessionStorage.setItem('nuvio_wizard_auth', JSON.stringify({
+          auth: state.nuvioAuth,
+          profiles: state.profiles,
+          selectedProfileId: state.selectedProfileId,
+          selectedProfileName: state.selectedProfileName,
+          newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
+          currentStep: state.currentStep,
+          maxUnlockedStep: state.maxUnlockedStep
+        }));
+      }
+    } catch (_) {}
+  }
+
+  restoreSession() {
+    try {
+      if (typeof sessionStorage === 'undefined') return;
+      const raw = sessionStorage.getItem('nuvio_wizard_auth');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (data && data.auth && data.auth.isAuthenticated) {
+        state.nuvioAuth = { ...state.nuvioAuth, ...data.auth };
+        state.profiles = data.profiles || [];
+        state.selectedProfileId = data.selectedProfileId || null;
+        state.selectedProfileName = data.selectedProfileName || '';
+        if (Array.isArray(data.newlyCreatedProfileIds)) {
+          state.newlyCreatedProfileIds = new Set(data.newlyCreatedProfileIds.map(String));
+        }
+        state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
+        state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
+        this.setAuthBadge(true);
+        if (state.profiles.length > 0 && !state.selectedProfileId) {
+          state.selectedProfileId = state.profiles[0].id;
+          state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
+          state.unlockStep(3);
+        }
+        this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
+      }
+    } catch (_) {}
   }
 
   setupNavigation() {
@@ -251,9 +390,11 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 4 o 5, refrescar o sincronizar vistas
-    if (currentStep === 4) {
-      state.unlockStep(5);
+    // Si estamos en el paso 2, 3 o 5, refrescar o sincronizar vistas
+    if (currentStep === 2) {
+      this.renderProfiles();
+    } else if (currentStep === 3) {
+      state.unlockStep(4);
     } else if (currentStep === 5) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
@@ -409,7 +550,7 @@ class AppController {
         if (tabSignup) {
           tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
         }
-        if (headingText) headingText.innerText = "Conectar con tu cuenta";
+        if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
@@ -420,7 +561,7 @@ class AppController {
         if (tabLogin) {
           tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
         }
-        if (headingText) headingText.innerText = "Crear una nueva cuenta";
+        if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
         if (hintText) hintText.classList.remove('hidden');
         if (btnConnect) btnConnect.style.display = 'none';
         if (btnSignup) btnSignup.style.display = 'flex';
@@ -493,28 +634,51 @@ class AppController {
           state.nuvioAuth.apikey = apikey;
 
           // Obtener perfiles de la cuenta
-          const profiles = await NuvioClient.getProfiles({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey,
-            accessToken: auth.accessToken,
-            userId: auth.userId
-          });
+          let profiles = [];
+          try {
+            profiles = await NuvioClient.getProfiles({
+              apiUrl: CONFIG.NUVIO_API_URL,
+              apikey,
+              accessToken: auth.accessToken,
+              userId: auth.userId
+            });
+          } catch (pErr) {
+            console.warn('[NuvioClient] Error obteniendo perfiles:', pErr);
+            profiles = [];
+          }
 
-          state.profiles = profiles;
-          if (profiles.length > 0) {
+          // Si la cuenta no tiene perfiles, crear el perfil inicial "Principal"
+          if (!profiles || profiles.length === 0) {
+            try {
+              const defaultProfile = await NuvioClient.createProfile({
+                apiUrl: CONFIG.NUVIO_API_URL,
+                apikey,
+                accessToken: auth.accessToken,
+                userId: auth.userId,
+                name: 'Principal'
+              });
+              if (defaultProfile) {
+                profiles = [defaultProfile];
+              }
+            } catch (_) {}
+          }
+
+          state.profiles = profiles || [];
+          if (profiles && profiles.length > 0) {
             state.selectedProfileId = profiles[0].id;
             state.selectedProfileName = profiles[0].name || profiles[0].title || 'Perfil Principal';
             state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
           }
 
           state.unlockStep(2); // Desbloquea Paso 2 (Elegir Perfil)
-          this.renderProfiles();
           this.setAuthBadge(true);
+          this.saveSession();
           this.showToast('✓ ¡Sesión iniciada con éxito! Perfiles sincronizados.', 'success');
 
           // Auto-avanzar al paso 2 de manera fluida
           setTimeout(() => {
             state.currentStep = 2;
+            this.renderProfiles();
             this.updateUI();
           }, 600);
         } catch (err) {
@@ -597,10 +761,12 @@ class AppController {
           state.unlockStep(2);
           this.renderProfiles();
           this.setAuthBadge(true);
+          this.saveSession();
           this.showToast('✓ ¡Cuenta creada con éxito! Bienvenido a Nuvio.', 'success');
 
           setTimeout(() => {
             state.currentStep = 2;
+            this.renderProfiles();
             this.updateUI();
           }, 600);
         } catch (err) {
@@ -631,11 +797,51 @@ class AppController {
   setupStep2Profiles() {
     this.renderProfiles();
 
-    const btnCreate = document.getElementById('btnCreateProfile');
-    const nameInput = document.getElementById('newProfileName');
+    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
+    const modal = document.getElementById('modalNewProfile');
+    const btnCloseModal = document.getElementById('btnCloseNewProfileModal');
+    const btnCancelModal = document.getElementById('btnCancelNewProfile');
+    const btnConfirmModal = document.getElementById('btnConfirmNewProfile') || document.getElementById('btnCreateProfile');
+    const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
 
-    if (btnCreate && nameInput) {
+    if (btnOpenModal && modal) {
+      btnOpenModal.addEventListener('click', () => {
+        if (state.profiles && state.profiles.length >= 6) {
+          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
+          return;
+        }
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (nameInput) {
+          nameInput.value = '';
+          nameInput.focus();
+        }
+      });
+    }
+
+    const closeModal = () => {
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    };
+
+    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    }
+
+    if (btnConfirmModal && nameInput) {
       const handleCreate = async () => {
+        if (state.profiles && state.profiles.length >= 6) {
+          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
+          closeModal();
+          return;
+        }
+
         const name = nameInput.value.trim();
         if (!name) {
           this.showToast('Por favor escribe un nombre para el nuevo perfil.', 'warning');
@@ -648,8 +854,9 @@ class AppController {
           return;
         }
 
-        btnCreate.disabled = true;
-        btnCreate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Creando...</span>';
+        btnConfirmModal.disabled = true;
+        const originalHtml = btnConfirmModal.innerHTML;
+        btnConfirmModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Creando...';
 
         try {
           const newProfile = await NuvioClient.createProfile({
@@ -667,20 +874,23 @@ class AppController {
           state.selectedProfileName = newProfile.name || name;
           state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
 
+          closeModal();
+          this.saveSession();
           this.renderProfiles();
           this.updateProfileWarning(newProfile.id, newProfile.name || name);
+          this.updateUI();
           nameInput.value = '';
           this.showToast(`¡Perfil "${name}" creado y seleccionado con éxito!`, 'success');
         } catch (err) {
           console.error(err);
           this.showToast(`Error al crear perfil: ${err.message}`, 'error');
         } finally {
-          btnCreate.disabled = false;
-          btnCreate.innerHTML = '<i class="fa-solid fa-plus"></i><span>Crear Perfil</span>';
+          btnConfirmModal.disabled = false;
+          btnConfirmModal.innerHTML = originalHtml;
         }
       };
 
-      btnCreate.addEventListener('click', handleCreate);
+      btnConfirmModal.addEventListener('click', handleCreate);
       nameInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -710,8 +920,19 @@ class AppController {
   }
 
   renderProfiles() {
-    const container = document.getElementById('profilesContainer');
+    const container = document.getElementById('profilesList') || document.getElementById('profilesContainer');
     if (!container) return;
+
+    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
+    if (btnOpenModal) {
+      if (state.profiles && state.profiles.length >= 6) {
+        btnOpenModal.classList.add('opacity-50', 'cursor-not-allowed');
+        btnOpenModal.setAttribute('title', 'Límite máximo de 6 perfiles alcanzado en tu cuenta de Nuvio');
+      } else {
+        btnOpenModal.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnOpenModal.removeAttribute('title');
+      }
+    }
 
     if (state.profiles && state.profiles.length > 0) {
       container.innerHTML = state.profiles.map((p, idx) => {
@@ -762,7 +983,11 @@ class AppController {
         <div class="col-span-full py-8 text-center bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
           <i class="fa-solid fa-user-circle text-4xl text-slate-600 mb-2"></i>
           <p class="text-sm font-medium text-slate-300">No se encontraron perfiles en tu cuenta de Nuvio</p>
-          <p class="text-xs text-slate-500 mt-1">Usa la opción de abajo para crear tu primer perfil directamente.</p>
+          <p class="text-xs text-slate-500 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
+          <button type="button" onclick="document.getElementById('btnOpenNewProfileModal')?.click()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+            <i class="fa-solid fa-plus"></i>
+            <span>Crear mi primer perfil</span>
+          </button>
         </div>
       `;
       this.updateProfileWarning(null, '');
@@ -773,24 +998,25 @@ class AppController {
     state.selectedProfileId = id;
     state.selectedProfileName = name;
     state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
+    this.saveSession();
     this.renderProfiles();
     this.updateProfileWarning(id, name);
     this.updateUI();
   }
 
   setupStep3ApiKeys() {
-    const tmdbInput = document.getElementById('tmdbApiKey');
-    const tvdbInput = document.getElementById('tvdbApiKey');
-    const mdblistInput = document.getElementById('mdblistApiKey');
-    const rpdbInput = document.getElementById('rpdbApiKey');
-    const fanartInput = document.getElementById('fanartApiKey');
-    const topPosterInput = document.getElementById('topPosterApiKey');
-    const publicmetadbInput = document.getElementById('publicmetadbApiKey');
+    const tmdbInput = document.getElementById('keyTmdb') || document.getElementById('tmdbApiKey');
+    const tvdbInput = document.getElementById('keyTvdb') || document.getElementById('tvdbApiKey');
+    const mdblistInput = document.getElementById('keyMdblist') || document.getElementById('mdblistApiKey');
+    const rpdbInput = document.getElementById('keyRpdb') || document.getElementById('rpdbApiKey');
+    const fanartInput = document.getElementById('keyFanart') || document.getElementById('fanartApiKey');
+    const topPosterInput = document.getElementById('keyTopPoster') || document.getElementById('topPosterApiKey');
+    const publicmetadbInput = document.getElementById('keyPublicmetadb') || document.getElementById('publicmetadbApiKey');
 
     const toggleAi = document.getElementById('toggleSearchAi');
     const aiContainer = document.getElementById('aiKeysContainer');
-    const geminiInput = document.getElementById('geminiApiKey');
-    const openrouterInput = document.getElementById('openrouterApiKey');
+    const geminiInput = document.getElementById('keyGemini') || document.getElementById('geminiApiKey');
+    const openrouterInput = document.getElementById('keyOpenrouter') || document.getElementById('openrouterApiKey');
 
     const btnValidate = document.getElementById('btnValidateApiKeys');
     const overallBadge = document.getElementById('apiKeyOverallBadge');
@@ -806,21 +1032,28 @@ class AppController {
         }
       }
       const badge = document.getElementById(`badge-${modifiedKey}`);
-      if (badge && modifiedKey === 'tmdb') {
-        badge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
-        badge.innerText = 'No verificada';
+      if (badge) {
+        badge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+        badge.innerText = '';
       }
       this.updateNavigationButtons();
     };
 
-    // 1. Vincular campos base
+    // 1. Vincular campos base con sincronización bidireccional segura
     const bindInput = (el, key, isDefault = null) => {
       if (!el) return;
-      el.value = state.apiKeys[key] || isDefault || '';
-      el.addEventListener('input', (e) => {
+      if (!state.apiKeys[key] && isDefault) {
+        state.apiKeys[key] = isDefault;
+      }
+      el.value = state.apiKeys[key] || '';
+      
+      const onValueChange = (e) => {
         state.apiKeys[key] = e.target.value.trim() || (isDefault || '');
         invalidateValidation(key);
-      });
+      };
+
+      el.addEventListener('input', onValueChange);
+      el.addEventListener('change', onValueChange);
     };
 
     bindInput(tmdbInput, 'tmdb');
@@ -855,6 +1088,17 @@ class AppController {
         btnValidate.disabled = true;
         btnValidate.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Probando credenciales...</span>';
 
+        // Sincronizar directamente los valores actuales de los inputs con state.apiKeys
+        if (tmdbInput) state.apiKeys.tmdb = tmdbInput.value.trim();
+        if (tvdbInput) state.apiKeys.tvdb = tvdbInput.value.trim();
+        if (mdblistInput) state.apiKeys.mdblist = mdblistInput.value.trim();
+        if (rpdbInput) state.apiKeys.rpdb = rpdbInput.value.trim() || 't0-free-rpdb';
+        if (fanartInput) state.apiKeys.fanart = fanartInput.value.trim();
+        if (topPosterInput) state.apiKeys.topPoster = topPosterInput.value.trim();
+        if (publicmetadbInput) state.apiKeys.publicmetadb = publicmetadbInput.value.trim();
+        if (geminiInput) state.apiKeys.gemini = geminiInput.value.trim();
+        if (openrouterInput) state.apiKeys.openrouter = openrouterInput.value.trim();
+
         let allValid = true;
         const validationMap = {};
 
@@ -864,8 +1108,11 @@ class AppController {
         if (!tmdbKey || tmdbKey.length < 8) {
           allValid = false;
           if (tmdbBadge) {
-            tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+            tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
             tmdbBadge.innerText = '✗ Obligatoria';
+          }
+          if (tmdbInput) {
+            tmdbInput.classList.add('border-red-500/60');
           }
         } else {
           try {
@@ -873,28 +1120,65 @@ class AppController {
             if (res.ok) {
               validationMap.tmdb = true;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 tmdbBadge.innerText = '✓ Válida';
               }
-            } else {
+              if (tmdbInput) {
+                tmdbInput.classList.remove('border-red-500/60');
+                tmdbInput.classList.add('border-emerald-500/50');
+              }
+            } else if (res.status === 401) {
               allValid = false;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
-                tmdbBadge.innerText = '✗ Inválida';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+                tmdbBadge.innerText = '✗ Clave inválida (401)';
+              }
+              if (tmdbInput) {
+                tmdbInput.classList.add('border-red-500/60');
+              }
+            } else {
+              const isHex32 = /^[a-f0-9]{32}$/i.test(tmdbKey);
+              if (isHex32) {
+                validationMap.tmdb = true;
+                if (tmdbBadge) {
+                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+                  tmdbBadge.innerText = '✓ Válida';
+                }
+                if (tmdbInput) {
+                  tmdbInput.classList.remove('border-red-500/60');
+                  tmdbInput.classList.add('border-emerald-500/50');
+                }
+              } else {
+                allValid = false;
+                if (tmdbBadge) {
+                  tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+                  tmdbBadge.innerText = `✗ Error (${res.status})`;
+                }
+                if (tmdbInput) {
+                  tmdbInput.classList.add('border-red-500/60');
+                }
               }
             }
           } catch (_) {
-            if (tmdbKey.length === 32) {
+            const isHex32 = /^[a-f0-9]{32}$/i.test(tmdbKey);
+            if (isHex32 || tmdbKey.length >= 20) {
               validationMap.tmdb = true;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-                tmdbBadge.innerText = '✓ Válida';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+                tmdbBadge.innerText = '✓ Formato Válido (Offline)';
+              }
+              if (tmdbInput) {
+                tmdbInput.classList.remove('border-red-500/60');
+                tmdbInput.classList.add('border-emerald-500/50');
               }
             } else {
               allValid = false;
               if (tmdbBadge) {
-                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
-                tmdbBadge.innerText = '✗ Error de red';
+                tmdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+                tmdbBadge.innerText = '✗ Formato incorrecto';
+              }
+              if (tmdbInput) {
+                tmdbInput.classList.add('border-red-500/60');
               }
             }
           }
@@ -917,22 +1201,25 @@ class AppController {
               const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(geminiKey)}`);
               if (res.ok) {
                 if (geminiBadge) {
-                  geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  geminiBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                   geminiBadge.innerText = '✓ Válida';
                 }
               } else {
                 allValid = false;
                 if (geminiBadge) {
-                  geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  geminiBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
                   geminiBadge.innerText = '✗ Inválida';
                 }
               }
             } catch (_) {
               if (geminiKey.startsWith('AIzaSy') && geminiKey.length >= 30 && geminiBadge) {
-                geminiBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                geminiBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                 geminiBadge.innerText = '✓ Válida';
               }
             }
+          } else if (geminiBadge) {
+            geminiBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+            geminiBadge.innerText = '';
           }
 
           if (openrouterKey) {
@@ -942,22 +1229,25 @@ class AppController {
               });
               if (res.ok) {
                 if (openrouterBadge) {
-                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                   openrouterBadge.innerText = '✓ Válida';
                 }
               } else {
                 allValid = false;
                 if (openrouterBadge) {
-                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                  openrouterBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
                   openrouterBadge.innerText = '✗ Inválida';
                 }
               }
             } catch (_) {
               if ((openrouterKey.startsWith('sk-or-v1-') || openrouterKey.length >= 20) && openrouterBadge) {
-                openrouterBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                openrouterBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
                 openrouterBadge.innerText = '✓ Válida';
               }
             }
+          } else if (openrouterBadge) {
+            openrouterBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+            openrouterBadge.innerText = '';
           }
         }
 
@@ -968,48 +1258,113 @@ class AppController {
           try {
             const res = await fetch(`https://mdblist.com/api/?apikey=${encodeURIComponent(mdblistKey)}&s=avatar`);
             if (res.ok) {
+              validationMap.mdblist = true;
               if (mdblistBadge) {
-                mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✓ Válida';
               }
             } else {
               allValid = false;
               if (mdblistBadge) {
-                mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono';
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✗ Inválida';
               }
             }
           } catch (_) {
             if (mdblistKey.length >= 10 && mdblistBadge) {
-              mdblistBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
+              validationMap.mdblist = true;
+              mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
               mdblistBadge.innerText = '✓ Válida';
             }
           }
+        } else if (mdblistBadge) {
+          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          mdblistBadge.innerText = '';
+        }
+
+        const rpdbKey = (state.apiKeys.rpdb || 't0-free-rpdb').trim();
+        const rpdbBadge = document.getElementById('badge-rpdb');
+        if (rpdbKey) {
+          try {
+            const res = await fetch(`https://api.ratingposterdb.com/${encodeURIComponent(rpdbKey)}/isValid`);
+            const text = await res.text();
+            if (res.ok && text.includes('"valid":true')) {
+              validationMap.rpdb = true;
+              if (rpdbBadge) {
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+                rpdbBadge.innerText = '✓ Válida';
+              }
+              if (rpdbInput) {
+                rpdbInput.classList.remove('border-red-500/60');
+                rpdbInput.classList.add('border-emerald-500/50');
+              }
+            } else {
+              allValid = false;
+              if (rpdbBadge) {
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+                rpdbBadge.innerText = '✗ Inválida';
+              }
+              if (rpdbInput) {
+                rpdbInput.classList.add('border-red-500/60');
+              }
+            }
+          } catch (_) {
+            if (rpdbKey === 't0-free-rpdb' || rpdbKey.length >= 6) {
+              validationMap.rpdb = true;
+              if (rpdbBadge) {
+                rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+                rpdbBadge.innerText = '✓ Válida';
+              }
+              if (rpdbInput) {
+                rpdbInput.classList.remove('border-red-500/60');
+                rpdbInput.classList.add('border-emerald-500/50');
+              }
+            }
+          }
+        } else if (rpdbBadge) {
+          rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          rpdbBadge.innerText = '';
+        }
+
+        const tvdbKey = (state.apiKeys.tvdb || '').trim();
+        const tvdbBadge = document.getElementById('badge-tvdb');
+        if (tvdbKey) {
+          validationMap.tvdb = true;
+          if (tvdbBadge) {
+            tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+            tvdbBadge.innerText = '✓ Configurada';
+          }
+        } else if (tvdbBadge) {
+          tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          tvdbBadge.innerText = '';
         }
 
         const fanartKey = (state.apiKeys.fanart || '').trim();
         const fanartBadge = document.getElementById('badge-fanart');
-        if (fanartKey && fanartBadge) {
-          fanartBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-          fanartBadge.innerText = '✓ Válida';
-        }
-
-        const rpdbBadge = document.getElementById('badge-rpdb');
-        if (rpdbBadge) {
-          rpdbBadge.className = 'text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono';
-          rpdbBadge.innerText = '✓ Válida';
+        if (fanartKey) {
+          validationMap.fanart = true;
+          if (fanartBadge) {
+            fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+            fanartBadge.innerText = '✓ Configurada';
+          }
+        } else if (fanartBadge) {
+          fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          fanartBadge.innerText = '';
         }
 
         // Resultado Final
         if (allValid) {
           state.setApiKeysValidation(true, validationMap);
-          if (overallBadge) overallBadge.classList.remove('hidden');
+          state.unlockStep(5);
+          if (overallBadge) {
+            overallBadge.classList.remove('hidden');
+            overallBadge.className = 'text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1.5';
+          }
           if (statusMsg) {
             statusMsg.innerText = '✓ Todas las claves han sido comprobadas con éxito. Ya puedes avanzar al siguiente paso.';
             statusMsg.className = 'text-[11px] text-emerald-400 mt-0.5 font-medium';
           }
           this.showToast('✓ Claves API verificadas exitosamente', 'success');
-          this.updateUI();
         } else {
           state.setApiKeysValidation(false, validationMap);
           if (overallBadge) overallBadge.classList.add('hidden');
@@ -1022,6 +1377,8 @@ class AppController {
 
         btnValidate.disabled = false;
         btnValidate.innerHTML = '<i class="fa-solid fa-vial-circle-check"></i><span>Probar Claves API</span>';
+        this.updateUI();
+        this.updateNavigationButtons();
       });
     }
 

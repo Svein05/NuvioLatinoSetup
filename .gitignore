@@ -1,6 +1,8 @@
-# Context memory rules
+# Context memory rules & Agent internal workspace
 .contexts/
 context.md
+.agents/
+.agent/
 
 # OS / Editor files
 .DS_Store
@@ -15,9 +17,9 @@ __pycache__/
 run.pyc
 
 # Residual / removed files
-scripts/
 Plantilla.html
 run.py
+scripts/__pycache__/
 
 # Debug / analysis files (not part of source)
 collectionResultante.json

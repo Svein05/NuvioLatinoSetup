@@ -137,20 +137,64 @@ export class PipelineInjector {
         state.addLog('✓ Perfil limpio: catálogo previo removido para evitar duplicados.', 'success');
       }
 
-      state.addLog('Configurando perfil: TMDB Enrichment y MDBList Ratings en es-MX (TV y Mobile)...', 'info');
+      // Sincronizar credenciales de proveedores (TMDB y MDBList)
+      const credentialsToPush = [];
+      if (state.apiKeys.tmdb && state.apiKeys.tmdb.trim()) {
+        credentialsToPush.push({
+          provider: 'tmdb',
+          credential_json: { api_key: state.apiKeys.tmdb.trim() }
+        });
+      }
+      if (state.apiKeys.mdblist && state.apiKeys.mdblist.trim()) {
+        credentialsToPush.push({
+          provider: 'mdblist',
+          credential_json: { api_key: state.apiKeys.mdblist.trim() }
+        });
+      }
+
+      if (credentialsToPush.length > 0) {
+        state.addLog(`Guardando credenciales oficiales de proveedores (${credentialsToPush.map(c => c.provider.toUpperCase()).join(', ')})...`, 'info');
+        if (isSimulation) {
+          await this.delay(300);
+          state.addLog(`✓ [Simulado] Credenciales de ${credentialsToPush.map(c => c.provider.toUpperCase()).join(', ')} vinculadas al perfil.`, 'success');
+        } else {
+          try {
+            await NuvioClient.pushProviderCredentials({
+              apiUrl: CONFIG.NUVIO_API_URL,
+              apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+              accessToken,
+              profileId: targetProfileId,
+              credentials: credentialsToPush
+            });
+            state.addLog(`✓ Credenciales de ${credentialsToPush.map(c => c.provider.toUpperCase()).join(', ')} guardadas en Nuvio.`, 'success');
+          } catch (credErr) {
+            console.warn('[Injector] No se pudieron guardar credenciales:', credErr);
+            state.addLog(`⚠️ Advertencia al guardar credenciales: ${credErr.message}`, 'warning');
+          }
+        }
+      }
+
+      const hasMdblistKey = Boolean(state.apiKeys.mdblist && state.apiKeys.mdblist.trim());
+      const hasTmdbKey = Boolean(state.apiKeys.tmdb && state.apiKeys.tmdb.trim());
+
+      state.addLog('Configurando perfil: TMDB Enrichment en es-MX (TV y Mobile)...', 'info');
       const profileSettingsPayload = {
         language: 'es-MX',
         tmdb_language: 'es-MX',
         enrichment_enabled: true,
-        ratings_enabled: true,
-        tmdb_api_key: state.apiKeys.tmdb || '',
-        mdblist_api_key: state.apiKeys.mdblist || '',
-        auto_translate: true
+        ratings_enabled: hasMdblistKey,
+        tmdb_api_key: hasTmdbKey ? state.apiKeys.tmdb.trim() : '',
+        mdblist_api_key: hasMdblistKey ? state.apiKeys.mdblist.trim() : ''
       };
 
       if (isSimulation) {
-        await this.delay(500);
-        state.addLog('✓ [Simulado] Configuración aplicada para TV y Mobile en español latino (es-MX).', 'success');
+        await this.delay(400);
+        state.addLog('✓ [Simulado] TMDB Enrichment activado en TV y Mobile (es-MX).', 'success');
+        if (hasMdblistKey) {
+          state.addLog('✓ [Simulado] Calificaciones de MDBList activadas con tu clave para TV y Mobile.', 'success');
+        } else {
+          state.addLog('ℹ️ [Simulado] Calificaciones de MDBList desactivadas (no se ingresó clave en el Paso 4).', 'info');
+        }
       } else {
         for (const platform of ['tv', 'mobile']) {
           await NuvioClient.pushProfileSettings({
@@ -163,7 +207,12 @@ export class PipelineInjector {
             settings: profileSettingsPayload
           });
         }
-        state.addLog('✓ TMDB Enrichment y MDBList Ratings configurados exitosamente en es-MX.', 'success');
+        state.addLog('✓ TMDB Enrichment activado exitosamente en es-MX (TV y Mobile).', 'success');
+        if (hasMdblistKey) {
+          state.addLog('✓ Calificaciones de MDBList activadas con tu clave para TV y Mobile.', 'success');
+        } else {
+          state.addLog('ℹ️ Calificaciones de MDBList desactivadas (no se ingresó clave en el Paso 4).', 'info');
+        }
       }
 
       // ========================================================

@@ -198,10 +198,18 @@ export class NuvioClient {
         existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
       } catch (_) {}
 
+      if (existing.length >= 6) {
+        throw new Error('Has alcanzado el límite máximo de 6 perfiles en Nuvio. Selecciona uno existente.');
+      }
+
       const usedIndexes = new Set(existing.map(p => Number(p.profile_index || p.id)).filter(Number.isFinite));
       let newIndex = 1;
-      while (usedIndexes.has(newIndex)) {
+      while (usedIndexes.has(newIndex) && newIndex <= 6) {
         newIndex++;
+      }
+
+      if (newIndex > 6) {
+        throw new Error('Todos los espacios de perfil (1 al 6) están ocupados en tu cuenta de Nuvio.');
       }
 
       const newProfile = {
@@ -515,19 +523,159 @@ export class NuvioClient {
   }
 
   /**
+   * Sincroniza las claves de proveedores (TMDB, MDBList, etc.) en el perfil mediante
+   * el RPC oficial de Nuvio sync_push_provider_credentials.
+   *
+   * @param {Object} params
+   * @param {string} params.apiUrl
+   * @param {string} params.apikey
+   * @param {string} params.accessToken
+   * @param {number|string} params.profileId
+   * @param {Array<{provider: string, credential_json: Object}>} params.credentials
+   */
+  static async pushProviderCredentials({ apiUrl, apikey, accessToken, profileId, credentials = [] }) {
+    const profId = Number(profileId) || profileId;
+    const validCredentials = (Array.isArray(credentials) ? credentials : [])
+      .map(c => ({
+        provider: String(c?.provider || '').trim().toLowerCase(),
+        credential_json: c?.credential_json && typeof c.credential_json === 'object' ? c.credential_json : {}
+      }))
+      .filter(c => c.provider && Object.keys(c.credential_json).length > 0);
+
+    if (validCredentials.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    // 1. Intentar RPC sync_push_provider_credentials oficial
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_provider_credentials',
+        body: {
+          p_profile_id: profId,
+          p_credentials: validCredentials,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+      return { success: true, method: 'rpc', count: validCredentials.length };
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_push_provider_credentials falló, probando sync_seed_provider_credentials:', rpcErr.message);
+      // 2. Intentar RPC sync_seed_provider_credentials
+      try {
+        await this.rpc({
+          apiUrl,
+          apikey,
+          accessToken,
+          path: 'sync_seed_provider_credentials',
+          body: {
+            p_profile_id: profId,
+            p_credentials: validCredentials,
+            p_origin_client_id: 'nuvio-setup-web'
+          }
+        });
+        return { success: true, method: 'rpc_seed', count: validCredentials.length };
+      } catch (seedErr) {
+        console.warn('[NuvioClient] sync_seed_provider_credentials falló:', seedErr.message);
+      }
+    }
+
+    // 3. Fallback REST directo a /rest/v1/provider_credentials
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    for (const cred of validCredentials) {
+      try {
+        await fetch(`${cleanUrl}/rest/v1/provider_credentials`, {
+          method: 'POST',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates'
+          },
+          body: JSON.stringify({
+            profile_id: profId,
+            provider: cred.provider,
+            credential_json: cred.credential_json
+          })
+        });
+      } catch (_) {}
+    }
+
+    return { success: true, method: 'rest_fallback', count: validCredentials.length };
+  }
+
+  /**
    * Configura las opciones del perfil para activar TMDB Enrichment y MDBList Ratings
    * en Español Latino (es-MX) tanto para plataforma 'tv' como 'mobile'.
    */
   static async pushProfileSettings({ apiUrl, apikey, accessToken, profileId, platform = 'tv', settings = {} }) {
     const profId = Number(profileId) || profileId;
+
+    // Estructura canónica oficial requerida por Nuvio para TV y Mobile
+    const tmdbFeatures = {
+      tmdb_enabled: { type: 'boolean', value: true },
+      tmdb_language: { type: 'string', value: settings.language || settings.tmdb_language || 'es-MX' },
+      tmdb_modern_home_enabled: { type: 'boolean', value: true },
+      tmdb_enrich_continue_watching: { type: 'boolean', value: true },
+      tmdb_use_artwork: { type: 'boolean', value: true },
+      tmdb_use_basic_info: { type: 'boolean', value: true },
+      tmdb_use_details: { type: 'boolean', value: true },
+      tmdb_use_release_dates: { type: 'boolean', value: true },
+      tmdb_use_credits: { type: 'boolean', value: true },
+      tmdb_use_productions: { type: 'boolean', value: true },
+      tmdb_use_networks: { type: 'boolean', value: true },
+      tmdb_use_episodes: { type: 'boolean', value: true },
+      tmdb_use_trailers: { type: 'boolean', value: true },
+      tmdb_use_more_like_this: { type: 'boolean', value: true },
+      tmdb_use_collections: { type: 'boolean', value: true }
+    };
+
+    if (settings.tmdb_api_key && String(settings.tmdb_api_key).trim()) {
+      tmdbFeatures.tmdb_api_key = { type: 'string', value: String(settings.tmdb_api_key).trim() };
+    }
+
+    const hasMdblistKey = Boolean(settings.mdblist_api_key && String(settings.mdblist_api_key).trim()) || Boolean(settings.ratings_enabled);
+    const mdblistFeatures = {
+      mdblist_enabled: { type: 'boolean', value: hasMdblistKey },
+      mdblist_api_key: { type: 'string', value: hasMdblistKey ? String(settings.mdblist_api_key || '').trim() : '' }
+    };
+
+    if (hasMdblistKey) {
+      // Claves canónicas para Nuvio TV (prefijo mdblist_show_*)
+      mdblistFeatures.mdblist_show_trakt = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_imdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_tmdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_letterboxd = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_tomatoes = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_audience = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_metacritic = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_show_mal = { type: 'boolean', value: true };
+
+      // Claves canónicas para Nuvio Mobile (prefijo mdblist_use_*)
+      mdblistFeatures.mdblist_use_imdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_tmdb = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_tomatoes = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_metacritic = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_trakt = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_letterboxd = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_audience = { type: 'boolean', value: true };
+      mdblistFeatures.mdblist_use_mal = { type: 'boolean', value: true };
+    }
+
     const settingsBlob = {
-      language: 'es-MX',
-      tmdb_language: 'es-MX',
+      version: 1,
+      features: {
+        tmdb_settings: tmdbFeatures,
+        mdblist_settings: mdblistFeatures,
+        ...(settings.features || {})
+      },
+      // Preservar claves de nivel superior por retrocompatibilidad
+      language: settings.language || 'es-MX',
+      tmdb_language: settings.tmdb_language || 'es-MX',
       enrichment_enabled: true,
-      ratings_enabled: true,
-      auto_translate: true,
-      include_adult: false,
-      ...settings
+      ratings_enabled: hasMdblistKey,
+      auto_translate: true
     };
 
     // 1. Intentar RPC sync_push_profile_settings_blob

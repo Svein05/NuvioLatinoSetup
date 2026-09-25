@@ -92,11 +92,6 @@ export class MiniNuvio {
             <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20 font-mono">
               ${activeFolders}/${totalFolders} activas
             </span>
-            ${state.apiKeys.tmdb ? `
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1">
-                <i class="fa-solid fa-bolt text-[9px]"></i> TMDB en vivo (es-MX)
-              </span>
-            ` : ''}
           </div>
 
           <div class="flex items-center gap-2">
@@ -525,11 +520,11 @@ export class MiniNuvio {
   }
 
   /**
-   * Explorador Visual de Catálogos y Pósters Reales en Español Latino
-   * Permite ver exactamente qué catálogos componen la colección seleccionada,
-   * consumiendo la API de TMDB con la clave ingresada y alertando si requiere Trakt.
+   * Explorador y Gestor de Catálogos (Cápsulas Movibles)
+   * Renderizado instantáneo (0 ms) con controles Sortable, saltos al cielo/fondo,
+   * renombrado y eliminación rápida.
    */
-  async openCatalogExplorer(sectionId, folderId) {
+  openCatalogExplorer(sectionId, folderId) {
     const sec = state.collections.find(s => s.id === sectionId);
     if (!sec) return;
     const folder = (sec.folders || []).find(f => f.id === folderId);
@@ -546,7 +541,6 @@ export class MiniNuvio {
     });
 
     const cover = folder.coverImageUrl || folder.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
-    const tmdbKey = state.apiKeys.tmdb || '';
 
     modalContainer.innerHTML = `
       <div id="catalogExplorerModal" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-opacity">
@@ -570,28 +564,18 @@ export class MiniNuvio {
             </div>
 
             <div class="flex items-center gap-2">
-              ${tmdbKey ? `
-                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono">
-                  <i class="fa-solid fa-check"></i> TMDB Latino (es-MX)
-                </span>
-              ` : `
-                <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-mono">
-                  <i class="fa-solid fa-bolt"></i> Modo Vista Previa
-                </span>
-              `}
+              <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 text-xs font-mono">
+                <i class="fa-solid fa-layer-group text-brand-400"></i> Gestor de Catálogos
+              </span>
               <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
                 <i class="fa-solid fa-xmark text-lg"></i>
               </button>
             </div>
           </div>
 
-          <!-- Cuerpo con Lista de Catálogos y Carruseles de Pósters -->
-          <div id="catalogExplorerBody" class="overflow-y-auto space-y-6 pr-1.5 scrollbar-thin scrollbar-thumb-slate-700 flex-1">
-            <div class="py-16 text-center text-slate-400">
-              <i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500 mb-3"></i>
-              <p class="text-sm font-medium text-slate-200">Consultando catálogos y pósters de TMDB en español latino...</p>
-              <p class="text-xs text-slate-500 mt-1">Cargando portadas en alta definición y puntuaciones oficiales.</p>
-            </div>
+          <!-- Cuerpo con Lista de Cápsulas Movibles -->
+          <div id="catalogExplorerBody" class="overflow-y-auto space-y-2.5 pr-1.5 scrollbar-thin scrollbar-thumb-slate-700 flex-1">
+            <!-- Renderizado dinámico inmediato -->
           </div>
 
           <!-- Pie del Modal -->
@@ -616,16 +600,14 @@ export class MiniNuvio {
       </div>
     `;
 
-    // Cargar asíncronamente cada catálogo y sus pósters
-    this.loadCatalogExplorerContent(sectionId, folderId, sources, catalogMap, tmdbKey);
+    // Renderizar cápsulas inmediatamente
+    this.renderCatalogCapsules(sectionId, folderId, sources, catalogMap);
   }
 
   /**
-   * Carga y renderiza el contenido de cada catálogo dentro del Explorador
-   * con controles para reordenar (subir/bajar), renombrar y eliminar.
-   * Sin estrellas sobre pósters ni textos redundantes de simulación.
+   * Renderiza los catálogos como cápsulas compactas y movibles sin llamadas de red a posters
    */
-  async loadCatalogExplorerContent(sectionId, folderId, sources, catalogMap, tmdbKey) {
+  renderCatalogCapsules(sectionId, folderId, sources, catalogMap) {
     const bodyEl = document.getElementById('catalogExplorerBody');
     if (!bodyEl) return;
 
@@ -642,31 +624,24 @@ export class MiniNuvio {
       return;
     }
 
-    const renderedCatalogs = [];
-
-    for (let idx = 0; idx < sources.length; idx++) {
-      const s = sources[idx];
+    bodyEl.innerHTML = sources.map((s, idx) => {
       const catId = s.catalogId || s.id || '';
       const catMeta = catalogMap.get(catId) || { name: s.title || catId, type: s.type };
-      const resolved = await TmdbService.resolveCatalogPreview(catId, catMeta, tmdbKey);
-      
-      // Respetar título personalizado o resolver nombre amigable en español latino
-      const displayTitle = this.resolveCatalogTitle(s, catalogMap) || resolved.title || catMeta.name || catId;
-      renderedCatalogs.push({ ...resolved, title: displayTitle, index: idx, catId });
-    }
-
-    bodyEl.innerHTML = renderedCatalogs.map(cat => {
-      const idx = cat.index;
-      const typeLabel = cat.mediaType === 'series' || cat.mediaType === 'tv' ? 'Series' : cat.mediaType === 'anime' ? 'Anime' : 'Películas';
+      const displayTitle = this.resolveCatalogTitle(s, catalogMap) || s.title || catMeta.name || catId;
+      const isTrakt = catId.startsWith('trakt.');
+      const mediaType = s.type || catMeta.type || '';
+      const typeLabel = mediaType === 'series' || mediaType === 'tv' ? 'Series' : mediaType === 'anime' ? 'Anime' : 'Películas';
       const isFirst = idx === 0;
-      const isLast = idx === renderedCatalogs.length - 1;
+      const isLast = idx === sources.length - 1;
 
-      // Barra de controles de cada catálogo: Asa de arrastre Sortable, Reordenar (Cielo/Fondo), Renombrar y Eliminar
-      const controlsBar = `
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
-          <div class="flex items-center gap-2">
+      return `
+        <div 
+          class="catalog-explorer-row p-3 bg-slate-950/70 border border-slate-800 hover:border-slate-700/80 rounded-xl transition-colors flex flex-wrap items-center justify-between gap-3"
+          data-catalog-index="${idx}"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
             <!-- Asa de arrastre Sortable y Botones Extremos (Cielo / Fondo) -->
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1 shrink-0">
               <span class="catalog-drag-handle text-slate-500 hover:text-brand-400 cursor-grab p-1" title="Arrastra para reordenar este catálogo con el mouse">
                 <i class="fa-solid fa-grip-vertical text-xs"></i>
               </span>
@@ -680,13 +655,19 @@ export class MiniNuvio {
               </div>
             </div>
             
-            <h4 class="text-xs font-bold text-white flex items-center gap-2">
-              <i class="${cat.isTrakt ? 'fa-solid fa-tv text-amber-400' : 'fa-solid fa-film text-brand-400'}"></i>
-              <span>${cat.title}</span>
-            </h4>
+            <div class="min-w-0">
+              <h4 class="text-xs font-bold text-white flex items-center gap-2 truncate">
+                <i class="${isTrakt ? 'fa-solid fa-tv text-amber-400' : 'fa-solid fa-film text-brand-400'} shrink-0 text-xs"></i>
+                <span class="truncate">${displayTitle}</span>
+              </h4>
+              <p class="text-[10px] text-slate-400 font-mono truncate flex items-center gap-1.5 mt-0.5">
+                <span>${catId}</span>
+                ${isTrakt ? '<span class="text-amber-400 font-medium font-sans">• Requiere login en Trakt</span>' : ''}
+              </p>
+            </div>
           </div>
 
-          <div class="flex items-center gap-1.5 no-drag">
+          <div class="flex items-center gap-1.5 shrink-0 no-drag">
             <span class="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400 font-mono">${typeLabel}</span>
             
             <button type="button" onclick="window.miniNuvioInstance.renameCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-[10px] text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors" title="Renombrar este catálogo">
@@ -701,71 +682,16 @@ export class MiniNuvio {
           </div>
         </div>
       `;
-
-      // Caso 1: Catálogo que requiere sincronización de Trakt
-      if (cat.isTrakt) {
-        return `
-          <div 
-            class="catalog-explorer-row p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3"
-            data-catalog-index="${idx}"
-          >
-            ${controlsBar}
-
-            <!-- Alerta Sincronización Trakt -->
-            <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-start gap-2.5 no-drag">
-              <i class="fa-solid fa-lock text-amber-400 text-xs mt-0.5 shrink-0"></i>
-              <div class="text-[11px] text-amber-200/90 leading-relaxed">
-                <span class="font-bold text-amber-300">(Solo disponible si sincronizas a través de AIOMetadata)</span>:
-                Este catálogo conecta con tu cuenta de Trakt.tv para generar recomendaciones basadas en tu historial de reproducción personal.
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      // Caso 2: Catálogo con pósters de TMDB en vivo
-      const items = cat.items || [];
-      return `
-        <div 
-          class="catalog-explorer-row p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3"
-          data-catalog-index="${idx}"
-        >
-          ${controlsBar}
-
-          <!-- Carrusel de Pósters Reales en Español Latino -->
-          <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent no-drag">
-            ${items.map(item => {
-              const posterUrl = TmdbService.getPosterUrl(item.poster_path);
-              const title = item.title || item.name || 'Título';
-              const year = (item.release_date || item.first_air_date || '').split('-')[0] || '';
-
-              return `
-                <div class="w-28 sm:w-32 shrink-0 space-y-1.5 group select-none">
-                  <div class="aspect-[2/3] rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-md relative">
-                    <img src="${posterUrl}" alt="${title}" class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105 pointer-events-none" loading="lazy">
-                  </div>
-                  <div class="text-[11px] font-semibold text-slate-200 truncate group-hover:text-white" title="${title}">
-                    ${title}
-                  </div>
-                  <div class="text-[10px] text-slate-500 font-mono">
-                    ${year || 'Latino'}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      `;
     }).join('');
 
-    // Inicializar SortableJS para reordenar los catálogos suavemente en tiempo real
+    // Inicializar SortableJS para reordenar las cápsulas suavemente
     if (typeof Sortable !== 'undefined') {
       if (this.catalogSortable) {
         try { this.catalogSortable.destroy(); } catch (e) {}
       }
       this.catalogSortable = new Sortable(bodyEl, {
         handle: '.catalog-drag-handle',
-        animation: 250,
+        animation: 200,
         filter: 'input, button, a, .no-drag',
         preventOnFilter: false,
         ghostClass: 'catalog-sortable-ghost',
