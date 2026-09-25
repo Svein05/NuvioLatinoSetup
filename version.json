@@ -1,0 +1,9 @@
+{
+  "name": "nuvio-latino-setup",
+  "version": "1.1.0",
+  "description": "Nuvio & AIOMetadata Auto-Setup Wizard (Edición Latino)",
+  "repository": "https://github.com/Svein05/NuvioLatinoSetup",
+  "license": "MIT",
+  "author": "Svein05",
+  "releaseDate": "2026-09-25"
+}

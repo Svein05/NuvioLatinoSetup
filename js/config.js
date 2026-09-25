@@ -9,6 +9,11 @@ const getBasePath = () => {
 };
 
 export const CONFIG = {
+  // Versión oficial de la aplicación (sincronizada con version.json y GitHub Releases)
+  VERSION: "1.1.0",
+  GITHUB_REPO: "Svein05/NuvioLatinoSetup",
+  RELEASE_URL: "https://github.com/Svein05/NuvioLatinoSetup/releases",
+
   // Backend de Nuvio (Supabase / PostgREST)
   NUVIO_API_URL: "https://api.nuvio.tv",
   NUVIO_PUBLIC_ANON_KEY: "sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN",
