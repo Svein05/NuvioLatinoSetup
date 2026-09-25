@@ -188,6 +188,7 @@ class AppController {
           profiles: state.profiles,
           selectedProfileId: state.selectedProfileId,
           selectedProfileName: state.selectedProfileName,
+          newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
           currentStep: state.currentStep,
           maxUnlockedStep: state.maxUnlockedStep
         }));
@@ -206,6 +207,9 @@ class AppController {
         state.profiles = data.profiles || [];
         state.selectedProfileId = data.selectedProfileId || null;
         state.selectedProfileName = data.selectedProfileName || '';
+        if (Array.isArray(data.newlyCreatedProfileIds)) {
+          state.newlyCreatedProfileIds = new Set(data.newlyCreatedProfileIds.map(String));
+        }
         state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
         state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
         this.setAuthBadge(true);
@@ -214,6 +218,7 @@ class AppController {
           state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
           state.unlockStep(3);
         }
+        this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
       }
     } catch (_) {}
   }

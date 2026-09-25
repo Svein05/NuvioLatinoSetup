@@ -254,6 +254,14 @@
           <!-- Renderizado dinámicamente por js/app.js -->
         </div>
 
+        <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente -->
+        <div id="profileOverwriteWarning" class="mt-4 p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3 max-w-3xl hidden transition-all duration-200">
+          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
+          <div class="text-xs text-amber-200/90 leading-relaxed">
+            <span class="font-bold text-amber-300">Atención:</span> Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración latino.
+          </div>
+        </div>
+
         <!-- Modal de Crear Perfil -->
         <div id="modalNewProfile" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
           <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
