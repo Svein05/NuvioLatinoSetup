@@ -319,16 +319,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- TMDB (Obligatoria - Destacada en grande arriba) -->
           <div class="p-4 sm:p-5 bg-slate-950 border-2 border-brand-500/50 rounded-xl space-y-2.5 md:col-span-2 shadow-lg shadow-brand-500/5">
-            <div class="flex justify-between items-center">
-              <label class="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2">
+            <div class="flex justify-between items-center gap-2">
+              <label class="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-film text-brand-400 text-sm"></i>
                 <span>TMDB API Key</span>
-                <span class="text-[10px] text-amber-400 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">(Obligatorio)</span>
+                <span class="text-[10px] text-amber-400 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 whitespace-nowrap">Obligatorio</span>
               </label>
-              <div class="flex items-center gap-2">
-                <span id="badge-tmdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-                <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium">
-                  <span>Obtener gratis</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="badge-tmdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -336,18 +336,18 @@
             <p class="text-[11px] text-slate-400">Motor principal obligatorio: requerido para la carga de datos, títulos y sinopsis oficiales en Español Latino (es-MX).</p>
           </div>
 
-          <!-- MDBList (Opcional, pero recomendado) -->
+          <!-- MDBList (Recomendado) -->
           <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <div class="flex justify-between items-center gap-2">
+              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
                 <i class="fa-solid fa-list-check text-slate-400"></i>
                 <span>MDBList API Key</span>
-                <span class="text-[10px] text-amber-400 font-mono font-medium">(Opcional, pero recomendado)</span>
+                <span class="text-[10px] text-amber-400 font-mono font-medium whitespace-nowrap">(Recomendado)</span>
               </label>
-              <div class="flex items-center gap-2">
-                <span id="badge-mdblist" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
-                  <span>Obtener gratis</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="badge-mdblist" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -357,16 +357,16 @@
 
           <!-- RPDB (Rating Poster DB) (Opcional) -->
           <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <div class="flex justify-between items-center gap-2">
+              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
                 <i class="fa-solid fa-star-half-stroke text-slate-400"></i>
                 <span>RPDB API Key</span>
-                <span class="text-[10px] text-slate-500 font-mono">(Opcional)</span>
+                <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap">(Opcional)</span>
               </label>
-              <div class="flex items-center gap-2">
-                <span id="badge-rpdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-                <a href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
-                  <span>Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="badge-rpdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <a href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -376,15 +376,15 @@
 
           <!-- TheTVDB (Opcional) -->
           <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <div class="flex justify-between items-center gap-2">
+              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
                 <i class="fa-solid fa-tv text-slate-400"></i>
                 <span>TheTVDB API Key</span>
-                <span class="text-[10px] text-slate-500 font-mono">(Opcional)</span>
+                <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap">(Opcional)</span>
               </label>
-              <div class="flex items-center gap-2">
-                <span id="badge-tvdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-                <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="badge-tvdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
                   <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
@@ -395,16 +395,16 @@
 
           <!-- Fanart.tv (Opcional - 1 Columna) -->
           <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-            <div class="flex justify-between items-center">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <div class="flex justify-between items-center gap-2">
+              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
                 <i class="fa-solid fa-palette text-slate-400"></i>
                 <span>Fanart.tv Project Key</span>
-                <span class="text-[10px] text-slate-500 font-mono">(Opcional)</span>
+                <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap">(Opcional)</span>
               </label>
-              <div class="flex items-center gap-2">
-                <span id="badge-fanart" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-                <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
-                  <span>Obtener gratis</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="badge-fanart" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
