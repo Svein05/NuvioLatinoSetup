@@ -1032,9 +1032,9 @@ class AppController {
         }
       }
       const badge = document.getElementById(`badge-${modifiedKey}`);
-      if (badge && modifiedKey === 'tmdb') {
-        badge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
-        badge.innerText = 'No verificada';
+      if (badge) {
+        badge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+        badge.innerText = '';
       }
       this.updateNavigationButtons();
     };
@@ -1217,6 +1217,9 @@ class AppController {
                 geminiBadge.innerText = '✓ Válida';
               }
             }
+          } else if (geminiBadge) {
+            geminiBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+            geminiBadge.innerText = '';
           }
 
           if (openrouterKey) {
@@ -1242,6 +1245,9 @@ class AppController {
                 openrouterBadge.innerText = '✓ Válida';
               }
             }
+          } else if (openrouterBadge) {
+            openrouterBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+            openrouterBadge.innerText = '';
           }
         }
 
@@ -1272,8 +1278,8 @@ class AppController {
             }
           }
         } else if (mdblistBadge) {
-          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono';
-          mdblistBadge.innerText = 'Recomendado';
+          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          mdblistBadge.innerText = '';
         }
 
         const rpdbKey = (state.apiKeys.rpdb || 't0-free-rpdb').trim();
@@ -1315,6 +1321,9 @@ class AppController {
               }
             }
           }
+        } else if (rpdbBadge) {
+          rpdbBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          rpdbBadge.innerText = '';
         }
 
         const tvdbKey = (state.apiKeys.tvdb || '').trim();
@@ -1326,8 +1335,8 @@ class AppController {
             tvdbBadge.innerText = '✓ Configurada';
           }
         } else if (tvdbBadge) {
-          tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
-          tvdbBadge.innerText = 'Opcional';
+          tvdbBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          tvdbBadge.innerText = '';
         }
 
         const fanartKey = (state.apiKeys.fanart || '').trim();
@@ -1339,8 +1348,8 @@ class AppController {
             fanartBadge.innerText = '✓ Configurada';
           }
         } else if (fanartBadge) {
-          fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-500 font-mono';
-          fanartBadge.innerText = 'Opcional';
+          fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
+          fanartBadge.innerText = '';
         }
 
         // Resultado Final
