@@ -632,12 +632,8 @@ class WizardState {
     configObj.apiKeys.openrouter = (this.apiKeys.openrouter || '').trim();
     configObj.apiKeys.traktTokenId = '';
 
-    // Configurar proveedor de calificaciones en pósters (RPDB)
-    if (configObj.apiKeys.rpdb && configObj.apiKeys.rpdb.trim()) {
-      configObj.posterRatingProvider = "rpdb";
-    } else {
-      configObj.posterRatingProvider = "none";
-    }
+    // Proveedor de calificaciones en pósters configurado estrictamente en "none"
+    configObj.posterRatingProvider = "none";
 
     // 3.1 Configurar Búsqueda con IA
     if (!configObj.search) configObj.search = {};
