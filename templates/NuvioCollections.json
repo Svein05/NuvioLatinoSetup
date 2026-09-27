@@ -10,7 +10,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las mejores 25 recomendaciones de la semana",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -25,7 +25,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "La mas recomendadas según su puntuación en Metacritic",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -40,7 +40,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Las mejores 25 recomendaciones de la semana",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -55,7 +55,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "La mas recomendadas según su puntuación en Metacritic",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -69,8 +69,8 @@
           },
           {
             "type": "movie",
-            "genre": null,
-            "title": null,
+            "genre": "None",
+            "title": "Recomendaciones de Trakt",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -84,8 +84,8 @@
           },
           {
             "type": "series",
-            "genre": null,
-            "title": null,
+            "genre": "None",
+            "title": "Recomendaciones de Trakt",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -110,37 +110,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.6506"
+            "catalogId": "mdblist.6506",
+            "title": "Las mejores 25 recomendaciones de la semana"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.83109"
+            "catalogId": "mdblist.83109",
+            "title": "La mas recomendadas según su puntuación en Metacritic"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.31380"
+            "catalogId": "mdblist.31380",
+            "title": "Las mejores 25 recomendaciones de la semana"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.99273"
+            "catalogId": "mdblist.99273",
+            "title": "La mas recomendadas según su puntuación en Metacritic"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "trakt.recommendations.movies"
+            "catalogId": "trakt.recommendations.movies",
+            "title": "Recomendaciones de Trakt"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "trakt.recommendations.shows"
+            "catalogId": "trakt.recommendations.shows",
+            "title": "Recomendaciones de Trakt"
           }
         ],
         "focusGifEnabled": false,
@@ -153,7 +159,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Últimos estrenos de esta semana",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -168,7 +174,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Últimos estrenos de esta semana",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -183,22 +189,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.86829",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Lo más nuevo en Mini Series",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -223,25 +214,22 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.201247"
+            "catalogId": "mdblist.201247",
+            "title": "Últimos estrenos de esta semana"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.170874"
+            "catalogId": "mdblist.170874",
+            "title": "Últimos estrenos de esta semana"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.86829"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.58886"
+            "catalogId": "mdblist.58886",
+            "title": "Lo más nuevo en Mini Series"
           }
         ],
         "focusGifEnabled": false,
@@ -253,7 +241,7 @@
         "sources": [
           {
             "type": "movie",
-            "genre": "Day",
+            "genre": "None",
             "title": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
             "sortBy": null,
             "tmdbId": null,
@@ -268,7 +256,7 @@
           },
           {
             "type": "series",
-            "genre": "Day",
+            "genre": "None",
             "title": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
             "sortBy": null,
             "tmdbId": null,
@@ -277,21 +265,6 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "tmdb.trending_series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Los ánimes que todos estan viendo (Películas)",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.88468",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -307,24 +280,17 @@
         "catalogSources": [
           {
             "type": "movie",
-            "genre": "Day",
-            "title": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending_movie"
+            "catalogId": "tmdb.trending_movie",
+            "title": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day"
           },
           {
             "type": "series",
-            "genre": "Day",
-            "title": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending_series"
-          },
-          {
-            "type": "movie",
             "genre": null,
-            "title": "Los ánimes que todos estan viendo (Películas)",
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.88468"
+            "catalogId": "tmdb.trending_series",
+            "title": "Lo que todo el mundo esta viendo según TMDB (Series) - Day"
           }
         ],
         "focusGifEnabled": false,
@@ -337,7 +303,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las más vistas de la semana por encima del 70",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -352,7 +318,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las mejores de todos los tiempos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -367,7 +333,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Las mejores de todos los tiempos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -375,21 +341,6 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "mdblist.201113",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.125105",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -407,25 +358,22 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.1628"
+            "catalogId": "mdblist.1628",
+            "title": "Las más vistas de la semana por encima del 70"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.201111"
+            "catalogId": "mdblist.201111",
+            "title": "Las mejores de todos los tiempos"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.201113"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.125105"
+            "catalogId": "mdblist.201113",
+            "title": "Las mejores de todos los tiempos"
           }
         ],
         "focusGifEnabled": false,
@@ -451,21 +399,6 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": "Las más populares para los pequeños en casa",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.121922",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
             "genre": "None",
             "title": "Lo más popular de hoy (Series)",
@@ -476,21 +409,6 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "tmdb.top_series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Lo que todos estan viendo en Ánime",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.6928",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -507,30 +425,16 @@
           {
             "type": "movie",
             "genre": null,
-            "title": "Lo más popular de hoy (Películas)",
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_movie"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "title": "Las más populares para los pequeños en casa",
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.121922"
+            "catalogId": "tmdb.top_movie",
+            "title": "Lo más popular de hoy (Películas)"
           },
           {
             "type": "series",
             "genre": null,
-            "title": "Lo más popular de hoy (Series)",
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "title": "Lo que todos estan viendo en Ánime",
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.6928"
+            "catalogId": "tmdb.top_series",
+            "title": "Lo más popular de hoy (Series)"
           }
         ],
         "focusGifEnabled": false,
@@ -554,7 +458,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en Netflix",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -567,9 +471,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en Netflix",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "flixpatrol.netflix.pe.series",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Netflix",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -584,22 +503,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "flixpatrol.netflix.pe.series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Netflix",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -614,7 +518,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Netflix",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -629,7 +533,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Netflix",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -654,37 +558,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.netflix.pe.movie"
+            "catalogId": "flixpatrol.netflix.pe.movie",
+            "title": "Las 10 más populares en Netflix"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "flixpatrol.netflix.pe.series",
+            "title": "Las 10 más populares en Netflix"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.86752"
+            "catalogId": "mdblist.86752",
+            "title": "Recien agregadas en Netflix"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.netflix.pe.series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.86751"
+            "catalogId": "mdblist.86751",
+            "title": "Recien agregadas en Netflix"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.netflix"
+            "catalogId": "tmdb.discover.movie.streaming.netflix",
+            "title": "🎬 Netflix"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.netflix"
+            "catalogId": "tmdb.discover.series.streaming.netflix",
+            "title": "🎬 Netflix"
           }
         ],
         "focusGifEnabled": false,
@@ -697,7 +607,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en HBO Max",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -710,9 +620,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en HBO Max",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "flixpatrol.hbo-max.pe.series",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en HBO Max",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -727,22 +652,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "flixpatrol.hbo-max.pe.series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en HBO Max",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -757,7 +667,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 HBO Max",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -772,7 +682,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 HBO Max",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -797,37 +707,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.hbo-max.pe.movie"
+            "catalogId": "flixpatrol.hbo-max.pe.movie",
+            "title": "Las 10 más populares en HBO Max"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "flixpatrol.hbo-max.pe.series",
+            "title": "Las 10 más populares en HBO Max"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.89647"
+            "catalogId": "mdblist.89647",
+            "title": "Recien agregadas en HBO Max"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.hbo-max.pe.series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.89649"
+            "catalogId": "mdblist.89649",
+            "title": "Recien agregadas en HBO Max"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.hbo-max"
+            "catalogId": "tmdb.discover.movie.streaming.hbo-max",
+            "title": "🎬 HBO Max"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.hbo-max"
+            "catalogId": "tmdb.discover.series.streaming.hbo-max",
+            "title": "🎬 HBO Max"
           }
         ],
         "focusGifEnabled": false,
@@ -840,7 +756,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en Disney Plus",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -853,9 +769,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en Disney Plus",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "flixpatrol.disney.pe.series",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Disney Plus",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -868,9 +799,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Recien agregadas en Disney Plus",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.86758",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor en Disney Pixar para niños",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -885,37 +831,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "flixpatrol.disney.pe.series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.86758",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Lo mejor en Disney Channel para niños",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -930,7 +846,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Disney Plus",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -945,7 +861,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Disney Plus",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -970,49 +886,57 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.disney.pe.movie"
+            "catalogId": "flixpatrol.disney.pe.movie",
+            "title": "Las 10 más populares en Disney Plus"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "flixpatrol.disney.pe.series",
+            "title": "Las 10 más populares en Disney Plus"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.86759"
+            "catalogId": "mdblist.86759",
+            "title": "Recien agregadas en Disney Plus"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.86758",
+            "title": "Recien agregadas en Disney Plus"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.6114"
+            "catalogId": "mdblist.6114",
+            "title": "Lo mejor en Disney Pixar para niños"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.disney.pe.series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.86758"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.15771"
+            "catalogId": "mdblist.15771",
+            "title": "Lo mejor en Disney Channel para niños"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.disney-plus"
+            "catalogId": "tmdb.discover.movie.streaming.disney-plus",
+            "title": "🎬 Disney Plus"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.disney-plus"
+            "catalogId": "tmdb.discover.series.streaming.disney-plus",
+            "title": "🎬 Disney Plus"
           }
         ],
         "focusGifEnabled": false,
@@ -1025,7 +949,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en Prime Video",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1038,9 +962,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en Prime Video",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "flixpatrol.amazon-prime.pe.series",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Prime Video",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1055,22 +994,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "flixpatrol.amazon-prime.pe.series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Prime Video",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1085,7 +1009,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Prime Video",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1100,7 +1024,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Prime Video",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1125,37 +1049,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.amazon-prime.pe.movie"
+            "catalogId": "flixpatrol.amazon-prime.pe.movie",
+            "title": "Las 10 más populares en Prime Video"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "flixpatrol.amazon-prime.pe.series",
+            "title": "Las 10 más populares en Prime Video"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.86755"
+            "catalogId": "mdblist.86755",
+            "title": "Recien agregadas en Prime Video"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.amazon-prime.pe.series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.86753"
+            "catalogId": "mdblist.86753",
+            "title": "Recien agregadas en Prime Video"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.prime-video"
+            "catalogId": "tmdb.discover.movie.streaming.prime-video",
+            "title": "🎬 Prime Video"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.prime-video"
+            "catalogId": "tmdb.discover.series.streaming.prime-video",
+            "title": "🎬 Prime Video"
           }
         ],
         "focusGifEnabled": false,
@@ -1168,7 +1098,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en Paramount+",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1181,9 +1111,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en Paramount+",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "flixpatrol.paramount.pe.series",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Paramount+",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1198,22 +1143,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "flixpatrol.paramount.pe.series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Paramount+",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1228,7 +1158,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Paramount Plus",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1243,7 +1173,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Paramount Plus",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1268,37 +1198,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.paramount.pe.movie"
+            "catalogId": "flixpatrol.paramount.pe.movie",
+            "title": "Las 10 más populares en Paramount+"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "flixpatrol.paramount.pe.series",
+            "title": "Las 10 más populares en Paramount+"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.86762"
+            "catalogId": "mdblist.86762",
+            "title": "Recien agregadas en Paramount+"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.paramount.pe.series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.86761"
+            "catalogId": "mdblist.86761",
+            "title": "Recien agregadas en Paramount+"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.paramount-plus"
+            "catalogId": "tmdb.discover.movie.streaming.paramount-plus",
+            "title": "🎬 Paramount Plus"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.paramount-plus"
+            "catalogId": "tmdb.discover.series.streaming.paramount-plus",
+            "title": "🎬 Paramount Plus"
           }
         ],
         "focusGifEnabled": false,
@@ -1311,7 +1247,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en Apple TV+",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1324,9 +1260,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en Apple TV+",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "flixpatrol.apple-tv.pe.series",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Apple TV+",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1341,22 +1292,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "flixpatrol.apple-tv.pe.series",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Apple TV+",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1371,7 +1307,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Apple TV",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1386,7 +1322,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Apple TV",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1411,37 +1347,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.apple-tv.pe.movie"
+            "catalogId": "flixpatrol.apple-tv.pe.movie",
+            "title": "Las 10 más populares en Apple TV+"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "flixpatrol.apple-tv.pe.series",
+            "title": "Las 10 más populares en Apple TV+"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.86757"
+            "catalogId": "mdblist.86757",
+            "title": "Recien agregadas en Apple TV+"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "flixpatrol.apple-tv.pe.series"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.86756"
+            "catalogId": "mdblist.86756",
+            "title": "Recien agregadas en Apple TV+"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.apple-tv"
+            "catalogId": "tmdb.discover.movie.streaming.apple-tv",
+            "title": "🎬 Apple TV"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.apple-tv"
+            "catalogId": "tmdb.discover.series.streaming.apple-tv",
+            "title": "🎬 Apple TV"
           }
         ],
         "focusGifEnabled": false,
@@ -1454,7 +1396,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 10 más populares en Crunchyroll",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1467,9 +1409,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las 10 más populares en Crunchyroll",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.177576",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Crunchyroll",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1484,22 +1441,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.177576",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recien agregadas en Crunchyroll",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1514,7 +1456,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Crunchyroll",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1529,7 +1471,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "🎬 Crunchyroll",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1554,218 +1496,47 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.177573"
+            "catalogId": "mdblist.177573",
+            "title": "Las 10 más populares en Crunchyroll"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.177576",
+            "title": "Las 10 más populares en Crunchyroll"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.177575"
+            "catalogId": "mdblist.177575",
+            "title": "Recien agregadas en Crunchyroll"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.177576"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.177578"
+            "catalogId": "mdblist.177578",
+            "title": "Recien agregadas en Crunchyroll"
           },
           {
             "type": "movie",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.crunchyroll"
+            "catalogId": "tmdb.discover.movie.streaming.crunchyroll",
+            "title": "🎬 Crunchyroll"
           },
           {
             "type": "series",
-            "genre": "None",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.crunchyroll"
+            "catalogId": "tmdb.discover.series.streaming.crunchyroll",
+            "title": "🎬 Crunchyroll"
           }
         ],
         "focusGifEnabled": false,
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_backdrop.jpg"
-      },
-      {
-        "id": "collections.streaming.starz",
-        "title": "Starz",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.streaming.starz",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.streaming.starz",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎬",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/focused/starz.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/title/starz.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/cover/starz.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.starz"
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.starz"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/backdrop/starz.webp"
-      },
-      {
-        "id": "collections.streaming.discovery-plus",
-        "title": "Discovery Plus",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.streaming.discovery-plus",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.streaming.discovery-plus",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎬",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/focused/discovery-plus.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/title/discovery-plus.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/cover/discovery-plus.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.discovery-plus"
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.discovery-plus"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/backdrop/discovery-plus.webp"
-      },
-      {
-        "id": "collections.streaming.hulu",
-        "title": "Hulu",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.streaming.hulu",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.streaming.hulu",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎬",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/focused/hulu.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/title/hulu.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/cover/hulu.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.streaming.hulu"
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.streaming.hulu"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/streaming/backdrop/hulu.webp"
       }
     ],
     "pinToTop": false,
@@ -1785,7 +1556,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor valoradas en acción desde los 80s",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1800,22 +1571,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128037",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
+            "title": "Las más populares en todo el mundo",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1828,9 +1584,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "movie",
+            "genre": "None",
+            "title": "Últimos lanzamientos del género de Acción",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128037",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Últimos lanzamientos del género de Acción",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1844,8 +1615,8 @@
           },
           {
             "type": "movie",
-            "genre": "Action",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Acción",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1859,8 +1630,8 @@
           },
           {
             "type": "movie",
-            "genre": "Adventure",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Aventura",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1874,8 +1645,8 @@
           },
           {
             "type": "series",
-            "genre": "Action & Adventure",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Acción y Aventura",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1900,43 +1671,50 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.2407"
+            "catalogId": "mdblist.2407",
+            "title": "Lo mejor valoradas en acción desde los 80s"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128037"
+            "catalogId": "mdblist.91211",
+            "title": "Las más populares en todo el mundo"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.91211"
+            "catalogId": "mdblist.128037",
+            "title": "Últimos lanzamientos del género de Acción"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128029"
+            "catalogId": "mdblist.128029",
+            "title": "Últimos lanzamientos del género de Acción"
           },
           {
             "type": "movie",
-            "genre": "Action",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.action"
+            "catalogId": "tmdb.discover.movie.genres.action",
+            "title": "🎭 Acción"
           },
           {
             "type": "movie",
-            "genre": "Adventure",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.adventure"
+            "catalogId": "tmdb.discover.movie.genres.adventure",
+            "title": "🎭 Aventura"
           },
           {
             "type": "series",
-            "genre": "Action & Adventure",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.action-adventure"
+            "catalogId": "tmdb.discover.series.genres.action-adventure",
+            "title": "🎭 Acción y Aventura"
           }
         ],
         "focusGifEnabled": false,
@@ -1949,7 +1727,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las comedias mejor valoradas desde los 60s",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1962,9 +1740,39 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Las más populares para no parar de reir",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.101648",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien estrenados Stand Up de Comedia",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.107118",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Últimos lanzamientos del género de comedia",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1979,7 +1787,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Últimos lanzamientos del género de comedia",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -1994,37 +1802,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.107118",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.101648",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "Comedy",
-            "title": null,
+            "title": "🎭 Comedia",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2038,8 +1816,8 @@
           },
           {
             "type": "series",
-            "genre": "Comedy",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Comedia",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2064,43 +1842,50 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.2195"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.128040"
+            "catalogId": "mdblist.2195",
+            "title": "Las comedias mejor valoradas desde los 60s"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128041"
+            "catalogId": "mdblist.101648",
+            "title": "Las más populares para no parar de reir"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.107118"
+            "catalogId": "mdblist.107118",
+            "title": "Recien estrenados Stand Up de Comedia"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.128040",
+            "title": "Últimos lanzamientos del género de comedia"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.101648"
+            "catalogId": "mdblist.128041",
+            "title": "Últimos lanzamientos del género de comedia"
           },
           {
             "type": "movie",
-            "genre": "Comedy",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.comedy"
+            "catalogId": "tmdb.discover.movie.genres.comedy",
+            "title": "🎭 Comedia"
           },
           {
             "type": "series",
-            "genre": "Comedy",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.comedy"
+            "catalogId": "tmdb.discover.series.genres.comedy",
+            "title": "🎭 Comedia"
           }
         ],
         "focusGifEnabled": false,
@@ -2113,7 +1898,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Los dramas mejor valorados desde los 80s",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2128,22 +1913,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128043",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
+            "title": "Los mejores dramas según Letterboxd",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2156,9 +1926,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "movie",
+            "genre": "None",
+            "title": "Últimos lanzamientos del género Drama",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128043",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Últimos lanzamientos del género Drama",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2172,8 +1957,8 @@
           },
           {
             "type": "movie",
-            "genre": "Drama",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Drama",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2187,8 +1972,8 @@
           },
           {
             "type": "series",
-            "genre": "Drama",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Drama",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2213,37 +1998,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.2408"
+            "catalogId": "mdblist.2408",
+            "title": "Los dramas mejor valorados desde los 80s"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128043"
+            "catalogId": "mdblist.55352",
+            "title": "Los mejores dramas según Letterboxd"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.55352"
+            "catalogId": "mdblist.128043",
+            "title": "Últimos lanzamientos del género Drama"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128044"
+            "catalogId": "mdblist.128044",
+            "title": "Últimos lanzamientos del género Drama"
           },
           {
             "type": "movie",
-            "genre": "Drama",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.drama"
+            "catalogId": "tmdb.discover.movie.genres.drama",
+            "title": "🎭 Drama"
           },
           {
             "type": "series",
-            "genre": "Drama",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.drama"
+            "catalogId": "tmdb.discover.series.genres.drama",
+            "title": "🎭 Drama"
           }
         ],
         "focusGifEnabled": false,
@@ -2256,7 +2047,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor en animación de todos los tiempos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2271,7 +2062,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recién estrenados en el género animado",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2286,22 +2077,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.103383",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recién estrenados en el género de Cartoon",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2316,7 +2092,22 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Las mejores en animación de Kyoto",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.103383",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Las mejores en animación para adultos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2330,8 +2121,8 @@
           },
           {
             "type": "movie",
-            "genre": "Animation",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Animación",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2345,8 +2136,8 @@
           },
           {
             "type": "series",
-            "genre": "Animation",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Animación",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2371,106 +2162,54 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.71758"
+            "catalogId": "mdblist.71758",
+            "title": "Lo mejor en animación de todos los tiempos"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128039"
+            "catalogId": "mdblist.128039",
+            "title": "Recién estrenados en el género animado"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.103383"
+            "catalogId": "mdblist.2473",
+            "title": "Recién estrenados en el género de Cartoon"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.2473"
+            "catalogId": "mdblist.103383",
+            "title": "Las mejores en animación de Kyoto"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.84402"
+            "catalogId": "mdblist.84402",
+            "title": "Las mejores en animación para adultos"
           },
           {
             "type": "movie",
-            "genre": "Animation",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.animation"
+            "catalogId": "tmdb.discover.movie.genres.animation",
+            "title": "🎭 Animación"
           },
           {
             "type": "series",
-            "genre": "Animation",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.animation"
+            "catalogId": "tmdb.discover.series.genres.animation",
+            "title": "🎭 Animación"
           }
         ],
         "focusGifEnabled": false,
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_animacion_backdrop.jpg"
-      },
-      {
-        "id": "collections.genres.family",
-        "title": "Familiar e Infantil",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "Family",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.genres.family",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "Kids",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.genres.kids",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎭",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/family.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/title/family.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/cover/family.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "Family",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.family"
-          },
-          {
-            "type": "series",
-            "genre": "Kids",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.kids"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/backdrop/family.webp"
       },
       {
         "id": "folder-27daa96d",
@@ -2479,7 +2218,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las mejores 100 de Terror según Letterboxd",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2494,22 +2233,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128045",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
+            "title": "Lo mejor del Terror Coreano/Japones",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2522,9 +2246,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "movie",
+            "genre": "None",
+            "title": "Nuevos estrenos en el género de Terror",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128045",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Nuevos estrenos en el género de Terror",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2538,8 +2277,8 @@
           },
           {
             "type": "movie",
-            "genre": "Horror",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Terror",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2564,31 +2303,36 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.55542"
+            "catalogId": "mdblist.55542",
+            "title": "Las mejores 100 de Terror según Letterboxd"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128045"
+            "catalogId": "mdblist.1983",
+            "title": "Lo mejor del Terror Coreano/Japones"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.1983"
+            "catalogId": "mdblist.128045",
+            "title": "Nuevos estrenos en el género de Terror"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128046"
+            "catalogId": "mdblist.128046",
+            "title": "Nuevos estrenos en el género de Terror"
           },
           {
             "type": "movie",
-            "genre": "Horror",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.horror"
+            "catalogId": "tmdb.discover.movie.genres.horror",
+            "title": "🎭 Terror"
           }
         ],
         "focusGifEnabled": false,
@@ -2601,22 +2345,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.99441",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
+            "title": "Lo mejor en suspenso de Asia",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2631,7 +2360,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Los mejores estrenos de Suspenso y Thriller",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2645,8 +2374,23 @@
           },
           {
             "type": "movie",
-            "genre": "Thriller",
-            "title": null,
+            "genre": "None",
+            "title": "Nuevos estrenos en el género de suspenso",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.99441",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "🎭 Suspenso",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2671,147 +2415,33 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.99441"
+            "catalogId": "mdblist.72524",
+            "title": "Lo mejor en suspenso de Asia"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.72524"
+            "catalogId": "mdblist.101636",
+            "title": "Los mejores estrenos de Suspenso y Thriller"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.101636"
+            "catalogId": "mdblist.99441",
+            "title": "Nuevos estrenos en el género de suspenso"
           },
           {
             "type": "movie",
-            "genre": "Thriller",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.thriller"
+            "catalogId": "tmdb.discover.movie.genres.thriller",
+            "title": "🎭 Suspenso"
           }
         ],
         "focusGifEnabled": false,
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_suspenso_backdrop.jpg"
-      },
-      {
-        "id": "collections.genres.crime",
-        "title": "Crimen",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "Crime",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.genres.crime",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "Crime",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.genres.crime",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎭",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/crime.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/title/crime.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/cover/crime.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "Crime",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.crime"
-          },
-          {
-            "type": "series",
-            "genre": "Crime",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.crime"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/backdrop/crime.webp"
-      },
-      {
-        "id": "collections.genres.mystery",
-        "title": "Misterio",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "Mystery",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.genres.mystery",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "Mystery",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.genres.mystery",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎭",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/mystery.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/title/mystery.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/cover/mystery.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "Mystery",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.mystery"
-          },
-          {
-            "type": "series",
-            "genre": "Mystery",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.mystery"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/backdrop/mystery.webp"
       },
       {
         "id": "folder-7b07b4c0",
@@ -2820,7 +2450,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Las 250 mejores de Romance de todos los tiempos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2835,22 +2465,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128261",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
+            "title": "Lo más popular en romance hoy",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2865,22 +2480,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128264",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Lo más popular en romance hoy",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2894,8 +2494,38 @@
           },
           {
             "type": "movie",
-            "genre": "Romance",
-            "title": null,
+            "genre": "None",
+            "title": "Recién estrenados en el género de Romance",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128261",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Recién estrenados en el género de Romance",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128264",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "🎭 Romance",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2920,37 +2550,43 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.6339"
+            "catalogId": "mdblist.6339",
+            "title": "Las 250 mejores de Romance de todos los tiempos"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128261"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.128262"
+            "catalogId": "mdblist.128262",
+            "title": "Lo más popular en romance hoy"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128264"
+            "catalogId": "mdblist.128265",
+            "title": "Lo más popular en romance hoy"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.128261",
+            "title": "Recién estrenados en el género de Romance"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128265"
+            "catalogId": "mdblist.128264",
+            "title": "Recién estrenados en el género de Romance"
           },
           {
             "type": "movie",
-            "genre": "Romance",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.romance"
+            "catalogId": "tmdb.discover.movie.genres.romance",
+            "title": "🎭 Romance"
           }
         ],
         "focusGifEnabled": false,
@@ -2963,7 +2599,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor en Fantasía de todos los tiempos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2976,9 +2612,24 @@
             "tmdbSourceType": null
           },
           {
+            "type": "series",
+            "genre": "None",
+            "title": "Lo mejor en Fantasía de todos los tiempos",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.44060",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recién estrenados en el género de Fantasía",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -2993,22 +2644,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.44060",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
+            "title": "Recién estrenados en el género de Fantasía",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3022,8 +2658,8 @@
           },
           {
             "type": "movie",
-            "genre": "Fantasy",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Fantasía",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3037,8 +2673,8 @@
           },
           {
             "type": "movie",
-            "genre": "Science Fiction",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Ciencia Ficción",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3052,8 +2688,8 @@
           },
           {
             "type": "series",
-            "genre": "Sci-Fi & Fantasy",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Ciencia Ficción y Fantasía",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3078,196 +2714,63 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.9285"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.55706"
+            "catalogId": "mdblist.9285",
+            "title": "Lo mejor en Fantasía de todos los tiempos"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.44060"
+            "catalogId": "mdblist.44060",
+            "title": "Lo mejor en Fantasía de todos los tiempos"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.55706",
+            "title": "Recién estrenados en el género de Fantasía"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.128048"
+            "catalogId": "mdblist.128048",
+            "title": "Recién estrenados en el género de Fantasía"
           },
           {
             "type": "movie",
-            "genre": "Fantasy",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.fantasy"
+            "catalogId": "tmdb.discover.movie.genres.fantasy",
+            "title": "🎭 Fantasía"
           },
           {
             "type": "movie",
-            "genre": "Science Fiction",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.science-fiction"
+            "catalogId": "tmdb.discover.movie.genres.science-fiction",
+            "title": "🎭 Ciencia Ficción"
           },
           {
             "type": "series",
-            "genre": "Sci-Fi & Fantasy",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.sci-fi-fantasy"
+            "catalogId": "tmdb.discover.series.genres.sci-fi-fantasy",
+            "title": "🎭 Ciencia Ficción y Fantasía"
           }
         ],
         "focusGifEnabled": false,
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_fantasia_backdrop.jpg"
       },
       {
-        "id": "collections.genres.history",
-        "title": "Historia y Bélico",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "History",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.genres.history",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "War",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.genres.war",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "War & Politics",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.genres.war-politics",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎭",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/history.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/title/history.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/cover/history.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "History",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.history"
-          },
-          {
-            "type": "movie",
-            "genre": "War",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.war"
-          },
-          {
-            "type": "series",
-            "genre": "War & Politics",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.war-politics"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/backdrop/history.webp"
-      },
-      {
         "id": "folder-eba616bd",
         "title": "Documentales",
         "sources": [
           {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128027",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.78210",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.128028",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.100477",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "all",
             "genre": "None",
-            "title": null,
+            "title": "Los mejores documentales de la Historia contada",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3282,7 +2785,37 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Los mejors documentales basados en crimenes verdaderos",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.78210",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Documentales basados en la Ciencia y Naturaleza",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.100477",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Lo mejor en documentales Deportivos/Deportistas",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3296,8 +2829,38 @@
           },
           {
             "type": "movie",
-            "genre": "Documentary",
-            "title": null,
+            "genre": "None",
+            "title": "Recién estrenados en el género de Documentales",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128027",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Recién estrenados en el género de Documentales",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.128028",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "🎭 Documental",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3311,8 +2874,8 @@
           },
           {
             "type": "series",
-            "genre": "Documentary",
-            "title": null,
+            "genre": "None",
+            "title": "🎭 Documentales",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3334,52 +2897,60 @@
         "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_documentales_cover.jpg",
         "catalogSources": [
           {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.128027"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.78210"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.128028"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.100477"
-          },
-          {
             "type": "all",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.pycon.history-documentaries"
+            "catalogId": "mdblist.pycon.history-documentaries",
+            "title": "Los mejores documentales de la Historia contada"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.157933"
-          },
-          {
-            "type": "movie",
-            "genre": "Documentary",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.documentary"
+            "catalogId": "mdblist.78210",
+            "title": "Los mejors documentales basados en crimenes verdaderos"
           },
           {
             "type": "series",
-            "genre": "Documentary",
+            "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.documentary"
+            "catalogId": "mdblist.100477",
+            "title": "Documentales basados en la Ciencia y Naturaleza"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.157933",
+            "title": "Lo mejor en documentales Deportivos/Deportistas"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.128027",
+            "title": "Recién estrenados en el género de Documentales"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.128028",
+            "title": "Recién estrenados en el género de Documentales"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "tmdb.discover.movie.genres.documentary",
+            "title": "🎭 Documental"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "tmdb.discover.series.genres.documentary",
+            "title": "🎭 Documentales"
           }
         ],
         "focusGifEnabled": false,
@@ -3392,7 +2963,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor del Crimen & Mafia desde 10s",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3407,7 +2978,7 @@
           {
             "type": "series",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor en Gangster & Mafiosos",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3422,7 +2993,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recien estrenado en Crimen Organizado",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3447,19 +3018,22 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.125049"
+            "catalogId": "mdblist.125049",
+            "title": "Lo mejor del Crimen & Mafia desde 10s"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.163377"
+            "catalogId": "mdblist.163377",
+            "title": "Lo mejor en Gangster & Mafiosos"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.123193"
+            "catalogId": "mdblist.123193",
+            "title": "Recien estrenado en Crimen Organizado"
           }
         ],
         "focusGifEnabled": false,
@@ -3472,7 +3046,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Los mejores musicales de hoy",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3487,7 +3061,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Recién estrenados en el género de Biopic",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3502,7 +3076,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo mejor en documentales musicales",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3517,7 +3091,7 @@
           {
             "type": "movie",
             "genre": "None",
-            "title": null,
+            "title": "Lo más popular en Musicales infantiles para niños",
             "sortBy": null,
             "tmdbId": null,
             "addonId": "aio-metadata",
@@ -3542,328 +3116,33 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.6551"
+            "catalogId": "mdblist.6551",
+            "title": "Los mejores musicales de hoy"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.123226"
+            "catalogId": "mdblist.123226",
+            "title": "Recién estrenados en el género de Biopic"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.3188"
+            "catalogId": "mdblist.3188",
+            "title": "Lo mejor en documentales musicales"
           },
           {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.6123"
+            "catalogId": "mdblist.6123",
+            "title": "Lo más popular en Musicales infantiles para niños"
           }
         ],
         "focusGifEnabled": false,
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_conciertos_biopic_backdrop.jpg"
-      },
-      {
-        "id": "collections.genres.reality",
-        "title": "Reality y Telenovelas",
-        "sources": [
-          {
-            "type": "series",
-            "genre": "Reality",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.genres.reality",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "Soap",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.series.genres.soap",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎭",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/reality.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/title/reality.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/cover/reality.webp",
-        "catalogSources": [
-          {
-            "type": "series",
-            "genre": "Reality",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.reality"
-          },
-          {
-            "type": "series",
-            "genre": "Soap",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.series.genres.soap"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/backdrop/reality.webp"
-      },
-      {
-        "id": "collections.genres.tv",
-        "title": "Películas para TV",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "TV Movie",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "tmdb.discover.movie.genres.tv-movie",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": false,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": "🎭",
-        "focusGifUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/focused/tv.webp",
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/title/tv.webp",
-        "coverImageUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/cover/tv.webp",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": "TV Movie",
-            "addonId": "aio-metadata",
-            "catalogId": "tmdb.discover.movie.genres.tv-movie"
-          }
-        ],
-        "focusGifEnabled": true,
-        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/luckynumb3rs/stremio-perfect-setup/collections/genres/backdrop/tv.webp"
-      },
-      {
-        "id": "folder-4e08c588",
-        "title": "Oeste",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.13029",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.36743",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.67777",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.50268",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": true,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": null,
-        "focusGifUrl": null,
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_oeste_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_oeste_cover.jpg",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.13029"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.36743"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.67777"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.50268"
-          }
-        ],
-        "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_oeste_backdrop.jpg"
-      },
-      {
-        "id": "folder-cfeba781",
-        "title": "Hindú",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.5771",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.76001",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.71876",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": null,
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.89471",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": true,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": null,
-        "focusGifUrl": null,
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_hindu_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_hindu_cover.jpg",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.5771"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.76001"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.71876"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.89471"
-          }
-        ],
-        "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_hindu_backdrop.jpg"
       }
     ],
     "pinToTop": false,
