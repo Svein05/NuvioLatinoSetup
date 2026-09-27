@@ -7,8 +7,16 @@ import { CONFIG } from './config.js';
 class WizardState {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 5;
+    this.totalSteps = 6;
     this.maxUnlockedStep = 1; // Control restrictivo de avance de pasos
+
+    // Preferencias de Perfil y Motor de Pósters (Paso 5)
+    this.preferences = {
+      tmdbEnrichment: true,
+      mdblistRatings: true,
+      posterEngine: 'default', // 'default' | 'betterposter' | 'postersplus'
+      customPosterUrl: ''
+    };
 
     // Autenticación Nuvio (Supabase)
     this.nuvioAuth = {
@@ -144,6 +152,12 @@ class WizardState {
             error: 'La TMDB API Key es obligatoria (mínimo 8 caracteres).'
           };
         }
+        if (!this.apiKeys.mdblist || this.apiKeys.mdblist.trim().length < 8) {
+          return {
+            valid: false,
+            error: 'La MDBList API Key es obligatoria (mínimo 8 caracteres) para calificaciones y personalización de pósters.'
+          };
+        }
         if (this.searchAiEnabled && !this.apiKeys.gemini && !this.apiKeys.openrouter) {
           return {
             valid: false,
@@ -159,6 +173,10 @@ class WizardState {
         return { valid: true, error: null };
 
       case 5:
+        // Preferencias de perfil y sistema de pósters siempre cuentan con una opción seleccionada
+        return { valid: true, error: null };
+
+      case 6:
         if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {
           return {
             valid: false,
@@ -601,13 +619,17 @@ class WizardState {
       });
     });
 
-    // 2. Filtrar catálogos en el payload de AIOMetadata
+    // 2. Determinar si se activa Custom Art según la preferencia seleccionada
+    const engine = (this.preferences && this.preferences.posterEngine) || 'default';
+    const isCustomEngine = engine !== 'default';
+
+    // 2.1 Filtrar catálogos en el payload de AIOMetadata
     const filterCatList = (list) => {
       if (!Array.isArray(list)) return [];
       return list.filter(cat => {
         const isIncluded = activeCatalogIds.has(cat.id);
         cat.showInHome = false;
-        cat.enableRatingPosters = false;
+        cat.enableRatingPosters = isCustomEngine;
         return isIncluded;
       });
     };
@@ -633,12 +655,39 @@ class WizardState {
     configObj.apiKeys.openrouter = (this.apiKeys.openrouter || '').trim();
     configObj.apiKeys.traktTokenId = '';
 
-    // Proveedor de calificaciones en pósters configurado estrictamente en "none" y carátulas limpias
-    configObj.posterRatingProvider = "none";
-    configObj.customPosterUrlPattern = "";
-    configObj.enableRatingPostersForLibrary = false;
-    if (template.customPosterUrlPattern !== undefined) {
-      template.customPosterUrlPattern = "";
+    // 3.1 Configuración estricta de Custom Art y Motor de Pósters
+    if (engine === 'default') {
+      // DESACTIVADO ESTRICTO: Carátulas nativas limpias en español latino (evita fallback en inglés)
+      configObj.posterRatingProvider = "none";
+      configObj.customPosterUrlPattern = "";
+      configObj.enableRatingPostersForLibrary = false;
+      configObj.usePosterProxy = false;
+      if (template.customPosterUrlPattern !== undefined) {
+        template.customPosterUrlPattern = "";
+      }
+    } else if (engine === 'betterposter') {
+      // ACTIVADO ESTRICTO: BetterPoster con link oficial es-MX
+      configObj.posterRatingProvider = "custom";
+      configObj.customPosterUrlPattern = (this.preferences.customPosterUrl || '').trim() ||
+        "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM";
+      configObj.enableRatingPostersForLibrary = true;
+      configObj.usePosterProxy = true;
+      if (template.customPosterUrlPattern !== undefined) {
+        template.customPosterUrlPattern = configObj.customPosterUrlPattern;
+      }
+    } else if (engine === 'postersplus') {
+      // ACTIVADO ESTRICTO: PostersPlus con credenciales interpoladas
+      const tmdbEncoded = encodeURIComponent((this.apiKeys.tmdb || '').trim());
+      const mdblistEncoded = encodeURIComponent((this.apiKeys.mdblist || '').trim());
+      const defaultPostersPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbEncoded}&mdblist_key=${mdblistEncoded}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
+
+      configObj.posterRatingProvider = "custom";
+      configObj.customPosterUrlPattern = (this.preferences.customPosterUrl || '').trim() || defaultPostersPlusPattern;
+      configObj.enableRatingPostersForLibrary = true;
+      configObj.usePosterProxy = true;
+      if (template.customPosterUrlPattern !== undefined) {
+        template.customPosterUrlPattern = configObj.customPosterUrlPattern;
+      }
     }
 
     // 3.1 Configurar Búsqueda con IA

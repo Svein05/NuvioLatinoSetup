@@ -27,7 +27,8 @@ class AppController {
     this.setupStep1Events();
     this.setupStep2Profiles();
     this.setupStep3ApiKeys();
-    this.setupStep5Injection();
+    this.setupStep5Preferences();
+    this.setupStep6Injection();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -390,12 +391,15 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 2, 3 o 5, refrescar o sincronizar vistas
+    // Si estamos en el paso 2, 3, 5 o 6, refrescar o sincronizar vistas
     if (currentStep === 2) {
       this.renderProfiles();
     } else if (currentStep === 3) {
       state.unlockStep(4);
     } else if (currentStep === 5) {
+      state.unlockStep(6);
+      this.updatePreferencesUI();
+    } else if (currentStep === 6) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
       if (state.isManualMode) {
@@ -412,8 +416,8 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
-      this.refreshStep5Summary();
-      this.updateStep5ExecuteButton();
+      this.refreshStep6Summary();
+      this.updateStep6ExecuteButton();
     }
 
     // Actualizar estilo reactivo del botón Siguiente
@@ -434,7 +438,7 @@ class AppController {
     }
   }
 
-  updateStep5ExecuteButton() {
+  updateStep6ExecuteButton() {
     const btnExecute = document.getElementById('btnExecutePipeline');
     if (!btnExecute) return;
 
@@ -1245,10 +1249,19 @@ class AppController {
           }
         }
 
-        // Validar opcionales si fueron provistas
+        // Validar MDBList (Obligatoria)
         const mdblistKey = (state.apiKeys.mdblist || '').trim();
         const mdblistBadge = document.getElementById('badge-mdblist');
-        if (mdblistKey) {
+        if (!mdblistKey || mdblistKey.length < 8) {
+          allValid = false;
+          if (mdblistBadge) {
+            mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+            mdblistBadge.innerText = '✗ Obligatoria';
+          }
+          if (mdblistInput) {
+            mdblistInput.classList.add('border-red-500/60');
+          }
+        } else {
           try {
             const res = await fetch(`https://mdblist.com/api/?apikey=${encodeURIComponent(mdblistKey)}&s=avatar`);
             if (res.ok) {
@@ -1257,23 +1270,42 @@ class AppController {
                 mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✓ Válida';
               }
+              if (mdblistInput) {
+                mdblistInput.classList.remove('border-red-500/60');
+                mdblistInput.classList.add('border-emerald-500/50');
+              }
             } else {
               allValid = false;
               if (mdblistBadge) {
                 mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✗ Inválida';
               }
+              if (mdblistInput) {
+                mdblistInput.classList.add('border-red-500/60');
+              }
             }
           } catch (_) {
-            if (mdblistKey.length >= 10 && mdblistBadge) {
+            if (mdblistKey.length >= 8) {
               validationMap.mdblist = true;
-              mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
-              mdblistBadge.innerText = '✓ Válida';
+              if (mdblistBadge) {
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+                mdblistBadge.innerText = '✓ Válida (Offline)';
+              }
+              if (mdblistInput) {
+                mdblistInput.classList.remove('border-red-500/60');
+                mdblistInput.classList.add('border-emerald-500/50');
+              }
+            } else {
+              allValid = false;
+              if (mdblistBadge) {
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+                mdblistBadge.innerText = '✗ Inválida';
+              }
+              if (mdblistInput) {
+                mdblistInput.classList.add('border-red-500/60');
+              }
             }
           }
-        } else if (mdblistBadge) {
-          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
-          mdblistBadge.innerText = '';
         }
 
         const rpdbKey = (state.apiKeys.rpdb || 't0-free-rpdb').trim();
@@ -1400,7 +1432,109 @@ class AppController {
     });
   }
 
-  setupStep5Injection() {
+  setupStep5Preferences() {
+    const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
+    const toggleRatings = document.getElementById('toggleMdblistRatings');
+    const customBetterInput = document.getElementById('customUrlBetterposter');
+    const customPlusInput = document.getElementById('customUrlPostersplus');
+
+    if (toggleEnrichment) {
+      toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
+      toggleEnrichment.addEventListener('change', (e) => {
+        state.preferences.tmdbEnrichment = e.target.checked;
+        this.updateNavigationButtons();
+      });
+    }
+
+    if (toggleRatings) {
+      toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+      toggleRatings.addEventListener('change', (e) => {
+        state.preferences.mdblistRatings = e.target.checked;
+        this.updateNavigationButtons();
+      });
+    }
+
+    if (customBetterInput) {
+      customBetterInput.addEventListener('input', (e) => {
+        if (state.preferences.posterEngine === 'betterposter') {
+          state.preferences.customPosterUrl = e.target.value.trim();
+        }
+      });
+    }
+
+    if (customPlusInput) {
+      customPlusInput.addEventListener('input', (e) => {
+        if (state.preferences.posterEngine === 'postersplus') {
+          state.preferences.customPosterUrl = e.target.value.trim();
+        }
+      });
+    }
+
+    // Métodos accesibles desde window.appController para llamadas onclick en HTML
+    this.selectPosterEngine = (engine) => {
+      state.preferences.posterEngine = engine;
+      if (engine === 'default') {
+        state.preferences.customPosterUrl = '';
+      } else if (engine === 'betterposter' && customBetterInput) {
+        state.preferences.customPosterUrl = customBetterInput.value.trim();
+      } else if (engine === 'postersplus' && customPlusInput) {
+        state.preferences.customPosterUrl = customPlusInput.value.trim();
+      }
+      this.updatePosterCardsUI();
+      this.updateNavigationButtons();
+    };
+
+    this.toggleCustomUrlInput = (engine) => {
+      const container = document.getElementById(`customUrlContainer-${engine}`);
+      if (container) {
+        container.classList.toggle('hidden');
+        if (!container.classList.contains('hidden')) {
+          const input = container.querySelector('input');
+          if (input) input.focus();
+        }
+      }
+    };
+
+    this.updatePosterCardsUI();
+  }
+
+  updatePosterCardsUI() {
+    const currentEngine = (state.preferences && state.preferences.posterEngine) || 'default';
+    const cards = [
+      { id: 'cardPosterDefault', engine: 'default' },
+      { id: 'cardPosterBetter', engine: 'betterposter' },
+      { id: 'cardPosterPlus', engine: 'postersplus' }
+    ];
+
+    cards.forEach(({ id, engine }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isSelected = (currentEngine === engine);
+      const checkIcon = el.querySelector('.card-check-icon');
+
+      if (isSelected) {
+        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-brand-500 shadow-lg shadow-brand-500/10 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        if (checkIcon) {
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center text-[10px] text-white card-check-icon";
+        }
+      } else {
+        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        if (checkIcon) {
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon";
+        }
+      }
+    });
+  }
+
+  updatePreferencesUI() {
+    const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
+    const toggleRatings = document.getElementById('toggleMdblistRatings');
+    if (toggleEnrichment) toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
+    if (toggleRatings) toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+    this.updatePosterCardsUI();
+  }
+
+  setupStep6Injection() {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
     const btnExecute = document.getElementById('btnExecutePipeline');
@@ -1414,7 +1548,7 @@ class AppController {
       passwordInput.value = state.aiometadata.password || '';
       passwordInput.addEventListener('input', (e) => {
         state.aiometadata.password = e.target.value;
-        this.updateStep5ExecuteButton();
+        this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
       });
@@ -1425,7 +1559,7 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
-        this.updateStep5ExecuteButton();
+        this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
         this.showToast('Contraseña aleatoria generada y configurada', 'info');
@@ -1483,13 +1617,13 @@ class AppController {
 
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
-        // Validar todos los pasos (1 a 5) antes de ejecutar
-        for (let i = 1; i <= 5; i++) {
+        // Validar todos los pasos (1 a 6) antes de ejecutar
+        for (let i = 1; i <= 6; i++) {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            if (i < 5) window.goToStep(i);
-            if (i === 5 && passwordInput) passwordInput.focus();
+            if (i < 6) window.goToStep(i);
+            if (i === 6 && passwordInput) passwordInput.focus();
             return;
           }
         }
@@ -1532,10 +1666,12 @@ class AppController {
     }
   }
 
-  refreshStep5Summary() {
+  refreshStep6Summary() {
     const targetEl = document.getElementById('summaryProfileTarget');
     const countEl = document.getElementById('summaryCollectionsCount');
     const catalogsEl = document.getElementById('summaryCatalogsCount');
+    const posterEngineEl = document.getElementById('summaryPosterEngine');
+    const enrichmentEl = document.getElementById('summaryEnrichmentStatus');
 
     let activeFolders = 0;
     state.collections.forEach(sec => {
@@ -1557,6 +1693,38 @@ class AppController {
     if (targetEl) targetEl.innerText = state.isManualMode ? 'Manual (Sin cuenta)' : (state.selectedProfileName || 'Perfil Principal');
     if (countEl) countEl.innerText = `${activeFolders} carruseles seleccionados`;
     if (catalogsEl) catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
+
+    if (posterEngineEl) {
+      const engine = state.preferences?.posterEngine || 'default';
+      if (engine === 'betterposter') {
+        posterEngineEl.innerText = 'BetterPoster (es-MX)';
+        posterEngineEl.className = 'text-brand-400 font-bold block truncate';
+      } else if (engine === 'postersplus') {
+        posterEngineEl.innerText = 'PostersPlus (Badges)';
+        posterEngineEl.className = 'text-indigo-400 font-bold block truncate';
+      } else {
+        posterEngineEl.innerText = 'Nativo / Limpio';
+        posterEngineEl.className = 'text-emerald-400 font-bold block truncate';
+      }
+    }
+
+    if (enrichmentEl) {
+      const enr = Boolean(state.preferences?.tmdbEnrichment);
+      const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
+      if (enr && rat) {
+        enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
+        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+      } else if (enr) {
+        enrichmentEl.innerText = 'Solo TMDB (Activo)';
+        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+      } else if (rat) {
+        enrichmentEl.innerText = 'Solo MDBList (Activo)';
+        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+      } else {
+        enrichmentEl.innerText = 'Desactivados';
+        enrichmentEl.className = 'text-slate-500 font-bold block truncate';
+      }
+    }
   }
 
   handleStateUpdate(s, eventType) {
