@@ -7,6 +7,15 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.1] - 2026-09-27
+
+### 🐛 Corregido
+- **Migración Integral de Imágenes a Assets Locales en GitHub Pages:**
+  - Sustitución de 54 URLs obsoletas de `i.postimg.cc` en `templates/NuvioCollections.json` por enlaces directos a la CDN de GitHub Pages (`https://svein05.github.io/NuvioLatinoSetup/assets/collections/...`), resolviendo el error de imágenes caídas al navegar en modo incógnito o en clientes de TV/móvil.
+  - Las secciones **"Ahora en Nuvio"** (Recomendados, Estreno, Tendencia, Ranking, Popular) y **"Géneros"** (13 carpetas temáticas) ahora cargan de inmediato desde los activos físicos del repositorio sin dependencias de servicios externos de terceros.
+  - Eliminación del enlace roto a `Perfil-Terceario.png`, fijando `backdropImageUrl: null` a nivel de colección para permitir el renderizado cinematográfico nativo del cliente Nuvio.
+  - Sanitización de rutas en `assets/collections/url_mapping.json` a nombres limpios en formato ASCII (`generos_*`), asegurando 100% de consistencia con los archivos físicos en disco.
+
 ## [1.1.0] - 2026-09-25
 
 ### ✨ Añadido
