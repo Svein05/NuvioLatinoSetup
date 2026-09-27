@@ -36,7 +36,7 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
   - **Modo Manual (Sin Cuenta):** Para usuarios que prefieren no ingresar credenciales; permite personalizar las colecciones y copiar o descargar los archivos JSON listos para importar.
 - **Mini NUVIO (Simulador Visual Interactivo):**
   - Vista previa en vivo con carruseles horizontales que simulan exactamente la interfaz de Nuvio.
-  - Integración en tiempo real con la **API v3 de TMDB** para renderizar pósters, títulos y sinopsis reales en español latino.
+  - **Cápsulas Interactivas Instantáneas:** Exploración ágil con renderizado a 0 ms basado en los metadatos de AIOMetadata en español latino, sin sobrecarga de red ni peticiones externas innecesarias.
   - **Gestor CRUD de Catálogos:** Reordena posiciones (subir/bajar), renombra con títulos comerciales amigables, elimina catálogos no deseados o añade nuevos desde la biblioteca central de AIOMetadata.
   - Prioridad de recomendaciones dinámicas de **Trakt** en el carrusel de recomendados.
   - Todas las filas de géneros estructuradas de forma consistente en formato `LANDSCAPE`.
@@ -143,6 +143,7 @@ NuvioLatinoSetup/
 ├── css/
 │   └── styles.css              # Estilos personalizados, animaciones y soporte para glassmorphism
 ├── js/
+│   ├── vendor/                 # Librerías de terceros (SortableJS para drag & drop)
 │   ├── aiometadata-client.js   # Cliente HTTP para la API de AIOMetadata
 │   ├── app.js                  # Controlador principal de la UI, modales y navegación
 │   ├── config.js               # Constantes públicas y endpoints de servicios
@@ -150,16 +151,12 @@ NuvioLatinoSetup/
 │   ├── mini-nuvio.js           # Componente del simulador visual y editor CRUD de colecciones
 │   ├── nuvio-client.js         # Cliente para Supabase Nuvio RPCs
 │   ├── state.js                # Gestor del estado reactivo global del asistente
-│   └── tmdb-service.js         # Servicio de consultas en tiempo real a la API v3 de TMDB
-├── scripts/
-│   ├── download_assets.py      # Script de descarga y caché de recursos gráficos locales
-│   ├── fix_genres_and_tags.py  # Normalizador de etiquetas y formato landscape
-│   ├── merge_collections.py    # Generador y validador de colecciones consolidadas
-│   └── merge_metadata.py       # Optimizador del catálogo de AIOMetadata
+│   └── version.js              # Inyección dinámica de la versión semántica activa
 ├── templates/
 │   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (356 catálogos etiquetados)
 │   └── NuvioCollections.json   # Plantilla unificada de colecciones nativas Nuvio
 ├── run.py                      # Servidor HTTP local con soporte UTF-8 y auto-apertura
+├── version.json                # Fuente de verdad de la versión semántica del release
 └── README.md                   # Documentación técnica del proyecto
 ```
 

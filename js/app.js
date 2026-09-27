@@ -1010,8 +1010,6 @@ class AppController {
     const mdblistInput = document.getElementById('keyMdblist') || document.getElementById('mdblistApiKey');
     const rpdbInput = document.getElementById('keyRpdb') || document.getElementById('rpdbApiKey');
     const fanartInput = document.getElementById('keyFanart') || document.getElementById('fanartApiKey');
-    const topPosterInput = document.getElementById('keyTopPoster') || document.getElementById('topPosterApiKey');
-    const publicmetadbInput = document.getElementById('keyPublicmetadb') || document.getElementById('publicmetadbApiKey');
 
     const toggleAi = document.getElementById('toggleSearchAi');
     const aiContainer = document.getElementById('aiKeysContainer');
@@ -1061,8 +1059,6 @@ class AppController {
     bindInput(mdblistInput, 'mdblist');
     bindInput(rpdbInput, 'rpdb', 't0-free-rpdb');
     bindInput(fanartInput, 'fanart');
-    bindInput(topPosterInput, 'topPoster');
-    bindInput(publicmetadbInput, 'publicmetadb');
 
     // 2. Vincular Búsqueda con IA y sus campos
     if (toggleAi && aiContainer) {
@@ -1094,8 +1090,6 @@ class AppController {
         if (mdblistInput) state.apiKeys.mdblist = mdblistInput.value.trim();
         if (rpdbInput) state.apiKeys.rpdb = rpdbInput.value.trim() || 't0-free-rpdb';
         if (fanartInput) state.apiKeys.fanart = fanartInput.value.trim();
-        if (topPosterInput) state.apiKeys.topPoster = topPosterInput.value.trim();
-        if (publicmetadbInput) state.apiKeys.publicmetadb = publicmetadbInput.value.trim();
         if (geminiInput) state.apiKeys.gemini = geminiInput.value.trim();
         if (openrouterInput) state.apiKeys.openrouter = openrouterInput.value.trim();
 
