@@ -159,7 +159,7 @@
       <section id="requisitos" class="space-y-4 pt-4 border-t border-slate-800">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-white">2. Requisitos Previos</h2>
         <p class="text-sm text-slate-300">Para completar la configuración en menos de 2 minutos necesitas disponer de:</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="p-5 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
             <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center text-sm">
               <i class="fa-solid fa-user-check"></i>
@@ -173,9 +173,18 @@
             <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
               <i class="fa-solid fa-key"></i>
             </div>
-            <h4 class="font-bold text-sm text-white">TMDB API Key (Gratis)</h4>
+            <h4 class="font-bold text-sm text-white">TMDB API Key (Obligatoria)</h4>
             <p class="text-xs text-slate-400">
-              Clave de API de The Movie Database. Es gratuita, inmediata y requerida para activar los pósters y sinopsis en español.
+              Clave de API de The Movie Database. Es gratuita, inmediata y requerida para activar los pósters y sinopsis en español latino (es-MX).
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-list-check"></i>
+            </div>
+            <h4 class="font-bold text-sm text-white">MDBList API Key (Obligatoria)</h4>
+            <p class="text-xs text-slate-400">
+              Clave de MDBList para habilitar calificaciones agregadas (IMDb, RT, Metacritic, Trakt) y sustentar motores dinámicos de pósters.
             </p>
           </div>
         </div>
@@ -183,7 +192,7 @@
 
       <!-- 3. Guía Paso a Paso -->
       <section id="guia-pasos" class="space-y-6 pt-4 border-t border-slate-800">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">3. Guía del Asistente en 5 Pasos</h2>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">3. Guía del Asistente en 6 Pasos</h2>
         <div class="space-y-4">
           
           <!-- Paso 1 -->
@@ -215,7 +224,7 @@
               <h3 class="font-bold text-white text-base">Paso 3: Gestor Visual de Colecciones (Mini Nuvio)</h3>
             </div>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              El simulador en vivo te permite reordenar secciones y filas por arrastre (drag & drop) o con saltos rápidos al cielo y al fondo, activar o desactivar plataformas (Netflix, HBO Max, Disney+, Prime Video) y géneros, y organizar los catálogos de cada fila de forma instantánea mediante <strong>cápsulas movibles</strong> sin esperas de carga.
+              El simulador en vivo te permite reordenar secciones y filas por arrastre (drag & drop) o con saltos rápidos al cielo y al fondo, activar o desactivar plataformas (Netflix, HBO Max, Disney+, Prime Video, Anime) y géneros, y organizar los catálogos de cada fila de forma instantánea mediante <strong>cápsulas movibles</strong> sin esperas de carga.
             </p>
           </div>
 
@@ -226,7 +235,7 @@
               <h3 class="font-bold text-white text-base">Paso 4: Proveedores de Metadatos y Validación (API Keys)</h3>
             </div>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              Ingresa tu <strong>TMDB API Key</strong> (obligatoria para activar metadatos oficiales en español latino <code>es-MX</code> en tu perfil de Nuvio). Opcionalmente puedes agregar tus claves de MDBList, TheTVDB, Fanart.tv y habilitar la Búsqueda Inteligente con IA (Gemini). Finalmente, haz clic en <strong>"Probar Claves API"</strong> para validar su conectividad antes de continuar.
+              Ingresa tu <strong>TMDB API Key</strong> y tu <strong>MDBList API Key</strong> (ambas obligatorias para asegurar metadatos oficiales en español latino <code>es-MX</code>, calificaciones críticas y motores de pósters). Opcionalmente puedes agregar tus claves de TheTVDB, Fanart.tv y habilitar la Búsqueda Inteligente con IA (Gemini). Finalmente, haz clic en <strong>"Probar Claves API"</strong> para validar su conectividad antes de continuar.
             </p>
           </div>
 
@@ -234,10 +243,21 @@
           <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
             <div class="flex items-center gap-3">
               <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">5</span>
-              <h3 class="font-bold text-white text-base">Paso 5: Seguridad e Inyección Automatizada</h3>
+              <h3 class="font-bold text-white text-base">Paso 5: Preferencias de Perfil y Sistema de Pósters</h3>
             </div>
             <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              Define una contraseña para proteger tu addon de AIOMetadata (o genera una aleatoria). Haz clic en <strong>"Ejecutar Configuración Automática"</strong>. El sistema limpiará las colecciones previas del perfil, creará el manifiesto en AIOMetadata y registrará las colecciones 16:9 en Nuvio en cuestión de segundos.
+              Decide si activar TMDB Enrichment y calificaciones globales de MDBList en tus aplicaciones de Nuvio (si las desactivas, quedan estrictamente deshabilitadas en tu perfil). Además, elige el sistema de pósters que prefieras: <strong>Pósters Limpios Originales</strong> (desactiva Custom Art para proteger las carátulas en español), <strong>BetterPoster</strong> (estilo minimalista con logos en es-MX) o <strong>PostersPlus</strong> (calificaciones mixtas Letterboxd/Trakt y bandas cinemáticas), con botones directos para personalizar en sus respectivas webs oficiales.
+            </p>
+          </div>
+
+          <!-- Paso 6 -->
+          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">6</span>
+              <h3 class="font-bold text-white text-base">Paso 6: Seguridad e Inyección Automatizada</h3>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
+              Define una contraseña para proteger tu addon de AIOMetadata (o genera una aleatoria). Haz clic en <strong>"Ejecutar Configuración Automática"</strong>. El sistema limpiará las colecciones previas del perfil, creará el manifiesto en AIOMetadata con la configuración elegida y registrará las colecciones 16:9 en Nuvio en cuestión de segundos.
             </p>
           </div>
 

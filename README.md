@@ -82,7 +82,7 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 | Proveedor | Estado | Propósito | Enlace de Registro |
 | :--- | :---: | :--- | :--- |
 | **TheMovieDatabase (TMDB)** | **Obligatoria** | Metadatos en español latino, pósters, sinopsis y reparto. | [themoviedb.org](https://www.themoviedb.org/settings/api) |
-| **MDBList** | **Recomendado** | Calificaciones externas (IMDb, Rotten Tomatoes, Metacritic, Trakt) en TV y Mobile. | [mdblist.com](https://mdblist.com/preferences/) |
+| **MDBList** | **Obligatoria** | Calificaciones externas (IMDb, RT, Metacritic, Trakt) y sustento de motores de pósters. | [mdblist.com](https://mdblist.com/preferences/) |
 | **TheTVDB** | Opcional | Identificación y carátulas de series de televisión. | [thetvdb.com](https://thetvdb.com/dashboard/account/apikeys) |
 | **RPDB (Rating Poster DB)** | Opcional | Clave para pósters cinematográficos con calificaciones incrustadas. | [ratingposterdb.com](https://ratingposterdb.com/) |
 | **Fanart.tv** | Opcional | Logos en formato PNG transparente, fondos en HD y disco-arte. | [fanart.tv](https://fanart.tv/get-an-api-key/) |
@@ -124,7 +124,7 @@ Si deseas clonar el repositorio y ejecutarlo en tu propio entorno:
 El proyecto está organizado en páginas modulares siguiendo las mejores prácticas de la web moderna:
 
 * **`/` (o `/home`):** Landing page y presentación visual de la herramienta (cero dependencias de carga pesada).
-* **`/configuration/`:** Asistente interactivo guiado en 5 pasos con simulador visual Mini Nuvio y CRUD en tiempo real.
+* **`/configuration/`:** Asistente interactivo guiado en 6 pasos con simulador visual Mini Nuvio, gestión de pósters y CRUD en tiempo real.
 * **`/documentation/`:** Portal de documentación exhaustiva, tutoriales paso a paso y resolución de incidencias.
 
 ```
@@ -133,7 +133,7 @@ NuvioLatinoSetup/
 ├── home/
 │   └── index.html              # Alias / Redirección canónica a /
 ├── configuration/
-│   └── index.html              # Asistente de Configuración en 5 Pasos
+│   └── index.html              # Asistente de Configuración en 6 Pasos
 ├── documentation/
 │   └── index.html              # Portal de Documentación y Guías
 ├── assets/
