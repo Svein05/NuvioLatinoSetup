@@ -661,92 +661,6 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.streaming.hulu",
-        "type": "movie",
-        "name": "🎬 Hulu",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "watch_region": "US",
-              "with_watch_providers": "15",
-              "vote_count.gte": 50,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎬 Hulu",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "watchRegion": "US",
-              "watchProviders": [
-                {
-                  "id": 15,
-                  "label": "Hulu"
-                }
-              ],
-              "providerJoinMode": "or",
-              "voteCountMin": 50
-            }
-          }
-        },
-        "tags": [
-          "Plataforma Streaming"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.streaming.hulu",
-        "type": "series",
-        "name": "🎬 Hulu",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "watch_region": "US",
-              "with_watch_providers": "15",
-              "vote_count.gte": 25,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎬 Hulu",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "watchRegion": "US",
-              "watchProviders": [
-                {
-                  "id": 15,
-                  "label": "Hulu"
-                }
-              ],
-              "providerJoinMode": "or",
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Plataforma Streaming"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.streaming.paramount-plus",
         "type": "movie",
         "name": "🎬 Paramount Plus",
@@ -1049,100 +963,6 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.streaming.discovery-plus",
-        "type": "movie",
-        "name": "🎬 Discovery Plus",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "watch_region": "US",
-              "with_watch_providers": "520|584",
-              "vote_count.gte": 0,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎬 Discovery Plus",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "watchRegion": "US",
-              "watchProviders": [
-                {
-                  "id": 520,
-                  "label": "Discovery +"
-                },
-                {
-                  "id": 584,
-                  "label": "Discovery+ Amazon Channel"
-                }
-              ],
-              "providerJoinMode": "or",
-              "voteCountMin": 0
-            }
-          }
-        },
-        "tags": [
-          "Plataforma Streaming"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.streaming.discovery-plus",
-        "type": "series",
-        "name": "🎬 Discovery Plus",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "watch_region": "US",
-              "with_watch_providers": "520|584",
-              "vote_count.gte": 0,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎬 Discovery Plus",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "watchRegion": "US",
-              "watchProviders": [
-                {
-                  "id": 520,
-                  "label": "Discovery +"
-                },
-                {
-                  "id": 584,
-                  "label": "Discovery+ Amazon Channel"
-                }
-              ],
-              "providerJoinMode": "or",
-              "voteCountMin": 0
-            }
-          }
-        },
-        "tags": [
-          "Plataforma Streaming"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.streaming.curiosity-stream",
         "type": "movie",
         "name": "🎬 Curiosity Stream",
@@ -1331,116 +1151,6 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.streaming.starz",
-        "type": "movie",
-        "name": "🎬 Starz",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "watch_region": "US",
-              "with_watch_providers": "43|1794|1855|634",
-              "vote_count.gte": 25,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎬 Starz",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "watchRegion": "US",
-              "watchProviders": [
-                {
-                  "id": 43,
-                  "label": "Starz"
-                },
-                {
-                  "id": 1794,
-                  "label": "Starz Amazon Channel"
-                },
-                {
-                  "id": 1855,
-                  "label": "Starz Apple TV Channel"
-                },
-                {
-                  "id": 634,
-                  "label": "Starz Roku Premium Channel"
-                }
-              ],
-              "providerJoinMode": "or",
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Plataforma Streaming"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.streaming.starz",
-        "type": "series",
-        "name": "🎬 Starz",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "watch_region": "US",
-              "with_watch_providers": "43|1794|1855|634",
-              "vote_count.gte": 10,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎬 Starz",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "watchRegion": "US",
-              "watchProviders": [
-                {
-                  "id": 43,
-                  "label": "Starz"
-                },
-                {
-                  "id": 1794,
-                  "label": "Starz Amazon Channel"
-                },
-                {
-                  "id": 1855,
-                  "label": "Starz Apple TV Channel"
-                },
-                {
-                  "id": 634,
-                  "label": "Starz Roku Premium Channel"
-                }
-              ],
-              "providerJoinMode": "or",
-              "voteCountMin": 10
-            }
-          }
-        },
-        "tags": [
-          "Plataforma Streaming"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.streaming.shudder",
         "type": "movie",
         "name": "🎬 Shudder",
@@ -1545,7 +1255,7 @@
       {
         "id": "tmdb.discover.movie.genres.action",
         "type": "movie",
-        "name": "🎭 Action",
+        "name": "🎭 Acción",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1585,7 +1295,7 @@
       {
         "id": "tmdb.discover.movie.genres.adventure",
         "type": "movie",
-        "name": "🎭 Adventure",
+        "name": "🎭 Aventura",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1625,7 +1335,7 @@
       {
         "id": "tmdb.discover.series.genres.action-adventure",
         "type": "series",
-        "name": "🎭 Action & Adventure",
+        "name": "🎭 Acción y Aventura",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1665,7 +1375,7 @@
       {
         "id": "tmdb.discover.movie.genres.animation",
         "type": "movie",
-        "name": "🎭 Animation",
+        "name": "🎭 Animación",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1705,7 +1415,7 @@
       {
         "id": "tmdb.discover.series.genres.animation",
         "type": "series",
-        "name": "🎭 Animation",
+        "name": "🎭 Animación",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1745,7 +1455,7 @@
       {
         "id": "tmdb.discover.movie.genres.comedy",
         "type": "movie",
-        "name": "🎭 Comedy",
+        "name": "🎭 Comedia",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1785,7 +1495,7 @@
       {
         "id": "tmdb.discover.series.genres.comedy",
         "type": "series",
-        "name": "🎭 Comedy",
+        "name": "🎭 Comedia",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1823,89 +1533,9 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.genres.crime",
-        "type": "movie",
-        "name": "🎭 Crime",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "80",
-              "vote_count.gte": 50,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 Crime",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 80,
-                  "label": "Crime"
-                }
-              ],
-              "voteCountMin": 50
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.genres.crime",
-        "type": "series",
-        "name": "🎭 Crime",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "80",
-              "vote_count.gte": 25,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Crime",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 80,
-                  "label": "Crime"
-                }
-              ],
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.genres.documentary",
         "type": "movie",
-        "name": "🎭 Documentary",
+        "name": "🎭 Documental",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -1945,7 +1575,7 @@
       {
         "id": "tmdb.discover.series.genres.documentary",
         "type": "series",
-        "name": "🎭 Documentary",
+        "name": "🎭 Documentales",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -2063,89 +1693,9 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.genres.family",
-        "type": "movie",
-        "name": "🎭 Family",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10751",
-              "vote_count.gte": 50,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 Family",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10751,
-                  "label": "Family"
-                }
-              ],
-              "voteCountMin": 50
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.genres.family",
-        "type": "series",
-        "name": "🎭 Family",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10751",
-              "vote_count.gte": 25,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Family",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10751,
-                  "label": "Family"
-                }
-              ],
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.genres.fantasy",
         "type": "movie",
-        "name": "🎭 Fantasy",
+        "name": "🎭 Fantasía",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -2183,49 +1733,9 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.genres.history",
-        "type": "movie",
-        "name": "🎭 History",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "36",
-              "vote_count.gte": 25,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 History",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 36,
-                  "label": "History"
-                }
-              ],
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.genres.horror",
         "type": "movie",
-        "name": "🎭 Horror",
+        "name": "🎭 Terror",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -2263,46 +1773,6 @@
         ]
       },
       {
-        "id": "tmdb.discover.series.genres.kids",
-        "type": "series",
-        "name": "🎭 Kids",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10762",
-              "vote_count.gte": 10,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Kids",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10762,
-                  "label": "Kids"
-                }
-              ],
-              "voteCountMin": 10
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.genres.music",
         "type": "movie",
         "name": "🎭 Music",
@@ -2332,86 +1802,6 @@
                 {
                   "id": 10402,
                   "label": "Music"
-                }
-              ],
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.movie.genres.mystery",
-        "type": "movie",
-        "name": "🎭 Mystery",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "9648",
-              "vote_count.gte": 50,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 Mystery",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 9648,
-                  "label": "Mystery"
-                }
-              ],
-              "voteCountMin": 50
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.genres.mystery",
-        "type": "series",
-        "name": "🎭 Mystery",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "9648",
-              "vote_count.gte": 25,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Mystery",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 9648,
-                  "label": "Mystery"
                 }
               ],
               "voteCountMin": 25
@@ -2468,46 +1858,6 @@
         ]
       },
       {
-        "id": "tmdb.discover.series.genres.reality",
-        "type": "series",
-        "name": "🎭 Reality",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10764",
-              "vote_count.gte": 10,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Reality",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10764,
-                  "label": "Reality"
-                }
-              ],
-              "voteCountMin": 10
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.genres.romance",
         "type": "movie",
         "name": "🎭 Romance",
@@ -2550,7 +1900,7 @@
       {
         "id": "tmdb.discover.movie.genres.science-fiction",
         "type": "movie",
-        "name": "🎭 Science Fiction",
+        "name": "🎭 Ciencia Ficción",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -2590,7 +1940,7 @@
       {
         "id": "tmdb.discover.series.genres.sci-fi-fantasy",
         "type": "series",
-        "name": "🎭 Sci-Fi & Fantasy",
+        "name": "🎭 Ciencia Ficción y Fantasía",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -2620,51 +1970,6 @@
                 }
               ],
               "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.genres.soap",
-        "type": "series",
-        "name": "🎭 Soap",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10766",
-              "vote_count.gte": 10,
-              "vote_average.gte": 5,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Soap",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10766,
-                  "label": "Soap"
-                }
-              ],
-              "voteCountMin": 10,
-              "voteAverageRange": [
-                5,
-                10
-              ]
             }
           }
         },
@@ -2718,54 +2023,9 @@
         ]
       },
       {
-        "id": "tmdb.discover.movie.genres.tv-movie",
-        "type": "movie",
-        "name": "🎭 TV Movie",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10770",
-              "vote_count.gte": 0,
-              "vote_average.gte": 5,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 TV Movie",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10770,
-                  "label": "TV Movie"
-                }
-              ],
-              "voteCountMin": 0,
-              "voteAverageRange": [
-                5,
-                10
-              ]
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
         "id": "tmdb.discover.movie.genres.thriller",
         "type": "movie",
-        "name": "🎭 Thriller",
+        "name": "🎭 Suspenso",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -2795,166 +2055,6 @@
                 }
               ],
               "voteCountMin": 50
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.movie.genres.war",
-        "type": "movie",
-        "name": "🎭 War",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10752",
-              "vote_count.gte": 25,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 War",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10752,
-                  "label": "War"
-                }
-              ],
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.genres.war-politics",
-        "type": "series",
-        "name": "🎭 War & Politics",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "10768",
-              "vote_count.gte": 10,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 War & Politics",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 10768,
-                  "label": "War & Politics"
-                }
-              ],
-              "voteCountMin": 10
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.movie.genres.western",
-        "type": "movie",
-        "name": "🎭 Western",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "movie",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "37",
-              "vote_count.gte": 25,
-              "with_release_type": "4|5|6"
-            },
-            "formState": {
-              "catalogName": "🎭 Western",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "movie",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 37,
-                  "label": "Western"
-                }
-              ],
-              "voteCountMin": 25
-            }
-          }
-        },
-        "tags": [
-          "Genero"
-        ]
-      },
-      {
-        "id": "tmdb.discover.series.genres.western",
-        "type": "series",
-        "name": "🎭 Western",
-        "enabled": true,
-        "showInHome": false,
-        "source": "tmdb",
-        "metadata": {
-          "discover": {
-            "version": 2,
-            "source": "tmdb",
-            "mediaType": "tv",
-            "params": {
-              "sort_by": "popularity.desc",
-              "include_adult": false,
-              "with_genres": "37",
-              "vote_count.gte": 10,
-              "with_status": "0|3|4|5"
-            },
-            "formState": {
-              "catalogName": "🎭 Western",
-              "discoverSource": "tmdb",
-              "sortBy": "popularity.desc",
-              "catalogType": "series",
-              "includeAdult": false,
-              "releasedOnly": true,
-              "includeGenres": [
-                {
-                  "id": 37,
-                  "label": "Western"
-                }
-              ],
-              "voteCountMin": 10
             }
           }
         },
@@ -5405,102 +4505,6 @@
         ]
       },
       {
-        "id": "mdblist.13029",
-        "type": "movie",
-        "name": "Las mejores del Oeste del año",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 277,
-          "author": "royceb",
-          "url": "https://mdblist.com/lists/royceb/western-new",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Comedia",
-          "Oeste"
-        ]
-      },
-      {
-        "id": "mdblist.36743",
-        "type": "movie",
-        "name": "Los mejores Clásicos del Oste",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 398,
-          "author": "pedrolami",
-          "url": "https://mdblist.com/lists/pedrolami/classic-westerns",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Comedia",
-          "Oeste"
-        ]
-      },
-      {
-        "id": "mdblist.67777",
-        "type": "series",
-        "name": "Los mejores Clásicos del Oste",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "series",
-        "metadata": {
-          "itemCount": 162,
-          "author": "reptauros",
-          "url": "https://mdblist.com/lists/reptauros/classic-western-series",
-          "mediatype": "show"
-        },
-        "tags": [
-          "Comedia",
-          "Oeste"
-        ]
-      },
-      {
-        "id": "mdblist.50268",
-        "type": "movie",
-        "name": "Lo mjeor de Spaghetti del Oste",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 943,
-          "author": "felixxx999",
-          "url": "https://mdblist.com/lists/felixxx999/spaghetti-westerns",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Comedia",
-          "Oeste"
-        ]
-      },
-      {
         "id": "mdblist.125049",
         "type": "movie",
         "name": "Lo mejor del Crimen & Mafia desde 10s",
@@ -5569,102 +4573,6 @@
         "tags": [
           "Genero",
           "Mafia"
-        ]
-      },
-      {
-        "id": "mdblist.5771",
-        "type": "movie",
-        "name": "Últimos lanzamientos del cine Bollywood",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 300,
-          "author": "apollocat",
-          "url": "https://mdblist.com/lists/apollocat/latest-bollywood-releases",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Genero",
-          "Bollywood"
-        ]
-      },
-      {
-        "id": "mdblist.76001",
-        "type": "movie",
-        "name": "Las 100 mejores de Bollywood este año",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 100,
-          "author": "papatundecz",
-          "url": "https://mdblist.com/lists/papatundecz/bollywood-movies",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Genero",
-          "Bollywood"
-        ]
-      },
-      {
-        "id": "mdblist.71876",
-        "type": "movie",
-        "name": "Lo mejor del cine Bollywood en Comedia",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 261,
-          "author": "sakar-pdl-gmail-com",
-          "url": "https://mdblist.com/lists/sakar-pdl-gmail-com/my-bollywood-comedy",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Genero",
-          "Bollywood"
-        ]
-      },
-      {
-        "id": "mdblist.89471",
-        "type": "series",
-        "name": "Últimos lanzamientos de la TV Bollywood",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "series",
-        "metadata": {
-          "itemCount": 100,
-          "author": "a13b10",
-          "url": "https://mdblist.com/lists/a13b10/new-hindi-series-xqaank7t4m",
-          "mediatype": "show"
-        },
-        "tags": [
-          "Genero",
-          "Bollywood"
         ]
       },
       {
@@ -7723,92 +6631,6 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.streaming.hulu",
-      "type": "movie",
-      "name": "🎬 Hulu",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "watch_region": "US",
-            "with_watch_providers": "15",
-            "vote_count.gte": 50,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎬 Hulu",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "watchRegion": "US",
-            "watchProviders": [
-              {
-                "id": 15,
-                "label": "Hulu"
-              }
-            ],
-            "providerJoinMode": "or",
-            "voteCountMin": 50
-          }
-        }
-      },
-      "tags": [
-        "Plataforma Streaming"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.streaming.hulu",
-      "type": "series",
-      "name": "🎬 Hulu",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "watch_region": "US",
-            "with_watch_providers": "15",
-            "vote_count.gte": 25,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎬 Hulu",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "watchRegion": "US",
-            "watchProviders": [
-              {
-                "id": 15,
-                "label": "Hulu"
-              }
-            ],
-            "providerJoinMode": "or",
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Plataforma Streaming"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.streaming.paramount-plus",
       "type": "movie",
       "name": "🎬 Paramount Plus",
@@ -8111,100 +6933,6 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.streaming.discovery-plus",
-      "type": "movie",
-      "name": "🎬 Discovery Plus",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "watch_region": "US",
-            "with_watch_providers": "520|584",
-            "vote_count.gte": 0,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎬 Discovery Plus",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "watchRegion": "US",
-            "watchProviders": [
-              {
-                "id": 520,
-                "label": "Discovery +"
-              },
-              {
-                "id": 584,
-                "label": "Discovery+ Amazon Channel"
-              }
-            ],
-            "providerJoinMode": "or",
-            "voteCountMin": 0
-          }
-        }
-      },
-      "tags": [
-        "Plataforma Streaming"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.streaming.discovery-plus",
-      "type": "series",
-      "name": "🎬 Discovery Plus",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "watch_region": "US",
-            "with_watch_providers": "520|584",
-            "vote_count.gte": 0,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎬 Discovery Plus",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "watchRegion": "US",
-            "watchProviders": [
-              {
-                "id": 520,
-                "label": "Discovery +"
-              },
-              {
-                "id": 584,
-                "label": "Discovery+ Amazon Channel"
-              }
-            ],
-            "providerJoinMode": "or",
-            "voteCountMin": 0
-          }
-        }
-      },
-      "tags": [
-        "Plataforma Streaming"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.streaming.curiosity-stream",
       "type": "movie",
       "name": "🎬 Curiosity Stream",
@@ -8393,116 +7121,6 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.streaming.starz",
-      "type": "movie",
-      "name": "🎬 Starz",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "watch_region": "US",
-            "with_watch_providers": "43|1794|1855|634",
-            "vote_count.gte": 25,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎬 Starz",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "watchRegion": "US",
-            "watchProviders": [
-              {
-                "id": 43,
-                "label": "Starz"
-              },
-              {
-                "id": 1794,
-                "label": "Starz Amazon Channel"
-              },
-              {
-                "id": 1855,
-                "label": "Starz Apple TV Channel"
-              },
-              {
-                "id": 634,
-                "label": "Starz Roku Premium Channel"
-              }
-            ],
-            "providerJoinMode": "or",
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Plataforma Streaming"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.streaming.starz",
-      "type": "series",
-      "name": "🎬 Starz",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "watch_region": "US",
-            "with_watch_providers": "43|1794|1855|634",
-            "vote_count.gte": 10,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎬 Starz",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "watchRegion": "US",
-            "watchProviders": [
-              {
-                "id": 43,
-                "label": "Starz"
-              },
-              {
-                "id": 1794,
-                "label": "Starz Amazon Channel"
-              },
-              {
-                "id": 1855,
-                "label": "Starz Apple TV Channel"
-              },
-              {
-                "id": 634,
-                "label": "Starz Roku Premium Channel"
-              }
-            ],
-            "providerJoinMode": "or",
-            "voteCountMin": 10
-          }
-        }
-      },
-      "tags": [
-        "Plataforma Streaming"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.streaming.shudder",
       "type": "movie",
       "name": "🎬 Shudder",
@@ -8607,7 +7225,7 @@
     {
       "id": "tmdb.discover.movie.genres.action",
       "type": "movie",
-      "name": "🎭 Action",
+      "name": "🎭 Acción",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8647,7 +7265,7 @@
     {
       "id": "tmdb.discover.movie.genres.adventure",
       "type": "movie",
-      "name": "🎭 Adventure",
+      "name": "🎭 Aventura",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8687,7 +7305,7 @@
     {
       "id": "tmdb.discover.series.genres.action-adventure",
       "type": "series",
-      "name": "🎭 Action & Adventure",
+      "name": "🎭 Acción y Aventura",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8727,7 +7345,7 @@
     {
       "id": "tmdb.discover.movie.genres.animation",
       "type": "movie",
-      "name": "🎭 Animation",
+      "name": "🎭 Animación",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8767,7 +7385,7 @@
     {
       "id": "tmdb.discover.series.genres.animation",
       "type": "series",
-      "name": "🎭 Animation",
+      "name": "🎭 Animación",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8807,7 +7425,7 @@
     {
       "id": "tmdb.discover.movie.genres.comedy",
       "type": "movie",
-      "name": "🎭 Comedy",
+      "name": "🎭 Comedia",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8847,7 +7465,7 @@
     {
       "id": "tmdb.discover.series.genres.comedy",
       "type": "series",
-      "name": "🎭 Comedy",
+      "name": "🎭 Comedia",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -8885,89 +7503,9 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.genres.crime",
-      "type": "movie",
-      "name": "🎭 Crime",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "80",
-            "vote_count.gte": 50,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 Crime",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 80,
-                "label": "Crime"
-              }
-            ],
-            "voteCountMin": 50
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.genres.crime",
-      "type": "series",
-      "name": "🎭 Crime",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "80",
-            "vote_count.gte": 25,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Crime",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 80,
-                "label": "Crime"
-              }
-            ],
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.genres.documentary",
       "type": "movie",
-      "name": "🎭 Documentary",
+      "name": "🎭 Documental",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9007,7 +7545,7 @@
     {
       "id": "tmdb.discover.series.genres.documentary",
       "type": "series",
-      "name": "🎭 Documentary",
+      "name": "🎭 Documentales",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9125,89 +7663,9 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.genres.family",
-      "type": "movie",
-      "name": "🎭 Family",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10751",
-            "vote_count.gte": 50,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 Family",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10751,
-                "label": "Family"
-              }
-            ],
-            "voteCountMin": 50
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.genres.family",
-      "type": "series",
-      "name": "🎭 Family",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10751",
-            "vote_count.gte": 25,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Family",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10751,
-                "label": "Family"
-              }
-            ],
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.genres.fantasy",
       "type": "movie",
-      "name": "🎭 Fantasy",
+      "name": "🎭 Fantasía",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9245,49 +7703,9 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.genres.history",
-      "type": "movie",
-      "name": "🎭 History",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "36",
-            "vote_count.gte": 25,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 History",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 36,
-                "label": "History"
-              }
-            ],
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.genres.horror",
       "type": "movie",
-      "name": "🎭 Horror",
+      "name": "🎭 Terror",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9325,46 +7743,6 @@
       ]
     },
     {
-      "id": "tmdb.discover.series.genres.kids",
-      "type": "series",
-      "name": "🎭 Kids",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10762",
-            "vote_count.gte": 10,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Kids",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10762,
-                "label": "Kids"
-              }
-            ],
-            "voteCountMin": 10
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.genres.music",
       "type": "movie",
       "name": "🎭 Music",
@@ -9394,86 +7772,6 @@
               {
                 "id": 10402,
                 "label": "Music"
-              }
-            ],
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.movie.genres.mystery",
-      "type": "movie",
-      "name": "🎭 Mystery",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "9648",
-            "vote_count.gte": 50,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 Mystery",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 9648,
-                "label": "Mystery"
-              }
-            ],
-            "voteCountMin": 50
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.genres.mystery",
-      "type": "series",
-      "name": "🎭 Mystery",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "9648",
-            "vote_count.gte": 25,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Mystery",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 9648,
-                "label": "Mystery"
               }
             ],
             "voteCountMin": 25
@@ -9530,46 +7828,6 @@
       ]
     },
     {
-      "id": "tmdb.discover.series.genres.reality",
-      "type": "series",
-      "name": "🎭 Reality",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10764",
-            "vote_count.gte": 10,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Reality",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10764,
-                "label": "Reality"
-              }
-            ],
-            "voteCountMin": 10
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.genres.romance",
       "type": "movie",
       "name": "🎭 Romance",
@@ -9612,7 +7870,7 @@
     {
       "id": "tmdb.discover.movie.genres.science-fiction",
       "type": "movie",
-      "name": "🎭 Science Fiction",
+      "name": "🎭 Ciencia Ficción",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9652,7 +7910,7 @@
     {
       "id": "tmdb.discover.series.genres.sci-fi-fantasy",
       "type": "series",
-      "name": "🎭 Sci-Fi & Fantasy",
+      "name": "🎭 Ciencia Ficción y Fantasía",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9682,51 +7940,6 @@
               }
             ],
             "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.genres.soap",
-      "type": "series",
-      "name": "🎭 Soap",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10766",
-            "vote_count.gte": 10,
-            "vote_average.gte": 5,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Soap",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10766,
-                "label": "Soap"
-              }
-            ],
-            "voteCountMin": 10,
-            "voteAverageRange": [
-              5,
-              10
-            ]
           }
         }
       },
@@ -9780,54 +7993,9 @@
       ]
     },
     {
-      "id": "tmdb.discover.movie.genres.tv-movie",
-      "type": "movie",
-      "name": "🎭 TV Movie",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10770",
-            "vote_count.gte": 0,
-            "vote_average.gte": 5,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 TV Movie",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10770,
-                "label": "TV Movie"
-              }
-            ],
-            "voteCountMin": 0,
-            "voteAverageRange": [
-              5,
-              10
-            ]
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
       "id": "tmdb.discover.movie.genres.thriller",
       "type": "movie",
-      "name": "🎭 Thriller",
+      "name": "🎭 Suspenso",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -9857,166 +8025,6 @@
               }
             ],
             "voteCountMin": 50
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.movie.genres.war",
-      "type": "movie",
-      "name": "🎭 War",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10752",
-            "vote_count.gte": 25,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 War",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10752,
-                "label": "War"
-              }
-            ],
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.genres.war-politics",
-      "type": "series",
-      "name": "🎭 War & Politics",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "10768",
-            "vote_count.gte": 10,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 War & Politics",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 10768,
-                "label": "War & Politics"
-              }
-            ],
-            "voteCountMin": 10
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.movie.genres.western",
-      "type": "movie",
-      "name": "🎭 Western",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "movie",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "37",
-            "vote_count.gte": 25,
-            "with_release_type": "4|5|6"
-          },
-          "formState": {
-            "catalogName": "🎭 Western",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "movie",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 37,
-                "label": "Western"
-              }
-            ],
-            "voteCountMin": 25
-          }
-        }
-      },
-      "tags": [
-        "Genero"
-      ]
-    },
-    {
-      "id": "tmdb.discover.series.genres.western",
-      "type": "series",
-      "name": "🎭 Western",
-      "enabled": true,
-      "showInHome": false,
-      "source": "tmdb",
-      "metadata": {
-        "discover": {
-          "version": 2,
-          "source": "tmdb",
-          "mediaType": "tv",
-          "params": {
-            "sort_by": "popularity.desc",
-            "include_adult": false,
-            "with_genres": "37",
-            "vote_count.gte": 10,
-            "with_status": "0|3|4|5"
-          },
-          "formState": {
-            "catalogName": "🎭 Western",
-            "discoverSource": "tmdb",
-            "sortBy": "popularity.desc",
-            "catalogType": "series",
-            "includeAdult": false,
-            "releasedOnly": true,
-            "includeGenres": [
-              {
-                "id": 37,
-                "label": "Western"
-              }
-            ],
-            "voteCountMin": 10
           }
         }
       },
@@ -12467,102 +10475,6 @@
       ]
     },
     {
-      "id": "mdblist.13029",
-      "type": "movie",
-      "name": "Las mejores del Oeste del año",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "itemCount": 277,
-        "author": "royceb",
-        "url": "https://mdblist.com/lists/royceb/western-new",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Comedia",
-        "Oeste"
-      ]
-    },
-    {
-      "id": "mdblist.36743",
-      "type": "movie",
-      "name": "Los mejores Clásicos del Oste",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "itemCount": 398,
-        "author": "pedrolami",
-        "url": "https://mdblist.com/lists/pedrolami/classic-westerns",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Comedia",
-        "Oeste"
-      ]
-    },
-    {
-      "id": "mdblist.67777",
-      "type": "series",
-      "name": "Los mejores Clásicos del Oste",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "series",
-      "metadata": {
-        "itemCount": 162,
-        "author": "reptauros",
-        "url": "https://mdblist.com/lists/reptauros/classic-western-series",
-        "mediatype": "show"
-      },
-      "tags": [
-        "Comedia",
-        "Oeste"
-      ]
-    },
-    {
-      "id": "mdblist.50268",
-      "type": "movie",
-      "name": "Lo mjeor de Spaghetti del Oste",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "itemCount": 943,
-        "author": "felixxx999",
-        "url": "https://mdblist.com/lists/felixxx999/spaghetti-westerns",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Comedia",
-        "Oeste"
-      ]
-    },
-    {
       "id": "mdblist.125049",
       "type": "movie",
       "name": "Lo mejor del Crimen & Mafia desde 10s",
@@ -12631,102 +10543,6 @@
       "tags": [
         "Genero",
         "Mafia"
-      ]
-    },
-    {
-      "id": "mdblist.5771",
-      "type": "movie",
-      "name": "Últimos lanzamientos del cine Bollywood",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "itemCount": 300,
-        "author": "apollocat",
-        "url": "https://mdblist.com/lists/apollocat/latest-bollywood-releases",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Genero",
-        "Bollywood"
-      ]
-    },
-    {
-      "id": "mdblist.76001",
-      "type": "movie",
-      "name": "Las 100 mejores de Bollywood este año",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "itemCount": 100,
-        "author": "papatundecz",
-        "url": "https://mdblist.com/lists/papatundecz/bollywood-movies",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Genero",
-        "Bollywood"
-      ]
-    },
-    {
-      "id": "mdblist.71876",
-      "type": "movie",
-      "name": "Lo mejor del cine Bollywood en Comedia",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "itemCount": 261,
-        "author": "sakar-pdl-gmail-com",
-        "url": "https://mdblist.com/lists/sakar-pdl-gmail-com/my-bollywood-comedy",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Genero",
-        "Bollywood"
-      ]
-    },
-    {
-      "id": "mdblist.89471",
-      "type": "series",
-      "name": "Últimos lanzamientos de la TV Bollywood",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "series",
-      "metadata": {
-        "itemCount": 100,
-        "author": "a13b10",
-        "url": "https://mdblist.com/lists/a13b10/new-hindi-series-xqaank7t4m",
-        "mediatype": "show"
-      },
-      "tags": [
-        "Genero",
-        "Bollywood"
       ]
     },
     {
