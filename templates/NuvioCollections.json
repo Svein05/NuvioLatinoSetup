@@ -448,464 +448,6 @@
     "focusGlowEnabled": false
   },
   {
-    "id": "collection-anime",
-    "title": "Anime",
-    "folders": [
-      {
-        "id": "folder-anime-novedades",
-        "title": "Novedades",
-        "sources": [
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Anime: Temporada Actual (En Emisión)",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.47642",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Anime: Lo Último en Series",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.2472",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Anime: Lo Último en Películas",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.2483",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": true,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": null,
-        "focusGifUrl": null,
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_cover.jpg",
-        "catalogSources": [
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.47642",
-            "title": "Anime: Temporada Actual (En Emisión)"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.2472",
-            "title": "Anime: Lo Último en Series"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.2483",
-            "title": "Anime: Lo Último en Películas"
-          }
-        ],
-        "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_backdrop.jpg"
-      },
-      {
-        "id": "folder-anime-descubre",
-        "title": "Descubre",
-        "sources": [
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Anime: Series en Tendencia",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.88469",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Anime: Películas en Tendencia",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.88468",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Anime: Obras Maestras (MAL 8/10+)",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.13210",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": true,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": null,
-        "focusGifUrl": null,
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_cover.jpg",
-        "catalogSources": [
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.88469",
-            "title": "Anime: Series en Tendencia"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.88468",
-            "title": "Anime: Películas en Tendencia"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.13210",
-            "title": "Anime: Obras Maestras (MAL 8/10+)"
-          }
-        ],
-        "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_backdrop.jpg"
-      },
-      {
-        "id": "folder-anime-estudios",
-        "title": "Estudios",
-        "sources": [
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Studio Ghibli",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.131283",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Studio MAPPA",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.185112",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Studio MAPPA",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.185112",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Toei Animation",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194729",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Toei Animation",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194729",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Kyoto Animation",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.103383",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Ufotable",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.195285",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Ufotable",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.195285",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "Madhouse",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194701",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "Madhouse",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194701",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "series",
-            "genre": "None",
-            "title": "WIT Studio",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194733",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
-            "genre": "None",
-            "title": "WIT Studio",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194733",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          }
-        ],
-        "hideTitle": true,
-        "tileShape": "LANDSCAPE",
-        "coverEmoji": null,
-        "focusGifUrl": null,
-        "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_cover.jpg",
-        "catalogSources": [
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.131283",
-            "title": "Studio Ghibli"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.185112",
-            "title": "Studio MAPPA (Series)"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.185112",
-            "title": "Studio MAPPA (Películas)"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194729",
-            "title": "Toei Animation (Series)"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194729",
-            "title": "Toei Animation (Películas)"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.103383",
-            "title": "Kyoto Animation"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.195285",
-            "title": "Ufotable (Series)"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.195285",
-            "title": "Ufotable (Películas)"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194701",
-            "title": "Madhouse (Series)"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194701",
-            "title": "Madhouse (Películas)"
-          },
-          {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194733",
-            "title": "WIT Studio (Series)"
-          },
-          {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194733",
-            "title": "WIT Studio (Películas)"
-          }
-        ],
-        "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_backdrop.jpg"
-      }
-    ],
-    "pinToTop": false,
-    "viewMode": "TABBED_GRID",
-    "showAllTab": false,
-    "backdropImageUrl": null,
-    "focusGlowEnabled": false
-  },
-  {
     "id": "collection-91e309bf-community-community",
     "title": "Plataformas de Streaming",
     "folders": [
@@ -3605,6 +3147,464 @@
     ],
     "pinToTop": false,
     "viewMode": "FOLLOW_LAYOUT",
+    "showAllTab": false,
+    "backdropImageUrl": null,
+    "focusGlowEnabled": false
+  },
+  {
+    "id": "collection-anime",
+    "title": "Anime",
+    "folders": [
+      {
+        "id": "folder-anime-novedades",
+        "title": "Novedades",
+        "sources": [
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Anime: Temporada Actual (En Emisión)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.47642",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Anime: Lo Último en Series",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.2472",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Anime: Lo Último en Películas",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.2483",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          }
+        ],
+        "hideTitle": true,
+        "tileShape": "LANDSCAPE",
+        "coverEmoji": null,
+        "focusGifUrl": null,
+        "heroVideoUrl": null,
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_cover.jpg",
+        "catalogSources": [
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.47642",
+            "title": "Anime: Temporada Actual (En Emisión)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.2472",
+            "title": "Anime: Lo Último en Series"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.2483",
+            "title": "Anime: Lo Último en Películas"
+          }
+        ],
+        "focusGifEnabled": false,
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_backdrop.jpg"
+      },
+      {
+        "id": "folder-anime-descubre",
+        "title": "Descubre",
+        "sources": [
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Anime: Series en Tendencia",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.88469",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Anime: Películas en Tendencia",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.88468",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Anime: Obras Maestras (MAL 8/10+)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.13210",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          }
+        ],
+        "hideTitle": true,
+        "tileShape": "LANDSCAPE",
+        "coverEmoji": null,
+        "focusGifUrl": null,
+        "heroVideoUrl": null,
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_cover.jpg",
+        "catalogSources": [
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.88469",
+            "title": "Anime: Series en Tendencia"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.88468",
+            "title": "Anime: Películas en Tendencia"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.13210",
+            "title": "Anime: Obras Maestras (MAL 8/10+)"
+          }
+        ],
+        "focusGifEnabled": false,
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_backdrop.jpg"
+      },
+      {
+        "id": "folder-anime-estudios",
+        "title": "Estudios",
+        "sources": [
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Studio Ghibli",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.131283",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Studio MAPPA",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.185112",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Studio MAPPA",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.185112",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Toei Animation",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.194729",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Toei Animation",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.194729",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Kyoto Animation",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.103383",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Ufotable",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.195285",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Ufotable",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.195285",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Madhouse",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.194701",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Madhouse",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.194701",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "WIT Studio",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.194733",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "WIT Studio",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.194733",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          }
+        ],
+        "hideTitle": true,
+        "tileShape": "LANDSCAPE",
+        "coverEmoji": null,
+        "focusGifUrl": null,
+        "heroVideoUrl": null,
+        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_logo.png",
+        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_cover.jpg",
+        "catalogSources": [
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.131283",
+            "title": "Studio Ghibli"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.185112",
+            "title": "Studio MAPPA (Series)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.185112",
+            "title": "Studio MAPPA (Películas)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.194729",
+            "title": "Toei Animation (Series)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.194729",
+            "title": "Toei Animation (Películas)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.103383",
+            "title": "Kyoto Animation"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.195285",
+            "title": "Ufotable (Series)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.195285",
+            "title": "Ufotable (Películas)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.194701",
+            "title": "Madhouse (Series)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.194701",
+            "title": "Madhouse (Películas)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.194733",
+            "title": "WIT Studio (Series)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.194733",
+            "title": "WIT Studio (Películas)"
+          }
+        ],
+        "focusGifEnabled": false,
+        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_backdrop.jpg"
+      }
+    ],
+    "pinToTop": false,
+    "viewMode": "TABBED_GRID",
     "showAllTab": false,
     "backdropImageUrl": null,
     "focusGlowEnabled": false
