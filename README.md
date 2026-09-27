@@ -137,7 +137,7 @@ NuvioLatinoSetup/
 ├── documentation/
 │   └── index.html              # Portal de Documentación y Guías
 ├── assets/
-│   ├── collections/            # 94 imágenes locales optimizadas (carátulas, backdrops y logos)
+│   ├── collections/            # 91 imágenes locales optimizadas (carátulas, backdrops y logos)
 │   ├── logo/                   # Logotipos de la aplicación
 │   └── preview/                # Capturas de pantalla e incrustación para Discord
 ├── css/
@@ -153,8 +153,8 @@ NuvioLatinoSetup/
 │   ├── state.js                # Gestor del estado reactivo global del asistente
 │   └── version.js              # Inyección dinámica de la versión semántica activa
 ├── templates/
-│   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (192 catálogos etiquetados)
-│   └── NuvioCollections.json   # Plantilla unificada de 23 colecciones nativas Nuvio
+│   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (210 catálogos etiquetados)
+│   └── NuvioCollections.json   # Plantilla unificada de 26 colecciones nativas Nuvio en 4 secciones
 ├── run.py                      # Servidor HTTP local con soporte UTF-8 y auto-apertura
 ├── version.json                # Fuente de verdad de la versión semántica del release
 └── README.md                   # Documentación técnica del proyecto
