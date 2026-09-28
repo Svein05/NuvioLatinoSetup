@@ -509,13 +509,31 @@
 
         <!-- Sección 2: Selector de Motor de Pósters -->
         <div class="max-w-4xl space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-1">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
             <div>
               <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
                 <i class="fa-solid fa-film text-brand-400"></i>
                 <span>¿Qué sistema de pósters prefieres?</span>
               </h3>
               <p class="text-xs text-slate-400">Selecciona la apariencia y estilo de carátulas para tus películas y series en todo Nuvio y AIOMetadata.</p>
+            </div>
+            <!-- Barra de Demostración Sincronizada con controles -->
+            <div class="flex items-center gap-2 self-start sm:self-auto bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1 text-xs shadow-inner">
+              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-arrows-rotate text-[9px] text-brand-400 animate-spin" style="animation-duration: 6s;"></i>
+                <span>Demo:</span>
+              </span>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="window.appController.prevDemoPoster()" title="Título anterior" class="w-5 h-5 rounded hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors text-[10px]">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span id="posterDemoTitle" class="px-2 py-0.5 rounded-lg bg-slate-950 border border-slate-800/80 text-[11px] font-semibold text-brand-300 font-sans tracking-wide min-w-[140px] sm:min-w-[180px] text-center truncate transition-opacity duration-300">
+                  Superman (2025)
+                </span>
+                <button type="button" onclick="window.appController.nextDemoPoster()" title="Siguiente título" class="w-5 h-5 rounded hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors text-[10px]">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -534,7 +552,7 @@
 
                 <!-- Contenedor con ratio vertical 2:3 estricto -->
                 <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
-                  <img id="posterPreviewDefault" src="https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg" alt="Póster Superman Original" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                  <img id="posterPreviewDefault" src="https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg" alt="Póster Superman Original" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
                 </div>
 
                 <div>
@@ -562,7 +580,7 @@
 
                 <!-- Contenedor con ratio vertical 2:3 estricto -->
                 <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
-                  <img id="posterPreviewBetter" src="https://btttr.cc/poster/imdb/poster-default/tt5950044.jpg?lang=es-MX&rs=IM" alt="Póster Superman BetterPoster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                  <img id="posterPreviewBetter" src="https://btttr.cc/poster/imdb/poster-default/tt5950044.jpg?lang=es-MX&rs=IM" alt="Póster Superman BetterPoster" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
                 </div>
 
                 <div>
@@ -600,7 +618,7 @@
 
                 <!-- Contenedor con ratio vertical 2:3 estricto y renderizado real de PostersPlus -->
                 <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
-                  <img id="posterPreviewPostersPlus" src="https://postersplus.stremio.ru/poster?tmdb_id=1061474&imdb_id=tt5950044&stremio_id=tt5950044&type=movie&primary_client=stremio_tv_nuvio&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0" alt="Póster Superman PostersPlus" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                  <img id="posterPreviewPostersPlus" src="https://postersplus.stremio.ru/poster?tmdb_id=1061474&imdb_id=tt5950044&stremio_id=tt5950044&type=movie&primary_client=stremio_tv_nuvio&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0" alt="Póster Superman PostersPlus" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
                 </div>
 
                 <div>
