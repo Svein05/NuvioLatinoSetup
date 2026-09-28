@@ -87,9 +87,9 @@ export const DEMO_POSTERS = [
     title: 'Cowboy Bebop',
     category: 'Anime',
     imdbId: 'tt0213338',
-    tmdbId: '40075',
+    tmdbId: '30991',
     type: 'series',
-    fallbackPoster: 'https://image.tmdb.org/t/p/w500/m1iFvC36Xm21S82B14jH5G7d3.jpg'
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/xDiXDfZwC6XYC6fxHI1jl3A3Ill.jpg'
   },
 
   // --- 10 TOP PELÍCULAS IMDB ---
@@ -211,9 +211,9 @@ export const DEMO_POSTERS = [
     title: 'The Wire',
     category: 'Serie',
     imdbId: 'tt0306414',
-    tmdbId: '32973',
+    tmdbId: '1438',
     type: 'series',
-    fallbackPoster: 'https://image.tmdb.org/t/p/w500/4lbclFySvugIe1fL3NDdRpUrQ3n.jpg'
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/4lbclFySvugI51fwsyxBTOm4DqK.jpg'
   },
   {
     title: 'Stranger Things',
@@ -243,9 +243,9 @@ export const DEMO_POSTERS = [
     title: 'Severance',
     category: 'Serie',
     imdbId: 'tt11280740',
-    tmdbId: '93740',
+    tmdbId: '95396',
     type: 'series',
-    fallbackPoster: 'https://image.tmdb.org/t/p/w500/1Xdd8b17W6oNn3v4r2YyvK4q1YV.jpg'
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg'
   },
   {
     title: 'The Boys',
