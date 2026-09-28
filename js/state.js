@@ -532,7 +532,7 @@ class WizardState {
       title: catalogMeta.name || catId,
       sortBy: null,
       tmdbId: null,
-      addonId: 'aio-metadata',
+      addonId: 'com.aio.metadata',
       filters: null,
       sortHow: null,
       provider: 'addon',
@@ -545,7 +545,7 @@ class WizardState {
     const newCatSource = {
       type: catalogMeta.type || 'movie',
       genre: null,
-      addonId: 'aio-metadata',
+      addonId: 'com.aio.metadata',
       catalogId: catId,
       title: catalogMeta.name || catId
     };
@@ -622,22 +622,31 @@ class WizardState {
     const engine = (this.preferences && this.preferences.posterEngine) || 'default';
     const isCustomEngine = engine !== 'default';
 
-    // 2.1 Filtrar catálogos en el payload de AIOMetadata
-    const filterCatList = (list) => {
-      if (!Array.isArray(list)) return [];
-      return list.filter(cat => {
-        const isIncluded = activeCatalogIds.has(cat.id);
-        cat.showInHome = false;
-        cat.enableRatingPosters = isCustomEngine;
-        return isIncluded;
-      });
-    };
-
-    if (Array.isArray(configObj.catalogs)) {
-      configObj.catalogs = filterCatList(configObj.catalogs);
+    // 2.1 Unificar catálogos de ambas listas (config.catalogs y root catalogs) deduplicando por id:::type
+    const combinedCatalogs = [];
+    const seenCatKeys = new Set();
+    const sourceLists = [configObj.catalogs, template.catalogs].filter(Array.isArray);
+    for (const list of sourceLists) {
+      for (const cat of list) {
+        if (!cat || !cat.id) continue;
+        const key = `${cat.id}:::${cat.type || 'movie'}`;
+        if (!seenCatKeys.has(key)) {
+          seenCatKeys.add(key);
+          combinedCatalogs.push(cat);
+        }
+      }
     }
-    if (Array.isArray(template.catalogs)) {
-      template.catalogs = filterCatList(template.catalogs);
+
+    const filteredCatalogs = combinedCatalogs.filter(cat => {
+      const isIncluded = activeCatalogIds.has(cat.id);
+      cat.showInHome = false;
+      cat.enableRatingPosters = isCustomEngine;
+      return isIncluded;
+    });
+
+    configObj.catalogs = filteredCatalogs;
+    if (template.catalogs) {
+      template.catalogs = filteredCatalogs;
     }
 
     // 3. Inyectar API Keys en config
