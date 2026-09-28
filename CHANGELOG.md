@@ -7,6 +7,34 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.0] - 2026-09-28
+
+### ✨ Añadido
+- **Carrusel Sincronizado de Demostración de Pósters (Paso 5):**
+  - Catálogo de 30 títulos emblemáticos clasificados en Anime, Películas y Series populares para previsualización 2:3 vertical.
+  - Barajado aleatorio continuo con algoritmo Fisher-Yates (`posterDeck`) que previene repeticiones inmediatas y cicla suavemente todas las opciones.
+  - Sistema de precarga estricta al 100% en memoria con `Promise.all` (`preloadImage`): si alguno de los 3 proveedores (`AioMetadata`, `BetterPoster`, `Poster+`) demora o falla, el título se omite automáticamente buscando el siguiente hasta garantizar 3 carátulas cargadas al 100% antes de realizar la transición (crossfade simultáneo de 300 ms sin cuadros blancos ni saltos visuales).
+- **Profesionalización de la Autenticación y Registro Nuvio (Paso 1):**
+  - Soporte nativo para envío de formularios mediante la tecla `Enter` en campos de correo y contraseña.
+  - Campo de confirmación obligatoria de contraseña en la pestaña *Crear Cuenta* con validación reactiva en tiempo real (indicadores dinámicos verde esmeralda `fa-circle-check` si coinciden o rojo suave `fa-circle-xmark` si difieren).
+  - Botones interactivos de alternancia de visibilidad de contraseña (ojo) en ambos campos.
+  - Manejo amigable y claro de excepciones de verificación por correo electrónico de Supabase Auth.
+- **Rediseño Limpio y Simétrico de Tarjetas de Selección de Pósters:**
+  - Títulos de fuente reubicados en la cabecera superior en blanco negrita limpio (`AioMetadata`, `BetterPoster`, `Poster+`), eliminando etiquetas de colores y textos descriptivos inferiores redundantes.
+  - Actualización de plantilla de Poster+ con `logo_language=es-mx&logo_priority=native,english,original,neutral,text` para priorizar logos latinos en títulos de anime sin forzar fuentes en inglés.
+- **Paridad 1:1 Absoluta entre Colecciones y Addon:**
+  - Reestructuración jerárquica modular y secuencial de `templates/MetadataLatino.json` eliminando catálogos huérfanos o no referenciados y garantizando coincidencia biyectiva con `templates/NuvioCollections.json`.
+
+### 🐛 Corregido
+- **Corrección de Discrepancias de Identificadores en Carátulas:**
+  - Corrección de `tmdbId` de *Cowboy Bebop* de `40075` (que apuntaba a *Gravity Falls*) a su ID oficial `30991` con póster de respaldo verificado.
+  - Corrección de `tmdbId` de *Severance* de `93740` (que apuntaba a *Foundation*) a su ID oficial `95396`.
+  - Corrección de `tmdbId` de *The Wire* de `32973` (ID inexistente en endpoints de series de TMDB) a su ID oficial `1438`.
+- **Restauración de Iconos Font Awesome:**
+  - Sustitución de `fa-sparkles` (icono Font Awesome PRO) por `fa-wand-magic-sparkles` en la tarjeta de TMDB Enrichment del Paso 5, garantizando renderizado nítido en Font Awesome Free.
+- **Actualización de Documentación:**
+  - Alineación completa del flujo en 6 etapas en `README.md` y `documentation/index.html`.
+
 ## [1.1.1] - 2026-09-27
 
 ### 🐛 Corregido

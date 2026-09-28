@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.1.1-6366f1.svg?style=flat-square" alt="Versión 1.1.1" /></a>
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.2.0-6366f1.svg?style=flat-square" alt="Versión 1.2.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -30,13 +30,13 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 
 ## ✨ Características Principales
 
-- **Flujo Guiado en 5 Etapas:** Navegación secuencial paso a paso con validaciones estrictas y control reactivo de estados.
+- **Flujo Guiado en 6 Etapas:** Navegación secuencial paso a paso con validaciones estrictas y control reactivo de estados.
 - **Soporte Dual de Aprovisionamiento:**
   - **Modo Nuvio Cloud:** Conexión segura con tu cuenta de Nuvio para inyectar colecciones, configuraciones y addons de forma 100% automática mediante RPCs autenticadas.
   - **Modo Manual (Sin Cuenta):** Para usuarios que prefieren no ingresar credenciales; permite personalizar las colecciones y copiar o descargar los archivos JSON listos para importar.
 - **Mini NUVIO (Simulador Visual Interactivo):**
   - Vista previa en vivo con carruseles horizontales que simulan exactamente la interfaz de Nuvio.
-  - Integración en tiempo real con la **API v3 de TMDB** para renderizar pósters, títulos y sinopsis reales en español latino.
+  - **Cápsulas Interactivas Instantáneas:** Exploración ágil con renderizado a 0 ms basado en los metadatos de AIOMetadata en español latino, sin sobrecarga de red ni peticiones externas innecesarias.
   - **Gestor CRUD de Catálogos:** Reordena posiciones (subir/bajar), renombra con títulos comerciales amigables, elimina catálogos no deseados o añade nuevos desde la biblioteca central de AIOMetadata.
   - Prioridad de recomendaciones dinámicas de **Trakt** en el carrusel de recomendados.
   - Todas las filas de géneros estructuradas de forma consistente en formato `LANDSCAPE`.
@@ -51,7 +51,7 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 
 ---
 
-## 🗺️ Flujo de los 5 Pasos del Asistente
+## 🗺️ Flujo de los 6 Pasos del Asistente
 
 ```
 [ Paso 1: Cuenta Nuvio / Modo Manual ]
@@ -66,14 +66,18 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 [ Paso 4: Configuración y Validación de API Keys ]
                   │
                   ▼
-[ Paso 5: Seguridad de Addon e Inyección / Exportación JSON ]
+[ Paso 5: Preferencias de Perfil y Sistema de Pósters ]
+                  │
+                  ▼
+[ Paso 6: Seguridad de Addon e Inyección / Exportación JSON ]
 ```
 
 1. **Paso 1 - Autenticación Nuvio:** Inicia sesión con tus credenciales de Nuvio, crea una cuenta nueva o selecciona el botón alternativo **Continuar sin cuenta (Modo Manual)**.
 2. **Paso 2 - Selección de Perfil:** Elige el perfil de Nuvio en el que se aplicará la configuración o crea uno nuevo directamente desde el asistente. Incluye advertencias visuales de sobreescritura para perfiles existentes y respeta el límite estricto de 6 perfiles.
 3. **Paso 3 - Personalización Visual en Mini NUVIO:** Explora y edita las colecciones nativas (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming) con carátulas en alta resolución y control total de catálogos.
-4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key (obligatoria) y proveedores opcionales (MDBList, RPDB, TheTVDB, Fanart, Gemini). Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
-5. **Paso 5 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
+4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key y MDBList API Key (ambas obligatorias en ancho completo) y proveedores opcionales (RPDB, TheTVDB, Búsqueda con IA). Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
+5. **Paso 5 - Preferencias y Sistema de Pósters:** Selecciona si deseas activar TMDB Enrichment y calificaciones MDBList, y escoge el motor de carátulas cinematográficas (AioMetadata, BetterPoster o Poster+) con previsualización sincronizada en vivo 2:3 y enlaces directos de personalización.
+6. **Paso 6 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
 
 ---
 
@@ -82,10 +86,9 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 | Proveedor | Estado | Propósito | Enlace de Registro |
 | :--- | :---: | :--- | :--- |
 | **TheMovieDatabase (TMDB)** | **Obligatoria** | Metadatos en español latino, pósters, sinopsis y reparto. | [themoviedb.org](https://www.themoviedb.org/settings/api) |
-| **MDBList** | **Recomendado** | Calificaciones externas (IMDb, Rotten Tomatoes, Metacritic, Trakt) en TV y Mobile. | [mdblist.com](https://mdblist.com/preferences/) |
+| **MDBList** | **Obligatoria** | Calificaciones externas (IMDb, RT, Metacritic, Trakt) y sustento de motores de pósters. | [mdblist.com](https://mdblist.com/preferences/) |
+| **RPDB (Rating Poster DB)** | Opcional | Clave para pósters cinematográficos con calificaciones incrustadas (`t0-free-rpdb` por defecto). | [ratingposterdb.com](https://ratingposterdb.com/) |
 | **TheTVDB** | Opcional | Identificación y carátulas de series de televisión. | [thetvdb.com](https://thetvdb.com/dashboard/account/apikeys) |
-| **RPDB (Rating Poster DB)** | Opcional | Clave para pósters cinematográficos con calificaciones incrustadas. | [ratingposterdb.com](https://ratingposterdb.com/) |
-| **Fanart.tv** | Opcional | Logos en formato PNG transparente, fondos en HD y disco-arte. | [fanart.tv](https://fanart.tv/get-an-api-key/) |
 | **Google Gemini** | Opcional | Motor de búsqueda semántica con Inteligencia Artificial. | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
 | **OpenRouter** | Opcional | Modelos alternativos para búsqueda con Inteligencia Artificial. | [openrouter.ai](https://openrouter.ai/keys) |
 
@@ -124,7 +127,7 @@ Si deseas clonar el repositorio y ejecutarlo en tu propio entorno:
 El proyecto está organizado en páginas modulares siguiendo las mejores prácticas de la web moderna:
 
 * **`/` (o `/home`):** Landing page y presentación visual de la herramienta (cero dependencias de carga pesada).
-* **`/configuration/`:** Asistente interactivo guiado en 5 pasos con simulador visual Mini Nuvio y CRUD en tiempo real.
+* **`/configuration/`:** Asistente interactivo guiado en 6 pasos con simulador visual Mini Nuvio, gestión de pósters y CRUD en tiempo real.
 * **`/documentation/`:** Portal de documentación exhaustiva, tutoriales paso a paso y resolución de incidencias.
 
 ```
@@ -133,16 +136,17 @@ NuvioLatinoSetup/
 ├── home/
 │   └── index.html              # Alias / Redirección canónica a /
 ├── configuration/
-│   └── index.html              # Asistente de Configuración en 5 Pasos
+│   └── index.html              # Asistente de Configuración en 6 Pasos
 ├── documentation/
 │   └── index.html              # Portal de Documentación y Guías
 ├── assets/
-│   ├── collections/            # 100 imágenes locales optimizadas (carátulas, backdrops y logos)
+│   ├── collections/            # 91 imágenes locales optimizadas (carátulas, backdrops y logos)
 │   ├── logo/                   # Logotipos de la aplicación
 │   └── preview/                # Capturas de pantalla e incrustación para Discord
 ├── css/
 │   └── styles.css              # Estilos personalizados, animaciones y soporte para glassmorphism
 ├── js/
+│   ├── vendor/                 # Librerías de terceros (SortableJS para drag & drop)
 │   ├── aiometadata-client.js   # Cliente HTTP para la API de AIOMetadata
 │   ├── app.js                  # Controlador principal de la UI, modales y navegación
 │   ├── config.js               # Constantes públicas y endpoints de servicios
@@ -150,16 +154,12 @@ NuvioLatinoSetup/
 │   ├── mini-nuvio.js           # Componente del simulador visual y editor CRUD de colecciones
 │   ├── nuvio-client.js         # Cliente para Supabase Nuvio RPCs
 │   ├── state.js                # Gestor del estado reactivo global del asistente
-│   └── tmdb-service.js         # Servicio de consultas en tiempo real a la API v3 de TMDB
-├── scripts/
-│   ├── download_assets.py      # Script de descarga y caché de recursos gráficos locales
-│   ├── fix_genres_and_tags.py  # Normalizador de etiquetas y formato landscape
-│   ├── merge_collections.py    # Generador y validador de colecciones consolidadas
-│   └── merge_metadata.py       # Optimizador del catálogo de AIOMetadata
+│   └── version.js              # Inyección dinámica de la versión semántica activa
 ├── templates/
-│   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (356 catálogos etiquetados)
-│   └── NuvioCollections.json   # Plantilla unificada de colecciones nativas Nuvio
+│   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (210 catálogos etiquetados)
+│   └── NuvioCollections.json   # Plantilla unificada de 26 colecciones nativas Nuvio en 4 secciones
 ├── run.py                      # Servidor HTTP local con soporte UTF-8 y auto-apertura
+├── version.json                # Fuente de verdad de la versión semántica del release
 └── README.md                   # Documentación técnica del proyecto
 ```
 

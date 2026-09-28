@@ -1,11 +1,10 @@
 /**
  * Componente: Mini NUVIO Interactivo
  * Simulador visual del Home de Nuvio con Hero Backdrop, carruseles por sección,
- * controles de reordenación, toggles, explorador de catálogos con pósters en vivo (TMDB)
+ * controles de reordenación, toggles, explorador de catálogos con cápsulas interactivas
  * y modal de personalización en Español Latino.
  */
 import { state } from './state.js';
-import { TmdbService } from './tmdb-service.js';
 
 export class MiniNuvio {
   constructor(containerId) {

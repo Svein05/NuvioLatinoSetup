@@ -8,9 +8,265 @@ import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
 
+// Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
+export const DEMO_POSTERS = [
+  // --- 10 CLÁSICOS DEL ANIME ---
+  {
+    title: 'Naruto',
+    category: 'Anime',
+    imdbId: 'tt0409591',
+    tmdbId: '46260',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/vauCOvPFl9eeagGhBtY39h4xf63.jpg'
+  },
+  {
+    title: 'Dragon Ball Z',
+    category: 'Anime',
+    imdbId: 'tt0214341',
+    tmdbId: '12971',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/dZyGv2iIe7U7eIqgWd5w8c2N2rG.jpg'
+  },
+  {
+    title: 'Death Note',
+    category: 'Anime',
+    imdbId: 'tt0877057',
+    tmdbId: '13916',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/iigTJJskR1Pcjj0G9GvK9e3T7Qx.jpg'
+  },
+  {
+    title: 'Attack on Titan',
+    category: 'Anime',
+    imdbId: 'tt2560140',
+    tmdbId: '1429',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/hTP1IIxDHgVzgQIO4SVASAWqQO.jpg'
+  },
+  {
+    title: 'One Piece',
+    category: 'Anime',
+    imdbId: 'tt0388629',
+    tmdbId: '37854',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/fcXdJlbSdUEeMSJFsXKszvG2vQv.jpg'
+  },
+  {
+    title: 'Fullmetal Alchemist: Brotherhood',
+    category: 'Anime',
+    imdbId: 'tt1340177',
+    tmdbId: '31911',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/5ZFUEO2Z881g9ur7e8X664J1.jpg'
+  },
+  {
+    title: 'Demon Slayer (Kimetsu no Yaiba)',
+    category: 'Anime',
+    imdbId: 'tt9335498',
+    tmdbId: '85937',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/xUfRZu2mi8jH6SzQEJGP6tjBuYj.jpg'
+  },
+  {
+    title: 'Hunter x Hunter',
+    category: 'Anime',
+    imdbId: 'tt2098220',
+    tmdbId: '46298',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/ucmpFdW9yvI78bA52s1T12p0A4T.jpg'
+  },
+  {
+    title: 'El Viaje de Chihiro',
+    category: 'Anime',
+    imdbId: 'tt0245429',
+    tmdbId: '129',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/393DNTQiq0rno8kJJbMqlPoYUm.jpg'
+  },
+  {
+    title: 'Cowboy Bebop',
+    category: 'Anime',
+    imdbId: 'tt0213338',
+    tmdbId: '30991',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/xDiXDfZwC6XYC6fxHI1jl3A3Ill.jpg'
+  },
+
+  // --- 10 TOP PELÍCULAS IMDB ---
+  {
+    title: 'Sueños de Fuga (Shawshank Redemption)',
+    category: 'Película',
+    imdbId: 'tt0111161',
+    tmdbId: '278',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/lyQBXzOQSuE59IsHyhrp0qIiPAz.jpg'
+  },
+  {
+    title: 'El Padrino (The Godfather)',
+    category: 'Película',
+    imdbId: 'tt0068646',
+    tmdbId: '238',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg'
+  },
+  {
+    title: 'El Caballero de la Noche (The Dark Knight)',
+    category: 'Película',
+    imdbId: 'tt0468569',
+    tmdbId: '155',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg'
+  },
+  {
+    title: 'Pulp Fiction',
+    category: 'Película',
+    imdbId: 'tt0110912',
+    tmdbId: '680',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg'
+  },
+  {
+    title: 'El Club de la Pelea (Fight Club)',
+    category: 'Película',
+    imdbId: 'tt0137523',
+    tmdbId: '550',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg'
+  },
+  {
+    title: 'El Origen (Inception)',
+    category: 'Película',
+    imdbId: 'tt1375666',
+    tmdbId: '27205',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/ljsZTbVsrQSqZgWeep2B1QiDKuh.jpg'
+  },
+  {
+    title: 'Interestelar (Interstellar)',
+    category: 'Película',
+    imdbId: 'tt0816692',
+    tmdbId: '157336',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg'
+  },
+  {
+    title: 'Matrix (The Matrix)',
+    category: 'Película',
+    imdbId: 'tt0133093',
+    tmdbId: '603',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg'
+  },
+  {
+    title: 'Gladiador (Gladiator)',
+    category: 'Película',
+    imdbId: 'tt0172495',
+    tmdbId: '98',
+    type: 'movie',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/ty8TGRuvJLPUmAR1H1nRIsgwvim.jpg'
+  },
+  {
+    title: 'Superman (2025)',
+    category: 'Película',
+    imdbId: 'tt5950044',
+    tmdbId: '1061474',
+    type: 'movie',
+    fallbackPoster: 'https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg'
+  },
+
+  // --- 10 TOP SERIES IMDB ---
+  {
+    title: 'Breaking Bad',
+    category: 'Serie',
+    imdbId: 'tt0903747',
+    tmdbId: '1396',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg'
+  },
+  {
+    title: 'Game of Thrones',
+    category: 'Serie',
+    imdbId: 'tt0944947',
+    tmdbId: '1399',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/1XS1oqL89opfnbLl8WnZY1O1uJx.jpg'
+  },
+  {
+    title: 'Chernobyl',
+    category: 'Serie',
+    imdbId: 'tt8756663',
+    tmdbId: '87108',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/hlLXt2tOPT6RRnjiUmoxyG1LTFi.jpg'
+  },
+  {
+    title: 'Los Soprano (The Sopranos)',
+    category: 'Serie',
+    imdbId: 'tt0141842',
+    tmdbId: '1398',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/57bUBY1b30uQWvT4Hq7R6B35i2A.jpg'
+  },
+  {
+    title: 'The Wire',
+    category: 'Serie',
+    imdbId: 'tt0306414',
+    tmdbId: '1438',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/4lbclFySvugI51fwsyxBTOm4DqK.jpg'
+  },
+  {
+    title: 'Stranger Things',
+    category: 'Serie',
+    imdbId: 'tt4574334',
+    tmdbId: '66732',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg'
+  },
+  {
+    title: 'The Last of Us',
+    category: 'Serie',
+    imdbId: 'tt3581920',
+    tmdbId: '100088',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2V7JMrRI.jpg'
+  },
+  {
+    title: 'Better Call Saul',
+    category: 'Serie',
+    imdbId: 'tt3032476',
+    tmdbId: '60059',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/fC2HDm5t0kHVR79vis7SeRJaxHQ.jpg'
+  },
+  {
+    title: 'Severance',
+    category: 'Serie',
+    imdbId: 'tt11280740',
+    tmdbId: '95396',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/pPHpeI2X1qEd1CS1SeyrdhZ4qnT.jpg'
+  },
+  {
+    title: 'The Boys',
+    category: 'Serie',
+    imdbId: 'tt1190634',
+    tmdbId: '76479',
+    type: 'series',
+    fallbackPoster: 'https://image.tmdb.org/t/p/w500/7Ns6tO3aYjpp4KDTfD3T53o5fFq.jpg'
+  }
+];
+
 class AppController {
   constructor() {
     this.miniNuvio = null;
+    this.currentDemoIndex = 19; // Superman (2025) por defecto
+    this.currentDemoItem = DEMO_POSTERS[19] || DEMO_POSTERS[0];
+    this.posterRotationTimer = null;
+    this.posterDeck = [];
+    this.isTransitioningPoster = false;
+    this.nextDemoPoster = this.nextDemoPoster.bind(this);
+    this.prevDemoPoster = this.prevDemoPoster.bind(this);
   }
 
   async init() {
@@ -27,7 +283,8 @@ class AppController {
     this.setupStep1Events();
     this.setupStep2Profiles();
     this.setupStep3ApiKeys();
-    this.setupStep5Injection();
+    this.setupStep5Preferences();
+    this.setupStep6Injection();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -390,12 +647,16 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 2, 3 o 5, refrescar o sincronizar vistas
+    // Si estamos en el paso 2, 3, 5 o 6, refrescar o sincronizar vistas
     if (currentStep === 2) {
       this.renderProfiles();
     } else if (currentStep === 3) {
       state.unlockStep(4);
     } else if (currentStep === 5) {
+      state.unlockStep(6);
+      this.updatePreferencesUI();
+      this.startPosterRotation();
+    } else if (currentStep === 6) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
       if (state.isManualMode) {
@@ -412,8 +673,13 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
-      this.refreshStep5Summary();
-      this.updateStep5ExecuteButton();
+      this.refreshStep6Summary();
+      this.updateStep6ExecuteButton();
+    }
+
+    // Rotación sincronizada de demostración activa exclusivamente en el Paso 5
+    if (currentStep !== 5) {
+      this.stopPosterRotation();
     }
 
     // Actualizar estilo reactivo del botón Siguiente
@@ -434,7 +700,7 @@ class AppController {
     }
   }
 
-  updateStep5ExecuteButton() {
+  updateStep6ExecuteButton() {
     const btnExecute = document.getElementById('btnExecutePipeline');
     if (!btnExecute) return;
 
@@ -532,6 +798,9 @@ class AppController {
   setupStep1Events() {
     const emailInput = document.getElementById('nuvioEmail');
     const passInput = document.getElementById('nuvioPassword');
+    const confirmGroup = document.getElementById('confirmPasswordGroup');
+    const confirmInput = document.getElementById('nuvioPasswordConfirm');
+    const matchBadge = document.getElementById('passwordMatchBadge');
     const btnConnect = document.getElementById('btnNuvioConnect');
     const btnSignup = document.getElementById('btnNuvioSignup');
     const tabLogin = document.getElementById('tabAuthLogin');
@@ -540,6 +809,30 @@ class AppController {
     const hintText = document.getElementById('authHintText');
 
     let authMode = 'login'; // 'login' | 'signup'
+
+    const validatePasswordMatch = () => {
+      if (authMode !== 'signup' || !confirmInput || !matchBadge) return;
+      const p1 = passInput ? passInput.value : '';
+      const p2 = confirmInput ? confirmInput.value : '';
+
+      if (!p2) {
+        matchBadge.className = 'text-[11px] text-slate-500 mt-1 hidden flex items-center gap-1 font-medium';
+        matchBadge.innerHTML = '';
+        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors';
+        return;
+      }
+
+      matchBadge.classList.remove('hidden');
+      if (p1 === p2) {
+        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-emerald-500/60 focus:outline-none focus:border-emerald-500 text-sm text-slate-200 transition-colors';
+        matchBadge.className = 'text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium';
+        matchBadge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Las contraseñas coinciden perfectamente.</span>';
+      } else {
+        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-rose-500/60 focus:outline-none focus:border-rose-500 text-sm text-slate-200 transition-colors';
+        matchBadge.className = 'text-[11px] text-rose-400 mt-1 flex items-center gap-1 font-medium';
+        matchBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i> <span>Las contraseñas no coinciden.</span>';
+      }
+    };
 
     const switchAuthMode = (mode) => {
       authMode = mode;
@@ -552,6 +845,9 @@ class AppController {
         }
         if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
+        if (confirmGroup) confirmGroup.classList.add('hidden');
+        if (confirmInput) confirmInput.value = '';
+        if (matchBadge) matchBadge.classList.add('hidden');
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
       } else {
@@ -563,6 +859,8 @@ class AppController {
         }
         if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
         if (hintText) hintText.classList.remove('hidden');
+        if (confirmGroup) confirmGroup.classList.remove('hidden');
+        validatePasswordMatch();
         if (btnConnect) btnConnect.style.display = 'none';
         if (btnSignup) btnSignup.style.display = 'flex';
       }
@@ -570,6 +868,22 @@ class AppController {
 
     if (tabLogin) tabLogin.addEventListener('click', () => switchAuthMode('login'));
     if (tabSignup) tabSignup.addEventListener('click', () => switchAuthMode('signup'));
+
+    // Soporte para tecla Enter en campos de autenticación
+    const handleEnterSubmit = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (authMode === 'login') {
+          if (btnConnect) btnConnect.click();
+        } else {
+          if (btnSignup) btnSignup.click();
+        }
+      }
+    };
+
+    [emailInput, passInput, confirmInput].forEach(inp => {
+      if (inp) inp.addEventListener('keydown', handleEnterSubmit);
+    });
 
     if (emailInput) {
       emailInput.addEventListener('input', (e) => {
@@ -581,7 +895,14 @@ class AppController {
     if (passInput) {
       passInput.addEventListener('input', (e) => {
         state.nuvioAuth.password = e.target.value;
+        validatePasswordMatch();
         this.updateNavigationButtons();
+      });
+    }
+
+    if (confirmInput) {
+      confirmInput.addEventListener('input', () => {
+        validatePasswordMatch();
       });
     }
 
@@ -696,6 +1017,7 @@ class AppController {
       btnSignup.addEventListener('click', async () => {
         const email = emailInput?.value?.trim();
         const password = passInput?.value;
+        const confirmPassword = confirmInput?.value;
         const apikey = CONFIG.NUVIO_PUBLIC_ANON_KEY;
 
         if (!email || !password) {
@@ -705,6 +1027,13 @@ class AppController {
 
         if (password.length < 6) {
           this.showToast('La contraseña debe tener al menos 6 caracteres.', 'warning');
+          passInput?.focus();
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          this.showToast('Las contraseñas no coinciden. Por favor verifícalas antes de continuar.', 'warning');
+          confirmInput?.focus();
           return;
         }
 
@@ -1009,9 +1338,6 @@ class AppController {
     const tvdbInput = document.getElementById('keyTvdb') || document.getElementById('tvdbApiKey');
     const mdblistInput = document.getElementById('keyMdblist') || document.getElementById('mdblistApiKey');
     const rpdbInput = document.getElementById('keyRpdb') || document.getElementById('rpdbApiKey');
-    const fanartInput = document.getElementById('keyFanart') || document.getElementById('fanartApiKey');
-    const topPosterInput = document.getElementById('keyTopPoster') || document.getElementById('topPosterApiKey');
-    const publicmetadbInput = document.getElementById('keyPublicmetadb') || document.getElementById('publicmetadbApiKey');
 
     const toggleAi = document.getElementById('toggleSearchAi');
     const aiContainer = document.getElementById('aiKeysContainer');
@@ -1060,9 +1386,6 @@ class AppController {
     bindInput(tvdbInput, 'tvdb');
     bindInput(mdblistInput, 'mdblist');
     bindInput(rpdbInput, 'rpdb', 't0-free-rpdb');
-    bindInput(fanartInput, 'fanart');
-    bindInput(topPosterInput, 'topPoster');
-    bindInput(publicmetadbInput, 'publicmetadb');
 
     // 2. Vincular Búsqueda con IA y sus campos
     if (toggleAi && aiContainer) {
@@ -1093,9 +1416,6 @@ class AppController {
         if (tvdbInput) state.apiKeys.tvdb = tvdbInput.value.trim();
         if (mdblistInput) state.apiKeys.mdblist = mdblistInput.value.trim();
         if (rpdbInput) state.apiKeys.rpdb = rpdbInput.value.trim() || 't0-free-rpdb';
-        if (fanartInput) state.apiKeys.fanart = fanartInput.value.trim();
-        if (topPosterInput) state.apiKeys.topPoster = topPosterInput.value.trim();
-        if (publicmetadbInput) state.apiKeys.publicmetadb = publicmetadbInput.value.trim();
         if (geminiInput) state.apiKeys.gemini = geminiInput.value.trim();
         if (openrouterInput) state.apiKeys.openrouter = openrouterInput.value.trim();
 
@@ -1251,10 +1571,19 @@ class AppController {
           }
         }
 
-        // Validar opcionales si fueron provistas
+        // Validar MDBList (Obligatoria)
         const mdblistKey = (state.apiKeys.mdblist || '').trim();
         const mdblistBadge = document.getElementById('badge-mdblist');
-        if (mdblistKey) {
+        if (!mdblistKey || mdblistKey.length < 8) {
+          allValid = false;
+          if (mdblistBadge) {
+            mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+            mdblistBadge.innerText = '✗ Obligatoria';
+          }
+          if (mdblistInput) {
+            mdblistInput.classList.add('border-red-500/60');
+          }
+        } else {
           try {
             const res = await fetch(`https://mdblist.com/api/?apikey=${encodeURIComponent(mdblistKey)}&s=avatar`);
             if (res.ok) {
@@ -1263,23 +1592,42 @@ class AppController {
                 mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✓ Válida';
               }
+              if (mdblistInput) {
+                mdblistInput.classList.remove('border-red-500/60');
+                mdblistInput.classList.add('border-emerald-500/50');
+              }
             } else {
               allValid = false;
               if (mdblistBadge) {
                 mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
                 mdblistBadge.innerText = '✗ Inválida';
               }
+              if (mdblistInput) {
+                mdblistInput.classList.add('border-red-500/60');
+              }
             }
           } catch (_) {
-            if (mdblistKey.length >= 10 && mdblistBadge) {
+            if (mdblistKey.length >= 8) {
               validationMap.mdblist = true;
-              mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
-              mdblistBadge.innerText = '✓ Válida';
+              if (mdblistBadge) {
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
+                mdblistBadge.innerText = '✓ Válida (Offline)';
+              }
+              if (mdblistInput) {
+                mdblistInput.classList.remove('border-red-500/60');
+                mdblistInput.classList.add('border-emerald-500/50');
+              }
+            } else {
+              allValid = false;
+              if (mdblistBadge) {
+                mdblistBadge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/30 font-mono shrink-0 whitespace-nowrap';
+                mdblistBadge.innerText = '✗ Inválida';
+              }
+              if (mdblistInput) {
+                mdblistInput.classList.add('border-red-500/60');
+              }
             }
           }
-        } else if (mdblistBadge) {
-          mdblistBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
-          mdblistBadge.innerText = '';
         }
 
         const rpdbKey = (state.apiKeys.rpdb || 't0-free-rpdb').trim();
@@ -1339,18 +1687,6 @@ class AppController {
           tvdbBadge.innerText = '';
         }
 
-        const fanartKey = (state.apiKeys.fanart || '').trim();
-        const fanartBadge = document.getElementById('badge-fanart');
-        if (fanartKey) {
-          validationMap.fanart = true;
-          if (fanartBadge) {
-            fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
-            fanartBadge.innerText = '✓ Configurada';
-          }
-        } else if (fanartBadge) {
-          fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
-          fanartBadge.innerText = '';
-        }
 
         // Resultado Final
         if (allValid) {
@@ -1406,7 +1742,347 @@ class AppController {
     });
   }
 
-  setupStep5Injection() {
+  setupStep5Preferences() {
+    const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
+    const toggleRatings = document.getElementById('toggleMdblistRatings');
+    const customBetterInput = document.getElementById('customUrlBetterposter');
+    const customPlusInput = document.getElementById('customUrlPostersplus');
+
+    if (toggleEnrichment) {
+      toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
+      toggleEnrichment.addEventListener('change', (e) => {
+        state.preferences.tmdbEnrichment = e.target.checked;
+        this.updateNavigationButtons();
+      });
+    }
+
+    if (toggleRatings) {
+      toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+      toggleRatings.addEventListener('change', (e) => {
+        state.preferences.mdblistRatings = e.target.checked;
+        this.updateNavigationButtons();
+      });
+    }
+
+    if (customBetterInput) {
+      customBetterInput.addEventListener('input', (e) => {
+        if (state.preferences.posterEngine === 'betterposter') {
+          state.preferences.customPosterUrl = e.target.value.trim();
+        }
+        this.updateStep5PosterPreviews();
+      });
+    }
+
+    if (customPlusInput) {
+      customPlusInput.addEventListener('input', (e) => {
+        if (state.preferences.posterEngine === 'postersplus') {
+          state.preferences.customPosterUrl = e.target.value.trim();
+        }
+        this.updateStep5PosterPreviews();
+      });
+    }
+
+    // Métodos accesibles desde window.appController para llamadas onclick en HTML
+    this.selectPosterEngine = (engine) => {
+      state.preferences.posterEngine = engine;
+      if (engine === 'default') {
+        state.preferences.customPosterUrl = '';
+      } else if (engine === 'betterposter' && customBetterInput) {
+        state.preferences.customPosterUrl = customBetterInput.value.trim();
+      } else if (engine === 'postersplus' && customPlusInput) {
+        state.preferences.customPosterUrl = customPlusInput.value.trim();
+      }
+      this.updatePosterCardsUI();
+      this.updateNavigationButtons();
+    };
+
+    this.toggleCustomUrlInput = (engine) => {
+      const container = document.getElementById(`customUrlContainer-${engine}`);
+      if (container) {
+        container.classList.toggle('hidden');
+        if (!container.classList.contains('hidden')) {
+          const input = container.querySelector('input');
+          if (input) input.focus();
+        }
+      }
+    };
+
+    this.updatePosterCardsUI();
+    this.updateStep5PosterPreviews();
+  }
+
+  /**
+   * Precarga una imagen en memoria con timeout de seguridad.
+   * Rechaza si tarda más de timeoutMs o si no tiene dimensiones válidas.
+   */
+  preloadImage(url, timeoutMs = 4500) {
+    return new Promise((resolve, reject) => {
+      if (!url) return reject(new Error('URL vacía'));
+      const img = new Image();
+      let timer = setTimeout(() => {
+        img.onload = img.onerror = null;
+        reject(new Error(`Timeout (${timeoutMs}ms) precargando: ${url}`));
+      }, timeoutMs);
+
+      img.onload = () => {
+        clearTimeout(timer);
+        if (img.naturalWidth > 10 && img.naturalHeight > 10) {
+          resolve({ url, img });
+        } else {
+          reject(new Error(`Dimensiones inválidas para: ${url}`));
+        }
+      };
+
+      img.onerror = () => {
+        clearTimeout(timer);
+        reject(new Error(`Fallo al cargar imagen: ${url}`));
+      };
+
+      img.src = url;
+    });
+  }
+
+  /**
+   * Baraja la baraja de pósters (Fisher-Yates) excluyendo el título actualmente visible
+   */
+  refillPosterDeck() {
+    const currentImdb = this.currentDemoItem ? this.currentDemoItem.imdbId : null;
+    const pool = DEMO_POSTERS.filter(p => p.imdbId !== currentImdb);
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    this.posterDeck = pool;
+  }
+
+  /**
+   * Obtiene el siguiente candidato a mostrar sin repeticiones inmediatas
+   */
+  drawNextCandidate() {
+    if (!this.posterDeck || this.posterDeck.length === 0) {
+      this.refillPosterDeck();
+    }
+    return this.posterDeck.shift() || DEMO_POSTERS[0];
+  }
+
+  /**
+   * Resuelve las 3 URLs correspondientes a un candidato de demostración
+   */
+  async resolveCandidateUrls(item) {
+    const tmdbKey = encodeURIComponent((state.apiKeys.tmdb || '').trim());
+    const mdblistKey = encodeURIComponent((state.apiKeys.mdblist || '').trim());
+
+    // 1. BetterPoster URL
+    const customBetterInput = document.getElementById('customUrlBetterposter');
+    const customBetterUrl = (customBetterInput && customBetterInput.value.trim()) || '';
+    let betterUrl = customBetterUrl || 'https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM';
+    betterUrl = betterUrl
+      .replace(/\{imdb_id\??\}/g, item.imdbId)
+      .replace(/\{id\??\}/g, item.imdbId)
+      .replace(/\{tmdb_id\??\}/g, item.tmdbId)
+      .replace(/\{type\??\}/g, item.type);
+
+    // 2. PostersPlus URL con logo_priority
+    const customPlusInput = document.getElementById('customUrlPostersplus');
+    const customPlusUrl = (customPlusInput && customPlusInput.value.trim()) || '';
+    const defaultPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbKey}&mdblist_key=${mdblistKey}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
+
+    let plusUrl = customPlusUrl || defaultPlusPattern;
+    plusUrl = plusUrl
+      .replace(/\{tmdb_id\??\}/g, item.tmdbId)
+      .replace(/\{imdb_id\??\}/g, item.imdbId)
+      .replace(/\{id\??\}/g, item.imdbId)
+      .replace(/\{type\??\}/g, item.type)
+      .replace(/\{tmdb_key\??\}/g, tmdbKey)
+      .replace(/\{mdblist_key\??\}/g, mdblistKey);
+
+    // 3. Default / Nativo TMDB
+    let defaultUrl = item.fallbackPoster;
+    if (state.apiKeys.tmdb && state.apiKeys.tmdb.trim()) {
+      try {
+        const endpoint = (item.type === 'series') ? 'tv' : 'movie';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`https://api.themoviedb.org/3/${endpoint}/${item.tmdbId}?api_key=${encodeURIComponent(state.apiKeys.tmdb.trim())}&language=es-MX`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.poster_path) {
+            defaultUrl = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+          }
+        }
+      } catch (_) {
+        defaultUrl = item.fallbackPoster;
+      }
+    }
+
+    return { item, betterUrl, plusUrl, defaultUrl };
+  }
+
+  /**
+   * Intenta precargar y verificar los 3 pósters al 100%.
+   * Devuelve el objeto verificado si los 3 cargaron, o null si alguno falló.
+   */
+  async verifyAndPreloadTriple(item) {
+    try {
+      const resolved = await this.resolveCandidateUrls(item);
+      await Promise.all([
+        this.preloadImage(resolved.defaultUrl, 4500),
+        this.preloadImage(resolved.betterUrl, 4500),
+        this.preloadImage(resolved.plusUrl, 4500)
+      ]);
+      return resolved;
+    } catch (err) {
+      console.warn(`[PosterRotation] Título "${item.title}" descartado por carátula no disponible:`, err.message);
+      return null;
+    }
+  }
+
+  /**
+   * Ejecuta la rotación hacia el siguiente título válido.
+   * Busca hasta 6 candidatos hasta encontrar uno donde carguen las 3 carátulas al 100%.
+   */
+  async rotateToNextValidPoster(withTransition = true) {
+    if (this.isTransitioningPoster) return;
+
+    let verified = null;
+    for (let i = 0; i < 6; i++) {
+      const candidate = this.drawNextCandidate();
+      verified = await this.verifyAndPreloadTriple(candidate);
+      if (verified) break;
+    }
+
+    if (!verified) return;
+
+    await this.displayVerifiedDemoItem(verified, withTransition);
+  }
+
+  /**
+   * Muestra el candidato verificado con desvanecimiento simultáneo sincronizado
+   */
+  async displayVerifiedDemoItem(verified, withTransition = true) {
+    const { item, defaultUrl, betterUrl, plusUrl } = verified;
+    const titleEl = document.getElementById('posterDemoTitle');
+    const imgDefault = document.getElementById('posterPreviewDefault');
+    const imgBetter = document.getElementById('posterPreviewBetter');
+    const imgPlus = document.getElementById('posterPreviewPostersPlus');
+    const imgs = [imgDefault, imgBetter, imgPlus].filter(Boolean);
+
+    const updateContent = () => {
+      if (titleEl) {
+        titleEl.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[9px] uppercase font-bold mr-1.5">${item.category}</span><span title="${item.title}">${item.title}</span>`;
+      }
+
+      if (imgBetter) imgBetter.src = betterUrl;
+      if (imgPlus) imgPlus.src = plusUrl;
+      if (imgDefault) imgDefault.src = defaultUrl;
+
+      this.currentDemoItem = item;
+      this.currentDemoIndex = DEMO_POSTERS.findIndex(p => p.imdbId === item.imdbId);
+      if (this.currentDemoIndex === -1) this.currentDemoIndex = 0;
+    };
+
+    if (withTransition) {
+      this.isTransitioningPoster = true;
+      imgs.forEach(img => { img.style.opacity = '0'; });
+      if (titleEl) titleEl.style.opacity = '0';
+
+      await new Promise(r => setTimeout(r, 300));
+
+      updateContent();
+
+      imgs.forEach(img => { img.style.opacity = '1'; });
+      if (titleEl) titleEl.style.opacity = '1';
+      this.isTransitioningPoster = false;
+    } else {
+      updateContent();
+      imgs.forEach(img => { img.style.opacity = '1'; });
+      if (titleEl) titleEl.style.opacity = '1';
+    }
+  }
+
+  async updateStep5PosterPreviews() {
+    const current = this.currentDemoItem || DEMO_POSTERS[this.currentDemoIndex] || DEMO_POSTERS[0];
+    const verified = await this.verifyAndPreloadTriple(current);
+    if (verified) {
+      await this.displayVerifiedDemoItem(verified, false);
+    }
+  }
+
+  startPosterRotation() {
+    this.stopPosterRotation();
+    this.posterRotationTimer = setInterval(() => {
+      this.rotateToNextValidPoster(true);
+    }, 5500);
+  }
+
+  stopPosterRotation() {
+    if (this.posterRotationTimer) {
+      clearInterval(this.posterRotationTimer);
+      this.posterRotationTimer = null;
+    }
+  }
+
+  async nextDemoPoster() {
+    this.stopPosterRotation();
+    await this.rotateToNextValidPoster(true);
+    this.startPosterRotation();
+  }
+
+  async prevDemoPoster() {
+    this.stopPosterRotation();
+    let prevIdx = (this.currentDemoIndex - 1 + DEMO_POSTERS.length) % DEMO_POSTERS.length;
+    let verified = null;
+    for (let i = 0; i < 6; i++) {
+      const candidate = DEMO_POSTERS[prevIdx];
+      verified = await this.verifyAndPreloadTriple(candidate);
+      if (verified) break;
+      prevIdx = (prevIdx - 1 + DEMO_POSTERS.length) % DEMO_POSTERS.length;
+    }
+    if (verified) {
+      await this.displayVerifiedDemoItem(verified, true);
+    }
+    this.startPosterRotation();
+  }
+
+  updatePosterCardsUI() {
+    const currentEngine = (state.preferences && state.preferences.posterEngine) || 'default';
+    const cards = [
+      { id: 'cardPosterDefault', engine: 'default' },
+      { id: 'cardPosterBetter', engine: 'betterposter' },
+      { id: 'cardPosterPlus', engine: 'postersplus' }
+    ];
+
+    cards.forEach(({ id, engine }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const isSelected = (currentEngine === engine);
+      const checkIcon = el.querySelector('.card-check-icon');
+
+      if (isSelected) {
+        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-brand-500 shadow-lg shadow-brand-500/10 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        if (checkIcon) {
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center text-[10px] text-white card-check-icon";
+        }
+      } else {
+        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        if (checkIcon) {
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon";
+        }
+      }
+    });
+  }
+
+  updatePreferencesUI() {
+    const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
+    const toggleRatings = document.getElementById('toggleMdblistRatings');
+    if (toggleEnrichment) toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
+    if (toggleRatings) toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+    this.updatePosterCardsUI();
+    this.updateStep5PosterPreviews();
+  }
+
+  setupStep6Injection() {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
     const btnExecute = document.getElementById('btnExecutePipeline');
@@ -1420,7 +2096,7 @@ class AppController {
       passwordInput.value = state.aiometadata.password || '';
       passwordInput.addEventListener('input', (e) => {
         state.aiometadata.password = e.target.value;
-        this.updateStep5ExecuteButton();
+        this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
       });
@@ -1431,7 +2107,7 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
-        this.updateStep5ExecuteButton();
+        this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
         this.showToast('Contraseña aleatoria generada y configurada', 'info');
@@ -1489,13 +2165,13 @@ class AppController {
 
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
-        // Validar todos los pasos (1 a 5) antes de ejecutar
-        for (let i = 1; i <= 5; i++) {
+        // Validar todos los pasos (1 a 6) antes de ejecutar
+        for (let i = 1; i <= 6; i++) {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            if (i < 5) window.goToStep(i);
-            if (i === 5 && passwordInput) passwordInput.focus();
+            if (i < 6) window.goToStep(i);
+            if (i === 6 && passwordInput) passwordInput.focus();
             return;
           }
         }
@@ -1538,10 +2214,12 @@ class AppController {
     }
   }
 
-  refreshStep5Summary() {
+  refreshStep6Summary() {
     const targetEl = document.getElementById('summaryProfileTarget');
     const countEl = document.getElementById('summaryCollectionsCount');
     const catalogsEl = document.getElementById('summaryCatalogsCount');
+    const posterEngineEl = document.getElementById('summaryPosterEngine');
+    const enrichmentEl = document.getElementById('summaryEnrichmentStatus');
 
     let activeFolders = 0;
     state.collections.forEach(sec => {
@@ -1563,6 +2241,38 @@ class AppController {
     if (targetEl) targetEl.innerText = state.isManualMode ? 'Manual (Sin cuenta)' : (state.selectedProfileName || 'Perfil Principal');
     if (countEl) countEl.innerText = `${activeFolders} carruseles seleccionados`;
     if (catalogsEl) catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
+
+    if (posterEngineEl) {
+      const engine = state.preferences?.posterEngine || 'default';
+      if (engine === 'betterposter') {
+        posterEngineEl.innerText = 'BetterPoster (es-MX)';
+        posterEngineEl.className = 'text-brand-400 font-bold block truncate';
+      } else if (engine === 'postersplus') {
+        posterEngineEl.innerText = 'PostersPlus (Badges)';
+        posterEngineEl.className = 'text-indigo-400 font-bold block truncate';
+      } else {
+        posterEngineEl.innerText = 'Nativo / Limpio';
+        posterEngineEl.className = 'text-emerald-400 font-bold block truncate';
+      }
+    }
+
+    if (enrichmentEl) {
+      const enr = Boolean(state.preferences?.tmdbEnrichment);
+      const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
+      if (enr && rat) {
+        enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
+        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+      } else if (enr) {
+        enrichmentEl.innerText = 'Solo TMDB (Activo)';
+        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+      } else if (rat) {
+        enrichmentEl.innerText = 'Solo MDBList (Activo)';
+        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+      } else {
+        enrichmentEl.innerText = 'Desactivados';
+        enrichmentEl.className = 'text-slate-500 font-bold block truncate';
+      }
+    }
   }
 
   handleStateUpdate(s, eventType) {

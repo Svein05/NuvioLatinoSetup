@@ -70,7 +70,14 @@ export class NuvioClient {
       }
 
       // Si la cuenta fue creada pero no retornó token de sesión inmediato, iniciar sesión automáticamente
-      return await this.login({ apiUrl, apikey, email, password });
+      try {
+        return await this.login({ apiUrl, apikey, email, password });
+      } catch (loginErr) {
+        if (/email not confirmed|confirm/i.test(loginErr.message)) {
+          throw new Error('Cuenta registrada con éxito. Nuvio requiere confirmación por correo: por favor revisa tu bandeja de entrada para verificar tu cuenta antes de iniciar sesión.');
+        }
+        throw loginErr;
+      }
     } catch (err) {
       console.error('[NuvioClient] Error de signup:', err);
       throw err;
@@ -612,59 +619,57 @@ export class NuvioClient {
   static async pushProfileSettings({ apiUrl, apikey, accessToken, profileId, platform = 'tv', settings = {} }) {
     const profId = Number(profileId) || profileId;
 
-    // Estructura canónica oficial requerida por Nuvio para TV y Mobile
+    const isEnrichmentActive = Boolean(settings.enrichment_enabled);
+    const isRatingsActive = Boolean(settings.ratings_enabled);
+
+    // Estructura canónica oficial requerida por Nuvio para TV, Mobile y Desktop
     const tmdbFeatures = {
-      tmdb_enabled: { type: 'boolean', value: true },
+      tmdb_enabled: { type: 'boolean', value: isEnrichmentActive },
       tmdb_language: { type: 'string', value: settings.language || settings.tmdb_language || 'es-MX' },
-      tmdb_modern_home_enabled: { type: 'boolean', value: true },
-      tmdb_enrich_continue_watching: { type: 'boolean', value: true },
-      tmdb_use_artwork: { type: 'boolean', value: true },
-      tmdb_use_basic_info: { type: 'boolean', value: true },
-      tmdb_use_details: { type: 'boolean', value: true },
-      tmdb_use_release_dates: { type: 'boolean', value: true },
-      tmdb_use_credits: { type: 'boolean', value: true },
-      tmdb_use_productions: { type: 'boolean', value: true },
-      tmdb_use_networks: { type: 'boolean', value: true },
-      tmdb_use_episodes: { type: 'boolean', value: true },
-      tmdb_use_trailers: { type: 'boolean', value: true },
-      tmdb_use_more_like_this: { type: 'boolean', value: true },
-      tmdb_use_collections: { type: 'boolean', value: true }
+      tmdb_modern_home_enabled: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_enrich_continue_watching: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_artwork: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_basic_info: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_details: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_release_dates: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_credits: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_productions: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_networks: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_episodes: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_trailers: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_more_like_this: { type: 'boolean', value: isEnrichmentActive },
+      tmdb_use_collections: { type: 'boolean', value: isEnrichmentActive }
     };
 
     if (settings.tmdb_api_key && String(settings.tmdb_api_key).trim()) {
       tmdbFeatures.tmdb_api_key = { type: 'string', value: String(settings.tmdb_api_key).trim() };
     }
 
-    const hasMdblistKey = Boolean(settings.mdblist_api_key && String(settings.mdblist_api_key).trim()) || Boolean(settings.ratings_enabled);
     const mdblistFeatures = {
-      mdblist_enabled: { type: 'boolean', value: hasMdblistKey },
-      mdblist_api_key: { type: 'string', value: hasMdblistKey ? String(settings.mdblist_api_key || '').trim() : '' }
+      mdblist_enabled: { type: 'boolean', value: isRatingsActive },
+      mdblist_api_key: { type: 'string', value: isRatingsActive ? String(settings.mdblist_api_key || '').trim() : '' },
+      // Claves canónicas para Nuvio TV (prefijo mdblist_show_*)
+      mdblist_show_trakt: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_imdb: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_tmdb: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_letterboxd: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_tomatoes: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_audience: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_metacritic: { type: 'boolean', value: isRatingsActive },
+      mdblist_show_mal: { type: 'boolean', value: isRatingsActive },
+      // Claves canónicas para Nuvio Mobile y Desktop (prefijo mdblist_use_*)
+      mdblist_use_imdb: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_tmdb: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_tomatoes: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_metacritic: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_trakt: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_letterboxd: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_audience: { type: 'boolean', value: isRatingsActive },
+      mdblist_use_mal: { type: 'boolean', value: isRatingsActive }
     };
 
-    if (hasMdblistKey) {
-      // Claves canónicas para Nuvio TV (prefijo mdblist_show_*)
-      mdblistFeatures.mdblist_show_trakt = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_imdb = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_tmdb = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_letterboxd = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_tomatoes = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_audience = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_metacritic = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_show_mal = { type: 'boolean', value: true };
-
-      // Claves canónicas para Nuvio Mobile (prefijo mdblist_use_*)
-      mdblistFeatures.mdblist_use_imdb = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_tmdb = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_tomatoes = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_metacritic = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_trakt = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_letterboxd = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_audience = { type: 'boolean', value: true };
-      mdblistFeatures.mdblist_use_mal = { type: 'boolean', value: true };
-    }
-
     const settingsBlob = {
-      version: 1,
+      version: platform === 'tv' ? 1 : 4,
       features: {
         tmdb_settings: tmdbFeatures,
         mdblist_settings: mdblistFeatures,
@@ -673,8 +678,8 @@ export class NuvioClient {
       // Preservar claves de nivel superior por retrocompatibilidad
       language: settings.language || 'es-MX',
       tmdb_language: settings.tmdb_language || 'es-MX',
-      enrichment_enabled: true,
-      ratings_enabled: hasMdblistKey,
+      enrichment_enabled: isEnrichmentActive,
+      ratings_enabled: isRatingsActive,
       auto_translate: true
     };
 

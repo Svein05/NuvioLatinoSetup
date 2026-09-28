@@ -31,6 +31,9 @@ export class PipelineInjector {
       const metaPayload = state.getSynchronizedMetadataPayload();
       const activeCatalogsCount = (metaPayload.config?.catalogs || metaPayload.catalogs || []).length;
       state.addLog(`✓ ${activeCatalogsCount} catálogos sincronizados en modo Ghost (inHome: false).`, 'info');
+      const activeEngine = state.preferences?.posterEngine || 'default';
+      const engineDesc = activeEngine === 'betterposter' ? 'BetterPoster (btttr.cc - es-MX)' : (activeEngine === 'postersplus' ? 'PostersPlus (stremio.ru - badges & ratings)' : 'Nativo / Limpio (TMDB es-MX sin custom art)');
+      state.addLog(`✓ Sistema de pósters configurado: ${engineDesc}`, 'success');
 
       let manifestUrl = '';
       let addonId = 'aio-metadata';
@@ -174,29 +177,30 @@ export class PipelineInjector {
         }
       }
 
+      const isEnrichmentActive = Boolean(state.preferences?.tmdbEnrichment);
       const hasMdblistKey = Boolean(state.apiKeys.mdblist && state.apiKeys.mdblist.trim());
       const hasTmdbKey = Boolean(state.apiKeys.tmdb && state.apiKeys.tmdb.trim());
+      const isRatingsActive = Boolean(state.preferences?.mdblistRatings && hasMdblistKey);
+      const posterEngine = state.preferences?.posterEngine || 'default';
+      const posterEngineLabel = posterEngine === 'betterposter' ? 'BetterPoster (btttr.cc)' : (posterEngine === 'postersplus' ? 'PostersPlus (stremio.ru)' : 'Default (Limpio)');
 
-      state.addLog('Configurando perfil: TMDB Enrichment en es-MX (TV y Mobile)...', 'info');
+      state.addLog(`Configurando perfil Nuvio: TMDB Enrichment = ${isEnrichmentActive ? 'ACTIVADO' : 'DESACTIVADO'}, Calificaciones MDBList = ${isRatingsActive ? 'ACTIVADO' : 'DESACTIVADO'} (Motor de Pósters: ${posterEngineLabel})...`, 'info');
+
       const profileSettingsPayload = {
         language: 'es-MX',
         tmdb_language: 'es-MX',
-        enrichment_enabled: true,
-        ratings_enabled: hasMdblistKey,
-        tmdb_api_key: hasTmdbKey ? state.apiKeys.tmdb.trim() : '',
-        mdblist_api_key: hasMdblistKey ? state.apiKeys.mdblist.trim() : ''
+        enrichment_enabled: isEnrichmentActive,
+        ratings_enabled: isRatingsActive,
+        tmdb_api_key: isEnrichmentActive && hasTmdbKey ? state.apiKeys.tmdb.trim() : '',
+        mdblist_api_key: isRatingsActive && hasMdblistKey ? state.apiKeys.mdblist.trim() : ''
       };
 
       if (isSimulation) {
         await this.delay(400);
-        state.addLog('✓ [Simulado] TMDB Enrichment activado en TV y Mobile (es-MX).', 'success');
-        if (hasMdblistKey) {
-          state.addLog('✓ [Simulado] Calificaciones de MDBList activadas con tu clave para TV y Mobile.', 'success');
-        } else {
-          state.addLog('ℹ️ [Simulado] Calificaciones de MDBList desactivadas (no se ingresó clave en el Paso 4).', 'info');
-        }
+        state.addLog(`✓ [Simulado] TMDB Enrichment ${isEnrichmentActive ? 'activado' : 'desactivado'} en TV, Mobile y Desktop (es-MX).`, isEnrichmentActive ? 'success' : 'info');
+        state.addLog(`✓ [Simulado] Calificaciones de MDBList ${isRatingsActive ? 'activadas con tu clave' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
       } else {
-        for (const platform of ['tv', 'mobile']) {
+        for (const platform of ['tv', 'mobile', 'desktop']) {
           await NuvioClient.pushProfileSettings({
             apiUrl: CONFIG.NUVIO_API_URL,
             apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -207,12 +211,8 @@ export class PipelineInjector {
             settings: profileSettingsPayload
           });
         }
-        state.addLog('✓ TMDB Enrichment activado exitosamente en es-MX (TV y Mobile).', 'success');
-        if (hasMdblistKey) {
-          state.addLog('✓ Calificaciones de MDBList activadas con tu clave para TV y Mobile.', 'success');
-        } else {
-          state.addLog('ℹ️ Calificaciones de MDBList desactivadas (no se ingresó clave en el Paso 4).', 'info');
-        }
+        state.addLog(`✓ TMDB Enrichment ${isEnrichmentActive ? 'activado exitosamente' : 'desactivado'} en es-MX (TV, Mobile y Desktop).`, isEnrichmentActive ? 'success' : 'info');
+        state.addLog(`✓ Calificaciones de MDBList ${isRatingsActive ? 'activadas exitosamente' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
       }
 
       // ========================================================

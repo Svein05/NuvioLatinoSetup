@@ -8,9 +8,14 @@
   <link rel="apple-touch-icon" href="../assets/logo/logo.jpg" />
   
   <!-- Metadatos SEO y Open Graph -->
-  <meta name="description" content="Asistente de configuración de Nuvio y AIOMetadata en 5 pasos. Personaliza colecciones 16:9, valida tus API keys y sincroniza tu perfil." />
+  <meta name="description" content="Asistente de configuración de Nuvio y AIOMetadata en 6 pasos. Personaliza colecciones 16:9, valida tus API keys, configura tus preferencias de pósters y sincroniza tu perfil." />
   <meta name="theme-color" content="#6366f1" />
   <meta name="author" content="Svein" />
+
+  <!-- Prevención de Caché en Navegador -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Nuvio Metadata Latino" />
@@ -43,7 +48,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <!-- Estilos Propios -->
-  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.3.0" />
 
   <!-- SortableJS para Reordenación Fluida y Animada (Local con fallback CDN) -->
   <script src="../js/vendor/sortable.min.js"></script>
@@ -56,7 +61,7 @@
   </script>
 
   <!-- Controlador Modular ES6 -->
-  <script type="module" src="../js/app.js?v=1.2.2"></script>
+  <script type="module" src="../js/app.js?v=1.6.0"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500/30 selection:text-brand-300">
 
@@ -152,7 +157,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <span class="text-xs text-slate-400 font-medium tracking-wide" id="stepCounter">Paso 1 de 5</span>
+          <span class="text-xs text-slate-400 font-medium tracking-wide" id="stepCounter">Paso 1 de 6</span>
           <button id="btnNext" onclick="changeStep(1)" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/20">
             <span>Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
@@ -183,30 +188,49 @@
               </button>
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
-              <input id="nuvioEmail" type="email" placeholder="usuario@correo.com" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
-              <input id="nuvioPassword" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
-              <p id="authHintText" class="text-[11px] text-slate-500 mt-1.5 hidden flex items-center gap-1">
-                <i class="fa-solid fa-shield text-emerald-400"></i>
-                <span>La contraseña debe contener al menos 6 caracteres.</span>
-              </p>
-            </div>
+            <form id="authForm" onsubmit="event.preventDefault();" class="space-y-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
+                <input id="nuvioEmail" type="email" placeholder="usuario@correo.com" autocomplete="email" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
+                <div class="relative">
+                  <input id="nuvioPassword" type="password" placeholder="••••••••" autocomplete="current-password" class="w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1 transition-colors" data-target="nuvioPassword" title="Mostrar/Ocultar contraseña">
+                    <i class="fa-solid fa-eye text-xs"></i>
+                  </button>
+                </div>
+                <p id="authHintText" class="text-[11px] text-slate-500 mt-1.5 hidden flex items-center gap-1">
+                  <i class="fa-solid fa-shield text-emerald-400"></i>
+                  <span>La contraseña debe contener al menos 6 caracteres.</span>
+                </p>
+              </div>
 
-            <!-- Botón Iniciar Sesión -->
-            <button id="btnNuvioConnect" type="button" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2">
-              <i class="fa-solid fa-arrow-right-to-bracket"></i>
-              <span>Conectar Cuenta</span>
-            </button>
+              <!-- Confirmar Contraseña (Solo en Modo Crear Cuenta) -->
+              <div id="confirmPasswordGroup" class="hidden space-y-1.5">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Confirmar Contraseña</label>
+                <div class="relative">
+                  <input id="nuvioPasswordConfirm" type="password" placeholder="Repite tu contraseña" autocomplete="new-password" class="w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1 transition-colors" data-target="nuvioPasswordConfirm" title="Mostrar/Ocultar contraseña">
+                    <i class="fa-solid fa-eye text-xs"></i>
+                  </button>
+                </div>
+                <p id="passwordMatchBadge" class="text-[11px] text-slate-500 mt-1 hidden flex items-center gap-1 font-medium"></p>
+              </div>
 
-            <!-- Botón Crear Cuenta (Oculto por defecto) -->
-            <button id="btnNuvioSignup" type="button" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-600/20 hidden items-center justify-center gap-2">
-              <i class="fa-solid fa-user-plus"></i>
-              <span>Crear Cuenta en Nuvio</span>
-            </button>
+              <!-- Botón Iniciar Sesión -->
+              <button id="btnNuvioConnect" type="submit" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                <span>Conectar Cuenta</span>
+              </button>
+
+              <!-- Botón Crear Cuenta (Oculto por defecto) -->
+              <button id="btnNuvioSignup" type="submit" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-600/20 hidden items-center justify-center gap-2">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Crear Cuenta en Nuvio</span>
+              </button>
+            </form>
 
             <!-- Opción Alternativa: Modo Manual sin cuenta -->
             <div class="relative flex py-2 items-center">
@@ -336,26 +360,26 @@
             <p class="text-[11px] text-slate-400">Motor principal obligatorio: requerido para la carga de datos, títulos y sinopsis oficiales en Español Latino (es-MX).</p>
           </div>
 
-          <!-- MDBList (Recomendado) -->
-          <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+          <!-- MDBList (Obligatorio - Destacada en ancho completo) -->
+          <div class="p-4 sm:p-5 bg-slate-950 border-2 border-indigo-500/50 rounded-xl space-y-2.5 md:col-span-2 shadow-lg shadow-indigo-500/5">
             <div class="flex justify-between items-center gap-2">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-list-check text-slate-400"></i>
+              <label class="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-list-check text-brand-400 text-sm"></i>
                 <span>MDBList API Key</span>
-                <span class="text-[10px] text-amber-400 font-mono font-medium whitespace-nowrap">(Recomendado)</span>
+                <span class="text-[10px] text-amber-400 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 whitespace-nowrap">Obligatorio</span>
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-mdblist" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
                   <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
-            <input id="keyMdblist" type="text" placeholder="Ingresa tu clave de MDBList para calificaciones" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs text-slate-200 transition-colors">
-            <p class="text-[11px] text-slate-400">Requerida para activar calificaciones externas (IMDb, Rotten Tomatoes, Metacritic y Trakt) en Nuvio.</p>
+            <input id="keyMdblist" type="text" placeholder="Ingresa tu clave de MDBList para calificaciones y carátulas dinámicas" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs sm:text-sm text-slate-100 transition-colors">
+            <p class="text-[11px] text-slate-400">Obligatoria: requerida para habilitar calificaciones agregadas (IMDb, Rotten Tomatoes, Trakt) en Nuvio y motor de carátulas dinámicas.</p>
           </div>
 
-          <!-- RPDB (Rating Poster DB) (Opcional) -->
+          <!-- RPDB (Rating Poster DB) (Opcional - Columna 1) -->
           <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
             <div class="flex justify-between items-center gap-2">
               <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
@@ -374,7 +398,7 @@
             <p class="text-[11px] text-slate-500">Puntuaciones en pósters (usa la clave gratuita t0-free-rpdb de AIOMetadata por defecto).</p>
           </div>
 
-          <!-- TheTVDB (Opcional) -->
+          <!-- TheTVDB (Opcional - Columna 2) -->
           <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
             <div class="flex justify-between items-center gap-2">
               <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
@@ -391,25 +415,6 @@
             </div>
             <input id="keyTvdb" type="text" placeholder="Clave de TheTVDB" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs text-slate-200 transition-colors">
             <p class="text-[11px] text-slate-500">Metadatos complementarios y numeración alternativa de temporadas de series.</p>
-          </div>
-
-          <!-- Fanart.tv (Opcional - 1 Columna) -->
-          <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-            <div class="flex justify-between items-center gap-2">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-palette text-slate-400"></i>
-                <span>Fanart.tv Project Key</span>
-                <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap">(Opcional)</span>
-              </label>
-              <div class="flex items-center gap-2 shrink-0">
-                <span id="badge-fanart" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://fanart.tv/get-an-api-key/" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
-                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                </a>
-              </div>
-            </div>
-            <input id="keyFanart" type="text" placeholder="API Key de Fanart.tv" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs text-slate-200 transition-colors">
-            <p class="text-[11px] text-slate-500">Logos transparentes (clearlogo) y fondos de alta calidad para títulos.</p>
           </div>
         </div>
 
@@ -463,9 +468,168 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 5: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
+      <!-- PASO 5: PREFERENCIAS Y MOTOR DE PÓSTERS    -->
       <!-- ========================================== -->
       <div id="step-5" class="step-content">
+        <div class="mb-5">
+          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
+            <i class="fa-solid fa-sliders text-brand-500 text-lg"></i>
+            <span>Preferencias de Perfil y Motor de Pósters</span>
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Configura las funciones enriquecidas para tu cuenta de Nuvio y selecciona el sistema visual que prefieras para tus carátulas.</p>
+        </div>
+
+        <!-- Sección 1: Toggles de Nuvio (TMDB Enrichment y MDBList Ratings) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 max-w-4xl">
+          <!-- Toggle TMDB Enrichment -->
+          <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center shrink-0 text-sm">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-slate-200">TMDB Enrichment</h3>
+                  <p class="text-[10px] text-slate-400 font-mono">Sinopsis y metadatos oficiales en es-MX</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input id="toggleTmdbEnrichment" type="checkbox" checked class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+              </label>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Enriquece las fichas de películas y series en Smart TV y móvil con sinopsis oficiales, reparto y directores en español latino directo desde TMDB.
+            </p>
+          </div>
+
+          <!-- Toggle MDBList Ratings -->
+          <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 text-sm">
+                  <i class="fa-solid fa-star-half-stroke"></i>
+                </div>
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-slate-200">Calificaciones MDBList</h3>
+                  <p class="text-[10px] text-slate-400 font-mono">Puntuaciones críticas agregadas</p>
+                </div>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                <input id="toggleMdblistRatings" type="checkbox" checked class="sr-only peer">
+                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+              </label>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Activa la visualización de calificaciones críticas globales (IMDb, Rotten Tomatoes, Trakt y Metacritic) en la vista de detalles de Nuvio.
+            </p>
+          </div>
+        </div>
+
+        <!-- Sección 2: Selector de Motor de Pósters -->
+        <div class="max-w-4xl space-y-3">
+          <div class="pb-1">
+            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-film text-brand-400"></i>
+              <span>¿Qué sistema de pósters prefieres?</span>
+            </h3>
+            <p class="text-xs text-slate-400">Selecciona la apariencia y estilo de carátulas para tus películas y series en todo Nuvio y AIOMetadata.</p>
+          </div>
+
+          <!-- Grid de 3 Tarjetas Horizontales -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+
+            <!-- Opción 1: Default (AioMetadata) -->
+            <div id="cardPosterDefault" onclick="window.appController.selectPosterEngine('default')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-brand-500 shadow-lg shadow-brand-500/10 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white tracking-wide">AioMetadata</span>
+                  <div class="w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center text-[10px] text-white card-check-icon">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+
+                <!-- Contenedor con ratio vertical 2:3 estricto -->
+                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
+                  <img id="posterPreviewDefault" src="https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg" alt="Póster Superman Original" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-900 text-center">
+                <span class="text-[10px] text-slate-500 font-mono italic">Sin dependencias externas</span>
+              </div>
+            </div>
+
+            <!-- Opción 2: BetterPoster -->
+            <div id="cardPosterBetter" onclick="window.appController.selectPosterEngine('betterposter')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white tracking-wide">BetterPoster</span>
+                  <div class="w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+
+                <!-- Contenedor con ratio vertical 2:3 estricto -->
+                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
+                  <img id="posterPreviewBetter" src="https://btttr.cc/poster/imdb/poster-default/tt5950044.jpg?lang=es-MX&rs=IM" alt="Póster Superman BetterPoster" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-900 space-y-2">
+                <a href="https://btttr.cc" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                  <span>Personalizar en btttr.cc</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                </a>
+                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('betterposter')" class="w-full text-[10px] text-brand-400 hover:text-brand-300 hover:underline flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-sliders text-[9px]"></i>
+                  <span>Ingresar URL propia (opcional)</span>
+                </button>
+                <div id="customUrlContainer-betterposter" class="hidden pt-1" onclick="event.stopPropagation()">
+                  <input id="customUrlBetterposter" type="text" placeholder="https://btttr.cc/..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] text-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+              </div>
+            </div>
+
+            <!-- Opción 3: Poster+ -->
+            <div id="cardPosterPlus" onclick="window.appController.selectPosterEngine('postersplus')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-white tracking-wide">Poster+</span>
+                  <div class="w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                </div>
+
+                <!-- Contenedor con ratio vertical 2:3 estricto y renderizado real de PostersPlus -->
+                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
+                  <img id="posterPreviewPostersPlus" src="https://postersplus.stremio.ru/poster?tmdb_id=1061474&imdb_id=tt5950044&stremio_id=tt5950044&type=movie&primary_client=stremio_tv_nuvio&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0" alt="Póster Superman PostersPlus" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
+                </div>
+              </div>
+
+              <div class="pt-2 border-t border-slate-900 space-y-2">
+                <a href="https://postersplus.stremio.ru" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+                  <span>Personalizar en PostersPlus</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                </a>
+                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('postersplus')" class="w-full text-[10px] text-brand-400 hover:text-brand-300 hover:underline flex items-center justify-center gap-1">
+                  <i class="fa-solid fa-sliders text-[9px]"></i>
+                  <span>Ingresar URL propia (opcional)</span>
+                </button>
+                <div id="customUrlContainer-postersplus" class="hidden pt-1" onclick="event.stopPropagation()">
+                  <input id="customUrlPostersplus" type="text" placeholder="https://postersplus.stremio.ru/poster?..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] text-slate-200 focus:outline-none focus:border-brand-500">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PASO 6: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
+      <!-- ========================================== -->
+      <div id="step-6" class="step-content">
         <div class="mb-5">
           <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
             <i class="fa-solid fa-rocket text-brand-500 text-lg"></i>
@@ -490,7 +654,7 @@
         </div>
 
         <!-- Tarjetas de Resumen -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 max-w-2xl text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4 max-w-4xl text-xs">
           <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
             <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Perfil Nuvio</span>
             <span id="summaryProfileTarget" class="text-slate-200 font-bold block truncate">Principal</span>
@@ -502,6 +666,14 @@
           <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
             <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Catálogos AIOMetadata</span>
             <span id="summaryCatalogsCount" class="text-emerald-400 font-bold block truncate">Ghost Mode (Optimizados)</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
+            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Motor de Pósters</span>
+            <span id="summaryPosterEngine" class="text-brand-400 font-bold block truncate">Nativo / Limpio</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
+            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Enriquecimiento</span>
+            <span id="summaryEnrichmentStatus" class="text-slate-200 font-bold block truncate">TMDB + MDBList</span>
           </div>
         </div>
 
@@ -628,6 +800,15 @@
       <button onclick="goToStep(5)" id="drawer-step-5" class="drawer-step-item locked">
         <span class="drawer-badge">5</span>
         <div class="flex-1 text-left">
+          <div class="font-medium text-xs">Preferencias</div>
+          <div class="text-[10px] text-slate-400">Enrichment y pósters</div>
+        </div>
+        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+      </button>
+
+      <button onclick="goToStep(6)" id="drawer-step-6" class="drawer-step-item locked">
+        <span class="drawer-badge">6</span>
+        <div class="flex-1 text-left">
           <div class="font-medium text-xs">Inyección</div>
           <div class="text-[10px] text-slate-400">Seguridad y sincronización</div>
         </div>
@@ -637,7 +818,7 @@
 
     <!-- Pie del Drawer -->
     <div class="p-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-      <span id="drawerStepCounter">Paso 1 de 5</span>
+      <span id="drawerStepCounter">Paso 1 de 6</span>
       <span class="text-[10px] text-slate-600">Nuvio Latino</span>
     </div>
   </aside>
@@ -710,7 +891,7 @@
         </p>
         <div class="pt-2 text-[11px] text-slate-500 space-y-1">
           <div>© 2025-2026 Nuvio Latino Setup</div>
-          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono text-brand-400 font-medium hover:underline">v1.1.1</a> • Licencia MIT</div>
+          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono text-brand-400 font-medium hover:underline">v1.2.0</a> • Licencia MIT</div>
           <div class="text-[10px] text-slate-600">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
         </div>
       </div>
