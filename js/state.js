@@ -532,7 +532,7 @@ class WizardState {
       title: catalogMeta.name || catId,
       sortBy: null,
       tmdbId: null,
-      addonId: 'com.aio.metadata',
+      addonId: 'aio-metadata',
       filters: null,
       sortHow: null,
       provider: 'addon',
@@ -545,7 +545,7 @@ class WizardState {
     const newCatSource = {
       type: catalogMeta.type || 'movie',
       genre: null,
-      addonId: 'com.aio.metadata',
+      addonId: 'aio-metadata',
       catalogId: catId,
       title: catalogMeta.name || catId
     };
