@@ -70,7 +70,14 @@ export class NuvioClient {
       }
 
       // Si la cuenta fue creada pero no retornó token de sesión inmediato, iniciar sesión automáticamente
-      return await this.login({ apiUrl, apikey, email, password });
+      try {
+        return await this.login({ apiUrl, apikey, email, password });
+      } catch (loginErr) {
+        if (/email not confirmed|confirm/i.test(loginErr.message)) {
+          throw new Error('Cuenta registrada con éxito. Nuvio requiere confirmación por correo: por favor revisa tu bandeja de entrada para verificar tu cuenta antes de iniciar sesión.');
+        }
+        throw loginErr;
+      }
     } catch (err) {
       console.error('[NuvioClient] Error de signup:', err);
       throw err;

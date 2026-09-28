@@ -261,7 +261,10 @@ class AppController {
   constructor() {
     this.miniNuvio = null;
     this.currentDemoIndex = 19; // Superman (2025) por defecto
+    this.currentDemoItem = DEMO_POSTERS[19] || DEMO_POSTERS[0];
     this.posterRotationTimer = null;
+    this.posterDeck = [];
+    this.isTransitioningPoster = false;
     this.nextDemoPoster = this.nextDemoPoster.bind(this);
     this.prevDemoPoster = this.prevDemoPoster.bind(this);
   }
@@ -795,6 +798,9 @@ class AppController {
   setupStep1Events() {
     const emailInput = document.getElementById('nuvioEmail');
     const passInput = document.getElementById('nuvioPassword');
+    const confirmGroup = document.getElementById('confirmPasswordGroup');
+    const confirmInput = document.getElementById('nuvioPasswordConfirm');
+    const matchBadge = document.getElementById('passwordMatchBadge');
     const btnConnect = document.getElementById('btnNuvioConnect');
     const btnSignup = document.getElementById('btnNuvioSignup');
     const tabLogin = document.getElementById('tabAuthLogin');
@@ -803,6 +809,30 @@ class AppController {
     const hintText = document.getElementById('authHintText');
 
     let authMode = 'login'; // 'login' | 'signup'
+
+    const validatePasswordMatch = () => {
+      if (authMode !== 'signup' || !confirmInput || !matchBadge) return;
+      const p1 = passInput ? passInput.value : '';
+      const p2 = confirmInput ? confirmInput.value : '';
+
+      if (!p2) {
+        matchBadge.className = 'text-[11px] text-slate-500 mt-1 hidden flex items-center gap-1 font-medium';
+        matchBadge.innerHTML = '';
+        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors';
+        return;
+      }
+
+      matchBadge.classList.remove('hidden');
+      if (p1 === p2) {
+        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-emerald-500/60 focus:outline-none focus:border-emerald-500 text-sm text-slate-200 transition-colors';
+        matchBadge.className = 'text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium';
+        matchBadge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Las contraseñas coinciden perfectamente.</span>';
+      } else {
+        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-rose-500/60 focus:outline-none focus:border-rose-500 text-sm text-slate-200 transition-colors';
+        matchBadge.className = 'text-[11px] text-rose-400 mt-1 flex items-center gap-1 font-medium';
+        matchBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i> <span>Las contraseñas no coinciden.</span>';
+      }
+    };
 
     const switchAuthMode = (mode) => {
       authMode = mode;
@@ -815,6 +845,9 @@ class AppController {
         }
         if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
+        if (confirmGroup) confirmGroup.classList.add('hidden');
+        if (confirmInput) confirmInput.value = '';
+        if (matchBadge) matchBadge.classList.add('hidden');
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
       } else {
@@ -826,6 +859,8 @@ class AppController {
         }
         if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
         if (hintText) hintText.classList.remove('hidden');
+        if (confirmGroup) confirmGroup.classList.remove('hidden');
+        validatePasswordMatch();
         if (btnConnect) btnConnect.style.display = 'none';
         if (btnSignup) btnSignup.style.display = 'flex';
       }
@@ -833,6 +868,22 @@ class AppController {
 
     if (tabLogin) tabLogin.addEventListener('click', () => switchAuthMode('login'));
     if (tabSignup) tabSignup.addEventListener('click', () => switchAuthMode('signup'));
+
+    // Soporte para tecla Enter en campos de autenticación
+    const handleEnterSubmit = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (authMode === 'login') {
+          if (btnConnect) btnConnect.click();
+        } else {
+          if (btnSignup) btnSignup.click();
+        }
+      }
+    };
+
+    [emailInput, passInput, confirmInput].forEach(inp => {
+      if (inp) inp.addEventListener('keydown', handleEnterSubmit);
+    });
 
     if (emailInput) {
       emailInput.addEventListener('input', (e) => {
@@ -844,7 +895,14 @@ class AppController {
     if (passInput) {
       passInput.addEventListener('input', (e) => {
         state.nuvioAuth.password = e.target.value;
+        validatePasswordMatch();
         this.updateNavigationButtons();
+      });
+    }
+
+    if (confirmInput) {
+      confirmInput.addEventListener('input', () => {
+        validatePasswordMatch();
       });
     }
 
@@ -959,6 +1017,7 @@ class AppController {
       btnSignup.addEventListener('click', async () => {
         const email = emailInput?.value?.trim();
         const password = passInput?.value;
+        const confirmPassword = confirmInput?.value;
         const apikey = CONFIG.NUVIO_PUBLIC_ANON_KEY;
 
         if (!email || !password) {
@@ -968,6 +1027,13 @@ class AppController {
 
         if (password.length < 6) {
           this.showToast('La contraseña debe tener al menos 6 caracteres.', 'warning');
+          passInput?.focus();
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          this.showToast('Las contraseñas no coinciden. Por favor verifícalas antes de continuar.', 'warning');
+          confirmInput?.focus();
           return;
         }
 
@@ -1745,19 +1811,68 @@ class AppController {
     this.updateStep5PosterPreviews();
   }
 
-  applyPosterDemoItem(item, withTransition = true) {
-    if (!item) return;
+  /**
+   * Precarga una imagen en memoria con timeout de seguridad.
+   * Rechaza si tarda más de timeoutMs o si no tiene dimensiones válidas.
+   */
+  preloadImage(url, timeoutMs = 4500) {
+    return new Promise((resolve, reject) => {
+      if (!url) return reject(new Error('URL vacía'));
+      const img = new Image();
+      let timer = setTimeout(() => {
+        img.onload = img.onerror = null;
+        reject(new Error(`Timeout (${timeoutMs}ms) precargando: ${url}`));
+      }, timeoutMs);
 
-    const titleEl = document.getElementById('posterDemoTitle');
-    const imgDefault = document.getElementById('posterPreviewDefault');
-    const imgBetter = document.getElementById('posterPreviewBetter');
-    const imgPlus = document.getElementById('posterPreviewPostersPlus');
-    const imgs = [imgDefault, imgBetter, imgPlus].filter(Boolean);
+      img.onload = () => {
+        clearTimeout(timer);
+        if (img.naturalWidth > 10 && img.naturalHeight > 10) {
+          resolve({ url, img });
+        } else {
+          reject(new Error(`Dimensiones inválidas para: ${url}`));
+        }
+      };
 
+      img.onerror = () => {
+        clearTimeout(timer);
+        reject(new Error(`Fallo al cargar imagen: ${url}`));
+      };
+
+      img.src = url;
+    });
+  }
+
+  /**
+   * Baraja la baraja de pósters (Fisher-Yates) excluyendo el título actualmente visible
+   */
+  refillPosterDeck() {
+    const currentImdb = this.currentDemoItem ? this.currentDemoItem.imdbId : null;
+    const pool = DEMO_POSTERS.filter(p => p.imdbId !== currentImdb);
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    this.posterDeck = pool;
+  }
+
+  /**
+   * Obtiene el siguiente candidato a mostrar sin repeticiones inmediatas
+   */
+  drawNextCandidate() {
+    if (!this.posterDeck || this.posterDeck.length === 0) {
+      this.refillPosterDeck();
+    }
+    return this.posterDeck.shift() || DEMO_POSTERS[0];
+  }
+
+  /**
+   * Resuelve las 3 URLs correspondientes a un candidato de demostración
+   */
+  async resolveCandidateUrls(item) {
     const tmdbKey = encodeURIComponent((state.apiKeys.tmdb || '').trim());
     const mdblistKey = encodeURIComponent((state.apiKeys.mdblist || '').trim());
 
-    // 1. Preview para BetterPoster (btttr.cc)
+    // 1. BetterPoster URL
     const customBetterInput = document.getElementById('customUrlBetterposter');
     const customBetterUrl = (customBetterInput && customBetterInput.value.trim()) || '';
     let betterUrl = customBetterUrl || 'https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM';
@@ -1767,7 +1882,7 @@ class AppController {
       .replace(/\{tmdb_id\??\}/g, item.tmdbId)
       .replace(/\{type\??\}/g, item.type);
 
-    // 2. Preview para PostersPlus (postersplus.stremio.ru) con logo_priority
+    // 2. PostersPlus URL con logo_priority
     const customPlusInput = document.getElementById('customUrlPostersplus');
     const customPlusUrl = (customPlusInput && customPlusInput.value.trim()) || '';
     const defaultPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbKey}&mdblist_key=${mdblistKey}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
@@ -1781,56 +1896,104 @@ class AppController {
       .replace(/\{tmdb_key\??\}/g, tmdbKey)
       .replace(/\{mdblist_key\??\}/g, mdblistKey);
 
+    // 3. Default / Nativo TMDB
+    let defaultUrl = item.fallbackPoster;
+    if (state.apiKeys.tmdb && state.apiKeys.tmdb.trim()) {
+      try {
+        const endpoint = (item.type === 'series') ? 'tv' : 'movie';
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`https://api.themoviedb.org/3/${endpoint}/${item.tmdbId}?api_key=${encodeURIComponent(state.apiKeys.tmdb.trim())}&language=es-MX`, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.poster_path) {
+            defaultUrl = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+          }
+        }
+      } catch (_) {
+        defaultUrl = item.fallbackPoster;
+      }
+    }
+
+    return { item, betterUrl, plusUrl, defaultUrl };
+  }
+
+  /**
+   * Intenta precargar y verificar los 3 pósters al 100%.
+   * Devuelve el objeto verificado si los 3 cargaron, o null si alguno falló.
+   */
+  async verifyAndPreloadTriple(item) {
+    try {
+      const resolved = await this.resolveCandidateUrls(item);
+      await Promise.all([
+        this.preloadImage(resolved.defaultUrl, 4500),
+        this.preloadImage(resolved.betterUrl, 4500),
+        this.preloadImage(resolved.plusUrl, 4500)
+      ]);
+      return resolved;
+    } catch (err) {
+      console.warn(`[PosterRotation] Título "${item.title}" descartado por carátula no disponible:`, err.message);
+      return null;
+    }
+  }
+
+  /**
+   * Ejecuta la rotación hacia el siguiente título válido.
+   * Busca hasta 6 candidatos hasta encontrar uno donde carguen las 3 carátulas al 100%.
+   */
+  async rotateToNextValidPoster(withTransition = true) {
+    if (this.isTransitioningPoster) return;
+
+    let verified = null;
+    for (let i = 0; i < 6; i++) {
+      const candidate = this.drawNextCandidate();
+      verified = await this.verifyAndPreloadTriple(candidate);
+      if (verified) break;
+    }
+
+    if (!verified) return;
+
+    await this.displayVerifiedDemoItem(verified, withTransition);
+  }
+
+  /**
+   * Muestra el candidato verificado con desvanecimiento simultáneo sincronizado
+   */
+  async displayVerifiedDemoItem(verified, withTransition = true) {
+    const { item, defaultUrl, betterUrl, plusUrl } = verified;
+    const titleEl = document.getElementById('posterDemoTitle');
+    const imgDefault = document.getElementById('posterPreviewDefault');
+    const imgBetter = document.getElementById('posterPreviewBetter');
+    const imgPlus = document.getElementById('posterPreviewPostersPlus');
+    const imgs = [imgDefault, imgBetter, imgPlus].filter(Boolean);
+
     const updateContent = () => {
-      // 1. Actualizar título e indicador de categoría sincronizado
       if (titleEl) {
         titleEl.innerHTML = `<span class="px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[9px] uppercase font-bold mr-1.5">${item.category}</span><span title="${item.title}">${item.title}</span>`;
       }
 
-      // 2. Asignar BetterPoster y PostersPlus
-      if (imgBetter) {
-        imgBetter.onerror = () => { imgBetter.src = item.fallbackPoster; };
-        imgBetter.src = betterUrl;
-      }
-      if (imgPlus) {
-        imgPlus.onerror = () => { imgPlus.src = item.fallbackPoster; };
-        imgPlus.src = plusUrl;
-      }
+      if (imgBetter) imgBetter.src = betterUrl;
+      if (imgPlus) imgPlus.src = plusUrl;
+      if (imgDefault) imgDefault.src = defaultUrl;
 
-      // 3. Asignar Default / Nativo TMDB
-      if (imgDefault) {
-        imgDefault.onerror = () => { imgDefault.src = item.fallbackPoster; };
-        if (state.apiKeys.tmdb && state.apiKeys.tmdb.trim()) {
-          const endpoint = (item.type === 'series') ? 'tv' : 'movie';
-          fetch(`https://api.themoviedb.org/3/${endpoint}/${item.tmdbId}?api_key=${encodeURIComponent(state.apiKeys.tmdb.trim())}&language=es-MX`)
-            .then(r => r.ok ? r.json() : null)
-            .then(data => {
-              if (data && data.poster_path) {
-                imgDefault.src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
-              } else {
-                imgDefault.src = item.fallbackPoster;
-              }
-            })
-            .catch(() => {
-              imgDefault.src = item.fallbackPoster;
-            });
-        } else {
-          imgDefault.src = item.fallbackPoster;
-        }
-      }
+      this.currentDemoItem = item;
+      this.currentDemoIndex = DEMO_POSTERS.findIndex(p => p.imdbId === item.imdbId);
+      if (this.currentDemoIndex === -1) this.currentDemoIndex = 0;
     };
 
     if (withTransition) {
-      // Desvanecer (fade-out sincronizado en los 3 pósters y el título)
+      this.isTransitioningPoster = true;
       imgs.forEach(img => { img.style.opacity = '0'; });
       if (titleEl) titleEl.style.opacity = '0';
 
-      setTimeout(() => {
-        updateContent();
-        // Restaurar opacidad (fade-in sincronizado)
-        imgs.forEach(img => { img.style.opacity = '1'; });
-        if (titleEl) titleEl.style.opacity = '1';
-      }, 250);
+      await new Promise(r => setTimeout(r, 300));
+
+      updateContent();
+
+      imgs.forEach(img => { img.style.opacity = '1'; });
+      if (titleEl) titleEl.style.opacity = '1';
+      this.isTransitioningPoster = false;
     } else {
       updateContent();
       imgs.forEach(img => { img.style.opacity = '1'; });
@@ -1838,20 +2001,18 @@ class AppController {
     }
   }
 
-  updateStep5PosterPreviews() {
-    const item = DEMO_POSTERS[this.currentDemoIndex] || DEMO_POSTERS[0];
-    this.applyPosterDemoItem(item, false);
+  async updateStep5PosterPreviews() {
+    const current = this.currentDemoItem || DEMO_POSTERS[this.currentDemoIndex] || DEMO_POSTERS[0];
+    const verified = await this.verifyAndPreloadTriple(current);
+    if (verified) {
+      await this.displayVerifiedDemoItem(verified, false);
+    }
   }
 
   startPosterRotation() {
     this.stopPosterRotation();
     this.posterRotationTimer = setInterval(() => {
-      let nextIdx;
-      do {
-        nextIdx = Math.floor(Math.random() * DEMO_POSTERS.length);
-      } while (nextIdx === this.currentDemoIndex && DEMO_POSTERS.length > 1);
-      this.currentDemoIndex = nextIdx;
-      this.applyPosterDemoItem(DEMO_POSTERS[this.currentDemoIndex], true);
+      this.rotateToNextValidPoster(true);
     }, 5500);
   }
 
@@ -1862,17 +2023,25 @@ class AppController {
     }
   }
 
-  nextDemoPoster() {
+  async nextDemoPoster() {
     this.stopPosterRotation();
-    this.currentDemoIndex = (this.currentDemoIndex + 1) % DEMO_POSTERS.length;
-    this.applyPosterDemoItem(DEMO_POSTERS[this.currentDemoIndex], true);
+    await this.rotateToNextValidPoster(true);
     this.startPosterRotation();
   }
 
-  prevDemoPoster() {
+  async prevDemoPoster() {
     this.stopPosterRotation();
-    this.currentDemoIndex = (this.currentDemoIndex - 1 + DEMO_POSTERS.length) % DEMO_POSTERS.length;
-    this.applyPosterDemoItem(DEMO_POSTERS[this.currentDemoIndex], true);
+    let prevIdx = (this.currentDemoIndex - 1 + DEMO_POSTERS.length) % DEMO_POSTERS.length;
+    let verified = null;
+    for (let i = 0; i < 6; i++) {
+      const candidate = DEMO_POSTERS[prevIdx];
+      verified = await this.verifyAndPreloadTriple(candidate);
+      if (verified) break;
+      prevIdx = (prevIdx - 1 + DEMO_POSTERS.length) % DEMO_POSTERS.length;
+    }
+    if (verified) {
+      await this.displayVerifiedDemoItem(verified, true);
+    }
     this.startPosterRotation();
   }
 
