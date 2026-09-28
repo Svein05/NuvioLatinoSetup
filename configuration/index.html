@@ -528,32 +528,12 @@
 
         <!-- Sección 2: Selector de Motor de Pósters -->
         <div class="max-w-4xl space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
-            <div>
-              <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-                <i class="fa-solid fa-film text-brand-400"></i>
-                <span>¿Qué sistema de pósters prefieres?</span>
-              </h3>
-              <p class="text-xs text-slate-400">Selecciona la apariencia y estilo de carátulas para tus películas y series en todo Nuvio y AIOMetadata.</p>
-            </div>
-            <!-- Barra de Demostración Sincronizada con controles -->
-            <div class="flex items-center gap-2 self-start sm:self-auto bg-slate-900/90 border border-slate-800 rounded-xl px-2.5 py-1 text-xs shadow-inner">
-              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold flex items-center gap-1">
-                <i class="fa-solid fa-arrows-rotate text-[9px] text-brand-400 animate-spin" style="animation-duration: 6s;"></i>
-                <span>Demo:</span>
-              </span>
-              <div class="flex items-center gap-1">
-                <button type="button" onclick="window.appController.prevDemoPoster()" title="Título anterior" class="w-5 h-5 rounded hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors text-[10px]">
-                  <i class="fa-solid fa-chevron-left"></i>
-                </button>
-                <span id="posterDemoTitle" class="px-2 py-0.5 rounded-lg bg-slate-950 border border-slate-800/80 text-[11px] font-semibold text-brand-300 font-sans tracking-wide min-w-[140px] sm:min-w-[180px] text-center truncate transition-opacity duration-300">
-                  Superman (2025)
-                </span>
-                <button type="button" onclick="window.appController.nextDemoPoster()" title="Siguiente título" class="w-5 h-5 rounded hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors text-[10px]">
-                  <i class="fa-solid fa-chevron-right"></i>
-                </button>
-              </div>
-            </div>
+          <div class="pb-1">
+            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-film text-brand-400"></i>
+              <span>¿Qué sistema de pósters prefieres?</span>
+            </h3>
+            <p class="text-xs text-slate-400">Selecciona la apariencia y estilo de carátulas para tus películas y series en todo Nuvio y AIOMetadata.</p>
           </div>
 
           <!-- Grid de 3 Tarjetas Horizontales -->
@@ -576,9 +556,6 @@
 
                 <div>
                   <h4 class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">Pósters Originales</h4>
-                  <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                    Carátulas cinematográficas limpias directas de TMDB. Desactiva Custom Art para evitar textos o reemplazos accidentales en inglés.
-                  </p>
                 </div>
               </div>
 
@@ -587,7 +564,7 @@
               </div>
             </div>
 
-            <!-- Opción 2: BetterPoster (btttr.cc) -->
+            <!-- Opción 2: BetterPoster -->
             <div id="cardPosterBetter" onclick="window.appController.selectPosterEngine('betterposter')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
@@ -603,10 +580,7 @@
                 </div>
 
                 <div>
-                  <h4 class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">BetterPoster (btttr.cc)</h4>
-                  <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                    Carátulas con tipografía estilizada, logos oficiales en español latino y calificaciones sobrias e integradas armónicamente.
-                  </p>
+                  <h4 class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">BetterPoster</h4>
                 </div>
               </div>
 
@@ -625,7 +599,7 @@
               </div>
             </div>
 
-            <!-- Opción 3: PostersPlus (postersplus.stremio.ru) -->
+            <!-- Opción 3: Poster+ -->
             <div id="cardPosterPlus" onclick="window.appController.selectPosterEngine('postersplus')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
@@ -641,10 +615,7 @@
                 </div>
 
                 <div>
-                  <h4 class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">PostersPlus (stremio.ru)</h4>
-                  <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                    Carátulas avanzadas con puntuaciones ponderadas de Letterboxd/Trakt, bandas cinemáticas (sash) y badges de resolución.
-                  </p>
+                  <h4 class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">Poster+</h4>
                 </div>
               </div>
 
