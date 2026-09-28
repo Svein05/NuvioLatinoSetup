@@ -2179,7 +2179,7 @@
       {
         "id": "mdblist.88468",
         "type": "movie",
-        "name": "Los ánimes que todos estan viendo",
+        "name": "Anime: Películas en Tendencia",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -2196,7 +2196,8 @@
           "mediatype": "movie"
         },
         "tags": [
-          "Ahora en Nuvio",
+          "Anime",
+          "Descubre",
           "Tendencia"
         ]
       },
@@ -4212,7 +4213,9 @@
         },
         "tags": [
           "Genero",
-          "Animación"
+          "Animación",
+          "Anime",
+          "Estudios"
         ]
       },
       {
@@ -5759,12 +5762,373 @@
         "source": "tmdb"
       },
       {
-        "id": "mdblist.14",
+        "id": "mdblist.47642",
         "type": "series",
-        "name": "Mdblist.14",
+        "name": "Anime: Temporada Actual (En Emisión)",
         "enabled": true,
         "showInHome": false,
-        "source": "mdblist"
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "itemCount": 83,
+          "author": "skack97",
+          "url": "https://mdblist.com/lists/skack97/current-anime-season",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Novedades"
+        ]
+      },
+      {
+        "id": "mdblist.2472",
+        "type": "series",
+        "name": "Anime: Lo Último en Series",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "iamscallywag",
+          "url": "https://mdblist.com/lists/iamscallywag/latest-anime",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Novedades"
+        ]
+      },
+      {
+        "id": "mdblist.2483",
+        "type": "movie",
+        "name": "Anime: Lo Último en Películas",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "iamscallywag",
+          "url": "https://mdblist.com/lists/iamscallywag/latest-anime-movies",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Novedades"
+        ]
+      },
+      {
+        "id": "mdblist.88469",
+        "type": "series",
+        "name": "Anime: Series en Tendencia",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "snoak",
+          "url": "https://mdblist.com/lists/snoak/trending-anime-shows",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Descubre"
+        ]
+      },
+      {
+        "id": "mdblist.13210",
+        "type": "series",
+        "name": "Anime: Obras Maestras (MAL 8/10+)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "solo_streaming",
+          "url": "https://mdblist.com/lists/solo_streaming/best-anime-shows-mal-710-ja65sonhz1",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Descubre"
+        ]
+      },
+      {
+        "id": "mdblist.131283",
+        "type": "movie",
+        "name": "Estudio: Studio Ghibli (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "21pixels",
+          "url": "https://mdblist.com/lists/21pixels/studio-ghibli",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.185112",
+        "type": "series",
+        "name": "Estudio: Studio MAPPA (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "pete86.pf",
+          "url": "https://mdblist.com/lists/pete86.pf/studio-mappa",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.185112",
+        "type": "movie",
+        "name": "Estudio: Studio MAPPA (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "pete86.pf",
+          "url": "https://mdblist.com/lists/pete86.pf/studio-mappa",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.194729",
+        "type": "series",
+        "name": "Estudio: Toei Animation (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.194729",
+        "type": "movie",
+        "name": "Estudio: Toei Animation (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.195285",
+        "type": "series",
+        "name": "Estudio: Ufotable (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/ufotable",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.195285",
+        "type": "movie",
+        "name": "Estudio: Ufotable (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/ufotable",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.194701",
+        "type": "series",
+        "name": "Estudio: Madhouse (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/madhosue",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.194701",
+        "type": "movie",
+        "name": "Estudio: Madhouse (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/madhosue",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.194733",
+        "type": "series",
+        "name": "Estudio: WIT Studio (Series)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
+          "mediatype": "series"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
+      },
+      {
+        "id": "mdblist.194733",
+        "type": "movie",
+        "name": "Estudio: WIT Studio (Películas)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "ohinin1357",
+          "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Estudios"
+        ]
       }
     ],
     "search": {
@@ -6054,8 +6418,8 @@
   },
   "metadata": {
     "apiKeysExcluded": true,
-    "totalCatalogs": 201,
-    "enabledCatalogs": 201
+    "totalCatalogs": 207,
+    "enabledCatalogs": 207
   },
   "catalogs": [
     {
@@ -8149,7 +8513,7 @@
     {
       "id": "mdblist.88468",
       "type": "movie",
-      "name": "Los ánimes que todos estan viendo",
+      "name": "Anime: Películas en Tendencia",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8166,7 +8530,8 @@
         "mediatype": "movie"
       },
       "tags": [
-        "Ahora en Nuvio",
+        "Anime",
+        "Descubre",
         "Tendencia"
       ]
     },
@@ -10182,7 +10547,9 @@
       },
       "tags": [
         "Genero",
-        "Animación"
+        "Animación",
+        "Anime",
+        "Estudios"
       ]
     },
     {
@@ -11822,29 +12189,6 @@
       ]
     },
     {
-      "id": "mdblist.88468",
-      "type": "movie",
-      "name": "Anime: Películas en Tendencia",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "snoak",
-        "url": "https://mdblist.com/lists/snoak/trending-anime-movies",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Descubre"
-      ]
-    },
-    {
       "id": "mdblist.13210",
       "type": "series",
       "name": "Anime: Obras Maestras (MAL 8/10+)",
@@ -11976,29 +12320,6 @@
         "author": "ohinin1357",
         "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
         "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
-      "id": "mdblist.103383",
-      "type": "series",
-      "name": "Estudio: Kyoto Animation",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "series",
-      "metadata": {
-        "author": "xpertplayer123",
-        "url": "https://mdblist.com/lists/xpertplayer123/kyoto-animation-shows",
-        "mediatype": "series"
       },
       "tags": [
         "Anime",

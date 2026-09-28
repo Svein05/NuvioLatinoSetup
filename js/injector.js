@@ -197,10 +197,10 @@ export class PipelineInjector {
 
       if (isSimulation) {
         await this.delay(400);
-        state.addLog(`✓ [Simulado] TMDB Enrichment ${isEnrichmentActive ? 'activado' : 'desactivado'} en TV y Mobile (es-MX).`, isEnrichmentActive ? 'success' : 'info');
-        state.addLog(`✓ [Simulado] Calificaciones de MDBList ${isRatingsActive ? 'activadas con tu clave' : 'desactivadas'} para TV y Mobile.`, isRatingsActive ? 'success' : 'info');
+        state.addLog(`✓ [Simulado] TMDB Enrichment ${isEnrichmentActive ? 'activado' : 'desactivado'} en TV, Mobile y Desktop (es-MX).`, isEnrichmentActive ? 'success' : 'info');
+        state.addLog(`✓ [Simulado] Calificaciones de MDBList ${isRatingsActive ? 'activadas con tu clave' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
       } else {
-        for (const platform of ['tv', 'mobile']) {
+        for (const platform of ['tv', 'mobile', 'desktop']) {
           await NuvioClient.pushProfileSettings({
             apiUrl: CONFIG.NUVIO_API_URL,
             apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -211,8 +211,8 @@ export class PipelineInjector {
             settings: profileSettingsPayload
           });
         }
-        state.addLog(`✓ TMDB Enrichment ${isEnrichmentActive ? 'activado exitosamente' : 'desactivado'} en es-MX (TV y Mobile).`, isEnrichmentActive ? 'success' : 'info');
-        state.addLog(`✓ Calificaciones de MDBList ${isRatingsActive ? 'activadas exitosamente' : 'desactivadas'} para TV y Mobile.`, isRatingsActive ? 'success' : 'info');
+        state.addLog(`✓ TMDB Enrichment ${isEnrichmentActive ? 'activado exitosamente' : 'desactivado'} en es-MX (TV, Mobile y Desktop).`, isEnrichmentActive ? 'success' : 'info');
+        state.addLog(`✓ Calificaciones de MDBList ${isRatingsActive ? 'activadas exitosamente' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
       }
 
       // ========================================================
