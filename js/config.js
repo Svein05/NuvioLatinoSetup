@@ -10,7 +10,7 @@ const getBasePath = () => {
 
 export const CONFIG = {
   // Versión oficial de la aplicación (sincronizada con version.json y GitHub Releases)
-  VERSION: "1.1.1",
+  VERSION: "1.2.0",
   GITHUB_REPO: "Svein05/NuvioLatinoSetup",
   RELEASE_URL: "https://github.com/Svein05/NuvioLatinoSetup/releases",
 

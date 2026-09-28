@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.1.1-6366f1.svg?style=flat-square" alt="Versión 1.1.1" /></a>
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.2.0-6366f1.svg?style=flat-square" alt="Versión 1.2.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -30,7 +30,7 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 
 ## ✨ Características Principales
 
-- **Flujo Guiado en 5 Etapas:** Navegación secuencial paso a paso con validaciones estrictas y control reactivo de estados.
+- **Flujo Guiado en 6 Etapas:** Navegación secuencial paso a paso con validaciones estrictas y control reactivo de estados.
 - **Soporte Dual de Aprovisionamiento:**
   - **Modo Nuvio Cloud:** Conexión segura con tu cuenta de Nuvio para inyectar colecciones, configuraciones y addons de forma 100% automática mediante RPCs autenticadas.
   - **Modo Manual (Sin Cuenta):** Para usuarios que prefieren no ingresar credenciales; permite personalizar las colecciones y copiar o descargar los archivos JSON listos para importar.
@@ -76,7 +76,7 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 2. **Paso 2 - Selección de Perfil:** Elige el perfil de Nuvio en el que se aplicará la configuración o crea uno nuevo directamente desde el asistente. Incluye advertencias visuales de sobreescritura para perfiles existentes y respeta el límite estricto de 6 perfiles.
 3. **Paso 3 - Personalización Visual en Mini NUVIO:** Explora y edita las colecciones nativas (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming) con carátulas en alta resolución y control total de catálogos.
 4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key y MDBList API Key (ambas obligatorias en ancho completo) y proveedores opcionales (RPDB, TheTVDB, Búsqueda con IA). Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
-5. **Paso 5 - Preferencias y Sistema de Pósters:** Selecciona si deseas activar TMDB Enrichment y calificaciones MDBList, y escoge el motor de carátulas cinematográficas (Nativo Limpio, BetterPoster o PostersPlus) con previsualización en vivo 2:3 y enlaces directos de personalización.
+5. **Paso 5 - Preferencias y Sistema de Pósters:** Selecciona si deseas activar TMDB Enrichment y calificaciones MDBList, y escoge el motor de carátulas cinematográficas (AioMetadata, BetterPoster o Poster+) con previsualización sincronizada en vivo 2:3 y enlaces directos de personalización.
 6. **Paso 6 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
 
 ---
