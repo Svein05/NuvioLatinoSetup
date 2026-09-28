@@ -51,7 +51,7 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 
 ---
 
-## 🗺️ Flujo de los 5 Pasos del Asistente
+## 🗺️ Flujo de los 6 Pasos del Asistente
 
 ```
 [ Paso 1: Cuenta Nuvio / Modo Manual ]
@@ -66,14 +66,18 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 [ Paso 4: Configuración y Validación de API Keys ]
                   │
                   ▼
-[ Paso 5: Seguridad de Addon e Inyección / Exportación JSON ]
+[ Paso 5: Preferencias de Perfil y Sistema de Pósters ]
+                  │
+                  ▼
+[ Paso 6: Seguridad de Addon e Inyección / Exportación JSON ]
 ```
 
 1. **Paso 1 - Autenticación Nuvio:** Inicia sesión con tus credenciales de Nuvio, crea una cuenta nueva o selecciona el botón alternativo **Continuar sin cuenta (Modo Manual)**.
 2. **Paso 2 - Selección de Perfil:** Elige el perfil de Nuvio en el que se aplicará la configuración o crea uno nuevo directamente desde el asistente. Incluye advertencias visuales de sobreescritura para perfiles existentes y respeta el límite estricto de 6 perfiles.
 3. **Paso 3 - Personalización Visual en Mini NUVIO:** Explora y edita las colecciones nativas (Recomendados, Estrenos, Películas Populares, Series, Anime, Géneros y Plataformas de Streaming) con carátulas en alta resolución y control total de catálogos.
-4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key (obligatoria) y proveedores opcionales (MDBList, RPDB, TheTVDB, Fanart, Gemini). Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
-5. **Paso 5 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
+4. **Paso 4 - Claves API e Integraciones:** Ingresa tu TMDB API Key y MDBList API Key (ambas obligatorias en ancho completo) y proveedores opcionales (RPDB, TheTVDB, Búsqueda con IA). Pulsa **Probar Claves API** para validar las credenciales en vivo contra los servidores oficiales antes de avanzar.
+5. **Paso 5 - Preferencias y Sistema de Pósters:** Selecciona si deseas activar TMDB Enrichment y calificaciones MDBList, y escoge el motor de carátulas cinematográficas (Nativo Limpio, BetterPoster o PostersPlus) con previsualización en vivo 2:3 y enlaces directos de personalización.
+6. **Paso 6 - Inyección y Seguridad:** Define la contraseña maestra para proteger tu instancia de AIOMetadata y ejecuta la inyección automatizada en la nube de Nuvio (o copia los JSONs de Colecciones y Metadata en Modo Manual).
 
 ---
 
@@ -83,9 +87,8 @@ Por defecto, la instalación masiva de catálogos en reproductores multimedia su
 | :--- | :---: | :--- | :--- |
 | **TheMovieDatabase (TMDB)** | **Obligatoria** | Metadatos en español latino, pósters, sinopsis y reparto. | [themoviedb.org](https://www.themoviedb.org/settings/api) |
 | **MDBList** | **Obligatoria** | Calificaciones externas (IMDb, RT, Metacritic, Trakt) y sustento de motores de pósters. | [mdblist.com](https://mdblist.com/preferences/) |
+| **RPDB (Rating Poster DB)** | Opcional | Clave para pósters cinematográficos con calificaciones incrustadas (`t0-free-rpdb` por defecto). | [ratingposterdb.com](https://ratingposterdb.com/) |
 | **TheTVDB** | Opcional | Identificación y carátulas de series de televisión. | [thetvdb.com](https://thetvdb.com/dashboard/account/apikeys) |
-| **RPDB (Rating Poster DB)** | Opcional | Clave para pósters cinematográficos con calificaciones incrustadas. | [ratingposterdb.com](https://ratingposterdb.com/) |
-| **Fanart.tv** | Opcional | Logos en formato PNG transparente, fondos en HD y disco-arte. | [fanart.tv](https://fanart.tv/get-an-api-key/) |
 | **Google Gemini** | Opcional | Motor de búsqueda semántica con Inteligencia Artificial. | [aistudio.google.com](https://aistudio.google.com/app/apikey) |
 | **OpenRouter** | Opcional | Modelos alternativos para búsqueda con Inteligencia Artificial. | [openrouter.ai](https://openrouter.ai/keys) |
 
