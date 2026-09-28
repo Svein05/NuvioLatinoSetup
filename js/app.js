@@ -1013,7 +1013,6 @@ class AppController {
     const tvdbInput = document.getElementById('keyTvdb') || document.getElementById('tvdbApiKey');
     const mdblistInput = document.getElementById('keyMdblist') || document.getElementById('mdblistApiKey');
     const rpdbInput = document.getElementById('keyRpdb') || document.getElementById('rpdbApiKey');
-    const fanartInput = document.getElementById('keyFanart') || document.getElementById('fanartApiKey');
 
     const toggleAi = document.getElementById('toggleSearchAi');
     const aiContainer = document.getElementById('aiKeysContainer');
@@ -1062,7 +1061,6 @@ class AppController {
     bindInput(tvdbInput, 'tvdb');
     bindInput(mdblistInput, 'mdblist');
     bindInput(rpdbInput, 'rpdb', 't0-free-rpdb');
-    bindInput(fanartInput, 'fanart');
 
     // 2. Vincular Búsqueda con IA y sus campos
     if (toggleAi && aiContainer) {
@@ -1093,7 +1091,6 @@ class AppController {
         if (tvdbInput) state.apiKeys.tvdb = tvdbInput.value.trim();
         if (mdblistInput) state.apiKeys.mdblist = mdblistInput.value.trim();
         if (rpdbInput) state.apiKeys.rpdb = rpdbInput.value.trim() || 't0-free-rpdb';
-        if (fanartInput) state.apiKeys.fanart = fanartInput.value.trim();
         if (geminiInput) state.apiKeys.gemini = geminiInput.value.trim();
         if (openrouterInput) state.apiKeys.openrouter = openrouterInput.value.trim();
 
@@ -1365,18 +1362,6 @@ class AppController {
           tvdbBadge.innerText = '';
         }
 
-        const fanartKey = (state.apiKeys.fanart || '').trim();
-        const fanartBadge = document.getElementById('badge-fanart');
-        if (fanartKey) {
-          validationMap.fanart = true;
-          if (fanartBadge) {
-            fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono shrink-0 whitespace-nowrap';
-            fanartBadge.innerText = '✓ Configurada';
-          }
-        } else if (fanartBadge) {
-          fanartBadge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
-          fanartBadge.innerText = '';
-        }
 
         // Resultado Final
         if (allValid) {
@@ -1459,6 +1444,7 @@ class AppController {
         if (state.preferences.posterEngine === 'betterposter') {
           state.preferences.customPosterUrl = e.target.value.trim();
         }
+        this.updateStep5PosterPreviews();
       });
     }
 
@@ -1467,6 +1453,7 @@ class AppController {
         if (state.preferences.posterEngine === 'postersplus') {
           state.preferences.customPosterUrl = e.target.value.trim();
         }
+        this.updateStep5PosterPreviews();
       });
     }
 
@@ -1496,6 +1483,62 @@ class AppController {
     };
 
     this.updatePosterCardsUI();
+    this.updateStep5PosterPreviews();
+  }
+
+  updateStep5PosterPreviews() {
+    const tmdbId = '1061474';
+    const imdbId = 'tt5950044';
+    const tmdbKey = encodeURIComponent((state.apiKeys.tmdb || '').trim());
+    const mdblistKey = encodeURIComponent((state.apiKeys.mdblist || '').trim());
+
+    // 1. Preview para BetterPoster (btttr.cc)
+    const customBetterInput = document.getElementById('customUrlBetterposter');
+    const customBetterUrl = (customBetterInput && customBetterInput.value.trim()) || '';
+    let betterUrl = customBetterUrl || 'https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM';
+    betterUrl = betterUrl
+      .replace(/\{imdb_id\??\}/g, imdbId)
+      .replace(/\{id\??\}/g, imdbId)
+      .replace(/\{tmdb_id\??\}/g, tmdbId)
+      .replace(/\{type\??\}/g, 'movie');
+
+    const imgBetter = document.getElementById('posterPreviewBetter');
+    if (imgBetter) {
+      imgBetter.src = betterUrl;
+    }
+
+    // 2. Preview para PostersPlus (postersplus.stremio.ru)
+    const customPlusInput = document.getElementById('customUrlPostersplus');
+    const customPlusUrl = (customPlusInput && customPlusInput.value.trim()) || '';
+    const defaultPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbKey}&mdblist_key=${mdblistKey}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
+
+    let plusUrl = customPlusUrl || defaultPlusPattern;
+    plusUrl = plusUrl
+      .replace(/\{tmdb_id\??\}/g, tmdbId)
+      .replace(/\{imdb_id\??\}/g, imdbId)
+      .replace(/\{id\??\}/g, imdbId)
+      .replace(/\{type\??\}/g, 'movie')
+      .replace(/\{tmdb_key\??\}/g, tmdbKey)
+      .replace(/\{mdblist_key\??\}/g, mdblistKey);
+
+    const imgPlus = document.getElementById('posterPreviewPostersPlus');
+    if (imgPlus) {
+      imgPlus.src = plusUrl;
+    }
+
+    // 3. Preview para Nativo / TMDB
+    const imgDefault = document.getElementById('posterPreviewDefault');
+    if (imgDefault && state.apiKeys.tmdb) {
+      const rawTmdbKey = state.apiKeys.tmdb.trim();
+      fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${encodeURIComponent(rawTmdbKey)}&language=es-MX`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && data.poster_path) {
+            imgDefault.src = `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+          }
+        })
+        .catch(() => {});
+    }
   }
 
   updatePosterCardsUI() {
@@ -1532,6 +1575,7 @@ class AppController {
     if (toggleEnrichment) toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
     if (toggleRatings) toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
     this.updatePosterCardsUI();
+    this.updateStep5PosterPreviews();
   }
 
   setupStep6Injection() {

@@ -40,7 +40,6 @@ class WizardState {
       tvdb: '',
       mdblist: '',
       rpdb: 't0-free-rpdb',
-      fanart: '',
       topPoster: '',
       publicmetadb: '',
       gemini: '',
@@ -648,7 +647,6 @@ class WizardState {
     configObj.apiKeys.tvdb = (this.apiKeys.tvdb || '').trim();
     configObj.apiKeys.mdblist = (this.apiKeys.mdblist || '').trim();
     configObj.apiKeys.rpdb = (this.apiKeys.rpdb || 't0-free-rpdb').trim();
-    configObj.apiKeys.fanart = (this.apiKeys.fanart || '').trim();
     configObj.apiKeys.topPoster = (this.apiKeys.topPoster || '').trim();
     configObj.apiKeys.publicmetadb = (this.apiKeys.publicmetadb || '').trim();
     configObj.apiKeys.gemini = (this.apiKeys.gemini || '').trim();
