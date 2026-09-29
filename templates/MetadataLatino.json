@@ -285,12 +285,13 @@
         ]
       },
       {
-        "id": "mdblist.84",
+        "id": "mdblist.official.anticipated",
         "type": "movie",
-        "name": "Películas más esperadas (MDBList)",
+        "name": "Más esperadas",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -298,6 +299,7 @@
         "enableRatingPosters": true,
         "displayType": "movie",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/movies/anticipated",
           "mediatype": "movie"
         },
@@ -307,12 +309,13 @@
         ]
       },
       {
-        "id": "mdblist.85",
+        "id": "mdblist.official.anticipated",
         "type": "series",
-        "name": "Series más esperadas (MDBList)",
+        "name": "Más esperadas",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -320,6 +323,7 @@
         "enableRatingPosters": true,
         "displayType": "series",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/shows/anticipated",
           "mediatype": "show"
         },
@@ -331,7 +335,7 @@
       {
         "id": "tmdb.trending",
         "type": "movie",
-        "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
+        "name": "Lo que todo el mundo está viendo - Día",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -345,7 +349,7 @@
       {
         "id": "tmdb.trending",
         "type": "series",
-        "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
+        "name": "Lo que todo el mundo está viendo - Día",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -357,12 +361,13 @@
         ]
       },
       {
-        "id": "mdblist.86",
+        "id": "mdblist.official.trending",
         "type": "movie",
-        "name": "Películas en Tendencia (MDBList)",
+        "name": "En Tendencia",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -370,6 +375,7 @@
         "enableRatingPosters": true,
         "displayType": "movie",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/movies/trending",
           "mediatype": "movie"
         },
@@ -379,12 +385,13 @@
         ]
       },
       {
-        "id": "mdblist.87",
+        "id": "mdblist.official.trending",
         "type": "series",
-        "name": "Series en Tendencia (MDBList)",
+        "name": "En Tendencia",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -392,6 +399,7 @@
         "enableRatingPosters": true,
         "displayType": "series",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/shows/trending",
           "mediatype": "show"
         },
@@ -473,12 +481,13 @@
         ]
       },
       {
-        "id": "mdblist.88",
+        "id": "mdblist.official.most-watched-week",
         "type": "movie",
-        "name": "Películas más vistas de la semana (MDBList)",
+        "name": "Más vistas de la semana",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -486,6 +495,7 @@
         "enableRatingPosters": true,
         "displayType": "movie",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/movies/most-watched-week",
           "mediatype": "movie"
         },
@@ -495,12 +505,13 @@
         ]
       },
       {
-        "id": "mdblist.89",
+        "id": "mdblist.official.most-watched-week",
         "type": "series",
-        "name": "Series más vistas de la semana (MDBList)",
+        "name": "Más vistas de la semana",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -508,6 +519,7 @@
         "enableRatingPosters": true,
         "displayType": "series",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/shows/most-watched-week",
           "mediatype": "show"
         },
@@ -517,12 +529,13 @@
         ]
       },
       {
-        "id": "mdblist.82",
+        "id": "mdblist.official.most-watched",
         "type": "movie",
-        "name": "Películas más vistas del año (MDBList)",
+        "name": "Más vistas del año",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -530,6 +543,7 @@
         "enableRatingPosters": true,
         "displayType": "movie",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/movies/most-watched",
           "mediatype": "movie"
         },
@@ -539,12 +553,13 @@
         ]
       },
       {
-        "id": "mdblist.83",
+        "id": "mdblist.official.most-watched",
         "type": "series",
-        "name": "Series más vistas del año (MDBList)",
+        "name": "Más vistas del año",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -552,6 +567,7 @@
         "enableRatingPosters": true,
         "displayType": "series",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/shows/most-watched",
           "mediatype": "show"
         },
@@ -563,7 +579,7 @@
       {
         "id": "tmdb.top",
         "type": "movie",
-        "name": "Lo más popular de hoy (Películas)",
+        "name": "Lo más popular de hoy",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -577,7 +593,7 @@
       {
         "id": "tmdb.top",
         "type": "series",
-        "name": "Lo más popular de hoy (Series)",
+        "name": "Lo más popular de hoy",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -589,12 +605,13 @@
         ]
       },
       {
-        "id": "mdblist.63",
+        "id": "mdblist.official.popular",
         "type": "movie",
-        "name": "Películas Populares (MDBList)",
+        "name": "Más Populares",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -602,6 +619,7 @@
         "enableRatingPosters": true,
         "displayType": "movie",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/movies/popular",
           "mediatype": "movie"
         },
@@ -611,12 +629,13 @@
         ]
       },
       {
-        "id": "mdblist.64",
+        "id": "mdblist.official.popular",
         "type": "series",
-        "name": "Series Populares (MDBList)",
+        "name": "Más Populares",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -624,6 +643,7 @@
         "enableRatingPosters": true,
         "displayType": "series",
         "metadata": {
+          "author": "official",
           "url": "https://mdblist.com/lists/official/shows/popular",
           "mediatype": "show"
         },
@@ -4000,7 +4020,7 @@
       {
         "id": "mdblist.131283",
         "type": "movie",
-        "name": "Estudio: Studio Ghibli (Películas)",
+        "name": "Estudio: Studio Ghibli",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4023,7 +4043,7 @@
       {
         "id": "mdblist.185112",
         "type": "series",
-        "name": "Estudio: Studio MAPPA (Series)",
+        "name": "Estudio: Studio MAPPA",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4046,7 +4066,7 @@
       {
         "id": "mdblist.185112",
         "type": "movie",
-        "name": "Estudio: Studio MAPPA (Películas)",
+        "name": "Estudio: Studio MAPPA",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4069,7 +4089,7 @@
       {
         "id": "mdblist.194729",
         "type": "series",
-        "name": "Estudio: Toei Animation (Series)",
+        "name": "Estudio: Toei Animation",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4092,7 +4112,7 @@
       {
         "id": "mdblist.194729",
         "type": "movie",
-        "name": "Estudio: Toei Animation (Películas)",
+        "name": "Estudio: Toei Animation",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4115,7 +4135,7 @@
       {
         "id": "mdblist.195285",
         "type": "series",
-        "name": "Estudio: Ufotable (Series)",
+        "name": "Estudio: Ufotable",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4138,7 +4158,7 @@
       {
         "id": "mdblist.195285",
         "type": "movie",
-        "name": "Estudio: Ufotable (Películas)",
+        "name": "Estudio: Ufotable",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4161,7 +4181,7 @@
       {
         "id": "mdblist.194701",
         "type": "series",
-        "name": "Estudio: Madhouse (Series)",
+        "name": "Estudio: Madhouse",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4184,7 +4204,7 @@
       {
         "id": "mdblist.194701",
         "type": "movie",
-        "name": "Estudio: Madhouse (Películas)",
+        "name": "Estudio: Madhouse",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4207,7 +4227,7 @@
       {
         "id": "mdblist.194733",
         "type": "series",
-        "name": "Estudio: WIT Studio (Series)",
+        "name": "Estudio: WIT Studio",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4230,7 +4250,7 @@
       {
         "id": "mdblist.194733",
         "type": "movie",
-        "name": "Estudio: WIT Studio (Películas)",
+        "name": "Estudio: WIT Studio",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4739,12 +4759,13 @@
       ]
     },
     {
-      "id": "mdblist.84",
+      "id": "mdblist.official.anticipated",
       "type": "movie",
-      "name": "Películas más esperadas (MDBList)",
+      "name": "Más esperadas",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4752,6 +4773,7 @@
       "enableRatingPosters": true,
       "displayType": "movie",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/movies/anticipated",
         "mediatype": "movie"
       },
@@ -4761,12 +4783,13 @@
       ]
     },
     {
-      "id": "mdblist.85",
+      "id": "mdblist.official.anticipated",
       "type": "series",
-      "name": "Series más esperadas (MDBList)",
+      "name": "Más esperadas",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4774,6 +4797,7 @@
       "enableRatingPosters": true,
       "displayType": "series",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/shows/anticipated",
         "mediatype": "show"
       },
@@ -4785,7 +4809,7 @@
     {
       "id": "tmdb.trending",
       "type": "movie",
-      "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
+      "name": "Lo que todo el mundo está viendo - Día",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -4799,7 +4823,7 @@
     {
       "id": "tmdb.trending",
       "type": "series",
-      "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
+      "name": "Lo que todo el mundo está viendo - Día",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -4811,12 +4835,13 @@
       ]
     },
     {
-      "id": "mdblist.86",
+      "id": "mdblist.official.trending",
       "type": "movie",
-      "name": "Películas en Tendencia (MDBList)",
+      "name": "En Tendencia",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4824,6 +4849,7 @@
       "enableRatingPosters": true,
       "displayType": "movie",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/movies/trending",
         "mediatype": "movie"
       },
@@ -4833,12 +4859,13 @@
       ]
     },
     {
-      "id": "mdblist.87",
+      "id": "mdblist.official.trending",
       "type": "series",
-      "name": "Series en Tendencia (MDBList)",
+      "name": "En Tendencia",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4846,6 +4873,7 @@
       "enableRatingPosters": true,
       "displayType": "series",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/shows/trending",
         "mediatype": "show"
       },
@@ -4927,12 +4955,13 @@
       ]
     },
     {
-      "id": "mdblist.88",
+      "id": "mdblist.official.most-watched-week",
       "type": "movie",
-      "name": "Películas más vistas de la semana (MDBList)",
+      "name": "Más vistas de la semana",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4940,6 +4969,7 @@
       "enableRatingPosters": true,
       "displayType": "movie",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/movies/most-watched-week",
         "mediatype": "movie"
       },
@@ -4949,12 +4979,13 @@
       ]
     },
     {
-      "id": "mdblist.89",
+      "id": "mdblist.official.most-watched-week",
       "type": "series",
-      "name": "Series más vistas de la semana (MDBList)",
+      "name": "Más vistas de la semana",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4962,6 +4993,7 @@
       "enableRatingPosters": true,
       "displayType": "series",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/shows/most-watched-week",
         "mediatype": "show"
       },
@@ -4971,12 +5003,13 @@
       ]
     },
     {
-      "id": "mdblist.82",
+      "id": "mdblist.official.most-watched",
       "type": "movie",
-      "name": "Películas más vistas del año (MDBList)",
+      "name": "Más vistas del año",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -4984,6 +5017,7 @@
       "enableRatingPosters": true,
       "displayType": "movie",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/movies/most-watched",
         "mediatype": "movie"
       },
@@ -4993,12 +5027,13 @@
       ]
     },
     {
-      "id": "mdblist.83",
+      "id": "mdblist.official.most-watched",
       "type": "series",
-      "name": "Series más vistas del año (MDBList)",
+      "name": "Más vistas del año",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -5006,6 +5041,7 @@
       "enableRatingPosters": true,
       "displayType": "series",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/shows/most-watched",
         "mediatype": "show"
       },
@@ -5017,7 +5053,7 @@
     {
       "id": "tmdb.top",
       "type": "movie",
-      "name": "Lo más popular de hoy (Películas)",
+      "name": "Lo más popular de hoy",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -5031,7 +5067,7 @@
     {
       "id": "tmdb.top",
       "type": "series",
-      "name": "Lo más popular de hoy (Series)",
+      "name": "Lo más popular de hoy",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -5043,12 +5079,13 @@
       ]
     },
     {
-      "id": "mdblist.63",
+      "id": "mdblist.official.popular",
       "type": "movie",
-      "name": "Películas Populares (MDBList)",
+      "name": "Más Populares",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -5056,6 +5093,7 @@
       "enableRatingPosters": true,
       "displayType": "movie",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/movies/popular",
         "mediatype": "movie"
       },
@@ -5065,12 +5103,13 @@
       ]
     },
     {
-      "id": "mdblist.64",
+      "id": "mdblist.official.popular",
       "type": "series",
-      "name": "Series Populares (MDBList)",
+      "name": "Más Populares",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
       "sort": "default",
       "order": "asc",
       "cacheTTL": 86400,
@@ -5078,6 +5117,7 @@
       "enableRatingPosters": true,
       "displayType": "series",
       "metadata": {
+        "author": "official",
         "url": "https://mdblist.com/lists/official/shows/popular",
         "mediatype": "show"
       },
@@ -8454,7 +8494,7 @@
     {
       "id": "mdblist.131283",
       "type": "movie",
-      "name": "Estudio: Studio Ghibli (Películas)",
+      "name": "Estudio: Studio Ghibli",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8477,7 +8517,7 @@
     {
       "id": "mdblist.185112",
       "type": "series",
-      "name": "Estudio: Studio MAPPA (Series)",
+      "name": "Estudio: Studio MAPPA",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8500,7 +8540,7 @@
     {
       "id": "mdblist.185112",
       "type": "movie",
-      "name": "Estudio: Studio MAPPA (Películas)",
+      "name": "Estudio: Studio MAPPA",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8523,7 +8563,7 @@
     {
       "id": "mdblist.194729",
       "type": "series",
-      "name": "Estudio: Toei Animation (Series)",
+      "name": "Estudio: Toei Animation",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8546,7 +8586,7 @@
     {
       "id": "mdblist.194729",
       "type": "movie",
-      "name": "Estudio: Toei Animation (Películas)",
+      "name": "Estudio: Toei Animation",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8569,7 +8609,7 @@
     {
       "id": "mdblist.195285",
       "type": "series",
-      "name": "Estudio: Ufotable (Series)",
+      "name": "Estudio: Ufotable",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8592,7 +8632,7 @@
     {
       "id": "mdblist.195285",
       "type": "movie",
-      "name": "Estudio: Ufotable (Películas)",
+      "name": "Estudio: Ufotable",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8615,7 +8655,7 @@
     {
       "id": "mdblist.194701",
       "type": "series",
-      "name": "Estudio: Madhouse (Series)",
+      "name": "Estudio: Madhouse",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8638,7 +8678,7 @@
     {
       "id": "mdblist.194701",
       "type": "movie",
-      "name": "Estudio: Madhouse (Películas)",
+      "name": "Estudio: Madhouse",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8661,7 +8701,7 @@
     {
       "id": "mdblist.194733",
       "type": "series",
-      "name": "Estudio: WIT Studio (Series)",
+      "name": "Estudio: WIT Studio",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8684,7 +8724,7 @@
     {
       "id": "mdblist.194733",
       "type": "movie",
-      "name": "Estudio: WIT Studio (Películas)",
+      "name": "Estudio: WIT Studio",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",

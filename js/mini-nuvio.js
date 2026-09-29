@@ -462,42 +462,29 @@ export class MiniNuvio {
 
     // Mapeos canónicos limpios en Español Latino
     if (catId === 'tmdb.trending_movie' || (catId.startsWith('tmdb.trending') && type === 'movie')) {
-      return 'Lo que todo el mundo esta viendo según TMDB (Películas) - Day';
+      return 'Lo que todo el mundo está viendo - Día';
     }
     if (catId === 'tmdb.trending_series' || (catId.startsWith('tmdb.trending') && type === 'series')) {
-      return 'Lo que todo el mundo esta viendo según TMDB (Series) - Day';
+      return 'Lo que todo el mundo está viendo - Día';
     }
     if (catId === 'tmdb.top_movie' || (catId.startsWith('tmdb.top') && type === 'movie')) {
-      return 'Lo más popular de hoy (Películas)';
+      return 'Lo más popular de hoy';
     }
     if (catId === 'tmdb.top_series' || (catId.startsWith('tmdb.top') && type === 'series')) {
-      return 'Lo más popular de hoy (Series)';
+      return 'Lo más popular de hoy';
     }
-    if (catId === 'trakt.recommendations.movies') {
-      return 'Recomendaciones de Trakt (Películas)';
+    if (catId === 'trakt.recommendations.movies' || catId === 'trakt.recommendations.shows') {
+      return 'Recomendaciones de Trakt';
     }
-    if (catId === 'trakt.recommendations.shows') {
-      return 'Recomendaciones de Trakt (Series)';
-    }
-    if (catId.startsWith('tmdb.discover.movie.streaming.')) {
-      const p = catId.replace('tmdb.discover.movie.streaming.', '').replace(/-/g, ' ');
+    if (catId.startsWith('tmdb.discover.movie.streaming.') || catId.startsWith('tmdb.discover.series.streaming.')) {
+      const p = catId.replace(/tmdb\.discover\.(movie|series)\.streaming\./, '').replace(/-/g, ' ');
       const pTitle = p.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      return `🎬 ${pTitle} (Películas)`;
+      return `🎬 ${pTitle}`;
     }
-    if (catId.startsWith('tmdb.discover.series.streaming.')) {
-      const p = catId.replace('tmdb.discover.series.streaming.', '').replace(/-/g, ' ');
-      const pTitle = p.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      return `🎬 ${pTitle} (Series)`;
-    }
-    if (catId.startsWith('tmdb.discover.movie.genres.')) {
-      const g = catId.replace('tmdb.discover.movie.genres.', '').replace(/-/g, ' ');
+    if (catId.startsWith('tmdb.discover.movie.genres.') || catId.startsWith('tmdb.discover.series.genres.')) {
+      const g = catId.replace(/tmdb\.discover\.(movie|series)\.genres\./, '').replace(/-/g, ' ');
       const gTitle = g.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      return `🎭 ${gTitle} (Películas)`;
-    }
-    if (catId.startsWith('tmdb.discover.series.genres.')) {
-      const g = catId.replace('tmdb.discover.series.genres.', '').replace(/-/g, ' ');
-      const gTitle = g.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      return `🎭 ${gTitle} (Series)`;
+      return `🎭 ${gTitle}`;
     }
 
     if (meta && meta.name) return meta.name;
