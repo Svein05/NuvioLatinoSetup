@@ -339,7 +339,6 @@ export class NuvioClient {
     const payload = [{
       user_id: ownerId,
       profile_id: addonData.profile_id,
-      addon_id: addonData.addon_id || 'aio-metadata',
       url: addonData.manifest_url || addonData.url,
       name: addonData.name || 'AIOMetadata',
       enabled: true,
@@ -371,7 +370,6 @@ export class NuvioClient {
           body: JSON.stringify({
             user_id: ownerId,
             profile_id: addonData.profile_id,
-            addon_id: addonData.addon_id || 'aio-metadata',
             manifest_url: addonData.manifest_url,
             transport_url: addonData.manifest_url,
             url: addonData.manifest_url,
@@ -385,25 +383,6 @@ export class NuvioClient {
           throw new Error(`Error instalando addon (${singleResponse.status}): ${errorText}`);
         }
       }
-
-      // También sincronizar con el procedimiento almacenado sync_push_addons para la app nativa de Nuvio
-      try {
-        await this.rpc({
-          apiUrl,
-          apikey,
-          accessToken,
-          path: 'sync_push_addons',
-          body: {
-            p_profile_id: Number(addonData.profile_id) || addonData.profile_id,
-            p_addons: [{
-              addon_id: addonData.addon_id || 'aio-metadata',
-              url: addonData.manifest_url || addonData.url,
-              name: addonData.name || 'AIOMetadata',
-              enabled: true
-            }]
-          }
-        });
-      } catch (_) {}
 
       return { success: true };
     } catch (err) {
