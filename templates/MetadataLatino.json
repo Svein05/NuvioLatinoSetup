@@ -285,28 +285,18 @@
         ]
       },
       {
-        "id": "mdblist.official.anticipated",
+        "id": "trakt.anticipated.movies",
         "type": "movie",
         "name": "Más esperadas",
         "enabled": true,
         "showInHome": false,
-        "source": "mdblist",
-        "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
+        "source": "trakt",
         "displayType": "movie",
-        "metadata": {
-          "author": "official",
-          "url": "https://mdblist.com/lists/official/movies/anticipated",
-          "mediatype": "movie"
-        },
         "tags": [
           "Ahora en Nuvio",
           "Estreno"
-        ]
+        ],
+        "enableRatingPosters": true
       },
       {
         "id": "mdblist.official.anticipated",
@@ -4759,28 +4749,18 @@
       ]
     },
     {
-      "id": "mdblist.official.anticipated",
+      "id": "trakt.anticipated.movies",
       "type": "movie",
       "name": "Más esperadas",
       "enabled": true,
       "showInHome": false,
-      "source": "mdblist",
-      "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
+      "source": "trakt",
       "displayType": "movie",
-      "metadata": {
-        "author": "official",
-        "url": "https://mdblist.com/lists/official/movies/anticipated",
-        "mediatype": "movie"
-      },
       "tags": [
         "Ahora en Nuvio",
         "Estreno"
-      ]
+      ],
+      "enableRatingPosters": true
     },
     {
       "id": "mdblist.official.anticipated",
