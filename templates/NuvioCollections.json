@@ -200,6 +200,36 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Películas más esperadas (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.84",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Series más esperadas (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.85",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -230,6 +260,20 @@
             "addonId": "aio-metadata",
             "catalogId": "mdblist.58886",
             "title": "Lo más nuevo en Mini Series"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.84",
+            "title": "Películas más esperadas (MDBList)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.85",
+            "title": "Series más esperadas (MDBList)"
           }
         ],
         "focusGifEnabled": false,
@@ -249,7 +293,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.trending_movie",
+            "catalogId": "tmdb.trending",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -264,7 +308,37 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.trending_series",
+            "catalogId": "tmdb.trending",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Películas en Tendencia (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.86",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Series en Tendencia (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.87",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -282,15 +356,29 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending_movie",
+            "catalogId": "tmdb.trending",
             "title": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.trending_series",
+            "catalogId": "tmdb.trending",
             "title": "Lo que todo el mundo esta viendo según TMDB (Series) - Day"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.86",
+            "title": "Películas en Tendencia (MDBList)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.87",
+            "title": "Series en Tendencia (MDBList)"
           }
         ],
         "focusGifEnabled": false,
@@ -344,6 +432,66 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Películas más vistas de la semana (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.88",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Series más vistas de la semana (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.89",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Películas más vistas del año (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.82",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Series más vistas del año (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.83",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -374,6 +522,34 @@
             "addonId": "aio-metadata",
             "catalogId": "mdblist.201113",
             "title": "Las mejores de todos los tiempos"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.88",
+            "title": "Películas más vistas de la semana (MDBList)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.89",
+            "title": "Series más vistas de la semana (MDBList)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.82",
+            "title": "Películas más vistas del año (MDBList)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.83",
+            "title": "Series más vistas del año (MDBList)"
           }
         ],
         "focusGifEnabled": false,
@@ -393,7 +569,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.top_movie",
+            "catalogId": "tmdb.top",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -408,7 +584,37 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "tmdb.top_series",
+            "catalogId": "tmdb.top",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Películas Populares (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.63",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Series Populares (MDBList)",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.64",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -426,15 +632,29 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_movie",
+            "catalogId": "tmdb.top",
             "title": "Lo más popular de hoy (Películas)"
           },
           {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "tmdb.top_series",
+            "catalogId": "tmdb.top",
             "title": "Lo más popular de hoy (Series)"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.63",
+            "title": "Películas Populares (MDBList)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.64",
+            "title": "Series Populares (MDBList)"
           }
         ],
         "focusGifEnabled": false,

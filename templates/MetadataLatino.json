@@ -285,7 +285,51 @@
         ]
       },
       {
-        "id": "tmdb.trending_movie",
+        "id": "mdblist.84",
+        "type": "movie",
+        "name": "Películas más esperadas (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/movies/anticipated",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Estreno"
+        ]
+      },
+      {
+        "id": "mdblist.85",
+        "type": "series",
+        "name": "Series más esperadas (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/shows/anticipated",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Estreno"
+        ]
+      },
+      {
+        "id": "tmdb.trending",
         "type": "movie",
         "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
         "enabled": true,
@@ -299,7 +343,7 @@
         ]
       },
       {
-        "id": "tmdb.trending_series",
+        "id": "tmdb.trending",
         "type": "series",
         "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
         "enabled": true,
@@ -307,6 +351,50 @@
         "source": "tmdb",
         "enableRatingPosters": true,
         "displayType": "series",
+        "tags": [
+          "Ahora en Nuvio",
+          "Tendencia"
+        ]
+      },
+      {
+        "id": "mdblist.86",
+        "type": "movie",
+        "name": "Películas en Tendencia (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/movies/trending",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Tendencia"
+        ]
+      },
+      {
+        "id": "mdblist.87",
+        "type": "series",
+        "name": "Series en Tendencia (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/shows/trending",
+          "mediatype": "show"
+        },
         "tags": [
           "Ahora en Nuvio",
           "Tendencia"
@@ -385,7 +473,95 @@
         ]
       },
       {
-        "id": "tmdb.top_movie",
+        "id": "mdblist.88",
+        "type": "movie",
+        "name": "Películas más vistas de la semana (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/movies/most-watched-week",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "mdblist.89",
+        "type": "series",
+        "name": "Series más vistas de la semana (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/shows/most-watched-week",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "mdblist.82",
+        "type": "movie",
+        "name": "Películas más vistas del año (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/movies/most-watched",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "mdblist.83",
+        "type": "series",
+        "name": "Series más vistas del año (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/shows/most-watched",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "tmdb.top",
         "type": "movie",
         "name": "Lo más popular de hoy (Películas)",
         "enabled": true,
@@ -399,7 +575,7 @@
         ]
       },
       {
-        "id": "tmdb.top_series",
+        "id": "tmdb.top",
         "type": "series",
         "name": "Lo más popular de hoy (Series)",
         "enabled": true,
@@ -407,6 +583,50 @@
         "source": "tmdb",
         "enableRatingPosters": true,
         "displayType": "series",
+        "tags": [
+          "Ahora en Nuvio",
+          "Popular"
+        ]
+      },
+      {
+        "id": "mdblist.63",
+        "type": "movie",
+        "name": "Películas Populares (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/movies/popular",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Popular"
+        ]
+      },
+      {
+        "id": "mdblist.64",
+        "type": "series",
+        "name": "Series Populares (MDBList)",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "url": "https://mdblist.com/lists/official/shows/popular",
+          "mediatype": "show"
+        },
         "tags": [
           "Ahora en Nuvio",
           "Popular"
@@ -4318,8 +4538,8 @@
   },
   "metadata": {
     "apiKeysExcluded": true,
-    "totalCatalogs": 141,
-    "enabledCatalogs": 141
+    "totalCatalogs": 151,
+    "enabledCatalogs": 151
   },
   "catalogs": [
     {
@@ -4519,7 +4739,51 @@
       ]
     },
     {
-      "id": "tmdb.trending_movie",
+      "id": "mdblist.84",
+      "type": "movie",
+      "name": "Películas más esperadas (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/movies/anticipated",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Estreno"
+      ]
+    },
+    {
+      "id": "mdblist.85",
+      "type": "series",
+      "name": "Series más esperadas (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/shows/anticipated",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Estreno"
+      ]
+    },
+    {
+      "id": "tmdb.trending",
       "type": "movie",
       "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
       "enabled": true,
@@ -4533,7 +4797,7 @@
       ]
     },
     {
-      "id": "tmdb.trending_series",
+      "id": "tmdb.trending",
       "type": "series",
       "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
       "enabled": true,
@@ -4541,6 +4805,50 @@
       "source": "tmdb",
       "enableRatingPosters": true,
       "displayType": "series",
+      "tags": [
+        "Ahora en Nuvio",
+        "Tendencia"
+      ]
+    },
+    {
+      "id": "mdblist.86",
+      "type": "movie",
+      "name": "Películas en Tendencia (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/movies/trending",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Tendencia"
+      ]
+    },
+    {
+      "id": "mdblist.87",
+      "type": "series",
+      "name": "Series en Tendencia (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/shows/trending",
+        "mediatype": "show"
+      },
       "tags": [
         "Ahora en Nuvio",
         "Tendencia"
@@ -4619,7 +4927,95 @@
       ]
     },
     {
-      "id": "tmdb.top_movie",
+      "id": "mdblist.88",
+      "type": "movie",
+      "name": "Películas más vistas de la semana (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/movies/most-watched-week",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "mdblist.89",
+      "type": "series",
+      "name": "Series más vistas de la semana (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/shows/most-watched-week",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "mdblist.82",
+      "type": "movie",
+      "name": "Películas más vistas del año (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/movies/most-watched",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "mdblist.83",
+      "type": "series",
+      "name": "Series más vistas del año (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/shows/most-watched",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "tmdb.top",
       "type": "movie",
       "name": "Lo más popular de hoy (Películas)",
       "enabled": true,
@@ -4633,7 +5029,7 @@
       ]
     },
     {
-      "id": "tmdb.top_series",
+      "id": "tmdb.top",
       "type": "series",
       "name": "Lo más popular de hoy (Series)",
       "enabled": true,
@@ -4641,6 +5037,50 @@
       "source": "tmdb",
       "enableRatingPosters": true,
       "displayType": "series",
+      "tags": [
+        "Ahora en Nuvio",
+        "Popular"
+      ]
+    },
+    {
+      "id": "mdblist.63",
+      "type": "movie",
+      "name": "Películas Populares (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/movies/popular",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Popular"
+      ]
+    },
+    {
+      "id": "mdblist.64",
+      "type": "series",
+      "name": "Series Populares (MDBList)",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "url": "https://mdblist.com/lists/official/shows/popular",
+        "mediatype": "show"
+      },
       "tags": [
         "Ahora en Nuvio",
         "Popular"
