@@ -4112,29 +4112,6 @@
         ]
       },
       {
-        "id": "mdblist.185112",
-        "type": "movie",
-        "name": "Estudio: Studio MAPPA",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "pete86.pf",
-          "url": "https://mdblist.com/lists/pete86.pf/studio-mappa",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.194729",
         "type": "series",
         "name": "Estudio: Toei Animation",
@@ -4151,29 +4128,6 @@
           "author": "ohinin1357",
           "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
           "mediatype": "series"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
-        "id": "mdblist.194729",
-        "type": "movie",
-        "name": "Estudio: Toei Animation",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
-          "mediatype": "movie"
         },
         "tags": [
           "Anime",
@@ -4204,29 +4158,6 @@
         ]
       },
       {
-        "id": "mdblist.195285",
-        "type": "movie",
-        "name": "Estudio: Ufotable",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/ufotable",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.194701",
         "type": "series",
         "name": "Estudio: Madhouse",
@@ -4250,29 +4181,6 @@
         ]
       },
       {
-        "id": "mdblist.194701",
-        "type": "movie",
-        "name": "Estudio: Madhouse",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/madhosue",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.194733",
         "type": "series",
         "name": "Estudio: WIT Studio",
@@ -4289,29 +4197,6 @@
           "author": "ohinin1357",
           "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
           "mediatype": "series"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
-        "id": "mdblist.194733",
-        "type": "movie",
-        "name": "Estudio: WIT Studio",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
-          "mediatype": "movie"
         },
         "tags": [
           "Anime",
@@ -8634,29 +8519,6 @@
       ]
     },
     {
-      "id": "mdblist.185112",
-      "type": "movie",
-      "name": "Estudio: Studio MAPPA",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "pete86.pf",
-        "url": "https://mdblist.com/lists/pete86.pf/studio-mappa",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.194729",
       "type": "series",
       "name": "Estudio: Toei Animation",
@@ -8673,29 +8535,6 @@
         "author": "ohinin1357",
         "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
         "mediatype": "series"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
-      "id": "mdblist.194729",
-      "type": "movie",
-      "name": "Estudio: Toei Animation",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
-        "mediatype": "movie"
       },
       "tags": [
         "Anime",
@@ -8726,29 +8565,6 @@
       ]
     },
     {
-      "id": "mdblist.195285",
-      "type": "movie",
-      "name": "Estudio: Ufotable",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/ufotable",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.194701",
       "type": "series",
       "name": "Estudio: Madhouse",
@@ -8772,29 +8588,6 @@
       ]
     },
     {
-      "id": "mdblist.194701",
-      "type": "movie",
-      "name": "Estudio: Madhouse",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/madhosue",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.194733",
       "type": "series",
       "name": "Estudio: WIT Studio",
@@ -8811,29 +8604,6 @@
         "author": "ohinin1357",
         "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
         "mediatype": "series"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
-      "id": "mdblist.194733",
-      "type": "movie",
-      "name": "Estudio: WIT Studio",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
-        "mediatype": "movie"
       },
       "tags": [
         "Anime",
