@@ -7,6 +7,35 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.0] - 2026-09-30
+
+### ✨ Añadido
+- **Catálogos de Clásicos del Anime en Descubre:**
+  - Incorporación de dos nuevos catálogos curados en la sección Anime > Descubre:
+    - 📺 **Series Clásicas del Anime:** Consumo oficial vía `mdblist.133742` (hachiso33/classic-anime-shows) enlazado con la carpeta `folder-anime-descubre`.
+    - 🎬 **Películas Clásicas del Anime:** Consumo oficial vía `mdblist.133743` (hachiso33/classic-anime-movies) enlazado con la carpeta `folder-anime-descubre`.
+  - Integración completa en `templates/MetadataLatino.json` y `templates/NuvioCollections.json` con paridad 1:1.
+
+### 🐛 Corregido
+- **Saneamiento y Purga Total de Tags en AIOMetadata (`config.tags`):**
+  - Eliminación de 23 tags residuales con 0 catálogos (plataformas como Peacock, Shudder, Rakuten Viki, ViX; países; décadas; sagas y subgéneros no utilizados).
+  - Corrección de 6 tags desincronizados que provocaban filtros vacíos en la web de AIOMetadata:
+    - `Estrenos` ➔ `Estreno` (5 catálogos)
+    - `Recomendaciones` ➔ `Recomendados` (6 catálogos)
+    - `Populares` ➔ `Popular` (4 catálogos)
+    - `Paramount` ➔ `Paramount+` (6 catálogos)
+    - `Musica & Biopic` ➔ `Conciertos & Biopic` (4 catálogos)
+    - `Studio` ➔ `Estudios` (7 catálogos)
+  - Incorporación del tag faltante `Novedades` (`green`) y actualización de contadores de catálogos (`totalCatalogs` y `enabledCatalogs`) a **148**.
+- **Corrección de Estudios de Anime (Series vs Películas):**
+  - Eliminación de 5 catálogos redundantes clasificados erróneamente como `movie` que apuntaban al mismo ID de series de MDBList (Studio MAPPA, Toei Animation, Ufotable, Madhouse y WIT Studio), suprimiendo pestañas duplicadas en el cliente Nuvio y dejando 7 estudios limpios con paridad 1:1.
+- **Desactivación de Filtros de Pre-estrenos Digitales:**
+  - Desactivación por defecto de `hideUnreleasedDigital`, `hideUnreleasedDigitalSearch`, `hideUnreleasedShows` y `hideUnreleasedShowsSearch` en `MetadataLatino.json` para garantizar que las listas de películas anticipadas y cartelera muestren sus títulos sin bloqueos artificiales.
+- **Migración a Lista Pública para Películas Anticipadas:**
+  - Sustitución de la lista de películas anticipadas por la lista comunitaria pública `mdblist.60883` (*shavedbroom/most-anticipated-upcoming-movies*), asegurando carga inmediata y estable de 127 títulos esperados.
+
+---
+
 ## [1.2.0] - 2026-09-28
 
 ### ✨ Añadido

@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.2.0-6366f1.svg?style=flat-square" alt="Versión 1.2.0" /></a>
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.3.0-6366f1.svg?style=flat-square" alt="Versión 1.3.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -156,7 +156,7 @@ NuvioLatinoSetup/
 │   ├── state.js                # Gestor del estado reactivo global del asistente
 │   └── version.js              # Inyección dinámica de la versión semántica activa
 ├── templates/
-│   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (210 catálogos etiquetados)
+│   ├── MetadataLatino.json     # Plantilla maestra de AIOMetadata (148 catálogos organizados y etiquetados)
 │   └── NuvioCollections.json   # Plantilla unificada de 26 colecciones nativas Nuvio en 4 secciones
 ├── run.py                      # Servidor HTTP local con soporte UTF-8 y auto-apertura
 ├── version.json                # Fuente de verdad de la versión semántica del release
