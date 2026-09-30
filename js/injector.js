@@ -60,10 +60,9 @@ export class PipelineInjector {
         state.addLog(`✓ UUID generado: ${saveRes.uuid}`, 'success');
         state.addLog(`✓ Manifest generado: ${manifestUrl}`, 'success');
 
-        // Leer manifest generado para obtener ID y Nombre oficial
+        // Leer manifest generado para obtener Nombre oficial sin alterar el addonId canónico 'aio-metadata'
         state.addLog('Inspeccionando manifest generado...', 'info');
         const manifest = await AIOMetadataClient.fetchManifest(manifestUrl);
-        addonId = manifest.id || addonId;
         addonName = manifest.name || addonName;
         state.addLog(`✓ Addon verificado: "${addonName}" (ID: ${addonId})`, 'success');
       }

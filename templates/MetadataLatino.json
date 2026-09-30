@@ -12,9 +12,9 @@
     "displayAgeRating": true,
     "showDisabledCatalogs": false,
     "sfw": false,
-    "hideUnreleasedDigital": true,
+    "hideUnreleasedDigital": false,
     "hideUnreleasedDigitalSearch": false,
-    "hideUnreleasedShows": true,
+    "hideUnreleasedShows": false,
     "hideUnreleasedShowsSearch": false,
     "hideWatchedTrakt": false,
     "hideWatchedAnilist": false,
@@ -285,9 +285,57 @@
         ]
       },
       {
-        "id": "tmdb.trending_movie",
+        "id": "mdblist.60883",
         "type": "movie",
-        "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
+        "name": "Más esperadas",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "itemCount": 127,
+          "author": "shavedbroom",
+          "url": "https://mdblist.com/lists/shavedbroom/most-anticipated-upcoming-movies",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Estreno"
+        ]
+      },
+      {
+        "id": "mdblist.official.anticipated",
+        "type": "series",
+        "name": "Más esperadas",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/shows/anticipated",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Estreno"
+        ]
+      },
+      {
+        "id": "tmdb.trending",
+        "type": "movie",
+        "name": "Lo que todo el mundo está viendo - Día",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -299,14 +347,62 @@
         ]
       },
       {
-        "id": "tmdb.trending_series",
+        "id": "tmdb.trending",
         "type": "series",
-        "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
+        "name": "Lo que todo el mundo está viendo - Día",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
         "enableRatingPosters": true,
         "displayType": "series",
+        "tags": [
+          "Ahora en Nuvio",
+          "Tendencia"
+        ]
+      },
+      {
+        "id": "mdblist.official.trending",
+        "type": "movie",
+        "name": "En Tendencia",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/movies/trending",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Tendencia"
+        ]
+      },
+      {
+        "id": "mdblist.official.trending",
+        "type": "series",
+        "name": "En Tendencia",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/shows/trending",
+          "mediatype": "show"
+        },
         "tags": [
           "Ahora en Nuvio",
           "Tendencia"
@@ -385,9 +481,105 @@
         ]
       },
       {
-        "id": "tmdb.top_movie",
+        "id": "mdblist.official.most-watched-week",
         "type": "movie",
-        "name": "Lo más popular de hoy (Películas)",
+        "name": "Más vistas de la semana",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/movies/most-watched-week",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "mdblist.official.most-watched-week",
+        "type": "series",
+        "name": "Más vistas de la semana",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/shows/most-watched-week",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "mdblist.official.most-watched",
+        "type": "movie",
+        "name": "Más vistas del año",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/movies/most-watched",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "mdblist.official.most-watched",
+        "type": "series",
+        "name": "Más vistas del año",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/shows/most-watched",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Ranking"
+        ]
+      },
+      {
+        "id": "tmdb.top",
+        "type": "movie",
+        "name": "Lo más popular de hoy",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
@@ -399,14 +591,62 @@
         ]
       },
       {
-        "id": "tmdb.top_series",
+        "id": "tmdb.top",
         "type": "series",
-        "name": "Lo más popular de hoy (Series)",
+        "name": "Lo más popular de hoy",
         "enabled": true,
         "showInHome": false,
         "source": "tmdb",
         "enableRatingPosters": true,
         "displayType": "series",
+        "tags": [
+          "Ahora en Nuvio",
+          "Popular"
+        ]
+      },
+      {
+        "id": "mdblist.official.popular",
+        "type": "movie",
+        "name": "Más Populares",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/movies/popular",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Popular"
+        ]
+      },
+      {
+        "id": "mdblist.official.popular",
+        "type": "series",
+        "name": "Más Populares",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/shows/popular",
+          "mediatype": "show"
+        },
         "tags": [
           "Ahora en Nuvio",
           "Popular"
@@ -3778,9 +4018,57 @@
         ]
       },
       {
+        "id": "mdblist.84354",
+        "type": "series",
+        "name": "Anime: Series Clásicas",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "series",
+        "metadata": {
+          "itemCount": 444,
+          "author": "hachiso33",
+          "url": "https://mdblist.com/lists/hachiso33/classic-anime-shows",
+          "mediatype": "show"
+        },
+        "tags": [
+          "Anime",
+          "Descubre"
+        ]
+      },
+      {
+        "id": "mdblist.84350",
+        "type": "movie",
+        "name": "Anime: Películas Clásicas",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "itemCount": 222,
+          "author": "hachiso33",
+          "url": "https://mdblist.com/lists/hachiso33/classic-anime-movies",
+          "mediatype": "movie"
+        },
+        "tags": [
+          "Anime",
+          "Descubre"
+        ]
+      },
+      {
         "id": "mdblist.131283",
         "type": "movie",
-        "name": "Estudio: Studio Ghibli (Películas)",
+        "name": "Estudio: Studio Ghibli",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -3803,7 +4091,7 @@
       {
         "id": "mdblist.185112",
         "type": "series",
-        "name": "Estudio: Studio MAPPA (Series)",
+        "name": "Estudio: Studio MAPPA",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -3824,32 +4112,9 @@
         ]
       },
       {
-        "id": "mdblist.185112",
-        "type": "movie",
-        "name": "Estudio: Studio MAPPA (Películas)",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "pete86.pf",
-          "url": "https://mdblist.com/lists/pete86.pf/studio-mappa",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.194729",
         "type": "series",
-        "name": "Estudio: Toei Animation (Series)",
+        "name": "Estudio: Toei Animation",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -3870,32 +4135,9 @@
         ]
       },
       {
-        "id": "mdblist.194729",
-        "type": "movie",
-        "name": "Estudio: Toei Animation (Películas)",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.195285",
         "type": "series",
-        "name": "Estudio: Ufotable (Series)",
+        "name": "Estudio: Ufotable",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -3916,32 +4158,9 @@
         ]
       },
       {
-        "id": "mdblist.195285",
-        "type": "movie",
-        "name": "Estudio: Ufotable (Películas)",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/ufotable",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.194701",
         "type": "series",
-        "name": "Estudio: Madhouse (Series)",
+        "name": "Estudio: Madhouse",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -3962,32 +4181,9 @@
         ]
       },
       {
-        "id": "mdblist.194701",
-        "type": "movie",
-        "name": "Estudio: Madhouse (Películas)",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/madhosue",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
         "id": "mdblist.194733",
         "type": "series",
-        "name": "Estudio: WIT Studio (Series)",
+        "name": "Estudio: WIT Studio",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
@@ -4001,29 +4197,6 @@
           "author": "ohinin1357",
           "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
           "mediatype": "series"
-        },
-        "tags": [
-          "Anime",
-          "Estudios"
-        ]
-      },
-      {
-        "id": "mdblist.194733",
-        "type": "movie",
-        "name": "Estudio: WIT Studio (Películas)",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "author": "ohinin1357",
-          "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
-          "mediatype": "movie"
         },
         "tags": [
           "Anime",
@@ -4105,7 +4278,11 @@
         "color": "blue"
       },
       {
-        "name": "Estrenos",
+        "name": "Recomendados",
+        "color": "violet"
+      },
+      {
+        "name": "Estreno",
         "color": "green"
       },
       {
@@ -4113,11 +4290,11 @@
         "color": "red"
       },
       {
-        "name": "Recomendaciones",
-        "color": "violet"
+        "name": "Ranking",
+        "color": "pink"
       },
       {
-        "name": "Populares",
+        "name": "Popular",
         "color": "amber"
       },
       {
@@ -4145,27 +4322,11 @@
         "color": "cyan"
       },
       {
-        "name": "Paramount",
+        "name": "Paramount+",
         "color": "blue"
       },
       {
         "name": "Crunchyroll",
-        "color": "orange"
-      },
-      {
-        "name": "Peacock",
-        "color": "emerald"
-      },
-      {
-        "name": "Shudder",
-        "color": "red"
-      },
-      {
-        "name": "Rakuten Viki",
-        "color": "blue"
-      },
-      {
-        "name": "ViX",
         "color": "orange"
       },
       {
@@ -4205,7 +4366,7 @@
         "color": "amber"
       },
       {
-        "name": "Musica & Biopic",
+        "name": "Conciertos & Biopic",
         "color": "cyan"
       },
       {
@@ -4213,104 +4374,24 @@
         "color": "emerald"
       },
       {
-        "name": "Oeste",
-        "color": "orange"
-      },
-      {
         "name": "Mafia",
         "color": "slate"
-      },
-      {
-        "name": "Bollywood",
-        "color": "amber"
-      },
-      {
-        "name": "Países",
-        "color": "green"
-      },
-      {
-        "name": "Argentina",
-        "color": "blue"
-      },
-      {
-        "name": "Mexico",
-        "color": "green"
-      },
-      {
-        "name": "Chile",
-        "color": "rose"
-      },
-      {
-        "name": "Brasil",
-        "color": "emerald"
-      },
-      {
-        "name": "España",
-        "color": "red"
-      },
-      {
-        "name": "Perú",
-        "color": "red"
-      },
-      {
-        "name": "Saga de Películas",
-        "color": "amber"
-      },
-      {
-        "name": "Décadas",
-        "color": "cyan"
-      },
-      {
-        "name": "1960s",
-        "color": "green"
-      },
-      {
-        "name": "1970s",
-        "color": "violet"
-      },
-      {
-        "name": "1980s",
-        "color": "pink"
-      },
-      {
-        "name": "1990s",
-        "color": "red"
-      },
-      {
-        "name": "2000s",
-        "color": "indigo"
-      },
-      {
-        "name": "2010s",
-        "color": "indigo"
-      },
-      {
-        "name": "2020s",
-        "color": "amber"
-      },
-      {
-        "name": "Ranking",
-        "color": "pink"
       },
       {
         "name": "Anime",
         "color": "blue"
       },
       {
-        "name": "Descubre",
+        "name": "Novedades",
         "color": "green"
       },
       {
-        "name": "Studio",
-        "color": "red"
+        "name": "Descubre",
+        "color": "cyan"
       },
       {
-        "name": "Isekai",
-        "color": "violet"
-      },
-      {
-        "name": "Other Anime",
-        "color": "amber"
+        "name": "Estudios",
+        "color": "rose"
       }
     ],
     "managerAccounts": [],
@@ -4318,8 +4399,8 @@
   },
   "metadata": {
     "apiKeysExcluded": true,
-    "totalCatalogs": 141,
-    "enabledCatalogs": 141
+    "totalCatalogs": 148,
+    "enabledCatalogs": 148
   },
   "catalogs": [
     {
@@ -4519,9 +4600,57 @@
       ]
     },
     {
-      "id": "tmdb.trending_movie",
+      "id": "mdblist.60883",
       "type": "movie",
-      "name": "Lo que todo el mundo esta viendo según TMDB (Películas) - Day",
+      "name": "Más esperadas",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "itemCount": 127,
+        "author": "shavedbroom",
+        "url": "https://mdblist.com/lists/shavedbroom/most-anticipated-upcoming-movies",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Estreno"
+      ]
+    },
+    {
+      "id": "mdblist.official.anticipated",
+      "type": "series",
+      "name": "Más esperadas",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/shows/anticipated",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Estreno"
+      ]
+    },
+    {
+      "id": "tmdb.trending",
+      "type": "movie",
+      "name": "Lo que todo el mundo está viendo - Día",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -4533,14 +4662,62 @@
       ]
     },
     {
-      "id": "tmdb.trending_series",
+      "id": "tmdb.trending",
       "type": "series",
-      "name": "Lo que todo el mundo esta viendo según TMDB (Series) - Day",
+      "name": "Lo que todo el mundo está viendo - Día",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
       "enableRatingPosters": true,
       "displayType": "series",
+      "tags": [
+        "Ahora en Nuvio",
+        "Tendencia"
+      ]
+    },
+    {
+      "id": "mdblist.official.trending",
+      "type": "movie",
+      "name": "En Tendencia",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/movies/trending",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Tendencia"
+      ]
+    },
+    {
+      "id": "mdblist.official.trending",
+      "type": "series",
+      "name": "En Tendencia",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/trending/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/shows/trending",
+        "mediatype": "show"
+      },
       "tags": [
         "Ahora en Nuvio",
         "Tendencia"
@@ -4619,9 +4796,105 @@
       ]
     },
     {
-      "id": "tmdb.top_movie",
+      "id": "mdblist.official.most-watched-week",
       "type": "movie",
-      "name": "Lo más popular de hoy (Películas)",
+      "name": "Más vistas de la semana",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/movies/most-watched-week",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "mdblist.official.most-watched-week",
+      "type": "series",
+      "name": "Más vistas de la semana",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched-week/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/shows/most-watched-week",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "mdblist.official.most-watched",
+      "type": "movie",
+      "name": "Más vistas del año",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/movies/most-watched",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "mdblist.official.most-watched",
+      "type": "series",
+      "name": "Más vistas del año",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/most-watched/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/shows/most-watched",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Ranking"
+      ]
+    },
+    {
+      "id": "tmdb.top",
+      "type": "movie",
+      "name": "Lo más popular de hoy",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
@@ -4633,14 +4906,62 @@
       ]
     },
     {
-      "id": "tmdb.top_series",
+      "id": "tmdb.top",
       "type": "series",
-      "name": "Lo más popular de hoy (Series)",
+      "name": "Lo más popular de hoy",
       "enabled": true,
       "showInHome": false,
       "source": "tmdb",
       "enableRatingPosters": true,
       "displayType": "series",
+      "tags": [
+        "Ahora en Nuvio",
+        "Popular"
+      ]
+    },
+    {
+      "id": "mdblist.official.popular",
+      "type": "movie",
+      "name": "Más Populares",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/movies/popular",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Ahora en Nuvio",
+        "Popular"
+      ]
+    },
+    {
+      "id": "mdblist.official.popular",
+      "type": "series",
+      "name": "Más Populares",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sourceUrl": "https://api.mdblist.com/lists/official/popular/items",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "author": "official",
+        "url": "https://mdblist.com/lists/official/shows/popular",
+        "mediatype": "show"
+      },
       "tags": [
         "Ahora en Nuvio",
         "Popular"
@@ -8012,9 +8333,57 @@
       ]
     },
     {
+      "id": "mdblist.84354",
+      "type": "series",
+      "name": "Anime: Series Clásicas",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "series",
+      "metadata": {
+        "itemCount": 444,
+        "author": "hachiso33",
+        "url": "https://mdblist.com/lists/hachiso33/classic-anime-shows",
+        "mediatype": "show"
+      },
+      "tags": [
+        "Anime",
+        "Descubre"
+      ]
+    },
+    {
+      "id": "mdblist.84350",
+      "type": "movie",
+      "name": "Anime: Películas Clásicas",
+      "enabled": true,
+      "showInHome": false,
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
+      "displayType": "movie",
+      "metadata": {
+        "itemCount": 222,
+        "author": "hachiso33",
+        "url": "https://mdblist.com/lists/hachiso33/classic-anime-movies",
+        "mediatype": "movie"
+      },
+      "tags": [
+        "Anime",
+        "Descubre"
+      ]
+    },
+    {
       "id": "mdblist.131283",
       "type": "movie",
-      "name": "Estudio: Studio Ghibli (Películas)",
+      "name": "Estudio: Studio Ghibli",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8037,7 +8406,7 @@
     {
       "id": "mdblist.185112",
       "type": "series",
-      "name": "Estudio: Studio MAPPA (Series)",
+      "name": "Estudio: Studio MAPPA",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8058,32 +8427,9 @@
       ]
     },
     {
-      "id": "mdblist.185112",
-      "type": "movie",
-      "name": "Estudio: Studio MAPPA (Películas)",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "pete86.pf",
-        "url": "https://mdblist.com/lists/pete86.pf/studio-mappa",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.194729",
       "type": "series",
-      "name": "Estudio: Toei Animation (Series)",
+      "name": "Estudio: Toei Animation",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8104,32 +8450,9 @@
       ]
     },
     {
-      "id": "mdblist.194729",
-      "type": "movie",
-      "name": "Estudio: Toei Animation (Películas)",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/toei-animation",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.195285",
       "type": "series",
-      "name": "Estudio: Ufotable (Series)",
+      "name": "Estudio: Ufotable",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8150,32 +8473,9 @@
       ]
     },
     {
-      "id": "mdblist.195285",
-      "type": "movie",
-      "name": "Estudio: Ufotable (Películas)",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/ufotable",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.194701",
       "type": "series",
-      "name": "Estudio: Madhouse (Series)",
+      "name": "Estudio: Madhouse",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8196,32 +8496,9 @@
       ]
     },
     {
-      "id": "mdblist.194701",
-      "type": "movie",
-      "name": "Estudio: Madhouse (Películas)",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/madhosue",
-        "mediatype": "movie"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
       "id": "mdblist.194733",
       "type": "series",
-      "name": "Estudio: WIT Studio (Series)",
+      "name": "Estudio: WIT Studio",
       "enabled": true,
       "showInHome": false,
       "source": "mdblist",
@@ -8235,29 +8512,6 @@
         "author": "ohinin1357",
         "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
         "mediatype": "series"
-      },
-      "tags": [
-        "Anime",
-        "Estudios"
-      ]
-    },
-    {
-      "id": "mdblist.194733",
-      "type": "movie",
-      "name": "Estudio: WIT Studio (Películas)",
-      "enabled": true,
-      "showInHome": false,
-      "source": "mdblist",
-      "sort": "default",
-      "order": "asc",
-      "cacheTTL": 86400,
-      "genreSelection": "standard",
-      "enableRatingPosters": true,
-      "displayType": "movie",
-      "metadata": {
-        "author": "ohinin1357",
-        "url": "https://mdblist.com/lists/ohinin1357/wit-studio",
-        "mediatype": "movie"
       },
       "tags": [
         "Anime",

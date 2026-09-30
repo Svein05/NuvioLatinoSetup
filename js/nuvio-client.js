@@ -370,7 +370,6 @@ export class NuvioClient {
           body: JSON.stringify({
             user_id: ownerId,
             profile_id: addonData.profile_id,
-            addon_id: addonData.addon_id || 'aio-metadata',
             manifest_url: addonData.manifest_url,
             transport_url: addonData.manifest_url,
             url: addonData.manifest_url,
