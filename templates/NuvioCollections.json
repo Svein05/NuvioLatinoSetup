@@ -3620,37 +3620,7 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": "Studio MAPPA",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.185112",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
-            "genre": "None",
-            "title": "Toei Animation",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194729",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
             "genre": "None",
             "title": "Toei Animation",
             "sortBy": null,
@@ -3695,21 +3665,6 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": "Ufotable",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.195285",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
             "genre": "None",
             "title": "Madhouse",
@@ -3725,37 +3680,7 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": "Madhouse",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194701",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
-            "genre": "None",
-            "title": "WIT Studio",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.194733",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
-            "type": "movie",
             "genre": "None",
             "title": "WIT Studio",
             "sortBy": null,
@@ -3793,21 +3718,7 @@
             "title": "Studio MAPPA"
           },
           {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.185112",
-            "title": "Studio MAPPA"
-          },
-          {
             "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194729",
-            "title": "Toei Animation"
-          },
-          {
-            "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.194729",
@@ -3828,13 +3739,6 @@
             "title": "Ufotable"
           },
           {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.195285",
-            "title": "Ufotable"
-          },
-          {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
@@ -3842,21 +3746,7 @@
             "title": "Madhouse"
           },
           {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194701",
-            "title": "Madhouse"
-          },
-          {
             "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.194733",
-            "title": "WIT Studio"
-          },
-          {
-            "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.194733",
