@@ -285,18 +285,28 @@
         ]
       },
       {
-        "id": "trakt.anticipated.movies",
+        "id": "mdblist.60883",
         "type": "movie",
         "name": "Más esperadas",
         "enabled": true,
         "showInHome": false,
-        "source": "trakt",
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
         "displayType": "movie",
+        "metadata": {
+          "itemCount": 127,
+          "author": "shavedbroom",
+          "url": "https://mdblist.com/lists/shavedbroom/most-anticipated-upcoming-movies",
+          "mediatype": "movie"
+        },
         "tags": [
           "Ahora en Nuvio",
           "Estreno"
-        ],
-        "enableRatingPosters": true
+        ]
       },
       {
         "id": "mdblist.official.anticipated",
@@ -4749,18 +4759,28 @@
       ]
     },
     {
-      "id": "trakt.anticipated.movies",
+      "id": "mdblist.60883",
       "type": "movie",
       "name": "Más esperadas",
       "enabled": true,
       "showInHome": false,
-      "source": "trakt",
+      "source": "mdblist",
+      "sort": "default",
+      "order": "asc",
+      "cacheTTL": 86400,
+      "genreSelection": "standard",
+      "enableRatingPosters": true,
       "displayType": "movie",
+      "metadata": {
+        "itemCount": 127,
+        "author": "shavedbroom",
+        "url": "https://mdblist.com/lists/shavedbroom/most-anticipated-upcoming-movies",
+        "mediatype": "movie"
+      },
       "tags": [
         "Ahora en Nuvio",
         "Estreno"
-      ],
-      "enableRatingPosters": true
+      ]
     },
     {
       "id": "mdblist.official.anticipated",

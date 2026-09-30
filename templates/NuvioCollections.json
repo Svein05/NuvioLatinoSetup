@@ -211,7 +211,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "trakt.anticipated.movies",
+            "catalogId": "mdblist.60883",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -265,7 +265,7 @@
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "trakt.anticipated.movies",
+            "catalogId": "mdblist.60883",
             "title": "Más esperadas"
           },
           {
