@@ -3506,6 +3506,36 @@
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
+          },
+          {
+            "type": "series",
+            "genre": "None",
+            "title": "Anime: Series Clásicas",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.84354",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "Anime: Películas Clásicas",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.84350",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
           }
         ],
         "hideTitle": true,
@@ -3536,6 +3566,20 @@
             "addonId": "aio-metadata",
             "catalogId": "mdblist.13210",
             "title": "Anime: Obras Maestras (MAL 8/10+)"
+          },
+          {
+            "type": "series",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.84354",
+            "title": "Anime: Series Clásicas"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.84350",
+            "title": "Anime: Películas Clásicas"
           }
         ],
         "focusGifEnabled": false,
