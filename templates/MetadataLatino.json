@@ -4278,7 +4278,11 @@
         "color": "blue"
       },
       {
-        "name": "Estrenos",
+        "name": "Recomendados",
+        "color": "violet"
+      },
+      {
+        "name": "Estreno",
         "color": "green"
       },
       {
@@ -4286,11 +4290,11 @@
         "color": "red"
       },
       {
-        "name": "Recomendaciones",
-        "color": "violet"
+        "name": "Ranking",
+        "color": "pink"
       },
       {
-        "name": "Populares",
+        "name": "Popular",
         "color": "amber"
       },
       {
@@ -4318,27 +4322,11 @@
         "color": "cyan"
       },
       {
-        "name": "Paramount",
+        "name": "Paramount+",
         "color": "blue"
       },
       {
         "name": "Crunchyroll",
-        "color": "orange"
-      },
-      {
-        "name": "Peacock",
-        "color": "emerald"
-      },
-      {
-        "name": "Shudder",
-        "color": "red"
-      },
-      {
-        "name": "Rakuten Viki",
-        "color": "blue"
-      },
-      {
-        "name": "ViX",
         "color": "orange"
       },
       {
@@ -4378,7 +4366,7 @@
         "color": "amber"
       },
       {
-        "name": "Musica & Biopic",
+        "name": "Conciertos & Biopic",
         "color": "cyan"
       },
       {
@@ -4386,104 +4374,24 @@
         "color": "emerald"
       },
       {
-        "name": "Oeste",
-        "color": "orange"
-      },
-      {
         "name": "Mafia",
         "color": "slate"
-      },
-      {
-        "name": "Bollywood",
-        "color": "amber"
-      },
-      {
-        "name": "Países",
-        "color": "green"
-      },
-      {
-        "name": "Argentina",
-        "color": "blue"
-      },
-      {
-        "name": "Mexico",
-        "color": "green"
-      },
-      {
-        "name": "Chile",
-        "color": "rose"
-      },
-      {
-        "name": "Brasil",
-        "color": "emerald"
-      },
-      {
-        "name": "España",
-        "color": "red"
-      },
-      {
-        "name": "Perú",
-        "color": "red"
-      },
-      {
-        "name": "Saga de Películas",
-        "color": "amber"
-      },
-      {
-        "name": "Décadas",
-        "color": "cyan"
-      },
-      {
-        "name": "1960s",
-        "color": "green"
-      },
-      {
-        "name": "1970s",
-        "color": "violet"
-      },
-      {
-        "name": "1980s",
-        "color": "pink"
-      },
-      {
-        "name": "1990s",
-        "color": "red"
-      },
-      {
-        "name": "2000s",
-        "color": "indigo"
-      },
-      {
-        "name": "2010s",
-        "color": "indigo"
-      },
-      {
-        "name": "2020s",
-        "color": "amber"
-      },
-      {
-        "name": "Ranking",
-        "color": "pink"
       },
       {
         "name": "Anime",
         "color": "blue"
       },
       {
-        "name": "Descubre",
+        "name": "Novedades",
         "color": "green"
       },
       {
-        "name": "Studio",
-        "color": "red"
+        "name": "Descubre",
+        "color": "cyan"
       },
       {
-        "name": "Isekai",
-        "color": "violet"
-      },
-      {
-        "name": "Other Anime",
-        "color": "amber"
+        "name": "Estudios",
+        "color": "rose"
       }
     ],
     "managerAccounts": [],
@@ -4491,8 +4399,8 @@
   },
   "metadata": {
     "apiKeysExcluded": true,
-    "totalCatalogs": 151,
-    "enabledCatalogs": 151
+    "totalCatalogs": 148,
+    "enabledCatalogs": 148
   },
   "catalogs": [
     {
