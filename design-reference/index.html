@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <title>LAT-ADD</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // La sesión y el índice se piden en paralelo antes de que el bundle se
+      // parsee: así el trabajo de red y el de CPU se solapan en vez de encadenarse.
+      // El índice se pide aunque no haya sesión — dará 401 y se descarta.
+      window.__precarga = {
+        me: fetch('/web/api/me', { credentials: 'same-origin' }).catch(() => null),
+        indice: fetch('/web/api/catalog/index', { credentials: 'same-origin' }).catch(() => null),
+      };
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

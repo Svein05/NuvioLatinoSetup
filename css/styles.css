@@ -1,11 +1,344 @@
 /**
- * Estilos personalizados para Nuvio & AIOMetadata Auto-Setup Wizard
+ * Nuvio Metadata Latino - Sistema de Diseño Cinemático LAT-ADD
+ * Paleta OLED profunda, Glassmorphism con brillo especular, Film Grain y Tipografía de Autor
  */
 
-/* Control de Pasos del Asistente */
+/* ============================================================ */
+/* 1. TIPOGRAFÍAS DE AUTOR (Instrument Sans & Instrument Serif) */
+/* ============================================================ */
+
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../assets/fonts/instrument-sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('../assets/fonts/instrument-sans-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/instrument-serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/instrument-serif-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/instrument-serif-italic-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/instrument-serif-italic-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ============================================================ */
+/* 2. VARIABLES DE DISEÑO (TOKENS LAT-ADD)                      */
+/* ============================================================ */
+
+:root {
+  /* Fondo cinematográfico casi negro (#08090c) */
+  --color-bg: #08090c;
+  --color-panel: #0b0d12;
+  --color-panel-card: #0f1218;
+
+  /* Vidrio y hairlines translúcidos */
+  --color-glass: rgba(255, 255, 255, 0.07);
+  --color-glass-strong: rgba(255, 255, 255, 0.10);
+  --color-glass-soft: rgba(255, 255, 255, 0.055);
+  --color-glass-active: rgba(255, 255, 255, 0.16);
+  --color-glass-dark: rgba(10, 12, 16, 0.65);
+
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.14);
+  --color-hairline-soft: rgba(255, 255, 255, 0.11);
+
+  /* Texto hueso de alto contraste */
+  --color-ink: #ffffff;
+  --color-ink-muted: rgba(255, 255, 255, 0.58);
+  --color-ink-faint: rgba(255, 255, 255, 0.28);
+
+  /* Acentos cálidos cinematográficos */
+  --color-estrella: #ffd479;
+  --color-4k: #ffdba8;
+  --borde-4k: rgba(255, 212, 121, 0.45);
+  --fondo-4k: rgba(22, 15, 4, 0.76);
+
+  /* Radios de curvatura */
+  --radius-capsule: 999px;
+  --radius-card: 26px;
+  --radius-poster: 16px;
+  --radius-panel: 22px;
+  --radius-field: 16px;
+
+  /* Brillo especular del vidrio */
+  --brillo-vidrio:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035);
+
+  /* Sombras de elevación cinemática */
+  --shadow-lift:
+    var(--brillo-vidrio),
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.20),
+    0 12px 26px rgba(0, 0, 0, 0.28);
+
+  --shadow-poster:
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    0 3px 6px rgba(0, 0, 0, 0.18),
+    0 7px 14px rgba(0, 0, 0, 0.22);
+
+  --shadow-poster-hover:
+    var(--brillo-vidrio),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 8px 18px rgba(0, 0, 0, 0.25),
+    0 16px 32px rgba(0, 0, 0, 0.35);
+
+  --shadow-pill:
+    var(--brillo-vidrio),
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 3px 8px rgba(0, 0, 0, 0.12);
+
+  --blur-glass: 34px;
+
+  /* Tipografías */
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+
+  /* Ruido fractal OLED (Film Grain) */
+  --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================ */
+/* 3. CAPAS GLOBALES Y BASE                                     */
+/* ============================================================ */
+
+html {
+  color-scheme: dark;
+  background-color: var(--color-bg);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+body {
+  background-color: var(--color-bg) !important;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grano analógico sobre la pantalla */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background-image: var(--grano);
+  opacity: 0.032;
+}
+
+/* Selección de texto elegante */
+::selection {
+  background-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-ink);
+}
+
+/* Opciones de select con fondo acorde */
+option, optgroup {
+  background-color: var(--color-panel);
+  color: var(--color-ink);
+}
+
+/* Scrollbars personalizadas estilo glass */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(8, 9, 12, 0.8);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ============================================================ */
+/* 4. CLASES DE UTILIDAD LAT-ADD                                */
+/* ============================================================ */
+
+.font-serif-title {
+  font-family: var(--font-serif);
+}
+
+.lat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-muted);
+  font-weight: 600;
+}
+
+.lat-card {
+  background: var(--color-glass);
+  border: 1px solid var(--color-hairline);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-lift);
+  border-radius: var(--radius-card);
+}
+
+.lat-card-panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-lift);
+  border-radius: var(--radius-card);
+}
+
+.lat-capsule-btn,
+.lat-capsule-btn-solid,
+.lat-capsule-btn-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.65rem 1.4rem;
+  transition: all 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  user-select: none;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+}
+
+.lat-capsule-btn:focus-visible,
+.lat-capsule-btn-solid:focus-visible,
+.lat-capsule-btn-glass:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.lat-capsule-btn.solid,
+.lat-capsule-btn-solid {
+  background: var(--color-ink);
+  color: var(--color-bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 1px solid transparent;
+}
+
+.lat-capsule-btn.solid:hover,
+.lat-capsule-btn-solid:hover {
+  background: rgba(255, 255, 255, 0.92);
+  transform: translateY(-1px);
+  color: var(--color-bg);
+}
+
+.lat-capsule-btn.glass,
+.lat-capsule-btn-glass {
+  background: var(--color-glass-strong);
+  color: var(--color-ink);
+  border: 1px solid var(--color-hairline-strong);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--brillo-vidrio);
+}
+
+.lat-capsule-btn.glass:hover,
+.lat-capsule-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+  color: var(--color-ink);
+}
+
+.lat-field {
+  background: var(--color-glass);
+  border: 1px solid var(--color-hairline-strong);
+  color: var(--color-ink);
+  border-radius: var(--radius-field);
+  padding: 0.75rem 1rem;
+  box-shadow: var(--brillo-vidrio);
+  font-size: 0.9375rem;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.lat-field::placeholder {
+  color: var(--color-ink-faint);
+}
+
+.lat-field:hover {
+  background: var(--color-glass-strong);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.lat-field:focus {
+  outline: none;
+  background: var(--color-glass-strong);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: var(--brillo-vidrio), 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================ */
+/* 5. CONTROL DE PASOS DEL ASISTENTE                            */
+/* ============================================================ */
+
 .step-content {
   display: none !important;
-  animation: fadeIn 0.25s ease-out forwards;
+  animation: fadeIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .step-content.active {
@@ -15,7 +348,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -23,43 +356,26 @@
   }
 }
 
-/* Scrollbars Personalizadas para el Mini Nuvio y la Consola */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(51, 65, 85, 0.8);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.8);
-}
-
 /* Efectos Glow Cinemáticos */
 .glow-brand {
-  box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 30px -5px rgba(255, 255, 255, 0.15), var(--brillo-vidrio);
 }
 
 .glow-emerald {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.25), var(--brillo-vidrio);
 }
 
-/* Terminal Log */
+/* ============================================================ */
+/* 6. CONSOLA Y TERMINAL LOG                                    */
+/* ============================================================ */
+
 .terminal-log {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .terminal-log .log-info {
-  color: #94a3b8;
+  color: var(--color-ink-muted);
 }
 
 .terminal-log .log-success {
@@ -68,7 +384,7 @@
 }
 
 .terminal-log .log-warning {
-  color: #fbbf24;
+  color: #ffd479;
 }
 
 .terminal-log .log-error {
@@ -76,7 +392,10 @@
   font-weight: 600;
 }
 
-/* Stepper en Cápsulas Horizontales (Top Pills) */
+/* ============================================================ */
+/* 7. STEPPER EN CÁPSULAS HORIZONTALES (TOP PILLS)              */
+/* ============================================================ */
+
 .capsule-stepper {
   display: flex;
   align-items: center;
@@ -95,50 +414,50 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 9999px;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-capsule);
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s cubic-bezier(0.32, 0.72, 0, 1);
   user-select: none;
 }
 
 .step-capsule.active {
-  background: rgba(99, 102, 241, 0.18);
-  color: #a5b4fc;
-  border: 1px solid rgba(99, 102, 241, 0.5);
-  box-shadow: 0 0 16px -2px rgba(99, 102, 241, 0.35);
+  background: var(--color-glass-active);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: var(--brillo-vidrio), 0 0 18px -2px rgba(255, 255, 255, 0.15);
 }
 
 .step-capsule.completed {
-  background: rgba(15, 23, 42, 0.8);
-  color: #cbd5e1;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.12);
+  color: #a7f3d0;
+  border: 1px solid rgba(16, 185, 129, 0.32);
   cursor: pointer;
 }
 
 .step-capsule.completed:hover {
-  background: rgba(30, 41, 59, 0.95);
-  color: #f8fafc;
-  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.2);
+  color: #ffffff;
+  border-color: rgba(16, 185, 129, 0.55);
   transform: translateY(-1px);
 }
 
 .step-capsule.locked {
-  background: rgba(15, 23, 42, 0.4);
-  color: #475569;
-  border: 1px solid rgba(30, 41, 59, 0.6);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-ink-faint);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .step-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.3rem;
+  height: 1.3rem;
   border-radius: 9999px;
   font-size: 0.65rem;
   font-weight: 700;
@@ -146,23 +465,24 @@
 }
 
 .step-capsule.active .step-badge {
-  background: #6366f1;
-  color: #ffffff;
+  background: #ffffff;
+  color: #08090c;
 }
 
 .step-capsule.completed .step-badge {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.28);
   color: #34d399;
 }
 
 .step-capsule.locked .step-badge {
-  background: rgba(51, 65, 85, 0.4);
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-ink-faint);
 }
 
-/* ========================================== */
-/* DRAWER LATERAL PARA EL ÍNDICE DE PASOS     */
-/* ========================================== */
+/* ============================================================ */
+/* 8. DRAWER LATERAL PARA EL ÍNDICE DE PASOS                    */
+/* ============================================================ */
+
 #indexDrawerOverlay.open {
   opacity: 1;
   pointer-events: auto;
@@ -177,28 +497,30 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.875rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(51, 65, 85, 0.5);
-  color: #94a3b8;
+  padding: 0.85rem 1.1rem;
+  border-radius: var(--radius-field);
+  background: var(--color-glass);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-ink-muted);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s cubic-bezier(0.32, 0.72, 0, 1);
   user-select: none;
+  box-shadow: var(--brillo-vidrio);
 }
 
 .drawer-step-item:hover {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(99, 102, 241, 0.4);
-  color: #f1f5f9;
+  background: var(--color-glass-strong);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-ink);
+  transform: translateX(2px);
 }
 
 .drawer-step-item .drawer-badge {
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.65rem;
+  height: 1.65rem;
   border-radius: 9999px;
-  background: #1e293b;
-  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-ink-muted);
   font-size: 0.75rem;
   font-weight: 700;
   display: flex;
@@ -209,86 +531,74 @@
 }
 
 .drawer-step-item.active {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: #6366f1;
+  background: var(--color-glass-active);
+  border-color: rgba(255, 255, 255, 0.35);
   color: #ffffff;
-  box-shadow: 0 0 16px -2px rgba(99, 102, 241, 0.3);
+  box-shadow: var(--brillo-vidrio), 0 0 20px -2px rgba(255, 255, 255, 0.15);
 }
 
 .drawer-step-item.active .drawer-badge {
-  background: #6366f1;
-  color: #ffffff;
+  background: #ffffff;
+  color: #08090c;
 }
 
 .drawer-step-item.completed {
-  border-color: rgba(16, 185, 129, 0.4);
-  color: #e2e8f0;
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #d1fae5;
 }
 
 .drawer-step-item.completed:hover {
-  border-color: rgba(16, 185, 129, 0.6);
-  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.55);
+  background: rgba(16, 185, 129, 0.1);
 }
 
 .drawer-step-item.completed .drawer-badge {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.25);
   color: #34d399;
 }
 
 .drawer-step-item.locked {
-  opacity: 0.5;
-  background: rgba(15, 23, 42, 0.25);
-  border-color: rgba(30, 41, 59, 0.5);
+  opacity: 0.45;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.05);
   cursor: not-allowed;
 }
 
-.drawer-step-item.locked:hover {
-  background: rgba(15, 23, 42, 0.25);
-  border-color: rgba(30, 41, 59, 0.5);
-  color: #94a3b8;
-}
+/* ============================================================ */
+/* 9. TARJETA DE PERFIL SELECCIONADO                            */
+/* ============================================================ */
 
-/* Tarjeta de Perfil Seleccionado */
 .profile-card-selected {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 25px -3px rgba(99, 102, 241, 0.35), inset 0 0 15px rgba(99, 102, 241, 0.08);
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  box-shadow: var(--brillo-vidrio), 0 0 25px -3px rgba(255, 255, 255, 0.2) !important;
+  background: var(--color-glass-strong) !important;
 }
 
-/* ========================================== */
-/* DRAG & DROP, WIGGLE & CONTORNOS AZULES     */
-/* ========================================== */
+/* ============================================================ */
+/* 10. DRAG & DROP, WIGGLE & CONTORNOS CINEMÁTICOS              */
+/* ============================================================ */
 
 @keyframes wiggle {
-  0% {
-    transform: rotate(0deg) scale(1.02);
-  }
-  25% {
-    transform: rotate(-1.5deg) scale(1.02);
-  }
-  50% {
-    transform: rotate(0deg) scale(1.02);
-  }
-  75% {
-    transform: rotate(1.5deg) scale(1.02);
-  }
-  100% {
-    transform: rotate(0deg) scale(1.02);
-  }
+  0% { transform: rotate(0deg) scale(1.02); }
+  25% { transform: rotate(-1.2deg) scale(1.02); }
+  50% { transform: rotate(0deg) scale(1.02); }
+  75% { transform: rotate(1.2deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1.02); }
 }
 
 /* Elementos activos o en arrastre */
 .is-dragging {
   animation: wiggle 0.28s ease-in-out infinite !important;
-  opacity: 0.88 !important;
+  opacity: 0.9 !important;
   cursor: grabbing !important;
-  border-color: #6366f1 !important;
-  box-shadow: 0 14px 28px -5px rgba(99, 102, 241, 0.5), 0 0 0 2px #6366f1 !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 14px 28px -5px rgba(0, 0, 0, 0.7), 0 0 0 2px var(--color-estrella) !important;
   z-index: 50 !important;
 }
 
 /* Cápsula de Colección (Mini Tarjetas) */
 .draggable-card {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
   cursor: grab;
 }
 
@@ -298,32 +608,31 @@
 }
 
 .draggable-card:hover {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 22px -2px rgba(99, 102, 241, 0.45), inset 0 0 12px rgba(99, 102, 241, 0.15);
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: var(--shadow-poster-hover) !important;
   transform: translateY(-2px);
 }
 
 .draggable-card.drag-over {
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 25px -2px rgba(56, 189, 248, 0.6), inset 0 0 15px rgba(56, 189, 248, 0.2) !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 0 25px -2px rgba(255, 212, 121, 0.4), inset 0 0 15px rgba(255, 212, 121, 0.15) !important;
   transform: scale(0.97);
 }
 
-/* Contenedor de Sección (Caja Grande) */
+/* Contenedor de Sección */
 .section-container {
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* Contorno azul en toda la caja de la sección al posar el cursor sobre la cabecera */
 .section-container:has(.section-header:hover),
 .section-container.header-hovered {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 25px -4px rgba(99, 102, 241, 0.4), inset 0 0 15px rgba(99, 102, 241, 0.06);
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--shadow-lift);
 }
 
 .section-container.drag-over-section {
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 30px -2px rgba(56, 189, 248, 0.55), inset 0 0 15px rgba(56, 189, 248, 0.1) !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 0 30px -2px rgba(255, 212, 121, 0.35), inset 0 0 15px rgba(255, 212, 121, 0.08) !important;
 }
 
 .section-drag-handle {
@@ -347,54 +656,51 @@
 }
 
 .catalog-explorer-row:hover {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 18px -3px rgba(99, 102, 241, 0.38);
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--brillo-vidrio), 0 0 18px -3px rgba(255, 255, 255, 0.1);
 }
 
 .catalog-explorer-row.drag-over-catalog {
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 22px -2px rgba(56, 189, 248, 0.55) !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 0 22px -2px rgba(255, 212, 121, 0.4) !important;
   transform: scale(0.99);
 }
 
-/* ========================================== */
-/* SORTABLE GHOST & PLACEHOLDER ANIMATIONS    */
-/* ========================================== */
-
+/* Sortable Ghosts */
 .is-chosen {
   animation: wiggle 0.28s ease-in-out infinite !important;
   cursor: grabbing !important;
-  border-color: #6366f1 !important;
-  box-shadow: 0 14px 28px -5px rgba(99, 102, 241, 0.55), 0 0 0 2px #6366f1 !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 14px 28px -5px rgba(0, 0, 0, 0.7), 0 0 0 2px var(--color-estrella) !important;
   z-index: 9999 !important;
 }
 
 .card-sortable-ghost {
-  opacity: 0.25 !important;
-  border: 2px dashed #6366f1 !important;
-  background: rgba(99, 102, 241, 0.12) !important;
-  box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.2) !important;
+  opacity: 0.28 !important;
+  border: 2px dashed rgba(255, 255, 255, 0.4) !important;
+  background: var(--color-glass) !important;
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
   transform: scale(0.96);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-poster);
 }
 
 .section-sortable-ghost {
   opacity: 0.3 !important;
-  border: 2px dashed #6366f1 !important;
-  background: rgba(99, 102, 241, 0.08) !important;
-  border-radius: 1rem;
+  border: 2px dashed rgba(255, 255, 255, 0.35) !important;
+  background: var(--color-glass-soft) !important;
+  border-radius: var(--radius-card);
 }
 
 .catalog-sortable-ghost {
   opacity: 0.25 !important;
-  border: 2px dashed #6366f1 !important;
-  background: rgba(99, 102, 241, 0.12) !important;
-  border-radius: 0.75rem;
+  border: 2px dashed rgba(255, 255, 255, 0.4) !important;
+  background: var(--color-glass) !important;
+  border-radius: var(--radius-field);
 }
 
-/* ========================================== */
-/* VISTAS PRINCIPALES: LANDING VS ASISTENTE   */
-/* ========================================== */
+/* ============================================================ */
+/* 11. VISTAS PRINCIPALES: LANDING VS ASISTENTE                 */
+/* ============================================================ */
 
 #landingView {
   display: block;
@@ -416,22 +722,29 @@
 
 /* Efectos visuales de la Landing Page */
 .hero-glow {
-  background: radial-gradient(circle at 50% 20%, rgba(99, 102, 241, 0.18) 0%, rgba(15, 23, 42, 0) 70%);
+  background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.08) 0%, rgba(8, 9, 12, 0) 70%);
 }
 
 .feature-card {
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  background: var(--color-glass);
+  border: 1px solid var(--color-hairline);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+  box-shadow: var(--shadow-lift);
+  border-radius: var(--radius-card);
 }
 
 .feature-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(99, 102, 241, 0.5) !important;
-  box-shadow: 0 16px 32px -8px rgba(99, 102, 241, 0.2);
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: var(--brillo-vidrio), 0 16px 32px -8px rgba(0, 0, 0, 0.6);
 }
 
 .showcase-frame {
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(99, 102, 241, 0.25);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.85), var(--brillo-vidrio);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-card);
 }
 
 .faq-details summary {
@@ -446,6 +759,3 @@
 .faq-details[open] summary .faq-icon {
   transform: rotate(180deg);
 }
-
-
-

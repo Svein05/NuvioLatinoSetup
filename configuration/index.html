@@ -24,6 +24,10 @@
   <meta property="og:description" content="Personaliza colecciones y catálogos en vivo para Nuvio TV con AIOMetadata en Español Latino." />
   <meta property="og:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
   
+  <!-- Preload de Fuentes Instrument Sans & Serif -->
+  <link rel="preload" href="../assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="../assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -31,6 +35,10 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Instrument Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+          },
           colors: {
             brand: {
               400: '#818cf8',
@@ -63,7 +71,7 @@
   <!-- Controlador Modular ES6 -->
   <script type="module" src="../js/app.js?v=1.6.0"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500/30 selection:text-brand-300">
+<body class="bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
 
   <!-- Banner de Detección de Protocolo Local file:// -->
   <div id="fileProtocolAlert" class="hidden bg-amber-950/70 border-b border-amber-600/40 text-amber-200 px-4 py-2.5 text-xs z-50">
@@ -71,7 +79,7 @@
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm shrink-0"></i>
         <span>
-          <strong>Aviso de Ejecución Local:</strong> Has abierto este archivo con <code>file://</code>. Los navegadores modernos bloquean JavaScript ES6 por CORS bajo este protocolo. Para que funcione localmente, abre la consola en la carpeta del proyecto y ejecuta <code class="bg-slate-900 px-2 py-0.5 rounded text-amber-300 font-mono">python run.py</code>, o visita la <a href="https://svein05.github.io/NuvioLatinoSetup/configuration/" class="underline font-bold text-white hover:text-amber-200">versión oficial en GitHub Pages</a>.
+          <strong>Aviso de Ejecución Local:</strong> Has abierto este archivo con <code>file://</code>. Los navegadores modernos bloquean JavaScript ES6 por CORS bajo este protocolo. Para que funcione localmente, abre la consola en la carpeta del proyecto y ejecuta <code class="bg-black/60 px-2 py-0.5 rounded text-amber-300 font-mono">python run.py</code>, o visita la <a href="https://svein05.github.io/NuvioLatinoSetup/configuration/" class="underline font-bold text-white hover:text-amber-200">versión oficial en GitHub Pages</a>.
         </span>
       </div>
       <button onclick="document.getElementById('fileProtocolAlert').remove()" class="text-amber-400 hover:text-white p-1" title="Descartar aviso">
@@ -87,27 +95,27 @@
   </script>
 
   <!-- Header Superior -->
-  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
+  <header class="border-b border-white/[0.08] bg-[#08090c]/70 backdrop-blur-[34px] shadow-[var(--brillo-vidrio)] px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center gap-4">
       <a href="../" class="flex items-center gap-2.5 group" title="Volver al Inicio">
         <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-6 md:h-7 w-auto object-contain transition-transform group-hover:scale-105">
-        <h1 class="text-base md:text-lg font-bold tracking-wide text-slate-100 flex items-center gap-2">
+        <h1 class="text-base md:text-lg font-bold tracking-wide text-white flex items-center gap-2">
           <span>Metadata Latino</span>
-          <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" title="Ver versión y notas de lanzamiento en GitHub" class="app-version-badge hidden md:inline-block text-[10px] px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-300 border border-brand-500/20 font-mono hover:bg-brand-500/20 hover:border-brand-500/40 transition-colors">v1.3.0</a>
+          <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" title="Ver versión y notas de lanzamiento en GitHub" class="app-version-badge hidden md:inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hover:bg-white/[0.15] transition-colors">v1.3.0</a>
         </h1>
       </a>
 
       <!-- Enlaces de navegación interna -->
-      <nav class="hidden sm:flex items-center gap-3 border-l border-slate-800 pl-4 text-xs">
-        <a href="../" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+      <nav class="hidden sm:flex items-center gap-2 border-l border-white/[0.1] pl-4 text-xs font-medium">
+        <a href="../" class="px-3 py-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/[0.06] transition-all flex items-center gap-1.5">
           <i class="fa-solid fa-house text-[11px]"></i>
           <span>Inicio</span>
         </a>
-        <a href="./" class="text-brand-400 font-semibold flex items-center gap-1.5">
+        <a href="./" class="px-3 py-1.5 rounded-full bg-white/10 text-white border border-white/15 shadow-[var(--brillo-vidrio)] flex items-center gap-1.5 transition-all">
           <i class="fa-solid fa-wand-magic-sparkles text-[11px]"></i>
           <span>Asistente</span>
         </a>
-        <a href="../documentation/" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+        <a href="../documentation/" class="px-3 py-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/[0.06] transition-all flex items-center gap-1.5">
           <i class="fa-solid fa-book-open text-[11px]"></i>
           <span>Documentación</span>
         </a>
@@ -115,25 +123,25 @@
     </div>
 
     <div class="flex items-center gap-2 sm:gap-2.5">
-      <a href="../" class="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-medium transition-all shadow-sm flex items-center gap-1.5 sm:hidden" title="Volver al Inicio">
+      <a href="../" class="px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white border border-white/10 text-xs font-medium transition-all shadow-[var(--brillo-vidrio)] flex items-center gap-1.5 sm:hidden" title="Volver al Inicio">
         <i class="fa-solid fa-house text-[11px]"></i>
         <span>Inicio</span>
       </a>
 
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
-         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#5865F2]/10 hover:bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-sm">
+         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#5865F2]/15 hover:bg-[#5865F2]/25 text-[#a5b4fc] border border-[#5865F2]/30 text-xs font-medium transition-all shadow-[var(--brillo-vidrio)]">
         <i class="fa-brands fa-discord"></i>
         <span class="hidden sm:inline">Addon LAT-ADD</span>
       </a>
 
       <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" 
-         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all shadow-sm">
+         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white border border-white/10 text-xs font-medium transition-all shadow-[var(--brillo-vidrio)]">
         <i class="fa-brands fa-github text-sm"></i>
         <span class="hidden sm:inline">GitHub</span>
       </a>
 
       <!-- Botón de Menú de 3 Líneas para abrir el Índice de Pasos -->
-      <button id="btnOpenIndex" type="button" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/80 flex items-center justify-center transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500" title="Abrir Índice de Pasos">
+      <button id="btnOpenIndex" type="button" class="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/80 hover:text-white border border-white/10 flex items-center justify-center transition-all shadow-[var(--brillo-vidrio)] focus:outline-none focus:ring-2 focus:ring-white/40" title="Abrir Índice de Pasos">
         <i class="fa-solid fa-bars text-sm"></i>
       </button>
     </div>
@@ -142,23 +150,23 @@
   <!-- Contenedor Principal del Asistente -->
   <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto p-4 md:p-6 gap-4">
     
-    <main id="wizardView" class="flex-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6 md:p-8 flex flex-col shadow-2xl">
+    <main id="wizardView" class="flex-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[34px] rounded-[28px] p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
       
-      <!-- Barra de Navegación Superior (Volver al Inicio / Anterior / Paso X de 5 / Siguiente) -->
-      <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-800/80">
+      <!-- Barra de Navegación Superior (Volver al Inicio / Anterior / Paso X de 6 / Siguiente) -->
+      <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/[0.08]">
         <div class="flex items-center gap-2">
-          <a href="../" class="px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition-all flex items-center gap-1.5 shadow-sm" title="Volver a la Presentación inicial">
-            <i class="fa-solid fa-house text-[11px] text-brand-400"></i>
+          <a href="../" class="lat-capsule-btn glass text-xs py-1.5 px-3.5" title="Volver a la Presentación inicial">
+            <i class="fa-solid fa-house text-[11px]"></i>
             <span class="hidden sm:inline">Inicio</span>
           </a>
-          <button id="btnBack" onclick="changeStep(-1)" class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 transition-all invisible flex items-center gap-1.5 shadow-sm">
+          <button id="btnBack" onclick="changeStep(-1)" class="lat-capsule-btn glass text-xs py-1.5 px-3.5 invisible">
             <i class="fa-solid fa-chevron-left text-[10px]"></i> <span>Anterior</span>
           </button>
         </div>
 
         <div class="flex items-center gap-3">
-          <span class="text-xs text-slate-400 font-medium tracking-wide" id="stepCounter">Paso 1 de 6</span>
-          <button id="btnNext" onclick="changeStep(1)" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+          <span class="text-xs text-white/60 font-mono tracking-wider" id="stepCounter">Paso 1 de 6</span>
+          <button id="btnNext" onclick="changeStep(1)" class="lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-pill)]">
             <span>Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
@@ -169,20 +177,21 @@
       <!-- ========================================== -->
       <div id="step-1" class="step-content active">
         <div class="flex-1 flex flex-col justify-center items-center w-full min-h-[50vh] py-4">
-          <div class="w-full max-w-md mx-auto space-y-4">
-            <div class="mb-5 text-center">
-              <h2 id="authHeading" class="text-xl font-bold text-slate-100 flex items-center justify-center">
+          <div class="w-full max-w-md mx-auto space-y-5">
+            <div class="mb-4 text-center">
+              <h2 id="authHeading" class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center justify-center">
                 <span id="authHeadingText">Conectar con tu cuenta de Nuvio</span>
               </h2>
+              <p class="text-xs text-white/60 mt-1.5">Accede para sincronizar directamente con tus perfiles oficiales</p>
             </div>
 
             <!-- Pestañas de Modo: Iniciar Sesión vs Crear Cuenta -->
-            <div class="flex items-center gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
-              <button id="tabAuthLogin" type="button" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5">
+            <div class="flex items-center gap-1.5 p-1 bg-white/[0.04] border border-white/[0.08] rounded-full shadow-[var(--brillo-vidrio)]">
+              <button id="tabAuthLogin" type="button" class="flex-1 py-2 px-3 rounded-full text-xs font-semibold transition-all bg-white text-[#08090c] shadow-sm flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>Iniciar Sesión</span>
               </button>
-              <button id="tabAuthSignup" type="button" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5">
+              <button id="tabAuthSignup" type="button" class="flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-all flex items-center justify-center gap-1.5">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>Crear Cuenta</span>
               </button>
@@ -190,18 +199,18 @@
 
             <form id="authForm" onsubmit="event.preventDefault();" class="space-y-4">
               <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Correo Electrónico</label>
-                <input id="nuvioEmail" type="email" placeholder="usuario@correo.com" autocomplete="email" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
+                <label class="lat-label block mb-2">Correo Electrónico</label>
+                <input id="nuvioEmail" type="email" placeholder="usuario@correo.com" autocomplete="email" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
               </div>
               <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Contraseña</label>
+                <label class="lat-label block mb-2">Contraseña</label>
                 <div class="relative">
-                  <input id="nuvioPassword" type="password" placeholder="••••••••" autocomplete="current-password" class="w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
-                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1 transition-colors" data-target="nuvioPassword" title="Mostrar/Ocultar contraseña">
+                  <input id="nuvioPassword" type="password" placeholder="••••••••" autocomplete="current-password" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors" data-target="nuvioPassword" title="Mostrar/Ocultar contraseña">
                     <i class="fa-solid fa-eye text-xs"></i>
                   </button>
                 </div>
-                <p id="authHintText" class="text-[11px] text-slate-500 mt-1.5 hidden flex items-center gap-1">
+                <p id="authHintText" class="text-[11px] text-white/50 mt-1.5 hidden flex items-center gap-1">
                   <i class="fa-solid fa-shield text-emerald-400"></i>
                   <span>La contraseña debe contener al menos 6 caracteres.</span>
                 </p>
@@ -209,24 +218,24 @@
 
               <!-- Confirmar Contraseña (Solo en Modo Crear Cuenta) -->
               <div id="confirmPasswordGroup" class="hidden space-y-1.5">
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Confirmar Contraseña</label>
+                <label class="lat-label block mb-1">Confirmar Contraseña</label>
                 <div class="relative">
-                  <input id="nuvioPasswordConfirm" type="password" placeholder="Repite tu contraseña" autocomplete="new-password" class="w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
-                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1 transition-colors" data-target="nuvioPasswordConfirm" title="Mostrar/Ocultar contraseña">
+                  <input id="nuvioPasswordConfirm" type="password" placeholder="Repite tu contraseña" autocomplete="new-password" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors" data-target="nuvioPasswordConfirm" title="Mostrar/Ocultar contraseña">
                     <i class="fa-solid fa-eye text-xs"></i>
                   </button>
                 </div>
-                <p id="passwordMatchBadge" class="text-[11px] text-slate-500 mt-1 hidden flex items-center gap-1 font-medium"></p>
+                <p id="passwordMatchBadge" class="text-[11px] text-white/50 mt-1 hidden flex items-center gap-1 font-medium"></p>
               </div>
 
               <!-- Botón Iniciar Sesión -->
-              <button id="btnNuvioConnect" type="submit" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2">
+              <button id="btnNuvioConnect" type="submit" class="w-full py-3 px-4 rounded-full bg-white text-[#08090c] hover:bg-white/90 font-medium text-sm transition-all shadow-[var(--shadow-pill)] flex items-center justify-center gap-2">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span>Conectar Cuenta</span>
               </button>
 
               <!-- Botón Crear Cuenta (Oculto por defecto) -->
-              <button id="btnNuvioSignup" type="submit" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-600/20 hidden items-center justify-center gap-2">
+              <button id="btnNuvioSignup" type="submit" class="w-full py-3 px-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white font-medium text-sm transition-all shadow-lg shadow-emerald-500/20 hidden items-center justify-center gap-2">
                 <i class="fa-solid fa-user-plus"></i>
                 <span>Crear Cuenta en Nuvio</span>
               </button>
@@ -234,21 +243,21 @@
 
             <!-- Opción Alternativa: Modo Manual sin cuenta -->
             <div class="relative flex py-2 items-center">
-              <div class="flex-grow border-t border-slate-800"></div>
-              <span class="flex-shrink mx-3 text-[10px] text-slate-500 uppercase tracking-widest font-mono">o también</span>
-              <div class="flex-grow border-t border-slate-800"></div>
+              <div class="flex-grow border-t border-white/[0.08]"></div>
+              <span class="flex-shrink mx-3 text-[10px] text-white/40 uppercase tracking-widest font-mono">o también</span>
+              <div class="flex-grow border-t border-white/[0.08]"></div>
             </div>
 
-            <button id="btnContinueWithoutAccount" type="button" class="w-full py-2.5 px-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
-              <i class="fa-solid fa-user-slash text-slate-400"></i>
+            <button id="btnContinueWithoutAccount" type="button" class="w-full py-3 px-4 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-white/80 hover:text-white text-xs font-medium transition-all shadow-[var(--brillo-vidrio)] flex items-center justify-center gap-2">
+              <i class="fa-solid fa-user-slash text-white/50"></i>
               <span>Continuar sin cuenta de Nuvio (Modo Manual)</span>
             </button>
 
             <!-- Clave pública interna oculta para producción -->
             <input id="nuvioApikey" type="hidden" value="sb_publishable_1Clq8rlTVACkdcZuqr6_AD__xUUC_EN">
 
-            <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-start gap-3 text-xs text-slate-400">
-              <i class="fa-solid fa-lock text-slate-500 mt-0.5"></i>
+            <div class="p-3.5 bg-white/[0.03] border border-white/[0.08] rounded-[16px] flex items-start gap-3 text-xs text-white/60 shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-lock text-white/40 mt-0.5"></i>
               <span>Seguridad: Tus credenciales se envían directamente a Nuvio. No se guardan ni transmiten a terceros.</span>
             </div>
           </div>
@@ -259,16 +268,16 @@
       <!-- PASO 2: SELECCIÓN / CREACIÓN DE PERFIL     -->
       <!-- ========================================== -->
       <div id="step-2" class="step-content">
-        <div class="mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-users text-brand-500 text-base"></i>
+            <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+              <i class="fa-solid fa-users text-white/70 text-lg"></i>
               <span>Selecciona el Perfil Destino</span>
             </h2>
-            <p class="text-sm text-slate-400 mt-1">Elige en qué perfil de Nuvio inyectar las colecciones o crea uno nuevo específico para contenido Latino.</p>
+            <p class="text-sm text-white/60 mt-1">Elige en qué perfil de Nuvio inyectar las colecciones o crea uno nuevo específico para contenido Latino.</p>
           </div>
-          <button id="btnOpenNewProfileModal" type="button" class="px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition-all flex items-center gap-1.5 self-start shadow-md shadow-brand-500/20">
-            <i class="fa-solid fa-plus"></i>
+          <button id="btnOpenNewProfileModal" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 self-start shadow-[var(--brillo-vidrio)]">
+            <i class="fa-solid fa-plus text-[11px]"></i>
             <span>Nuevo Perfil</span>
           </button>
         </div>
@@ -279,7 +288,7 @@
         </div>
 
         <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente -->
-        <div id="profileOverwriteWarning" class="mt-4 p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3 max-w-3xl hidden transition-all duration-200">
+        <div id="profileOverwriteWarning" class="mt-4 p-4 bg-amber-500/10 border border-amber-500/25 rounded-[18px] flex items-start gap-3 max-w-3xl hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
           <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
           <div class="text-xs text-amber-200/90 leading-relaxed">
             <span class="font-bold text-amber-300">Atención:</span> Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración latino.
@@ -287,24 +296,24 @@
         </div>
 
         <!-- Modal de Crear Perfil -->
-        <div id="modalNewProfile" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 class="font-bold text-sm text-slate-100 flex items-center gap-2">
-                <i class="fa-solid fa-user-plus text-brand-400"></i>
+        <div id="modalNewProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+          <div class="bg-[#0b0d12]/95 border border-white/10 rounded-[26px] max-w-sm w-full p-6 shadow-[var(--shadow-lift)] backdrop-blur-[34px] space-y-4 text-white">
+            <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-white/70"></i>
                 <span>Crear Nuevo Perfil</span>
               </h3>
-              <button id="btnCloseNewProfileModal" type="button" class="text-slate-400 hover:text-white">
+              <button id="btnCloseNewProfileModal" type="button" class="text-white/40 hover:text-white p-1 rounded-lg hover:bg-white/[0.06] transition-colors">
                 <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Nombre del Perfil</label>
-              <input id="inputNewProfileName" type="text" placeholder="Ej: Latino, Cine, Niños" class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200">
+              <label class="lat-label block mb-2">Nombre del Perfil</label>
+              <input id="inputNewProfileName" type="text" placeholder="Ej: Latino, Cine, Niños" class="w-full px-4 py-2.5 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)]">
             </div>
             <div class="flex justify-end gap-2 pt-2">
-              <button id="btnCancelNewProfile" type="button" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium">Cancelar</button>
-              <button id="btnConfirmNewProfile" type="button" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold">Crear Perfil</button>
+              <button id="btnCancelNewProfile" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+              <button id="btnConfirmNewProfile" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 shadow-[var(--shadow-pill)]">Crear Perfil</button>
             </div>
           </div>
         </div>
@@ -314,12 +323,12 @@
       <!-- PASO 3: GESTOR VISUAL DE COLECCIONES       -->
       <!-- ========================================== -->
       <div id="step-3" class="step-content">
-        <div class="mb-4">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-tv text-brand-500 text-lg"></i>
+        <div class="mb-5">
+          <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+            <i class="fa-solid fa-tv text-white/70 text-lg"></i>
             <span>NUVIO: Gestor Visual de Colecciones</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Explora catálogos en cápsulas movibles, personaliza filas y carruseles. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
+          <p class="text-sm text-white/60 mt-1">Explora catálogos en cápsulas movibles, personaliza filas y carruseles. Los catálogos no seleccionados se excluirán automáticamente del addon.</p>
         </div>
 
         <!-- Contenedor dinámico del Mini Nuvio -->
@@ -333,133 +342,133 @@
       <!-- ========================================== -->
       <div id="step-4" class="step-content">
         <div class="mb-5">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-key text-brand-500 text-base"></i>
+          <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+            <i class="fa-solid fa-key text-white/70 text-lg"></i>
             <span>Proveedores de Metadatos (API Keys)</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Configura las claves de los servicios para obtener metadatos y sinopsis completas en español latino.</p>
+          <p class="text-sm text-white/60 mt-1">Configura las claves de los servicios para obtener metadatos y sinopsis completas en español latino.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- TMDB (Obligatoria - Destacada en grande arriba) -->
-          <div class="p-4 sm:p-5 bg-slate-950 border-2 border-brand-500/50 rounded-xl space-y-2.5 md:col-span-2 shadow-lg shadow-brand-500/5">
+          <div class="p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
             <div class="flex justify-between items-center gap-2">
-              <label class="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-film text-brand-400 text-sm"></i>
+              <label class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-film text-white/70 text-sm"></i>
                 <span>TMDB API Key</span>
-                <span class="text-[10px] text-amber-400 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 whitespace-nowrap">Obligatorio</span>
+                <span class="text-[10px] text-[var(--color-estrella)] font-mono px-2.5 py-0.5 rounded-full bg-[var(--color-estrella)]/10 border border-[var(--color-estrella)]/20 whitespace-nowrap">Obligatorio</span>
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-tmdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+                <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
                   <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
-            <input id="keyTmdb" type="text" placeholder="Ingresa tu TMDB API Key v3 (32 caracteres)" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs sm:text-sm text-slate-100 transition-colors">
-            <p class="text-[11px] text-slate-400">Motor principal obligatorio: requerido para la carga de datos, títulos y sinopsis oficiales en Español Latino (es-MX).</p>
+            <input id="keyTmdb" type="text" placeholder="Ingresa tu TMDB API Key v3 (32 caracteres)" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+            <p class="text-[11px] text-white/50">Motor principal obligatorio: requerido para la carga de datos, títulos y sinopsis oficiales en Español Latino (es-MX).</p>
           </div>
 
           <!-- MDBList (Obligatorio - Destacada en ancho completo) -->
-          <div class="p-4 sm:p-5 bg-slate-950 border-2 border-indigo-500/50 rounded-xl space-y-2.5 md:col-span-2 shadow-lg shadow-indigo-500/5">
+          <div class="p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
             <div class="flex justify-between items-center gap-2">
-              <label class="text-xs sm:text-sm font-bold text-slate-100 flex items-center gap-2 whitespace-nowrap">
-                <i class="fa-solid fa-list-check text-brand-400 text-sm"></i>
+              <label class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-list-check text-white/70 text-sm"></i>
                 <span>MDBList API Key</span>
-                <span class="text-[10px] text-amber-400 font-mono px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 whitespace-nowrap">Obligatorio</span>
+                <span class="text-[10px] text-[var(--color-estrella)] font-mono px-2.5 py-0.5 rounded-full bg-[var(--color-estrella)]/10 border border-[var(--color-estrella)]/20 whitespace-nowrap">Obligatorio</span>
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-mdblist" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
                   <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
-            <input id="keyMdblist" type="text" placeholder="Ingresa tu clave de MDBList para calificaciones y carátulas dinámicas" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs sm:text-sm text-slate-100 transition-colors">
-            <p class="text-[11px] text-slate-400">Obligatoria: requerida para habilitar calificaciones agregadas (IMDb, Rotten Tomatoes, Trakt) en Nuvio y motor de carátulas dinámicas.</p>
+            <input id="keyMdblist" type="text" placeholder="Ingresa tu clave de MDBList para calificaciones y carátulas dinámicas" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+            <p class="text-[11px] text-white/50">Obligatoria: requerida para habilitar calificaciones agregadas (IMDb, Rotten Tomatoes, Trakt) en Nuvio y motor de carátulas dinámicas.</p>
           </div>
 
           <!-- RPDB (Rating Poster DB) (Opcional - Columna 1) -->
-          <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+          <div class="p-4 sm:p-5 bg-white/[0.03] border border-white/[0.08] rounded-[20px] space-y-2.5 shadow-[var(--brillo-vidrio)]">
             <div class="flex justify-between items-center gap-2">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-star-half-stroke text-slate-400"></i>
+              <label class="text-xs font-semibold text-white/80 flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-star-half-stroke text-white/50"></i>
                 <span>RPDB API Key</span>
-                <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap">(Opcional)</span>
+                <span class="text-[10px] text-white/40 font-mono whitespace-nowrap">(Opcional)</span>
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-rpdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                <a href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
                   <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
-            <input id="keyRpdb" type="text" value="t0-free-rpdb" placeholder="t0-free-rpdb" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs text-slate-200 transition-colors">
-            <p class="text-[11px] text-slate-500">Puntuaciones en pósters (usa la clave gratuita t0-free-rpdb de AIOMetadata por defecto).</p>
+            <input id="keyRpdb" type="text" value="t0-free-rpdb" placeholder="t0-free-rpdb" class="w-full px-4 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.1] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+            <p class="text-[11px] text-white/50">Puntuaciones en pósters (usa la clave gratuita t0-free-rpdb de AIOMetadata por defecto).</p>
           </div>
 
           <!-- TheTVDB (Opcional - Columna 2) -->
-          <div class="p-4 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+          <div class="p-4 sm:p-5 bg-white/[0.03] border border-white/[0.08] rounded-[20px] space-y-2.5 shadow-[var(--brillo-vidrio)]">
             <div class="flex justify-between items-center gap-2">
-              <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-tv text-slate-400"></i>
+              <label class="text-xs font-semibold text-white/80 flex items-center gap-1.5 whitespace-nowrap">
+                <i class="fa-solid fa-tv text-white/50"></i>
                 <span>TheTVDB API Key</span>
-                <span class="text-[10px] text-slate-500 font-mono whitespace-nowrap">(Opcional)</span>
+                <span class="text-[10px] text-white/40 font-mono whitespace-nowrap">(Opcional)</span>
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-tvdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
                   <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
-            <input id="keyTvdb" type="text" placeholder="Clave de TheTVDB" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 focus:outline-none focus:border-brand-500 text-xs text-slate-200 transition-colors">
-            <p class="text-[11px] text-slate-500">Metadatos complementarios y numeración alternativa de temporadas de series.</p>
+            <input id="keyTvdb" type="text" placeholder="Clave de TheTVDB" class="w-full px-4 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.1] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+            <p class="text-[11px] text-white/50">Metadatos complementarios y numeración alternativa de temporadas de series.</p>
           </div>
         </div>
 
         <!-- Proveedores de Posters y Búsqueda con IA -->
-        <div class="mt-4 p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-4">
+        <div class="mt-4 p-5 bg-white/[0.03] border border-white/[0.08] rounded-[22px] space-y-4 shadow-[var(--brillo-vidrio)]">
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
-              <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i>
+            <h3 class="text-xs font-semibold text-white/80 uppercase tracking-widest flex items-center gap-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-white/70"></i>
               <span>Búsqueda Inteligente con Inteligencia Artificial (IA)</span>
             </h3>
             <label class="relative inline-flex items-center cursor-pointer">
               <input id="toggleSearchAi" type="checkbox" class="sr-only peer">
-              <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+              <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-white"></div>
             </label>
           </div>
-          <p class="text-[11px] text-slate-400">Permite buscar películas y series mediante descripciones coloquiales ("película donde el protagonista viaja en el tiempo en un auto").</p>
+          <p class="text-[11px] text-white/50">Permite buscar películas y series mediante descripciones coloquiales ("película donde el protagonista viaja en el tiempo en un auto").</p>
 
           <div id="aiKeysContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs text-slate-300">Google Gemini API Key (Recomendado, gratuito)</label>
+                <label class="text-xs text-white/70">Google Gemini API Key (Recomendado, gratuito)</label>
                 <span id="badge-gemini" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
               </div>
-              <input id="keyGemini" type="text" placeholder="AIzaSy..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200">
+              <input id="keyGemini" type="text" placeholder="AIzaSy..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.1] text-xs text-white placeholder:text-white/30">
             </div>
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="text-xs text-slate-300">OpenRouter API Key (Opcional)</label>
+                <label class="text-xs text-white/70">OpenRouter API Key (Opcional)</label>
                 <span id="badge-openrouter" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
               </div>
-              <input id="keyOpenrouter" type="text" placeholder="sk-or-v1-..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-200">
+              <input id="keyOpenrouter" type="text" placeholder="sk-or-v1-..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.1] text-xs text-white placeholder:text-white/30">
             </div>
           </div>
         </div>
 
         <!-- Botón de Validación de Claves -->
-        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 p-4 bg-slate-950/80 border border-slate-800 rounded-xl">
-          <div class="text-xs text-slate-400">
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 bg-white/[0.04] border border-white/[0.08] rounded-[22px] shadow-[var(--brillo-vidrio)]">
+          <div class="text-xs text-white/60">
             <span id="apiKeyStatusMessage">Pulsa el botón para probar la conexión de tus claves antes de avanzar.</span>
           </div>
           <div class="flex items-center gap-2.5">
             <span id="apiKeyOverallBadge" class="hidden text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1.5">
               <i class="fa-solid fa-check"></i> Verificadas
             </span>
-            <button id="btnValidateApiKeys" type="button" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-md shadow-brand-500/20 flex items-center gap-2">
+            <button id="btnValidateApiKeys" type="button" class="lat-capsule-btn solid text-xs py-2.5 px-5 shadow-[var(--shadow-pill)] flex items-center gap-2">
               <i class="fa-solid fa-vial"></i>
               <span>Probar Claves API</span>
             </button>
@@ -472,55 +481,55 @@
       <!-- ========================================== -->
       <div id="step-5" class="step-content">
         <div class="mb-5">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-sliders text-brand-500 text-lg"></i>
+          <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+            <i class="fa-solid fa-sliders text-white/70 text-lg"></i>
             <span>Preferencias de Perfil y Motor de Pósters</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Configura las funciones enriquecidas para tu cuenta de Nuvio y selecciona el sistema visual que prefieras para tus carátulas.</p>
+          <p class="text-sm text-white/60 mt-1">Configura las funciones enriquecidas para tu cuenta de Nuvio y selecciona el sistema visual que prefieras para tus carátulas.</p>
         </div>
 
         <!-- Sección 1: Toggles de Nuvio (TMDB Enrichment y MDBList Ratings) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 max-w-4xl">
           <!-- Toggle TMDB Enrichment -->
-          <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col justify-between gap-3">
+          <div class="p-5 bg-white/[0.04] border border-white/[0.08] rounded-[22px] flex flex-col justify-between gap-3 shadow-[var(--brillo-vidrio)]">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center shrink-0 text-sm">
+                <div class="w-8 h-8 rounded-lg bg-white/[0.08] border border-white/[0.12] text-white flex items-center justify-center shrink-0 text-sm shadow-[var(--brillo-vidrio)]">
                   <i class="fa-solid fa-wand-magic-sparkles"></i>
                 </div>
                 <div>
-                  <h3 class="text-xs sm:text-sm font-bold text-slate-200">TMDB Enrichment</h3>
-                  <p class="text-[10px] text-slate-400 font-mono">Sinopsis y metadatos oficiales en es-MX</p>
+                  <h3 class="text-xs sm:text-sm font-semibold text-white">TMDB Enrichment</h3>
+                  <p class="text-[10px] text-white/50 font-mono">Sinopsis y metadatos oficiales en es-MX</p>
                 </div>
               </div>
               <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input id="toggleTmdbEnrichment" type="checkbox" checked class="sr-only peer">
-                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-transparent after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-white"></div>
               </label>
             </div>
-            <p class="text-[11px] text-slate-400 leading-relaxed">
+            <p class="text-[11px] text-white/50 leading-relaxed">
               Enriquece las fichas de películas y series en Smart TV y móvil con sinopsis oficiales, reparto y directores en español latino directo desde TMDB.
             </p>
           </div>
 
           <!-- Toggle MDBList Ratings -->
-          <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col justify-between gap-3">
+          <div class="p-5 bg-white/[0.04] border border-white/[0.08] rounded-[22px] flex flex-col justify-between gap-3 shadow-[var(--brillo-vidrio)]">
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 text-sm">
+                <div class="w-8 h-8 rounded-lg bg-[var(--color-estrella)]/10 border border-[var(--color-estrella)]/20 text-[var(--color-estrella)] flex items-center justify-center shrink-0 text-sm shadow-[var(--brillo-vidrio)]">
                   <i class="fa-solid fa-star-half-stroke"></i>
                 </div>
                 <div>
-                  <h3 class="text-xs sm:text-sm font-bold text-slate-200">Calificaciones MDBList</h3>
-                  <p class="text-[10px] text-slate-400 font-mono">Puntuaciones críticas agregadas</p>
+                  <h3 class="text-xs sm:text-sm font-semibold text-white">Calificaciones MDBList</h3>
+                  <p class="text-[10px] text-white/50 font-mono">Puntuaciones críticas agregadas</p>
                 </div>
               </div>
               <label class="relative inline-flex items-center cursor-pointer shrink-0">
                 <input id="toggleMdblistRatings" type="checkbox" checked class="sr-only peer">
-                <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-transparent after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-white"></div>
               </label>
             </div>
-            <p class="text-[11px] text-slate-400 leading-relaxed">
+            <p class="text-[11px] text-white/50 leading-relaxed">
               Activa la visualización de calificaciones críticas globales (IMDb, Rotten Tomatoes, Trakt y Metacritic) en la vista de detalles de Nuvio.
             </p>
           </div>
@@ -529,95 +538,95 @@
         <!-- Sección 2: Selector de Motor de Pósters -->
         <div class="max-w-4xl space-y-3">
           <div class="pb-1">
-            <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-film text-brand-400"></i>
+            <h3 class="text-base font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-film text-white/70"></i>
               <span>¿Qué sistema de pósters prefieres?</span>
             </h3>
-            <p class="text-xs text-slate-400">Selecciona la apariencia y estilo de carátulas para tus películas y series en todo Nuvio y AIOMetadata.</p>
+            <p class="text-xs text-white/60">Selecciona la apariencia y estilo de carátulas para tus películas y series en todo Nuvio y AIOMetadata.</p>
           </div>
 
           <!-- Grid de 3 Tarjetas Horizontales -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
 
             <!-- Opción 1: Default (AioMetadata) -->
-            <div id="cardPosterDefault" onclick="window.appController.selectPosterEngine('default')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-brand-500 shadow-lg shadow-brand-500/10 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+            <div id="cardPosterDefault" onclick="window.appController.selectPosterEngine('default')" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.06] border-2 border-white/40 shadow-[var(--shadow-lift)] cursor-pointer transition-all flex flex-col justify-between gap-3 group">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-white tracking-wide">AioMetadata</span>
-                  <div class="w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center text-[10px] text-white card-check-icon">
+                  <span class="text-xs font-semibold text-white tracking-wide">AioMetadata</span>
+                  <div class="w-5 h-5 rounded-full border-2 border-white bg-white flex items-center justify-center text-[10px] text-[#08090c] card-check-icon shadow-sm">
                     <i class="fa-solid fa-check"></i>
                   </div>
                 </div>
 
                 <!-- Contenedor con ratio vertical 2:3 estricto -->
-                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
+                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-[16px] overflow-hidden bg-black/40 border border-white/10 relative shadow-md">
                   <img id="posterPreviewDefault" src="https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg" alt="Póster Superman Original" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
                 </div>
               </div>
 
-              <div class="pt-2 border-t border-slate-900 text-center">
-                <span class="text-[10px] text-slate-500 font-mono italic">Sin dependencias externas</span>
+              <div class="pt-2 border-t border-white/[0.06] text-center">
+                <span class="text-[10px] text-white/50 font-mono italic">Sin dependencias externas</span>
               </div>
             </div>
 
             <!-- Opción 2: BetterPoster -->
-            <div id="cardPosterBetter" onclick="window.appController.selectPosterEngine('betterposter')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+            <div id="cardPosterBetter" onclick="window.appController.selectPosterEngine('betterposter')" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-white tracking-wide">BetterPoster</span>
-                  <div class="w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon">
+                  <span class="text-xs font-semibold text-white tracking-wide">BetterPoster</span>
+                  <div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon">
                     <i class="fa-solid fa-check"></i>
                   </div>
                 </div>
 
                 <!-- Contenedor con ratio vertical 2:3 estricto -->
-                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
+                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-[16px] overflow-hidden bg-black/40 border border-white/10 relative shadow-md">
                   <img id="posterPreviewBetter" src="https://btttr.cc/poster/imdb/poster-default/tt5950044.jpg?lang=es-MX&rs=IM" alt="Póster Superman BetterPoster" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
                 </div>
               </div>
 
-              <div class="pt-2 border-t border-slate-900 space-y-2">
-                <a href="https://btttr.cc" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+              <div class="pt-2 border-t border-white/[0.06] space-y-2">
+                <a href="https://btttr.cc" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="lat-capsule-btn glass text-[11px] py-1.5 px-3 w-full justify-center">
                   <span>Personalizar en btttr.cc</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
-                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('betterposter')" class="w-full text-[10px] text-brand-400 hover:text-brand-300 hover:underline flex items-center justify-center gap-1">
+                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('betterposter')" class="w-full text-[10px] text-white/60 hover:text-white hover:underline flex items-center justify-center gap-1">
                   <i class="fa-solid fa-sliders text-[9px]"></i>
                   <span>Ingresar URL propia (opcional)</span>
                 </button>
                 <div id="customUrlContainer-betterposter" class="hidden pt-1" onclick="event.stopPropagation()">
-                  <input id="customUrlBetterposter" type="text" placeholder="https://btttr.cc/..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] text-slate-200 focus:outline-none focus:border-brand-500">
+                  <input id="customUrlBetterposter" type="text" placeholder="https://btttr.cc/..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-white/[0.12] text-[11px] text-white focus:outline-none focus:border-white/40">
                 </div>
               </div>
             </div>
 
             <!-- Opción 3: Poster+ -->
-            <div id="cardPosterPlus" onclick="window.appController.selectPosterEngine('postersplus')" class="poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+            <div id="cardPosterPlus" onclick="window.appController.selectPosterEngine('postersplus')" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-white tracking-wide">Poster+</span>
-                  <div class="w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon">
+                  <span class="text-xs font-semibold text-white tracking-wide">Poster+</span>
+                  <div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon">
                     <i class="fa-solid fa-check"></i>
                   </div>
                 </div>
 
                 <!-- Contenedor con ratio vertical 2:3 estricto y renderizado real de PostersPlus -->
-                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-slate-900 border border-slate-800 relative shadow-md">
+                <div class="w-44 sm:w-48 aspect-[2/3] mx-auto rounded-[16px] overflow-hidden bg-black/40 border border-white/10 relative shadow-md">
                   <img id="posterPreviewPostersPlus" src="https://postersplus.stremio.ru/poster?tmdb_id=1061474&imdb_id=tt5950044&stremio_id=tt5950044&type=movie&primary_client=stremio_tv_nuvio&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0" alt="Póster Superman PostersPlus" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-300 transition-opacity ease-in-out" loading="lazy">
                 </div>
               </div>
 
-              <div class="pt-2 border-t border-slate-900 space-y-2">
-                <a href="https://postersplus.stremio.ru" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="w-full py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5 shadow-sm">
+              <div class="pt-2 border-t border-white/[0.06] space-y-2">
+                <a href="https://postersplus.stremio.ru" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="lat-capsule-btn glass text-[11px] py-1.5 px-3 w-full justify-center">
                   <span>Personalizar en PostersPlus</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
-                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('postersplus')" class="w-full text-[10px] text-brand-400 hover:text-brand-300 hover:underline flex items-center justify-center gap-1">
+                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('postersplus')" class="w-full text-[10px] text-white/60 hover:text-white hover:underline flex items-center justify-center gap-1">
                   <i class="fa-solid fa-sliders text-[9px]"></i>
                   <span>Ingresar URL propia (opcional)</span>
                 </button>
                 <div id="customUrlContainer-postersplus" class="hidden pt-1" onclick="event.stopPropagation()">
-                  <input id="customUrlPostersplus" type="text" placeholder="https://postersplus.stremio.ru/poster?..." class="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[10px] text-slate-200 focus:outline-none focus:border-brand-500">
+                  <input id="customUrlPostersplus" type="text" placeholder="https://postersplus.stremio.ru/poster?..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-white/[0.12] text-[11px] text-white focus:outline-none focus:border-white/40">
                 </div>
               </div>
             </div>
@@ -631,82 +640,82 @@
       <!-- ========================================== -->
       <div id="step-6" class="step-content">
         <div class="mb-5">
-          <h2 class="text-xl font-bold text-slate-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-rocket text-brand-500 text-lg"></i>
+          <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+            <i class="fa-solid fa-rocket text-white/70 text-lg"></i>
             <span>Seguridad del Addon e Inyección Automatizada</span>
           </h2>
-          <p class="text-sm text-slate-400 mt-1">Configura la clave maestra para tu addon de metadatos, revisa el resumen y ejecuta el aprovisionamiento en Nuvio.</p>
+          <p class="text-sm text-white/60 mt-1">Configura la clave maestra para tu addon de metadatos, revisa el resumen y ejecuta el aprovisionamiento en Nuvio.</p>
         </div>
 
         <!-- Clave Maestra de AIOMetadata -->
-        <div class="mb-5 p-4 bg-slate-950/80 border border-slate-800 rounded-xl max-w-2xl">
+        <div class="mb-5 p-5 bg-white/[0.04] border border-white/[0.08] rounded-[22px] max-w-2xl shadow-[var(--brillo-vidrio)]">
           <div class="flex justify-between items-center mb-2">
-            <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-shield-halved text-brand-400"></i>
+            <label class="lat-label flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved text-white/70"></i>
               <span>Contraseña Maestra del Addon</span>
             </label>
-            <button id="btnGeneratePassword" type="button" class="text-xs text-brand-400 hover:text-brand-300 hover:underline flex items-center gap-1">
+            <button id="btnGeneratePassword" type="button" class="text-xs text-white/70 hover:text-white hover:underline flex items-center gap-1">
               <i class="fa-solid fa-dice"></i> Generar aleatoria
             </button>
           </div>
-          <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 4 caracteres)" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors">
-          <p class="text-[11px] text-slate-500 mt-1.5">Esta contraseña protegerá tu addon y te permitirá editarlo en el futuro desde la interfaz de AIOMetadata si lo requieres.</p>
+          <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 4 caracteres)" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+          <p class="text-[11px] text-white/50 mt-1.5">Esta contraseña protegerá tu addon y te permitirá editarlo en el futuro desde la interfaz de AIOMetadata si lo requieres.</p>
         </div>
 
         <!-- Tarjetas de Resumen -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-4 max-w-4xl text-xs">
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
-            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Perfil Nuvio</span>
-            <span id="summaryProfileTarget" class="text-slate-200 font-bold block truncate">Principal</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-5 max-w-4xl text-xs">
+          <div class="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-[18px] space-y-1 shadow-[var(--brillo-vidrio)]">
+            <span class="text-white/40 block uppercase tracking-widest text-[9px] font-semibold">Perfil Nuvio</span>
+            <span id="summaryProfileTarget" class="text-white font-semibold block truncate">Principal</span>
           </div>
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
-            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Colecciones Nativas</span>
-            <span id="summaryCollectionsCount" class="text-slate-200 font-bold block truncate">Calculando...</span>
+          <div class="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-[18px] space-y-1 shadow-[var(--brillo-vidrio)]">
+            <span class="text-white/40 block uppercase tracking-widest text-[9px] font-semibold">Colecciones Nativas</span>
+            <span id="summaryCollectionsCount" class="text-white font-semibold block truncate">Calculando...</span>
           </div>
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
-            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Catálogos AIOMetadata</span>
-            <span id="summaryCatalogsCount" class="text-emerald-400 font-bold block truncate">Ghost Mode (Optimizados)</span>
+          <div class="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-[18px] space-y-1 shadow-[var(--brillo-vidrio)]">
+            <span class="text-white/40 block uppercase tracking-widest text-[9px] font-semibold">Catálogos AIOMetadata</span>
+            <span id="summaryCatalogsCount" class="text-emerald-400 font-semibold block truncate">Ghost Mode (Optimizados)</span>
           </div>
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
-            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Motor de Pósters</span>
-            <span id="summaryPosterEngine" class="text-brand-400 font-bold block truncate">Nativo / Limpio</span>
+          <div class="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-[18px] space-y-1 shadow-[var(--brillo-vidrio)]">
+            <span class="text-white/40 block uppercase tracking-widest text-[9px] font-semibold">Motor de Pósters</span>
+            <span id="summaryPosterEngine" class="text-white font-semibold block truncate">Nativo / Limpio</span>
           </div>
-          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-1">
-            <span class="text-slate-500 block uppercase tracking-wider text-[10px] font-semibold">Enriquecimiento</span>
-            <span id="summaryEnrichmentStatus" class="text-slate-200 font-bold block truncate">TMDB + MDBList</span>
+          <div class="bg-white/[0.04] border border-white/[0.08] p-3.5 rounded-[18px] space-y-1 shadow-[var(--brillo-vidrio)]">
+            <span class="text-white/40 block uppercase tracking-widest text-[9px] font-semibold">Enriquecimiento</span>
+            <span id="summaryEnrichmentStatus" class="text-white font-semibold block truncate">TMDB + MDBList</span>
           </div>
         </div>
 
         <!-- Contenedor de Estado de Inyección en Producción -->
-        <div id="injectionStatusContainer" class="hidden mb-4 p-4 bg-slate-950/90 border border-brand-500/30 rounded-xl max-w-2xl space-y-2.5">
+        <div id="injectionStatusContainer" class="hidden mb-5 p-5 bg-white/[0.05] border border-white/[0.12] rounded-[22px] max-w-2xl space-y-3 shadow-[var(--shadow-lift)]">
           <div class="flex items-center justify-between">
             <span id="injectionPhaseTitle" class="text-xs font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-spinner fa-spin text-brand-400"></i>
+              <i class="fa-solid fa-spinner fa-spin text-white"></i>
               <span>Aprovisionando configuración...</span>
             </span>
-            <span id="injectionPhaseStep" class="text-[11px] font-mono text-brand-400">Fase 1 de 5</span>
+            <span id="injectionPhaseStep" class="text-[11px] font-mono text-white/70">Fase 1 de 5</span>
           </div>
-          <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-            <div id="injectionProgressBar" class="bg-brand-500 h-1.5 rounded-full transition-all duration-300 w-1/5"></div>
+          <div class="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+            <div id="injectionProgressBar" class="bg-white h-1.5 rounded-full transition-all duration-300 w-1/5 shadow-sm"></div>
           </div>
-          <p id="injectionPhaseDetail" class="text-[11px] text-slate-400">Iniciando comunicación con Nuvio y AIOMetadata...</p>
+          <p id="injectionPhaseDetail" class="text-[11px] text-white/50">Iniciando comunicación con Nuvio y AIOMetadata...</p>
         </div>
 
         <!-- Contenedor Modo Manual (Sin cuenta Nuvio) -->
-        <div id="manualModeContainer" class="hidden mb-5 p-4 bg-slate-950/90 border border-brand-500/30 rounded-2xl max-w-2xl space-y-3">
-          <div class="flex items-center gap-2 text-xs font-bold text-amber-300">
-            <i class="fa-solid fa-circle-info text-amber-400"></i>
+        <div id="manualModeContainer" class="hidden mb-5 p-5 bg-white/[0.04] border border-white/[0.12] rounded-[22px] max-w-2xl space-y-3 shadow-[var(--brillo-vidrio)]">
+          <div class="flex items-center gap-2 text-xs font-semibold text-[var(--color-estrella)]">
+            <i class="fa-solid fa-circle-info"></i>
             <span>Modo Manual (Sin cuenta Nuvio)</span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed">
+          <p class="text-xs text-white/70 leading-relaxed">
             Al no usar una cuenta Nuvio, tendrás que manualmente ingresar los JSON dentro de Nuvio en un nuevo perfil.
           </p>
           <div class="flex flex-wrap items-center gap-2.5 pt-1">
-            <button id="btnCopyCollectionsJson" type="button" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-brand-600/25 flex items-center gap-2">
+            <button id="btnCopyCollectionsJson" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 shadow-[var(--shadow-pill)] flex items-center gap-2">
               <i class="fa-solid fa-copy"></i>
               <span>Copiar JSON de Colecciones</span>
             </button>
-            <button id="btnCopyAioConfig" type="button" disabled class="px-4 py-2.5 bg-slate-800 text-slate-500 border border-slate-700/60 font-semibold rounded-xl text-xs transition-all shadow-none flex items-center gap-2 cursor-not-allowed" title="Ingresa una contraseña para el addon (mínimo 4 caracteres) primero">
+            <button id="btnCopyAioConfig" type="button" disabled class="lat-capsule-btn glass text-xs py-2 px-4 opacity-40 cursor-not-allowed flex items-center gap-2" title="Ingresa una contraseña para el addon (mínimo 4 caracteres) primero">
               <i class="fa-solid fa-copy"></i>
               <span>Copiar JSON de Metadata</span>
             </button>
@@ -715,18 +724,18 @@
 
         <!-- Botones de Acción -->
         <div class="flex flex-wrap items-center gap-3">
-          <button id="btnExecutePipeline" disabled class="px-6 py-3 bg-slate-800 text-slate-500 border border-slate-700/60 font-medium rounded-xl text-sm transition-all flex items-center gap-2 cursor-not-allowed shadow-none">
+          <button id="btnExecutePipeline" disabled class="lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)]">
             <i class="fa-solid fa-bolt"></i>
             <span>Ejecutar Configuración Automática</span>
           </button>
 
           <!-- Opciones de Descarga Manual para Respaldo -->
-          <button id="btnDownloadCollections" class="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs transition-all flex items-center gap-2" title="Descargar archivo JSON de colecciones para Nuvio">
+          <button id="btnDownloadCollections" class="lat-capsule-btn glass px-4 py-3 text-xs flex items-center gap-2" title="Descargar archivo JSON de colecciones para Nuvio">
             <i class="fa-solid fa-download"></i>
             <span>Descargar Colecciones JSON</span>
           </button>
 
-          <button id="btnDownloadAioConfig" class="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs transition-all flex items-center gap-2" title="Descargar configuración filtrada para AIOMetadata">
+          <button id="btnDownloadAioConfig" class="lat-capsule-btn glass px-4 py-3 text-xs flex items-center gap-2" title="Descargar configuración filtrada para AIOMetadata">
             <i class="fa-solid fa-file-code"></i>
             <span>Descargar Config AIOMetadata</span>
           </button>
@@ -737,18 +746,18 @@
   </div>
 
   <!-- Overlay y Drawer Lateral para el Índice de Pasos -->
-  <div id="indexDrawerOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  <div id="indexDrawerOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
 
-  <aside id="indexDrawer" class="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-slate-950 border-l border-slate-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+  <aside id="indexDrawer" class="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-[#0b0d12]/95 border-l border-white/[0.08] backdrop-blur-[34px] z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-[var(--shadow-lift)] text-white">
     <!-- Cabecera del Drawer -->
-    <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+    <div class="p-5 border-b border-white/[0.08] flex items-center justify-between">
       <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-lg bg-brand-600/20 text-brand-400 border border-brand-500/30 flex items-center justify-center text-xs">
+        <div class="w-7 h-7 rounded-lg bg-white/[0.08] text-white border border-white/[0.12] flex items-center justify-center text-xs shadow-[var(--brillo-vidrio)]">
           <i class="fa-solid fa-list-ol"></i>
         </div>
-        <h3 class="text-sm font-bold text-slate-100">Índice de Pasos</h3>
+        <h3 class="text-sm font-semibold text-white">Índice de Pasos</h3>
       </div>
-      <button id="btnCloseIndex" type="button" class="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors" title="Cerrar índice">
+      <button id="btnCloseIndex" type="button" class="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white flex items-center justify-center transition-colors" title="Cerrar índice">
         <i class="fa-solid fa-xmark text-sm"></i>
       </button>
     </div>
@@ -756,8 +765,8 @@
     <!-- Lista de Pasos del Índice -->
     <div class="flex-1 p-4 space-y-2 overflow-y-auto" id="drawerStepList">
       <!-- Botón para volver al inicio desde el Drawer -->
-      <a href="../" class="w-full mb-3 px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2.5 transition-colors shadow-sm">
-        <i class="fa-solid fa-house text-brand-400"></i>
+      <a href="../" class="lat-capsule-btn glass w-full py-2.5 mb-3 text-xs justify-center shadow-[var(--brillo-vidrio)]">
+        <i class="fa-solid fa-house text-white/70"></i>
         <span>Volver a la Presentación</span>
       </a>
 
@@ -765,7 +774,7 @@
         <span class="drawer-badge">1</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">Cuenta Nuvio</div>
-          <div class="text-[10px] text-slate-400">Iniciar sesión o registro</div>
+          <div class="text-[10px] text-white/50">Iniciar sesión o registro</div>
         </div>
         <i class="drawer-status-icon hidden"></i>
       </button>
@@ -774,60 +783,60 @@
         <span class="drawer-badge">2</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">Elegir Perfil</div>
-          <div class="text-[10px] text-slate-400">Perfil destino de Nuvio</div>
+          <div class="text-[10px] text-white/50">Perfil destino de Nuvio</div>
         </div>
-        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
       </button>
 
       <button onclick="goToStep(3)" id="drawer-step-3" class="drawer-step-item locked">
         <span class="drawer-badge">3</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">Colección</div>
-          <div class="text-[10px] text-slate-400">NUVIO interactivo</div>
+          <div class="text-[10px] text-white/50">NUVIO interactivo</div>
         </div>
-        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
       </button>
 
       <button onclick="goToStep(4)" id="drawer-step-4" class="drawer-step-item locked">
         <span class="drawer-badge">4</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">ApiKeys</div>
-          <div class="text-[10px] text-slate-400">TMDB, MDBList, TVDB...</div>
+          <div class="text-[10px] text-white/50">TMDB, MDBList, TVDB...</div>
         </div>
-        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
       </button>
 
       <button onclick="goToStep(5)" id="drawer-step-5" class="drawer-step-item locked">
         <span class="drawer-badge">5</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">Preferencias</div>
-          <div class="text-[10px] text-slate-400">Enrichment y pósters</div>
+          <div class="text-[10px] text-white/50">Enrichment y pósters</div>
         </div>
-        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
       </button>
 
       <button onclick="goToStep(6)" id="drawer-step-6" class="drawer-step-item locked">
         <span class="drawer-badge">6</span>
         <div class="flex-1 text-left">
           <div class="font-medium text-xs">Inyección</div>
-          <div class="text-[10px] text-slate-400">Seguridad y sincronización</div>
+          <div class="text-[10px] text-white/50">Seguridad y sincronización</div>
         </div>
-        <i class="fa-solid fa-lock text-[10px] text-slate-500 drawer-status-icon"></i>
+        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
       </button>
     </div>
 
     <!-- Pie del Drawer -->
-    <div class="p-4 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+    <div class="p-4 border-t border-white/[0.08] text-[11px] text-white/40 flex items-center justify-between">
       <span id="drawerStepCounter">Paso 1 de 6</span>
-      <span class="text-[10px] text-slate-600">Nuvio Latino</span>
+      <span class="text-[10px] text-white/50 font-mono">Nuvio Latino</span>
     </div>
   </aside>
 
   <!-- Modal Emergente de Finalización y Comunidad -->
   <div id="completionModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
-    <div class="bg-slate-900/95 border border-brand-500/40 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl text-center transform transition-all relative overflow-hidden">
+    <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[28px] max-w-lg w-full p-6 sm:p-8 shadow-[var(--shadow-lift)] text-center transform transition-all relative overflow-hidden text-white backdrop-blur-[34px]">
       <!-- Decoración de fondo glow -->
-      <div class="absolute -top-24 -left-24 w-48 h-48 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/[0.05] rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <!-- Icono de éxito con pulso suave -->
@@ -836,37 +845,37 @@
       </div>
 
       <!-- Título -->
-      <h3 id="completionModalTitle" class="text-xl font-bold text-white mb-2">¡Configuración Completada!</h3>
+      <h3 id="completionModalTitle" class="text-2xl sm:text-3xl font-normal font-serif text-white mb-2">¡Configuración Completada!</h3>
 
       <!-- Mensaje dinámico (Automático vs Manual) -->
-      <div id="completionModalMessage" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+      <div id="completionModalMessage" class="text-xs sm:text-sm text-white/70 leading-relaxed mb-4">
         <!-- Inyectado dinámicamente -->
       </div>
 
       <!-- Tarjeta de Recomendación de Addon LAT-ADD y Discord -->
-      <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-4 my-4 text-center">
-        <div class="text-xs font-semibold text-slate-200 mb-1 flex items-center justify-center gap-1.5">
-          <i class="fa-solid fa-star text-amber-400 text-[11px]"></i>
+      <div class="bg-white/[0.04] border border-white/[0.08] rounded-[20px] p-5 my-4 text-center shadow-[var(--brillo-vidrio)]">
+        <div class="text-xs font-semibold text-white/90 mb-1 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-star text-[var(--color-estrella)] text-[11px]"></i>
           <span>Recomendación de la Comunidad</span>
         </div>
-        <p class="text-xs text-slate-400 leading-relaxed mb-3">
-          Te recomendamos el addon de <strong class="text-slate-100 font-semibold">LAT-ADD</strong>, completamente enfocado en la comunidad Latina. Si gustas o requieres soporte y asistencia técnica, puedes unirte a nuestro Discord oficial:
+        <p class="text-xs text-white/60 leading-relaxed mb-4">
+          Te recomendamos el addon de <strong class="text-white font-semibold">LAT-ADD</strong>, completamente enfocado en la comunidad Latina. Si gustas o requieres soporte y asistencia técnica, puedes unirte a nuestro Discord oficial:
         </p>
 
         <!-- Botón centrado destacado de Discord -->
         <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
-           class="inline-flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-xs sm:text-sm shadow-lg shadow-[#5865F2]/25 transition-all transform hover:scale-[1.02]">
+           class="lat-capsule-btn bg-[#5865F2] hover:bg-[#4752C4] text-white font-medium py-3 px-6 shadow-lg shadow-[#5865F2]/25 text-xs sm:text-sm inline-flex items-center gap-2">
           <i class="fa-brands fa-discord text-base"></i>
           <span>Unirse a Discord (Soporte & LAT-ADD)</span>
         </a>
       </div>
 
-      <p class="text-[11px] text-slate-400 mb-5">
+      <p class="text-[11px] text-white/50 mb-5">
         No dudes en otorgar tu feedback y disfrutar de todo tu contenido completamente en Latino.
       </p>
 
       <!-- Botón de Aceptar / Cerrar -->
-      <button id="btnCloseCompletionModal" type="button" class="w-full py-2.5 px-5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-md shadow-brand-500/20">
+      <button id="btnCloseCompletionModal" type="button" class="lat-capsule-btn solid w-full py-3 px-5 text-sm shadow-[var(--shadow-pill)]">
         ¡Entendido, gracias!
       </button>
     </div>
@@ -878,45 +887,45 @@
   <!-- ======================================================== -->
   <!-- FOOTER OFICIAL NUVIO STYLE (SIN LOGO, CON CRÉDITOS)      -->
   <!-- ======================================================== -->
-  <footer class="border-t border-slate-800/80 bg-slate-950/80 mt-auto py-10 px-4 sm:px-6">
+  <footer class="border-t border-white/[0.08] bg-[#08090c] mt-auto py-12 px-4 sm:px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
       
       <!-- Columna 1: Info del Proyecto & Licencia (Sin Logo) -->
       <div class="space-y-3 md:col-span-1">
-        <h4 class="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-2">
           <span>Nuvio Latino Setup</span>
         </h4>
-        <p class="text-xs text-slate-400 leading-relaxed">
+        <p class="text-xs text-white/50 leading-relaxed">
           Herramienta de automatización y configuración visual de colecciones y metadatos en Español Latino para Nuvio TV y AIOMetadata.
         </p>
-        <div class="pt-2 text-[11px] text-slate-500 space-y-1">
+        <div class="pt-2 text-[11px] text-white/40 space-y-1">
           <div>© 2025-2026 Nuvio Latino Setup</div>
-          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono text-brand-400 font-medium hover:underline">v1.2.0</a> • Licencia MIT</div>
-          <div class="text-[10px] text-slate-600">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
+          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono text-white/70 font-medium hover:underline">v1.3.0</a> • Licencia MIT</div>
+          <div class="text-[10px] text-white/30">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
         </div>
       </div>
 
       <!-- Columna 2: Créditos y Agradecimientos -->
       <div class="space-y-3">
-        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-heart text-rose-500/80 text-[11px]"></i>
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fa-solid fa-heart text-rose-400/80 text-[11px]"></i>
           <span>Créditos</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-400">
+        <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 group-hover:text-brand-400"></i>
-              <span class="font-medium text-slate-300 group-hover:text-brand-300">Colección en Español Completa (DonPuercoTroll)</span>
+            <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-white/40 group-hover:text-white"></i>
+              <span class="font-medium text-white/80 group-hover:text-white">Colección en Español Completa (DonPuercoTroll)</span>
             </a>
           </li>
           <li>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-brands fa-discord text-[11px] text-[#5865F2]"></i>
               <span>Discord Comunidad Latina</span>
             </a>
           </li>
           <li>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-solid fa-puzzle-piece text-[11px] text-emerald-400"></i>
               <span>Addon LAT-ADD</span>
             </a>
@@ -926,26 +935,26 @@
 
       <!-- Columna 3: Ecosistema -->
       <div class="space-y-3">
-        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-cubes text-brand-400 text-[11px]"></i>
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fa-solid fa-cubes text-white/70 text-[11px]"></i>
           <span>Ecosistema</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-400">
+        <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-tv text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-tv text-[10px] text-white/40 group-hover:text-white"></i>
               <span>Nuvio TV Oficial</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-server text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-server text-[10px] text-white/40 group-hover:text-white"></i>
               <span>AIOMetadata Addon</span>
             </a>
           </li>
           <li>
-            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-film text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-film text-[10px] text-white/40 group-hover:text-white"></i>
               <span>The Movie Database (TMDB)</span>
             </a>
           </li>
@@ -954,32 +963,32 @@
 
       <!-- Columna 4: Navegación y Proyecto -->
       <div class="space-y-3">
-        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-code-branch text-brand-400 text-[11px]"></i>
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fa-solid fa-code-branch text-white/70 text-[11px]"></i>
           <span>Proyecto</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-400">
+        <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="./" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group text-brand-300">
-              <i class="fa-solid fa-wand-magic-sparkles text-[10px] text-brand-400"></i>
+            <a href="./" class="hover:text-white transition-colors flex items-center gap-1.5 group text-white">
+              <i class="fa-solid fa-wand-magic-sparkles text-[10px] text-white"></i>
               <span>Asistente de Configuración</span>
             </a>
           </li>
           <li>
-            <a href="../documentation/" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-book-open text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="../documentation/" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-book-open text-[10px] text-white/40 group-hover:text-white"></i>
               <span>Documentación & Guías</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-brands fa-github text-[11px] text-slate-400"></i>
+            <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-brands fa-github text-[11px] text-white/60"></i>
               <span>Repositorio en GitHub</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/Svein05/NuvioLatinoSetup/issues" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-circle-exclamation text-[10px] text-amber-500/80"></i>
+            <a href="https://github.com/Svein05/NuvioLatinoSetup/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-circle-exclamation text-[10px] text-amber-400"></i>
               <span>Reportar un problema (Issues)</span>
             </a>
           </li>

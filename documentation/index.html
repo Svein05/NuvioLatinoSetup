@@ -19,6 +19,10 @@
   <meta property="og:description" content="Guía completa para configurar Nuvio con colecciones cinematográficas y metadatos en español latino." />
   <meta property="og:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
   
+  <!-- Fuentes LAT-ADD (Instrument Sans & Instrument Serif) -->
+  <link rel="preload" href="../assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -26,6 +30,10 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Instrument Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+          },
           colors: {
             brand: {
               400: '#818cf8',
@@ -45,31 +53,31 @@
   <!-- Estilos Propios -->
   <link rel="stylesheet" href="../css/styles.css" />
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500/30 selection:text-brand-300">
+<body class="bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
 
   <!-- Header Superior -->
-  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
+  <header class="border-b border-white/[0.08] bg-[#08090c]/70 backdrop-blur-[34px] shadow-[var(--brillo-vidrio)] px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
     <div class="flex items-center gap-4">
       <a href="../" class="flex items-center gap-2.5 group" title="Volver al Inicio">
         <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-6 md:h-7 w-auto object-contain transition-transform group-hover:scale-105">
-        <h1 class="text-base md:text-lg font-bold tracking-wide text-slate-100 flex items-center gap-2">
+        <h1 class="text-base md:text-lg font-bold tracking-wide text-white flex items-center gap-2">
           <span>Metadata Latino</span>
-          <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-300 border border-brand-500/20 font-mono">Docs</span>
-          <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" title="Ver versión y notas de lanzamiento en GitHub" class="app-version-badge hidden md:inline-block text-[10px] px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-300 border border-brand-500/20 font-mono hover:bg-brand-500/20 hover:border-brand-500/40 transition-colors">v1.3.0</a>
+          <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">Docs</span>
+          <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" title="Ver versión y notas de lanzamiento en GitHub" class="app-version-badge hidden md:inline-block text-[10px] px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hover:bg-white/[0.15] transition-colors">v1.3.0</a>
         </h1>
       </a>
 
       <!-- Navegación Interna -->
-      <nav class="hidden sm:flex items-center gap-3 border-l border-slate-800 pl-4 text-xs">
-        <a href="../" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+      <nav class="hidden sm:flex items-center gap-2 border-l border-white/[0.1] pl-4 text-xs font-medium">
+        <a href="../" class="px-3 py-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/[0.06] transition-all flex items-center gap-1.5">
           <i class="fa-solid fa-house text-[11px]"></i>
           <span>Inicio</span>
         </a>
-        <a href="../configuration/" class="text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+        <a href="../configuration/" class="px-3 py-1.5 rounded-full text-white/60 hover:text-white hover:bg-white/[0.06] transition-all flex items-center gap-1.5">
           <i class="fa-solid fa-wand-magic-sparkles text-[11px]"></i>
           <span>Asistente</span>
         </a>
-        <a href="./" class="text-brand-400 font-semibold flex items-center gap-1.5">
+        <a href="./" class="px-3 py-1.5 rounded-full bg-white/10 text-white border border-white/15 shadow-[var(--brillo-vidrio)] flex items-center gap-1.5 transition-all">
           <i class="fa-solid fa-book-open text-[11px]"></i>
           <span>Documentación</span>
         </a>
@@ -77,7 +85,7 @@
     </div>
 
     <div class="flex items-center gap-2 sm:gap-2.5">
-      <a href="../configuration/" class="px-3.5 py-1.5 rounded-full bg-brand-600/20 hover:bg-brand-600/30 text-brand-300 hover:text-white border border-brand-500/30 text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5">
+      <a href="../configuration/" class="lat-capsule-btn-solid text-xs !py-1.5 !px-3.5 flex items-center gap-1.5">
         <i class="fa-solid fa-wand-magic-sparkles text-[11px]"></i>
         <span>Abrir Asistente</span>
       </a>
@@ -89,7 +97,7 @@
       </a>
 
       <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" 
-         class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition-all shadow-sm">
+         class="lat-capsule-btn-glass text-xs !py-1.5 !px-3 flex items-center gap-1.5">
         <i class="fa-brands fa-github text-sm"></i>
         <span class="hidden sm:inline">GitHub</span>
       </a>
@@ -101,24 +109,24 @@
     
     <!-- Sidebar de Navegación Lateral (Sticky en Desktop) -->
     <aside class="md:w-64 shrink-0">
-      <div class="sticky top-20 bg-slate-900/50 border border-slate-800/80 rounded-2xl p-4 space-y-4">
-        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">
-          <i class="fa-solid fa-list text-brand-400"></i>
+      <div class="sticky top-20 lat-card p-4 space-y-4">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-white/50 border-b border-white/[0.08] pb-2">
+          <i class="fa-solid fa-list text-[#ffd479]"></i>
           <span>Índice de la Guía</span>
         </div>
         <nav class="space-y-1 text-xs">
-          <a href="#introduccion" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">1. Introducción y Propósito</a>
-          <a href="#requisitos" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">2. Requisitos Previos</a>
-          <a href="#guia-pasos" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">3. Guía Paso a Paso (1-5)</a>
-          <a href="#ghost-mode" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">4. ¿Qué es el "Ghost Mode"?</a>
-          <a href="#tutorial-tmdb" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">5. Tutorial: TMDB Key Gratis</a>
-          <a href="#modos" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">6. Modo Cloud vs Manual</a>
-          <a href="#faq" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">7. Preguntas & Solución de Dudas</a>
-          <a href="#creditos" class="block px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors">8. Créditos y DonPuercoTroll</a>
+          <a href="#introduccion" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">1. Introducción y Propósito</a>
+          <a href="#requisitos" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">2. Requisitos Previos</a>
+          <a href="#guia-pasos" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">3. Guía Paso a Paso (1-6)</a>
+          <a href="#ghost-mode" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">4. ¿Qué es el "Ghost Mode"?</a>
+          <a href="#tutorial-tmdb" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">5. Tutorial: TMDB Key Gratis</a>
+          <a href="#modos" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">6. Modo Cloud vs Manual</a>
+          <a href="#faq" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">7. Preguntas & Solución de Dudas</a>
+          <a href="#creditos" class="block px-3 py-2 rounded-xl text-white/70 hover:text-white hover:bg-white/[0.06] transition-all">8. Créditos y DonPuercoTroll</a>
         </nav>
         
-        <div class="pt-3 border-t border-slate-800/80">
-          <a href="../configuration/" class="w-full py-2.5 px-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-md shadow-brand-500/20">
+        <div class="pt-3 border-t border-white/[0.08]">
+          <a href="../configuration/" class="lat-capsule-btn-solid w-full !py-2.5 !px-3 text-xs flex items-center justify-center gap-2 shadow-[var(--shadow-lift)]">
             <i class="fa-solid fa-rocket"></i>
             <span>Ir al Asistente</span>
           </a>
@@ -127,63 +135,63 @@
     </aside>
 
     <!-- Contenido Central Documental -->
-    <main class="flex-1 space-y-12 max-w-4xl text-slate-200">
+    <main class="flex-1 space-y-12 max-w-4xl text-white/90">
       
       <!-- 1. Introducción -->
       <section id="introduccion" class="space-y-4">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-medium">
-          <i class="fa-solid fa-circle-info"></i>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/80 text-xs font-medium">
+          <i class="fa-solid fa-circle-info text-[#ffd479]"></i>
           <span>Visión General</span>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">1. ¿Qué es Nuvio Latino Setup?</h2>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">1. ¿Qué es Nuvio Latino Setup?</h2>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
           <strong>Nuvio Latino Setup</strong> es una suite web desarrollada para resolver la fragmentación y falta de localización en 
-          <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Nuvio TV</a>. 
+          <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4">Nuvio TV</a>. 
           Por defecto, instalar Nuvio y addons de catálogos genera decenas de filas desordenadas en inglés, carátulas cuadradas genéricas y saturación en la pantalla principal.
         </p>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-          Esta herramienta actúa como un orquestador inteligente que vincula tu perfil de Nuvio con una instancia optimizada de <strong>AIOMetadata</strong>, inyectando colecciones nativas agrupadas en formato panorámico 16:9 de carga ultrarrápida (0 ms) con metadatos en Español Latino oficial (<code class="bg-slate-900 text-brand-300 px-2 py-0.5 rounded text-xs font-mono">es-MX</code>).
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
+          Esta herramienta actúa como un orquestador inteligente que vincula tu perfil de Nuvio con una instancia optimizada de <strong>AIOMetadata</strong>, inyectando colecciones nativas agrupadas en formato panorámico 16:9 de carga ultrarrápida (0 ms) con metadatos en Español Latino oficial (<code class="bg-black/40 text-brand-300 px-2 py-0.5 rounded text-xs font-mono border border-white/10">es-MX</code>).
         </p>
-        <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 space-y-2">
-          <div class="font-semibold text-slate-200 flex items-center gap-2">
+        <div class="p-5 rounded-2xl lat-card text-xs text-white/70 space-y-2">
+          <div class="font-semibold text-white flex items-center gap-2">
             <i class="fa-solid fa-shield-halved text-emerald-400"></i>
             <span>Seguridad y Privacidad Garantizada</span>
           </div>
-          <p>
-            La aplicación es 100% estática (frontend puro ejecutado en tu propio navegador). Tus credenciales de Nuvio viajan cifradas directamente hacia los servidores de Supabase de Nuvio (<code class="text-slate-300 font-mono">api.nuvio.tv</code>). Ningún servidor de terceros interviene ni almacena datos sensibles.
+          <p class="leading-relaxed">
+            La aplicación es 100% estática (frontend puro ejecutado en tu propio navegador). Tus credenciales de Nuvio viajan cifradas directamente hacia los servidores de Supabase de Nuvio (<code class="text-white/90 font-mono">api.nuvio.tv</code>). Ningún servidor de terceros interviene ni almacena datos sensibles.
           </p>
         </div>
       </section>
 
       <!-- 2. Requisitos Previos -->
-      <section id="requisitos" class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">2. Requisitos Previos</h2>
-        <p class="text-sm text-slate-300">Para completar la configuración en menos de 2 minutos necesitas disponer de:</p>
+      <section id="requisitos" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">2. Requisitos Previos</h2>
+        <p class="text-sm text-white/70">Para completar la configuración en menos de 2 minutos necesitas disponer de:</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="p-5 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-            <div class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center text-sm">
+          <div class="p-5 rounded-2xl lat-card space-y-3">
+            <div class="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/10 text-white flex items-center justify-center text-sm">
               <i class="fa-solid fa-user-check"></i>
             </div>
-            <h4 class="font-bold text-sm text-white">Cuenta de Nuvio TV</h4>
-            <p class="text-xs text-slate-400">
+            <h4 class="font-semibold text-sm text-white">Cuenta de Nuvio TV</h4>
+            <p class="text-xs text-white/60 leading-relaxed">
               Tu correo y contraseña registrados en Nuvio. Si no tienes cuenta o no deseas conectarla, puedes usar el <strong>Modo Manual</strong>.
             </p>
           </div>
-          <div class="p-5 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+          <div class="p-5 rounded-2xl lat-card space-y-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
               <i class="fa-solid fa-key"></i>
             </div>
-            <h4 class="font-bold text-sm text-white">TMDB API Key (Obligatoria)</h4>
-            <p class="text-xs text-slate-400">
+            <h4 class="font-semibold text-sm text-white">TMDB API Key (Obligatoria)</h4>
+            <p class="text-xs text-white/60 leading-relaxed">
               Clave de API de The Movie Database. Es gratuita, inmediata y requerida para activar los pósters y sinopsis en español latino (es-MX).
             </p>
           </div>
-          <div class="p-5 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm">
+          <div class="p-5 rounded-2xl lat-card space-y-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-sm">
               <i class="fa-solid fa-list-check"></i>
             </div>
-            <h4 class="font-bold text-sm text-white">MDBList API Key (Obligatoria)</h4>
-            <p class="text-xs text-slate-400">
+            <h4 class="font-semibold text-sm text-white">MDBList API Key (Obligatoria)</h4>
+            <p class="text-xs text-white/60 leading-relaxed">
               Clave de MDBList para habilitar calificaciones agregadas (IMDb, RT, Metacritic, Trakt) y sustentar motores dinámicos de pósters.
             </p>
           </div>
@@ -191,72 +199,72 @@
       </section>
 
       <!-- 3. Guía Paso a Paso -->
-      <section id="guia-pasos" class="space-y-6 pt-4 border-t border-slate-800">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">3. Guía del Asistente en 6 Pasos</h2>
+      <section id="guia-pasos" class="space-y-6 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">3. Guía del Asistente en 6 Pasos</h2>
         <div class="space-y-4">
           
           <!-- Paso 1 -->
-          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">1</span>
-              <h3 class="font-bold text-white text-base">Paso 1: Conexión con Cuenta de Nuvio</h3>
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">1</span>
+              <h3 class="font-semibold text-white text-base">Paso 1: Conexión con Cuenta de Nuvio</h3>
             </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
               Ingresa tu correo y contraseña para autenticarte contra la API oficial de Nuvio. Si eres nuevo en Nuvio, puedes cambiar a la pestaña <em>"Crear Cuenta"</em>. O si prefieres no conectar tu cuenta, haz clic en <em>"Continuar sin cuenta (Modo Manual)"</em> para generar los JSONs de configuración.
             </p>
           </div>
 
           <!-- Paso 2 -->
-          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">2</span>
-              <h3 class="font-bold text-white text-base">Paso 2: Selección o Creación de Perfil</h3>
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">2</span>
+              <h3 class="font-semibold text-white text-base">Paso 2: Selección o Creación de Perfil</h3>
             </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
               El asistente descargará tus perfiles de Nuvio. Recomendamos pulsar en <strong>"Nuevo Perfil"</strong> (ej. <em>"Latino"</em>) para no sobreescribir tus configuraciones previas, aunque también puedes elegir tu perfil Principal si deseas limpiarlo.
             </p>
           </div>
 
           <!-- Paso 3 -->
-          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">3</span>
-              <h3 class="font-bold text-white text-base">Paso 3: Gestor Visual de Colecciones (Mini Nuvio)</h3>
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">3</span>
+              <h3 class="font-semibold text-white text-base">Paso 3: Gestor Visual de Colecciones (Mini Nuvio)</h3>
             </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
               El simulador en vivo te permite reordenar secciones y filas por arrastre (drag & drop) o con saltos rápidos al cielo y al fondo, activar o desactivar plataformas (Netflix, HBO Max, Disney+, Prime Video, Anime) y géneros, y organizar los catálogos de cada fila de forma instantánea mediante <strong>cápsulas movibles</strong> sin esperas de carga.
             </p>
           </div>
 
           <!-- Paso 4 -->
-          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">4</span>
-              <h3 class="font-bold text-white text-base">Paso 4: Proveedores de Metadatos y Validación (API Keys)</h3>
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">4</span>
+              <h3 class="font-semibold text-white text-base">Paso 4: Proveedores de Metadatos y Validación (API Keys)</h3>
             </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
-              Ingresa tu <strong>TMDB API Key</strong> y tu <strong>MDBList API Key</strong> (ambas obligatorias para asegurar metadatos oficiales en español latino <code>es-MX</code>, calificaciones críticas y motores de pósters). Opcionalmente puedes configurar tus claves de RPDB, TheTVDB y habilitar la Búsqueda Inteligente con IA (Gemini u OpenRouter). Finalmente, haz clic en <strong>"Probar Claves API"</strong> para validar su conectividad antes de continuar.
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
+              Ingresa tu <strong>TMDB API Key</strong> y tu <strong>MDBList API Key</strong> (ambas obligatorias para asegurar metadatos oficiales en español latino <code class="bg-black/40 text-brand-300 px-1.5 py-0.5 rounded text-xs font-mono border border-white/10">es-MX</code>, calificaciones críticas y motores de pósters). Opcionalmente puedes configurar tus claves de RPDB, TheTVDB y habilitar la Búsqueda Inteligente con IA (Gemini u OpenRouter). Finalmente, haz clic en <strong>"Probar Claves API"</strong> para validar su conectividad antes de continuar.
             </p>
           </div>
 
           <!-- Paso 5 -->
-          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">5</span>
-              <h3 class="font-bold text-white text-base">Paso 5: Preferencias de Perfil y Sistema de Pósters</h3>
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">5</span>
+              <h3 class="font-semibold text-white text-base">Paso 5: Preferencias de Perfil y Sistema de Pósters</h3>
             </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
               Decide si activar TMDB Enrichment y calificaciones globales de MDBList en tus aplicaciones de Nuvio (si las desactivas, quedan estrictamente deshabilitadas en tu perfil). Además, elige el sistema de pósters que prefieras: <strong>AioMetadata</strong> (carátulas limpias directas de TMDB), <strong>BetterPoster</strong> (estilo minimalista con logos en es-MX) o <strong>Poster+</strong> (calificaciones mixtas Letterboxd/Trakt y bandas cinemáticas), con previsualización sincronizada y botones directos para personalizar en sus respectivas webs oficiales.
             </p>
           </div>
 
           <!-- Paso 6 -->
-          <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800 space-y-2">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
-              <span class="w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center">6</span>
-              <h3 class="font-bold text-white text-base">Paso 6: Seguridad e Inyección Automatizada</h3>
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">6</span>
+              <h3 class="font-semibold text-white text-base">Paso 6: Seguridad e Inyección Automatizada</h3>
             </div>
-            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed pl-10">
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
               Define una contraseña para proteger tu addon de AIOMetadata (o genera una aleatoria). Haz clic en <strong>"Ejecutar Configuración Automática"</strong>. El sistema limpiará las colecciones previas del perfil, creará el manifiesto en AIOMetadata con la configuración elegida y registrará las colecciones 16:9 en Nuvio en cuestión de segundos.
             </p>
           </div>
@@ -265,19 +273,19 @@
       </section>
 
       <!-- 4. Ghost Mode -->
-      <section id="ghost-mode" class="space-y-4 pt-4 border-t border-slate-800">
+      <section id="ghost-mode" class="space-y-4 pt-6 border-t border-white/[0.08]">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
           <i class="fa-solid fa-ghost"></i>
           <span>Arquitectura Exclusiva</span>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">4. ¿Qué es el "Ghost Mode" de AIOMetadata?</h2>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">4. ¿Qué es el "Ghost Mode" de AIOMetadata?</h2>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
           Uno de los problemas más comunes al usar AIOMetadata es que el addon instala decenas o cientos de catálogos individuales en la pantalla de inicio de Nuvio (Trending Trakt, Recomendaciones, Populares, Géneros en inglés, etc.), saturando la interfaz.
         </p>
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
           La técnica <strong>Ghost Mode</strong> consiste en configurar todos los catálogos raíz de AIOMetadata de forma invisible para la pantalla principal de Nuvio. De este modo:
         </p>
-        <ul class="space-y-2 text-xs sm:text-sm text-slate-300 list-disc pl-5">
+        <ul class="space-y-2.5 text-xs sm:text-sm text-white/70 list-disc pl-5 font-light">
           <li>Los catálogos siguen existiendo y funcionando para abastecer a tus Colecciones Nativas de Nuvio.</li>
           <li>La pantalla de inicio de Nuvio queda 100% limpia, mostrando únicamente tus carátulas 16:9 ordenadas.</li>
           <li>Cero duplicados y carga inmediata al abrir la app en Smart TV o móvil.</li>
@@ -285,22 +293,22 @@
       </section>
 
       <!-- 5. Tutorial TMDB -->
-      <section id="tutorial-tmdb" class="space-y-4 pt-4 border-t border-slate-800">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium">
+      <section id="tutorial-tmdb" class="space-y-4 pt-6 border-t border-white/[0.08]">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
           <i class="fa-solid fa-key"></i>
           <span>Tutorial Rápido</span>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">5. Cómo Obtener tu API Key de TMDB Gratis</h2>
-        <p class="text-sm text-slate-300 leading-relaxed">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">5. Cómo Obtener tu API Key de TMDB Gratis</h2>
+        <p class="text-sm text-white/70 leading-relaxed font-light">
           The Movie Database (TMDB) ofrece acceso a su API para uso personal de forma totalmente gratuita:
         </p>
-        <ol class="space-y-3 text-xs sm:text-sm text-slate-300 list-decimal pl-5">
+        <ol class="space-y-3 text-xs sm:text-sm text-white/70 list-decimal pl-5 font-light">
           <li>
-            Ve a <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener noreferrer" class="text-brand-400 underline font-semibold">themoviedb.org/signup</a> y crea una cuenta gratuita (solo requiere usuario, correo y contraseña).
+            Ve a <a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4 font-medium">themoviedb.org/signup</a> y crea una cuenta gratuita (solo requiere usuario, correo y contraseña).
           </li>
           <li>Confirma tu correo electrónico haciendo clic en el enlace que te enviarán.</li>
           <li>
-            Inicia sesión y abre el menú de configuración de API en <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-brand-400 underline font-semibold">themoviedb.org/settings/api</a>.
+            Inicia sesión y abre el menú de configuración de API en <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4 font-medium">themoviedb.org/settings/api</a>.
           </li>
           <li>
             Haz clic en <strong>"Crear"</strong> o <strong>"Solicitar una clave API"</strong> y selecciona la opción <strong>"Desarrollador"</strong> (Personal).
@@ -313,26 +321,26 @@
       </section>
 
       <!-- 6. Modos Cloud vs Manual -->
-      <section id="modos" class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">6. Modo Cloud Automático vs Modo Manual</h2>
+      <section id="modos" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">6. Modo Cloud Automático vs Modo Manual</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-5 rounded-2xl bg-brand-950/20 border border-brand-800/40 space-y-3">
-            <h4 class="font-bold text-white text-base flex items-center gap-2">
+          <div class="p-5 rounded-2xl lat-card border border-indigo-500/25 bg-indigo-950/10 space-y-3">
+            <h4 class="font-semibold text-white text-base flex items-center gap-2">
               <i class="fa-solid fa-cloud-bolt text-brand-400"></i>
               <span>Modo Automático (Nuvio Cloud)</span>
             </h4>
-            <ul class="text-xs text-slate-300 space-y-2">
+            <ul class="text-xs text-white/70 space-y-2 font-light">
               <li>• Inicias sesión con tu cuenta de Nuvio directamente.</li>
               <li>• El asistente crea el perfil, inyecta las colecciones y configura el addon en 1 solo clic.</li>
               <li>• Ideal para Smart TV, Fire TV Stick, Google TV y dispositivos Android/iOS.</li>
             </ul>
           </div>
-          <div class="p-5 rounded-2xl bg-amber-950/20 border border-amber-800/40 space-y-3">
-            <h4 class="font-bold text-white text-base flex items-center gap-2">
+          <div class="p-5 rounded-2xl lat-card border border-amber-500/25 bg-amber-950/10 space-y-3">
+            <h4 class="font-semibold text-white text-base flex items-center gap-2">
               <i class="fa-solid fa-file-code text-amber-400"></i>
               <span>Modo Manual (JSONs)</span>
             </h4>
-            <ul class="text-xs text-slate-300 space-y-2">
+            <ul class="text-xs text-white/70 space-y-2 font-light">
               <li>• No requiere ingresar ninguna contraseña de Nuvio.</li>
               <li>• Permite personalizar todas las filas y descargar o copiar los archivos JSON generados.</li>
               <li>• Puedes importar los JSONs manualmente en tu cliente de Nuvio cuando gustes.</li>
@@ -342,47 +350,47 @@
       </section>
 
       <!-- 7. FAQ y Solución de Dudas -->
-      <section id="faq" class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">7. Preguntas Frecuentes y Troubleshooting</h2>
+      <section id="faq" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">7. Preguntas Frecuentes y Troubleshooting</h2>
         <div class="space-y-3">
-          <details class="faq-details bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-            <summary class="font-semibold text-sm text-slate-100 cursor-pointer">
+          <details class="faq-details lat-card rounded-2xl p-5 transition-all">
+            <summary class="font-semibold text-sm text-white cursor-pointer select-none">
               ¿Qué hago si falla la validación de claves en el Paso 4?
             </summary>
-            <p class="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Asegúrate de que no haya espacios en blanco antes o después de la TMDB API Key. Recuerda que la clave v3 tiene aproximadamente 32 caracteres. Puedes probar abriendo la URL de prueba en tu navegador: <code class="text-brand-300 font-mono">https://api.themoviedb.org/3/authentication?api_key=TU_CLAVE</code>.
+            <p class="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+              Asegúrate de que no haya espacios en blanco antes o después de la TMDB API Key. Recuerda que la clave v3 tiene aproximadamente 32 caracteres. Puedes probar abriendo la URL de prueba en tu navegador: <code class="bg-black/40 text-brand-300 px-1.5 py-0.5 rounded text-xs font-mono border border-white/10">https://api.themoviedb.org/3/authentication?api_key=TU_CLAVE</code>.
             </p>
           </details>
 
-          <details class="faq-details bg-slate-900/60 border border-slate-800 rounded-xl p-4">
-            <summary class="font-semibold text-sm text-slate-100 cursor-pointer">
+          <details class="faq-details lat-card rounded-2xl p-5 transition-all">
+            <summary class="font-semibold text-sm text-white cursor-pointer select-none">
               ¿Dónde obtengo soporte técnico de la comunidad?
             </summary>
-            <p class="mt-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Puedes ingresar a nuestro canal oficial de Discord en <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="text-brand-400 underline font-semibold">discord.gg/EubYtJVJEc</a> para resolver cualquier duda sobre Nuvio y el addon LAT-ADD.
+            <p class="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+              Puedes ingresar a nuestro canal oficial de Discord en <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4 font-medium">discord.gg/EubYtJVJEc</a> para resolver cualquier duda sobre Nuvio y el addon LAT-ADD.
             </p>
           </details>
         </div>
       </section>
 
       <!-- 8. Créditos -->
-      <section id="creditos" class="space-y-4 pt-4 border-t border-slate-800">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">8. Créditos y Agradecimientos</h2>
-        <p class="text-sm text-slate-300 leading-relaxed">
+      <section id="creditos" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">8. Créditos y Agradecimientos</h2>
+        <p class="text-sm text-white/70 leading-relaxed font-light">
           Este proyecto es posible gracias al trabajo y contribuciones de la comunidad latina de Nuvio y streaming de código abierto:
         </p>
-        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+        <div class="p-6 rounded-2xl lat-card space-y-4">
           <div class="flex items-start gap-4">
-            <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-lg shrink-0">
-              <i class="fa-solid fa-crown text-amber-400"></i>
+            <div class="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-brand-400 flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-crown text-[#ffd479]"></i>
             </div>
             <div class="space-y-1">
-              <h4 class="font-bold text-white text-base">Colección en Español Completa (DonPuercoTroll)</h4>
-              <p class="text-xs text-slate-300 leading-relaxed">
+              <h4 class="font-semibold text-white text-base">Colección en Español Completa (DonPuercoTroll)</h4>
+              <p class="text-xs text-white/70 leading-relaxed font-light">
                 Agradecimiento especial a <strong>DonPuercoTroll</strong> por su curaduría y recopilación comunitaria de colecciones en español. Puedes explorar y apoyar su colección oficial en Nuvio TV en el siguiente enlace:
               </p>
-              <div class="pt-2">
-                <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600/30 hover:bg-brand-600/50 border border-brand-500/40 text-brand-300 hover:text-white text-xs font-semibold transition-all">
+              <div class="pt-3">
+                <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn-solid text-xs !py-2 !px-4 inline-flex items-center gap-2">
                   <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                   <span>Ver Colección en Nuvio TV (DonPuercoTroll)</span>
                 </a>
@@ -390,9 +398,9 @@
             </div>
           </div>
 
-          <div class="border-t border-slate-800 pt-4 flex items-center justify-between text-xs text-slate-400">
+          <div class="border-t border-white/[0.08] pt-4 flex items-center justify-between text-xs text-white/60">
             <span>Comunidad Discord Latino & Addon LAT-ADD</span>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Unirse al Discord</a>
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4">Unirse al Discord</a>
           </div>
         </div>
       </section>
@@ -401,47 +409,47 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- FOOTER OFICIAL NUVIO STYLE (SIN LOGO, CON CRÉDITOS)      -->
+  <!-- FOOTER OFICIAL NUVIO STYLE                               -->
   <!-- ======================================================== -->
-  <footer class="border-t border-slate-800/80 bg-slate-950/80 mt-auto py-10 px-4 sm:px-6">
+  <footer class="border-t border-white/[0.08] bg-[#060709] mt-auto py-12 px-4 sm:px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
       
-      <!-- Columna 1: Info del Proyecto & Licencia (Sin Logo) -->
+      <!-- Columna 1: Info del Proyecto & Licencia -->
       <div class="space-y-3 md:col-span-1">
-        <h4 class="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-2">
           <span>Nuvio Latino Setup</span>
         </h4>
-        <p class="text-xs text-slate-400 leading-relaxed">
+        <p class="text-xs text-white/60 leading-relaxed">
           Herramienta de automatización y configuración visual de colecciones y metadatos en Español Latino para Nuvio TV y AIOMetadata.
         </p>
-        <div class="pt-2 text-[11px] text-slate-500 space-y-1">
+        <div class="pt-2 text-[11px] text-white/40 space-y-1">
           <div>© 2025-2026 Nuvio Latino Setup</div>
-          <div>Versión <span class="font-mono text-brand-400 font-medium">v1.2.0</span> • Licencia MIT</div>
-          <div class="text-[10px] text-slate-600">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
+          <div>Versión <span class="font-mono text-white/80 font-medium">v1.3.0</span> • Licencia MIT</div>
+          <div class="text-[10px] text-white/30">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
         </div>
       </div>
 
       <!-- Columna 2: Créditos y Agradecimientos -->
       <div class="space-y-3">
-        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-1.5">
           <i class="fa-solid fa-heart text-rose-500/80 text-[11px]"></i>
           <span>Créditos</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-400">
+        <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 group-hover:text-brand-400"></i>
-              <span class="font-medium text-slate-300 group-hover:text-brand-300">Colección en Español Completa (DonPuercoTroll)</span>
+            <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-white/40 group-hover:text-white"></i>
+              <span class="font-medium text-white/80 group-hover:text-white">Colección DonPuercoTroll</span>
             </a>
           </li>
           <li>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-brands fa-discord text-[11px] text-[#5865F2]"></i>
               <span>Discord Comunidad Latina</span>
             </a>
           </li>
           <li>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-solid fa-puzzle-piece text-[11px] text-emerald-400"></i>
               <span>Addon LAT-ADD</span>
             </a>
@@ -451,26 +459,26 @@
 
       <!-- Columna 3: Ecosistema -->
       <div class="space-y-3">
-        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-cubes text-brand-400 text-[11px]"></i>
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fa-solid fa-cubes text-white/70 text-[11px]"></i>
           <span>Ecosistema</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-400">
+        <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-tv text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-tv text-[10px] text-white/40 group-hover:text-white"></i>
               <span>Nuvio TV Oficial</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-server text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-server text-[10px] text-white/40 group-hover:text-white"></i>
               <span>AIOMetadata Addon</span>
             </a>
           </li>
           <li>
-            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-film text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-film text-[10px] text-white/40 group-hover:text-white"></i>
               <span>The Movie Database (TMDB)</span>
             </a>
           </li>
@@ -479,32 +487,32 @@
 
       <!-- Columna 4: Navegación y Proyecto -->
       <div class="space-y-3">
-        <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-          <i class="fa-solid fa-code-branch text-brand-400 text-[11px]"></i>
+        <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-1.5">
+          <i class="fa-solid fa-code-branch text-white/70 text-[11px]"></i>
           <span>Proyecto</span>
         </h4>
-        <ul class="space-y-2 text-xs text-slate-400">
+        <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="../configuration/" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-wand-magic-sparkles text-[10px] text-slate-500 group-hover:text-brand-400"></i>
+            <a href="../configuration/" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-wand-magic-sparkles text-[10px] text-white/40 group-hover:text-white"></i>
               <span>Asistente de Configuración</span>
             </a>
           </li>
           <li>
-            <a href="./" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group text-brand-300">
-              <i class="fa-solid fa-book-open text-[10px] text-brand-400"></i>
+            <a href="./" class="hover:text-white transition-colors flex items-center gap-1.5 group text-white">
+              <i class="fa-solid fa-book-open text-[10px] text-[#ffd479]"></i>
               <span>Documentación & Guías</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-brands fa-github text-[11px] text-slate-400"></i>
+            <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-brands fa-github text-[11px] text-white/60"></i>
               <span>Repositorio en GitHub</span>
             </a>
           </li>
           <li>
-            <a href="https://github.com/Svein05/NuvioLatinoSetup/issues" target="_blank" rel="noopener noreferrer" class="hover:text-brand-300 transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-circle-exclamation text-[10px] text-amber-500/80"></i>
+            <a href="https://github.com/Svein05/NuvioLatinoSetup/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-circle-exclamation text-[10px] text-amber-400"></i>
               <span>Reportar un problema (Issues)</span>
             </a>
           </li>
