@@ -157,6 +157,7 @@
 html {
   color-scheme: dark;
   background-color: var(--color-bg);
+  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
@@ -911,4 +912,64 @@ option, optgroup {
 
 .faq-details[open] summary .faq-icon {
   transform: rotate(180deg);
+}
+
+/* ============================================================ */
+/* 12. ANIMACIONES DE PASTILLAS SEGMENTADAS Y SOMBRAS HERO      */
+/* ============================================================ */
+
+.hero-title-shadow {
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.95), 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+.hero-desc-shadow {
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* Slider animado para switch de autenticación */
+.auth-pill-container {
+  position: relative;
+  user-select: none;
+}
+
+.auth-pill-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  background: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.auth-pill-indicator.signup {
+  transform: translateX(100%);
+}
+
+/* Slider animado para barra de navegación segmentada */
+.nav-pill-indicator {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Transición suave para el fondo al hacer scroll */
+#heroBackdrop {
+  transition: opacity 0.5s cubic-bezier(0.32, 0.72, 0, 1), filter 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: opacity, filter;
+}
+
+#heroBackdrop.scrolled {
+  opacity: 0.12 !important;
+  filter: brightness(0.5) blur(4px) !important;
 }

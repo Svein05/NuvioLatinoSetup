@@ -812,25 +812,28 @@ class AppController {
 
     let authMode = 'login'; // 'login' | 'signup'
 
+    const pillIndicator = document.getElementById('authPillIndicator');
+
     const validatePasswordMatch = () => {
       if (authMode !== 'signup' || !confirmInput || !matchBadge) return;
       const p1 = passInput ? passInput.value : '';
       const p2 = confirmInput ? confirmInput.value : '';
+      const baseInputClass = "w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all focus:outline-none focus:ring-2";
 
       if (!p2) {
-        matchBadge.className = 'text-[11px] text-slate-500 mt-1 hidden flex items-center gap-1 font-medium';
+        matchBadge.className = 'text-[11px] text-white/40 mt-1 hidden flex items-center gap-1 font-medium';
         matchBadge.innerHTML = '';
-        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors';
+        confirmInput.className = `${baseInputClass} border border-white/[0.12] focus:border-white/40 focus:ring-white/10`;
         return;
       }
 
       matchBadge.classList.remove('hidden');
       if (p1 === p2) {
-        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-emerald-500/60 focus:outline-none focus:border-emerald-500 text-sm text-slate-200 transition-colors';
+        confirmInput.className = `${baseInputClass} border border-emerald-400/60 focus:border-emerald-400 focus:ring-emerald-400/20`;
         matchBadge.className = 'text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium';
         matchBadge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Las contraseñas coinciden perfectamente.</span>';
       } else {
-        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-rose-500/60 focus:outline-none focus:border-rose-500 text-sm text-slate-200 transition-colors';
+        confirmInput.className = `${baseInputClass} border border-rose-400/60 focus:border-rose-400 focus:ring-rose-400/20`;
         matchBadge.className = 'text-[11px] text-rose-400 mt-1 flex items-center gap-1 font-medium';
         matchBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i> <span>Las contraseñas no coinciden.</span>';
       }
@@ -839,11 +842,14 @@ class AppController {
     const switchAuthMode = (mode) => {
       authMode = mode;
       if (mode === 'login') {
+        if (pillIndicator) {
+          pillIndicator.classList.remove('signup');
+        }
         if (tabLogin) {
-          tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+          tabLogin.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-semibold text-[#08090c] transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (tabSignup) {
-          tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
+          tabSignup.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
@@ -853,11 +859,14 @@ class AppController {
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
       } else {
+        if (pillIndicator) {
+          pillIndicator.classList.add('signup');
+        }
         if (tabSignup) {
-          tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-emerald-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+          tabSignup.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-semibold text-[#08090c] transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (tabLogin) {
-          tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
+          tabLogin.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
         if (hintText) hintText.classList.remove('hidden');

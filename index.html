@@ -110,28 +110,27 @@
     </div>
   </header>
 
-  <!-- Hero Backdrop Cinemático de Pósters Latinos TMDB -->
-  <div class="absolute inset-x-0 top-0 h-[720px] sm:h-[840px] pointer-events-none overflow-hidden z-0 select-none">
+  <!-- Hero Backdrop Cinemático de Pósters Latinos TMDB (Fixed con scroll fade) -->
+  <div id="heroBackdrop" class="fixed inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0 select-none">
     <img src="./assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-85 filter brightness-100 contrast-105">
     <!-- Scrim atmosférico estilo LAT-ADD: transparente arriba para ver los pósters con nitidez y fundido gradual hacia el fondo de la página -->
-    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-35% to-[#08090c]"></div>
-    <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#08090c] via-[#08090c]/85 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent via-35% to-[#08090c]"></div>
+    <div class="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[#08090c] via-[#08090c]/85 to-transparent"></div>
   </div>
 
   <!-- Contenedor Principal (Landing Page) -->
-  <div class="relative z-10 flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-52 sm:pt-72 pb-16 gap-4">
+  <main class="relative z-10 flex-1 flex flex-col w-full">
 
-    <div id="landingView" class="flex-1 flex flex-col w-full space-y-16 py-4">
-
-      <!-- 1. Hero Section Cinemático -->
-      <section class="relative text-center max-w-4xl mx-auto py-8 px-4 hero-glow rounded-[32px]">
-        <h1 class="text-4xl sm:text-6xl md:text-7xl font-normal font-serif tracking-tight text-white leading-[1.08] mb-6">
+    <!-- 1. Hero Section Cinemático (Primera Vista 100% Pantalla) -->
+    <section class="relative min-h-[100dvh] flex flex-col justify-end items-center pb-12 sm:pb-16 px-4 md:px-6 max-w-4xl mx-auto text-center w-full z-10">
+      <div class="hero-glow rounded-[32px] p-4 sm:p-6 w-full flex flex-col items-center">
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-normal font-serif tracking-tight text-white leading-[1.08] mb-6 hero-title-shadow">
           Transforma tu Nuvio con <br class="hidden sm:inline" />
           <span class="italic text-[var(--color-estrella)]">Metadatos y Colecciones Latinas</span>
         </h1>
 
-        <p class="text-sm sm:text-base md:text-lg text-white/60 max-w-2xl mx-auto leading-relaxed mb-8 font-light">
-          Orquestador inteligente para Nuvio TV y AIOMetadata. Inyecta colecciones nativas apaisadas 16:9 en alta definición, localizadas al 100% en español latino oficial (<code class="text-white/80 font-mono">es-MX</code>) y con carga instantánea a 0 ms.
+        <p class="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8 font-light hero-desc-shadow">
+          Orquestador inteligente para Nuvio TV y AIOMetadata. Inyecta colecciones nativas apaisadas 16:9 en alta definición, localizadas al 100% en español latino oficial (<code class="text-white font-mono bg-white/[0.08] px-1.5 py-0.5 rounded">es-MX</code>) y con carga instantánea a 0 ms.
         </p>
 
         <div class="flex flex-wrap items-center justify-center gap-3">
@@ -144,7 +143,17 @@
             <span>Ver Documentación</span>
           </a>
         </div>
-      </section>
+      </div>
+
+      <!-- Indicador animado de scroll para invitar a descubrir el contenido inferior -->
+      <a href="#como-funciona" class="mt-6 sm:mt-8 flex flex-col items-center gap-1.5 text-white/40 hover:text-white/80 transition-colors text-xs font-mono animate-bounce cursor-pointer group" title="Desliza para ver más">
+        <span class="tracking-wider uppercase text-[10px]">Desliza para explorar</span>
+        <i class="fa-solid fa-chevron-down text-[var(--color-estrella)] text-xs group-hover:translate-y-0.5 transition-transform"></i>
+      </a>
+    </section>
+
+    <!-- Contenido Inferior (Se revela tras hacer scroll) -->
+    <div class="relative z-10 max-w-7xl w-full mx-auto px-4 md:px-6 pt-16 pb-20 space-y-20">
 
       <!-- 2. Los 4 Pilares de la Solución -->
       <section id="como-funciona" class="max-w-5xl mx-auto w-full px-2 space-y-8">
@@ -273,7 +282,7 @@
 
     </div>
 
-  </div>
+  </main>
 
   <!-- ======================================================== -->
   <!-- FOOTER OFICIAL NUVIO STYLE (SIN LOGO, CON CRÉDITOS)      -->
@@ -391,5 +400,19 @@
 
   <!-- Sincronización automática de versión -->
   <script type="module" src="./js/version.js"></script>
+  <!-- Barra de navegación con indicador deslizante animado -->
+  <script type="module" src="./js/nav-indicator.js"></script>
+  <!-- Listener de scroll para fade y oscurecimiento cinemático del backdrop -->
+  <script>
+    (function() {
+      const backdrop = document.getElementById('heroBackdrop');
+      if (!backdrop) return;
+      const onScroll = () => {
+        backdrop.classList.toggle('scrolled', window.scrollY > 80);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
 </body>
 </html>
