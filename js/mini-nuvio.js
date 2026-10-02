@@ -74,12 +74,12 @@ export class MiniNuvio {
     let totalFolders = 0;
     let activeFolders = 0;
     state.collections.forEach(sec => {
-      if (sec.enabled !== false) {
-        (sec.folders || []).forEach(f => {
-          totalFolders++;
-          if (f.enabled !== false) activeFolders++;
-        });
-      }
+      (sec.folders || []).forEach(f => {
+        totalFolders++;
+        if (sec.enabled !== false && f.enabled !== false) {
+          activeFolders++;
+        }
+      });
     });
 
     this.container.innerHTML = `

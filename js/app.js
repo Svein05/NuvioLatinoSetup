@@ -692,10 +692,12 @@ class AppController {
 
     const val = state.validateStep(state.currentStep);
     if (val.valid) {
-      btnNext.className = "px-4 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/20 cursor-pointer";
+      btnNext.disabled = false;
+      btnNext.className = "lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-lift)] cursor-pointer flex items-center gap-1.5";
       btnNext.title = "Avanzar al siguiente paso";
     } else {
-      btnNext.className = "px-4 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-500 border border-slate-700/60 shadow-none transition-all flex items-center gap-1.5 cursor-not-allowed";
+      btnNext.disabled = true;
+      btnNext.className = "lat-capsule-btn glass opacity-40 text-xs py-1.5 px-4 cursor-not-allowed flex items-center gap-1.5";
       btnNext.title = val.error || "Completa este paso para continuar";
     }
   }
@@ -717,11 +719,11 @@ class AppController {
     const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
     if (hasPassword) {
       btnExecute.disabled = false;
-      btnExecute.className = "px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-600/30 cursor-pointer";
+      btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
       btnExecute.title = "Ejecutar la inyección y configuración automática";
     } else {
       btnExecute.disabled = true;
-      btnExecute.className = "px-6 py-3 bg-slate-800 text-slate-500 border border-slate-700/60 font-medium rounded-xl text-sm transition-all flex items-center gap-2 cursor-not-allowed shadow-none";
+      btnExecute.className = "lat-capsule-btn glass opacity-40 px-7 py-3 text-sm flex items-center gap-2 cursor-not-allowed shadow-none";
       btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
     }
   }
@@ -735,19 +737,19 @@ class AppController {
 
     if (hasPassword) {
       btnCopyAio.disabled = false;
-      btnCopyAio.className = "px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-brand-600/25 flex items-center gap-2 cursor-pointer";
+      btnCopyAio.className = "lat-capsule-btn solid text-xs py-2 px-4 shadow-[var(--shadow-lift)] flex items-center gap-2 cursor-pointer";
       btnCopyAio.title = "Copiar JSON de configuración de AIOMetadata";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = false;
-        btnDownloadAio.className = "px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer";
+        btnDownloadAio.className = "lat-capsule-btn glass px-4 py-3 text-xs flex items-center gap-2 cursor-pointer";
       }
     } else {
       btnCopyAio.disabled = true;
-      btnCopyAio.className = "px-4 py-2.5 bg-slate-800 text-slate-500 border border-slate-700/60 font-semibold rounded-xl text-xs transition-all shadow-none flex items-center gap-2 cursor-not-allowed";
+      btnCopyAio.className = "lat-capsule-btn glass opacity-40 text-xs py-2 px-4 cursor-not-allowed flex items-center gap-2 shadow-none";
       btnCopyAio.title = "Ingresa una contraseña para el addon (mínimo 4 caracteres) primero";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = true;
-        btnDownloadAio.className = "px-4 py-3 bg-slate-950 text-slate-600 border border-slate-900 rounded-xl text-xs transition-all flex items-center gap-2 cursor-not-allowed";
+        btnDownloadAio.className = "lat-capsule-btn glass opacity-40 px-4 py-3 text-xs flex items-center gap-2 cursor-not-allowed";
       }
     }
   }
@@ -2290,13 +2292,13 @@ class AppController {
       const engine = state.preferences?.posterEngine || 'default';
       if (engine === 'betterposter') {
         posterEngineEl.innerText = 'BetterPoster (es-MX)';
-        posterEngineEl.className = 'text-brand-400 font-bold block truncate';
+        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else if (engine === 'postersplus') {
         posterEngineEl.innerText = 'PostersPlus (Badges)';
-        posterEngineEl.className = 'text-indigo-400 font-bold block truncate';
+        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else {
         posterEngineEl.innerText = 'Nativo / Limpio';
-        posterEngineEl.className = 'text-emerald-400 font-bold block truncate';
+        posterEngineEl.className = 'text-white font-medium block truncate';
       }
     }
 
@@ -2305,16 +2307,16 @@ class AppController {
       const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
       if (enr && rat) {
         enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
-        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+        enrichmentEl.className = 'text-white font-medium block truncate';
       } else if (enr) {
         enrichmentEl.innerText = 'Solo TMDB (Activo)';
-        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+        enrichmentEl.className = 'text-white font-medium block truncate';
       } else if (rat) {
         enrichmentEl.innerText = 'Solo MDBList (Activo)';
-        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+        enrichmentEl.className = 'text-white font-medium block truncate';
       } else {
         enrichmentEl.innerText = 'Desactivados';
-        enrichmentEl.className = 'text-slate-500 font-bold block truncate';
+        enrichmentEl.className = 'text-white/40 font-medium block truncate';
       }
     }
   }
