@@ -876,7 +876,20 @@ option, optgroup {
 
 /* Efectos visuales de la Landing Page */
 .hero-glow {
-  background: radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.08) 0%, rgba(8, 9, 12, 0) 70%);
+  position: relative;
+}
+
+.hero-glow::before {
+  content: '';
+  position: absolute;
+  top: -120px;
+  bottom: -60px;
+  left: -20%;
+  right: -20%;
+  background: radial-gradient(ellipse 65% 55% at 50% 45%, rgba(255, 255, 255, 0.08) 0%, rgba(255, 212, 121, 0.03) 35%, rgba(8, 9, 12, 0) 70%);
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(40px);
 }
 
 .feature-card {
@@ -961,6 +974,52 @@ option, optgroup {
   transition: all 0.32s cubic-bezier(0.32, 0.72, 0, 1);
   pointer-events: none;
   z-index: 1;
+}
+
+/* Pestañas de la barra de navegación flotante LAT-ADD */
+header.lat-floating-nav nav {
+  position: relative;
+}
+
+.lat-nav-tab {
+  position: relative;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7) !important;
+  text-decoration: none;
+  transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  user-select: none;
+  background: transparent !important;
+}
+
+.lat-nav-tab * {
+  pointer-events: none;
+  transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.lat-nav-tab i,
+.lat-nav-tab span {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Estado activo o señalado (cuando la pastilla blanca está debajo) */
+.lat-nav-tab.is-active,
+.lat-nav-tab.is-hovered {
+  color: #08090c !important;
+  font-weight: 600;
+}
+
+.lat-nav-tab.is-active i,
+.lat-nav-tab.is-active span,
+.lat-nav-tab.is-hovered i,
+.lat-nav-tab.is-hovered span {
+  color: #08090c !important;
 }
 
 /* Transición suave para el fondo al hacer scroll */

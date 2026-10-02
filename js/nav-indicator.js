@@ -9,8 +9,6 @@ export function initNavIndicator() {
   const links = Array.from(nav.querySelectorAll('a'));
   if (links.length === 0) return;
 
-  nav.classList.add('relative');
-
   // Buscar o crear el indicador deslizante
   let indicator = nav.querySelector('.nav-pill-indicator');
   if (!indicator) {
@@ -20,18 +18,24 @@ export function initNavIndicator() {
   }
 
   // Detectar enlace activo
-  let activeLink = links.find(l => l.classList.contains('active') || l.classList.contains('bg-white'));
+  let activeLink = links.find(l => 
+    l.classList.contains('is-active') || 
+    l.classList.contains('active') || 
+    l.classList.contains('bg-white')
+  );
   if (!activeLink) activeLink = links[0];
 
-  // Limpiar estilos individuales en favor del indicador compartido
+  // Normalizar clases de todos los enlaces para garantizar contraste absoluto
   links.forEach(l => {
-    l.classList.add('relative', 'z-10', 'transition-colors', 'duration-200');
+    l.classList.add('lat-nav-tab');
+    // Limpiar clases utilitarias heredadas que puedan colisionar
+    l.classList.remove('bg-white', 'text-black', 'text-white/70', 'hover:text-white', 'hover:bg-white/[0.08]');
+    
     if (l === activeLink) {
-      l.classList.remove('bg-white', 'text-white/70');
-      l.classList.add('text-[#08090c]', 'font-semibold');
+      l.classList.add('is-active');
+      l.classList.remove('is-hovered');
     } else {
-      l.classList.remove('bg-white', 'text-[#08090c]');
-      l.classList.add('text-white/70');
+      l.classList.remove('is-active', 'is-hovered');
     }
   });
 
@@ -55,31 +59,29 @@ export function initNavIndicator() {
     indicator.style.transition = 'all 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
   });
 
-  // Interactividad hover
+  // Interactividad hover (señalar con el ratón)
   links.forEach(link => {
     link.addEventListener('mouseenter', () => {
       updateIndicator(link, true);
       links.forEach(l => {
         if (l === link) {
-          l.classList.remove('text-white/70');
-          l.classList.add('text-[#08090c]');
+          l.classList.add('is-hovered');
         } else {
-          l.classList.remove('text-[#08090c]');
-          l.classList.add('text-white/70');
+          l.classList.remove('is-hovered', 'is-active');
         }
       });
     });
   });
 
+  // Al salir el ratón del nav, regresar suavemente al enlace activo
   nav.addEventListener('mouseleave', () => {
     updateIndicator(activeLink, true);
     links.forEach(l => {
+      l.classList.remove('is-hovered');
       if (l === activeLink) {
-        l.classList.remove('text-white/70');
-        l.classList.add('text-[#08090c]', 'font-semibold');
+        l.classList.add('is-active');
       } else {
-        l.classList.remove('text-[#08090c]');
-        l.classList.add('text-white/70');
+        l.classList.remove('is-active');
       }
     });
   });
