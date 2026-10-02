@@ -67,7 +67,7 @@
   <!-- Estilos propios -->
   <link rel="stylesheet" href="./css/styles.css" />
 </head>
-<body class="bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
+<body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white overflow-x-hidden">
 
   <!-- Barra de Navegación Flotante LAT-ADD Style -->
   <header class="lat-floating-nav">
@@ -111,14 +111,15 @@
   </header>
 
   <!-- Hero Backdrop Cinemático de Pósters Latinos TMDB -->
-  <div class="absolute inset-x-0 top-0 h-[640px] md:h-[720px] overflow-hidden pointer-events-none -z-10 select-none">
-    <img src="./assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-35 filter brightness-90">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#08090c]/40 via-[#08090c]/75 to-[#08090c]"></div>
-    <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#08090c] to-transparent"></div>
+  <div class="absolute inset-x-0 top-0 h-[720px] sm:h-[840px] pointer-events-none overflow-hidden z-0 select-none">
+    <img src="./assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-85 filter brightness-100 contrast-105">
+    <!-- Scrim atmosférico estilo LAT-ADD: transparente arriba para ver los pósters con nitidez y fundido gradual hacia el fondo de la página -->
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent via-35% to-[#08090c]"></div>
+    <div class="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-[#08090c] via-[#08090c]/85 to-transparent"></div>
   </div>
 
   <!-- Contenedor Principal (Landing Page) -->
-  <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-36 sm:pt-48 pb-16 gap-4">
+  <div class="relative z-10 flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-52 sm:pt-72 pb-16 gap-4">
 
     <div id="landingView" class="flex-1 flex flex-col w-full space-y-16 py-4">
 

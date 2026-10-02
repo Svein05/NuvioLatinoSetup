@@ -138,7 +138,7 @@
   <!-- Contenedor Principal del Asistente -->
   <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-28 sm:pt-32 pb-12 gap-4">
     
-    <main id="wizardView" class="flex-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[34px] rounded-[28px] p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
+    <main id="wizardView" class="relative overflow-hidden flex-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[34px] rounded-[28px] p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
       
       <!-- Barra de Navegación Superior (Índice / Anterior / Paso X de 6 / Siguiente) -->
       <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/[0.08]">
@@ -795,95 +795,96 @@
         </div>
       </div>
 
+      <!-- Overlay interno contenido dentro de los límites redondeados de la tarjeta -->
+      <div id="indexDrawerOverlay" class="absolute inset-0 bg-black/65 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 rounded-[28px]"></div>
+
+      <!-- Panel lateral de Índice integrado dentro del recuadro redondeado -->
+      <aside id="indexDrawer" class="absolute top-0 left-0 bottom-0 w-80 sm:w-96 max-w-[88%] bg-[#0c0e14]/95 border-r border-white/10 backdrop-blur-[34px] z-40 transform -translate-x-full transition-transform duration-300 ease-out flex flex-col shadow-2xl text-white rounded-l-[28px]">
+        <!-- Cabecera del Drawer -->
+        <div class="p-5 border-b border-white/[0.08] flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-lg bg-white/[0.08] text-white border border-white/[0.12] flex items-center justify-center text-xs shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-list-ol"></i>
+            </div>
+            <h3 class="text-sm font-semibold text-white">Índice de Pasos</h3>
+          </div>
+          <button id="btnCloseIndex" type="button" class="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white flex items-center justify-center transition-colors" title="Cerrar índice">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Lista de Pasos del Índice -->
+        <div class="flex-1 p-4 space-y-2 overflow-y-auto" id="drawerStepList">
+          <!-- Botón para volver al inicio desde el Drawer -->
+          <a href="../" class="lat-capsule-btn glass w-full py-2.5 mb-3 text-xs justify-center shadow-[var(--brillo-vidrio)]">
+            <i class="fa-solid fa-house text-white/70"></i>
+            <span>Volver a la Presentación</span>
+          </a>
+
+          <button onclick="goToStep(1)" id="drawer-step-1" class="drawer-step-item active">
+            <span class="drawer-badge">1</span>
+            <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Cuenta Nuvio</div>
+              <div class="text-[10px] text-white/50">Iniciar sesión o registro</div>
+            </div>
+            <i class="drawer-status-icon hidden"></i>
+          </button>
+
+          <button onclick="goToStep(2)" id="drawer-step-2" class="drawer-step-item locked">
+            <span class="drawer-badge">2</span>
+            <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Elegir Perfil</div>
+              <div class="text-[10px] text-white/50">Perfil destino de Nuvio</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+
+          <button onclick="goToStep(3)" id="drawer-step-3" class="drawer-step-item locked">
+            <span class="drawer-badge">3</span>
+            <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Colección</div>
+              <div class="text-[10px] text-white/50">NUVIO interactivo</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+
+          <button onclick="goToStep(4)" id="drawer-step-4" class="drawer-step-item locked">
+            <span class="drawer-badge">4</span>
+            <div class="flex-1 text-left">
+              <div class="font-medium text-xs">ApiKeys</div>
+              <div class="text-[10px] text-white/50">TMDB, MDBList, TVDB...</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+
+          <button onclick="goToStep(5)" id="drawer-step-5" class="drawer-step-item locked">
+            <span class="drawer-badge">5</span>
+            <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Preferencias</div>
+              <div class="text-[10px] text-white/50">Enrichment y pósters</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+
+          <button onclick="goToStep(6)" id="drawer-step-6" class="drawer-step-item locked">
+            <span class="drawer-badge">6</span>
+            <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Inyección</div>
+              <div class="text-[10px] text-white/50">Seguridad y sincronización</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+        </div>
+
+        <!-- Pie del Drawer -->
+        <div class="p-4 border-t border-white/[0.08] text-[11px] text-white/40 flex items-center justify-between">
+          <span id="drawerStepCounter">Paso 1 de 6</span>
+          <span class="text-[10px] text-white/50 font-mono">Nuvio Latino</span>
+        </div>
+      </aside>
+
     </main>
   </div>
-
-  <!-- Overlay y Drawer Lateral para el Índice de Pasos -->
-  <div id="indexDrawerOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 opacity-0 pointer-events-none transition-opacity duration-300"></div>
-
-  <aside id="indexDrawer" class="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-[#0b0d12]/95 border-l border-white/[0.08] backdrop-blur-[34px] z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-[var(--shadow-lift)] text-white">
-    <!-- Cabecera del Drawer -->
-    <div class="p-5 border-b border-white/[0.08] flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-lg bg-white/[0.08] text-white border border-white/[0.12] flex items-center justify-center text-xs shadow-[var(--brillo-vidrio)]">
-          <i class="fa-solid fa-list-ol"></i>
-        </div>
-        <h3 class="text-sm font-semibold text-white">Índice de Pasos</h3>
-      </div>
-      <button id="btnCloseIndex" type="button" class="w-7 h-7 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] text-white/60 hover:text-white flex items-center justify-center transition-colors" title="Cerrar índice">
-        <i class="fa-solid fa-xmark text-sm"></i>
-      </button>
-    </div>
-
-    <!-- Lista de Pasos del Índice -->
-    <div class="flex-1 p-4 space-y-2 overflow-y-auto" id="drawerStepList">
-      <!-- Botón para volver al inicio desde el Drawer -->
-      <a href="../" class="lat-capsule-btn glass w-full py-2.5 mb-3 text-xs justify-center shadow-[var(--brillo-vidrio)]">
-        <i class="fa-solid fa-house text-white/70"></i>
-        <span>Volver a la Presentación</span>
-      </a>
-
-      <button onclick="goToStep(1)" id="drawer-step-1" class="drawer-step-item active">
-        <span class="drawer-badge">1</span>
-        <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Cuenta Nuvio</div>
-          <div class="text-[10px] text-white/50">Iniciar sesión o registro</div>
-        </div>
-        <i class="drawer-status-icon hidden"></i>
-      </button>
-
-      <button onclick="goToStep(2)" id="drawer-step-2" class="drawer-step-item locked">
-        <span class="drawer-badge">2</span>
-        <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Elegir Perfil</div>
-          <div class="text-[10px] text-white/50">Perfil destino de Nuvio</div>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
-      </button>
-
-      <button onclick="goToStep(3)" id="drawer-step-3" class="drawer-step-item locked">
-        <span class="drawer-badge">3</span>
-        <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Colección</div>
-          <div class="text-[10px] text-white/50">NUVIO interactivo</div>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
-      </button>
-
-      <button onclick="goToStep(4)" id="drawer-step-4" class="drawer-step-item locked">
-        <span class="drawer-badge">4</span>
-        <div class="flex-1 text-left">
-          <div class="font-medium text-xs">ApiKeys</div>
-          <div class="text-[10px] text-white/50">TMDB, MDBList, TVDB...</div>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
-      </button>
-
-      <button onclick="goToStep(5)" id="drawer-step-5" class="drawer-step-item locked">
-        <span class="drawer-badge">5</span>
-        <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Preferencias</div>
-          <div class="text-[10px] text-white/50">Enrichment y pósters</div>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
-      </button>
-
-      <button onclick="goToStep(6)" id="drawer-step-6" class="drawer-step-item locked">
-        <span class="drawer-badge">6</span>
-        <div class="flex-1 text-left">
-          <div class="font-medium text-xs">Inyección</div>
-          <div class="text-[10px] text-white/50">Seguridad y sincronización</div>
-        </div>
-        <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
-      </button>
-    </div>
-
-    <!-- Pie del Drawer -->
-    <div class="p-4 border-t border-white/[0.08] text-[11px] text-white/40 flex items-center justify-between">
-      <span id="drawerStepCounter">Paso 1 de 6</span>
-      <span class="text-[10px] text-white/50 font-mono">Nuvio Latino</span>
-    </div>
-  </aside>
 
   <!-- Modal Emergente de Finalización y Comunidad -->
   <div id="completionModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
