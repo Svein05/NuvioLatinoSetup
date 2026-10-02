@@ -1277,28 +1277,28 @@ class AppController {
 
         return `
           <div onclick="window.appController.selectProfile('${p.id}', '${name.replace(/'/g, "\\'")}')" 
-               class="group relative cursor-pointer p-4 rounded-xl flex flex-col items-center gap-2.5 transition-all duration-200 select-none ${
+               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center gap-2.5 transition-all duration-200 select-none ${
                  isSelected 
-                   ? 'border-2 border-brand-500 ring-4 ring-brand-500/25 bg-brand-500/15 shadow-lg shadow-brand-500/20 transform -translate-y-0.5' 
-                   : 'border border-slate-800 bg-slate-950/50 hover:border-slate-700 hover:bg-slate-900/60 hover:-translate-y-0.5'
+                   ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5 backdrop-blur-[24px]' 
+                   : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5 backdrop-blur-[16px]'
                }">
             ${isSelected ? `
-              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] shadow-md ring-2 ring-emerald-400/40">
+              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#ffd479] text-[#08090c] flex items-center justify-center text-[10px] shadow-md font-bold">
                 <i class="fa-solid fa-check"></i>
               </div>
             ` : `
-              <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-slate-700 bg-slate-900/80 flex items-center justify-center text-[8px] text-transparent group-hover:border-slate-500">
-                <i class="fa-solid fa-check text-slate-600"></i>
+              <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-white/20 bg-white/[0.05] flex items-center justify-center text-[8px] text-transparent group-hover:border-white/40">
+                <i class="fa-solid fa-check text-white/40"></i>
               </div>
             `}
             <div class="relative">
               <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
-                isSelected ? 'ring-2 ring-brand-400 shadow-md scale-105' : 'ring-1 ring-slate-700 group-hover:ring-slate-500'
+                isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
               }">
             </div>
             <div class="text-center w-full">
-              <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}">${name}</div>
-              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-emerald-400 font-bold uppercase tracking-wider' : 'text-slate-500 group-hover:text-slate-400'}">
+              <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/70 group-hover:text-white'}">${name}</div>
+              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-[#ffd479] font-mono font-bold uppercase tracking-wider' : 'text-white/40 group-hover:text-white/60'}">
                 ${isSelected ? '✓ Seleccionado' : 'Click para elegir'}
               </div>
             </div>
@@ -1309,11 +1309,11 @@ class AppController {
       this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
     } else {
       container.innerHTML = `
-        <div class="col-span-full py-8 text-center bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
-          <i class="fa-solid fa-user-circle text-4xl text-slate-600 mb-2"></i>
-          <p class="text-sm font-medium text-slate-300">No se encontraron perfiles en tu cuenta de Nuvio</p>
-          <p class="text-xs text-slate-500 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
-          <button type="button" onclick="document.getElementById('btnOpenNewProfileModal')?.click()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+        <div class="col-span-full py-8 text-center bg-white/[0.03] border border-white/10 rounded-2xl p-6 backdrop-blur-[24px]">
+          <i class="fa-solid fa-user-circle text-4xl text-white/30 mb-2"></i>
+          <p class="text-sm font-medium text-white/90">No se encontraron perfiles en tu cuenta de Nuvio</p>
+          <p class="text-xs text-white/50 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
+          <button type="button" onclick="document.getElementById('btnOpenNewProfileModal')?.click()" class="lat-capsule-btn solid text-xs">
             <i class="fa-solid fa-plus"></i>
             <span>Crear mi primer perfil</span>
           </button>
@@ -1745,13 +1745,37 @@ class AppController {
   setupStep5Preferences() {
     const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
     const toggleRatings = document.getElementById('toggleMdblistRatings');
+    const labelEnrichment = document.getElementById('labelTmdbEnrichment');
+    const labelRatings = document.getElementById('labelMdblistRatings');
     const customBetterInput = document.getElementById('customUrlBetterposter');
     const customPlusInput = document.getElementById('customUrlPostersplus');
+
+    const updateToggleLabels = () => {
+      if (toggleEnrichment && labelEnrichment) {
+        if (toggleEnrichment.checked) {
+          labelEnrichment.textContent = 'Activado';
+          labelEnrichment.className = 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider';
+        } else {
+          labelEnrichment.textContent = 'Desactivado';
+          labelEnrichment.className = 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+        }
+      }
+      if (toggleRatings && labelRatings) {
+        if (toggleRatings.checked) {
+          labelRatings.textContent = 'Activado';
+          labelRatings.className = 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider';
+        } else {
+          labelRatings.textContent = 'Desactivado';
+          labelRatings.className = 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+        }
+      }
+    };
 
     if (toggleEnrichment) {
       toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
       toggleEnrichment.addEventListener('change', (e) => {
         state.preferences.tmdbEnrichment = e.target.checked;
+        updateToggleLabels();
         this.updateNavigationButtons();
       });
     }
@@ -1760,9 +1784,11 @@ class AppController {
       toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
       toggleRatings.addEventListener('change', (e) => {
         state.preferences.mdblistRatings = e.target.checked;
+        updateToggleLabels();
         this.updateNavigationButtons();
       });
     }
+    updateToggleLabels();
 
     if (customBetterInput) {
       customBetterInput.addEventListener('input', (e) => {
@@ -2060,14 +2086,14 @@ class AppController {
       const checkIcon = el.querySelector('.card-check-icon');
 
       if (isSelected) {
-        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-brand-500 shadow-lg shadow-brand-500/10 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        el.className = "poster-option-card relative p-5 rounded-[24px] bg-white/[0.08] border-2 border-[#ffd479] shadow-[0_0_25px_rgba(255,212,121,0.2)] cursor-pointer transition-all flex flex-col justify-between gap-3 group";
         if (checkIcon) {
-          checkIcon.className = "w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center text-[10px] text-white card-check-icon";
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] card-check-icon font-bold shadow-sm";
         }
       } else {
-        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        el.className = "poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]";
         if (checkIcon) {
-          checkIcon.className = "w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon";
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon";
         }
       }
     });
@@ -2076,8 +2102,26 @@ class AppController {
   updatePreferencesUI() {
     const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
     const toggleRatings = document.getElementById('toggleMdblistRatings');
-    if (toggleEnrichment) toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
-    if (toggleRatings) toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+    const labelEnrichment = document.getElementById('labelTmdbEnrichment');
+    const labelRatings = document.getElementById('labelMdblistRatings');
+    if (toggleEnrichment) {
+      toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
+      if (labelEnrichment) {
+        labelEnrichment.textContent = toggleEnrichment.checked ? 'Activado' : 'Desactivado';
+        labelEnrichment.className = toggleEnrichment.checked
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+    }
+    if (toggleRatings) {
+      toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+      if (labelRatings) {
+        labelRatings.textContent = toggleRatings.checked ? 'Activado' : 'Desactivado';
+        labelRatings.className = toggleRatings.checked
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+    }
     this.updatePosterCardsUI();
     this.updateStep5PosterPreviews();
   }
