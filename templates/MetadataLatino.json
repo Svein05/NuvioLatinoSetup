@@ -22,10 +22,10 @@
     "hideWatchedSimkl": false,
     "providers": {
       "movie": "tmdb",
-      "series": "tmdb",
+      "series": "tvdb",
       "anime": "kitsu",
       "anime_id_provider": "kitsu",
-      "forceAnimeForDetectedImdb": true
+      "forceAnimeForDetectedImdb": false
     },
     "artProviders": {
       "movie": {
