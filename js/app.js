@@ -1134,6 +1134,31 @@ class AppController {
     }
   }
 
+  openNewProfileModal() {
+    if (state.profiles && state.profiles.length >= 6) {
+      this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
+      return;
+    }
+    const modal = document.getElementById('modalNewProfile');
+    const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (nameInput) {
+        nameInput.value = '';
+        nameInput.focus();
+      }
+    }
+  }
+
+  closeNewProfileModal() {
+    const modal = document.getElementById('modalNewProfile');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
   setupStep2Profiles() {
     this.renderProfiles();
 
@@ -1144,33 +1169,15 @@ class AppController {
     const btnConfirmModal = document.getElementById('btnConfirmNewProfile') || document.getElementById('btnCreateProfile');
     const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
 
-    if (btnOpenModal && modal) {
-      btnOpenModal.addEventListener('click', () => {
-        if (state.profiles && state.profiles.length >= 6) {
-          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
-          return;
-        }
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        if (nameInput) {
-          nameInput.value = '';
-          nameInput.focus();
-        }
-      });
+    if (btnOpenModal) {
+      btnOpenModal.addEventListener('click', () => this.openNewProfileModal());
     }
 
-    const closeModal = () => {
-      if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-    };
-
-    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
-    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+    if (btnCloseModal) btnCloseModal.addEventListener('click', () => this.closeNewProfileModal());
+    if (btnCancelModal) btnCancelModal.addEventListener('click', () => this.closeNewProfileModal());
     if (modal) {
       modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+        if (e.target === modal) this.closeNewProfileModal();
       });
     }
 
@@ -1178,7 +1185,7 @@ class AppController {
       const handleCreate = async () => {
         if (state.profiles && state.profiles.length >= 6) {
           this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
-          closeModal();
+          this.closeNewProfileModal();
           return;
         }
 
@@ -1214,7 +1221,7 @@ class AppController {
           state.selectedProfileName = newProfile.name || name;
           state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
 
-          closeModal();
+          this.closeNewProfileModal();
           this.saveSession();
           this.renderProfiles();
           this.updateProfileWarning(newProfile.id, newProfile.name || name);
@@ -1263,19 +1270,8 @@ class AppController {
     const container = document.getElementById('profilesList') || document.getElementById('profilesContainer');
     if (!container) return;
 
-    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
-    if (btnOpenModal) {
-      if (state.profiles && state.profiles.length >= 6) {
-        btnOpenModal.classList.add('opacity-50', 'cursor-not-allowed');
-        btnOpenModal.setAttribute('title', 'Límite máximo de 6 perfiles alcanzado en tu cuenta de Nuvio');
-      } else {
-        btnOpenModal.classList.remove('opacity-50', 'cursor-not-allowed');
-        btnOpenModal.removeAttribute('title');
-      }
-    }
-
     if (state.profiles && state.profiles.length > 0) {
-      container.innerHTML = state.profiles.map((p, idx) => {
+      let cardsHtml = state.profiles.map((p, idx) => {
         const isSelected = (state.selectedProfileId !== null && state.selectedProfileId !== undefined && String(state.selectedProfileId) === String(p.id)) || (state.selectedProfileId === null && idx === 0);
         if (isSelected && state.selectedProfileId === null) {
           state.selectedProfileId = p.id;
@@ -1288,11 +1284,12 @@ class AppController {
 
         return `
           <div onclick="window.appController.selectProfile('${p.id}', '${name.replace(/'/g, "\\'")}')" 
-               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center gap-2.5 transition-all duration-200 select-none ${
+               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none min-h-[140px] w-48 sm:w-52 ${
                  isSelected 
-                   ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5 backdrop-blur-[24px]' 
-                   : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5 backdrop-blur-[16px]'
-               }">
+                   ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5' 
+                   : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5'
+               }"
+               style="transform: translateZ(0); backface-visibility: hidden;">
             ${isSelected ? `
               <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#ffd479] text-[#08090c] flex items-center justify-center text-[10px] shadow-md font-bold">
                 <i class="fa-solid fa-check"></i>
@@ -1307,7 +1304,7 @@ class AppController {
                 isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
               }">
             </div>
-            <div class="text-center w-full">
+            <div class="text-center w-full px-1">
               <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/70 group-hover:text-white'}">${name}</div>
               <div class="text-[10px] mt-0.5 ${isSelected ? 'text-[#ffd479] font-mono font-bold uppercase tracking-wider' : 'text-white/40 group-hover:text-white/60'}">
                 ${isSelected ? '✓ Seleccionado' : 'Click para elegir'}
@@ -1317,14 +1314,32 @@ class AppController {
         `;
       }).join('');
 
+      // Tarjeta interactiva "Nuevo Perfil" visible únicamente si hay menos de 6 perfiles
+      if (state.profiles.length < 6) {
+        cardsHtml += `
+          <div id="cardNewProfile" onclick="window.appController.openNewProfileModal()"
+               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none border-2 border-dashed border-white/20 hover:border-white/50 bg-white/[0.02] hover:bg-white/[0.06] hover:-translate-y-0.5 min-h-[140px] w-48 sm:w-52"
+               style="transform: translateZ(0); backface-visibility: hidden;">
+            <div class="w-12 h-12 rounded-full border border-white/25 bg-white/[0.06] flex items-center justify-center text-white/70 group-hover:text-white group-hover:border-white/60 group-hover:scale-105 transition-all shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-plus text-base"></i>
+            </div>
+            <div class="text-center w-full">
+              <div class="text-xs font-semibold text-white/70 group-hover:text-white transition-colors">Nuevo Perfil</div>
+              <div class="text-[10px] mt-0.5 text-white/40 group-hover:text-white/60 font-mono">${state.profiles.length}/6 perfiles</div>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = cardsHtml;
       this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
     } else {
       container.innerHTML = `
-        <div class="col-span-full py-8 text-center bg-white/[0.03] border border-white/10 rounded-2xl p-6 backdrop-blur-[24px]">
+        <div class="w-full py-8 text-center bg-white/[0.03] border border-white/10 rounded-2xl p-6" style="transform: translateZ(0);">
           <i class="fa-solid fa-user-circle text-4xl text-white/30 mb-2"></i>
           <p class="text-sm font-medium text-white/90">No se encontraron perfiles en tu cuenta de Nuvio</p>
           <p class="text-xs text-white/50 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
-          <button type="button" onclick="document.getElementById('btnOpenNewProfileModal')?.click()" class="lat-capsule-btn solid text-xs">
+          <button type="button" onclick="window.appController.openNewProfileModal()" class="lat-capsule-btn solid text-xs">
             <i class="fa-solid fa-plus"></i>
             <span>Crear mi primer perfil</span>
           </button>

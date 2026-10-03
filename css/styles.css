@@ -238,6 +238,10 @@ option, optgroup {
   -webkit-backdrop-filter: blur(var(--blur-glass));
   box-shadow: var(--shadow-lift);
   border-radius: var(--radius-card);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .lat-card-panel {
@@ -434,20 +438,43 @@ option, optgroup {
 
 .lat-capsule-btn.glass,
 .lat-capsule-btn-glass {
-  background: var(--color-glass-strong);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--color-ink);
-  border: 1px solid var(--color-hairline-strong);
-  backdrop-filter: blur(var(--blur-glass));
-  -webkit-backdrop-filter: blur(var(--blur-glass));
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: var(--brillo-vidrio);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .lat-capsule-btn.glass:hover,
 .lat-capsule-btn-glass:hover {
   background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.24);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px) translateZ(0);
   color: var(--color-ink);
+}
+
+/* Aislamiento GPU contra parpadeos (Flicker Prevention) */
+.poster-option-card,
+.step-content,
+.drawer-step-item,
+.auth-pill-container {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+#posterPreviewDefault,
+#posterPreviewBetter,
+#posterPreviewPostersPlus {
+  will-change: opacity;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .lat-field {

@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Configuración - Nuvio & AIOMetadata Auto-Setup Wizard</title>
+  <title>Nuvio Metadata Latino</title>
   <link rel="icon" type="image/jpeg" href="../assets/logo/logo.jpg" />
   <link rel="apple-touch-icon" href="../assets/logo/logo.jpg" />
   
   <!-- Metadatos SEO y Open Graph -->
-  <meta name="description" content="Asistente de configuración de Nuvio y AIOMetadata en 6 pasos. Personaliza colecciones 16:9, valida tus API keys, configura tus preferencias de pósters y sincroniza tu perfil." />
+  <meta name="description" content="Configura y organiza tu Nuvio automáticamente en solo 6 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
   <meta name="theme-color" content="#6366f1" />
   <meta name="author" content="Svein" />
 
@@ -18,11 +18,14 @@
   <meta http-equiv="Expires" content="0" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Nuvio Metadata Latino" />
   <meta property="og:url" content="https://svein05.github.io/NuvioLatinoSetup/configuration/" />
-  <meta property="og:title" content="Asistente de Configuración - Nuvio Latino" />
-  <meta property="og:description" content="Personaliza colecciones y catálogos en vivo para Nuvio TV con AIOMetadata en Español Latino." />
+  <meta property="og:title" content="Nuvio Metadata Latino" />
+  <meta property="og:description" content="Configura y organiza tu Nuvio automáticamente en solo 6 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
   <meta property="og:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Nuvio Metadata Latino" />
+  <meta name="twitter:description" content="Configura y organiza tu Nuvio automáticamente en solo 6 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="twitter:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
   
   <!-- Preload de Fuentes Instrument Sans & Serif -->
   <link rel="preload" href="../assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -139,7 +142,7 @@
   <!-- Contenedor Principal del Asistente -->
   <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-28 sm:pt-32 pb-12 gap-4">
     
-    <main id="wizardView" class="relative overflow-hidden flex-1 bg-white/[0.03] border border-white/[0.08] backdrop-blur-[34px] rounded-[28px] p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
+    <main id="wizardView" class="relative overflow-hidden flex-1 bg-[#0b0d12]/90 border border-white/[0.08] rounded-[28px] p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
       
       <!-- Barra de Navegación Superior (Índice / Anterior / Paso X de 6 / Siguiente) -->
       <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/[0.08]">
@@ -258,30 +261,24 @@
       <!-- PASO 2: SELECCIÓN / CREACIÓN DE PERFIL     -->
       <!-- ========================================== -->
       <div id="step-2" class="step-content">
-        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
-              <i class="fa-solid fa-users text-white/70 text-lg"></i>
-              <span>Selecciona el Perfil Destino</span>
-            </h2>
-            <p class="text-sm text-white/60 mt-1">Elige en qué perfil de Nuvio inyectar las colecciones o crea uno nuevo específico para contenido Latino.</p>
-          </div>
-          <button id="btnOpenNewProfileModal" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 self-start shadow-[var(--brillo-vidrio)]">
-            <i class="fa-solid fa-plus text-[11px]"></i>
-            <span>Nuevo Perfil</span>
-          </button>
+        <div class="mb-6 text-center max-w-xl mx-auto space-y-1">
+          <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center justify-center gap-2.5">
+            <i class="fa-solid fa-users text-white/70 text-lg"></i>
+            <span>Selecciona el Perfil Destino</span>
+          </h2>
+          <p class="text-sm text-white/60">Elige en qué perfil de Nuvio inyectar las colecciones o crea uno nuevo específico para contenido Latino.</p>
         </div>
 
-        <!-- Lista de Perfiles -->
-        <div id="profilesList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-2">
-          <!-- Renderizado dinámicamente por js/app.js -->
+        <!-- Lista de Perfiles Centrada Simétrica (Máximo 3 columnas y 2 filas) -->
+        <div id="profilesList" class="flex flex-wrap items-center justify-center gap-4 py-3 max-w-3xl mx-auto">
+          <!-- Renderizado dinámicamente por js/app.js (incluye tarjeta interactiva Nuevo Perfil si < 6) -->
         </div>
 
-        <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente -->
-        <div id="profileOverwriteWarning" class="mt-4 p-4 bg-amber-500/10 border border-amber-500/25 rounded-[18px] flex items-start gap-3 max-w-3xl hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
-          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm mt-0.5 shrink-0"></i>
+        <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente (Centrada) -->
+        <div id="profileOverwriteWarning" class="mt-5 p-4 bg-amber-500/10 border border-amber-500/25 rounded-[18px] flex items-center justify-center text-center gap-3 max-w-2xl mx-auto hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
+          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm shrink-0"></i>
           <div class="text-xs text-amber-200/90 leading-relaxed">
-            <span class="font-bold text-amber-300">Atención:</span> Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración latino.
+            Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración.
           </div>
         </div>
 
@@ -704,22 +701,24 @@
               </div>
             </div>
 
-            <!-- Botones de Acción -->
-            <div class="flex flex-wrap items-center gap-3 pt-2">
-              <button id="btnExecutePipeline" disabled class="lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)]">
-                <i class="fa-solid fa-bolt"></i>
-                <span>Ejecutar Configuración Automática</span>
-              </button>
-
-              <!-- Opciones de Descarga Manual para Respaldo -->
-              <button id="btnDownloadCollections" class="lat-capsule-btn glass px-4 py-3 text-xs flex items-center gap-2" title="Descargar archivo JSON de colecciones para Nuvio">
+            <!-- Opciones de Descarga Manual para Respaldo (Centrado pegado debajo del bloque de contraseña) -->
+            <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
+              <button id="btnDownloadCollections" class="lat-capsule-btn glass px-4 py-2.5 text-xs flex items-center gap-2" title="Descargar archivo JSON de colecciones para Nuvio">
                 <i class="fa-solid fa-download"></i>
                 <span>Descargar Colecciones JSON</span>
               </button>
 
-              <button id="btnDownloadAioConfig" class="lat-capsule-btn glass px-4 py-3 text-xs flex items-center gap-2" title="Descargar configuración filtrada para AIOMetadata">
+              <button id="btnDownloadAioConfig" class="lat-capsule-btn glass px-4 py-2.5 text-xs flex items-center gap-2" title="Descargar configuración filtrada para AIOMetadata">
                 <i class="fa-solid fa-file-code"></i>
                 <span>Descargar Config AIOMetadata</span>
+              </button>
+            </div>
+
+            <!-- Botón de Ejecución Automática Centrado -->
+            <div class="flex items-center justify-center pt-3">
+              <button id="btnExecutePipeline" disabled class="lat-capsule-btn solid w-full sm:w-auto px-10 py-3.5 text-sm flex items-center justify-center gap-2 shadow-[var(--shadow-lift)] font-medium">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Ejecutar Configuración Automática</span>
               </button>
             </div>
           </div>
@@ -815,14 +814,8 @@
           </button>
         </div>
 
-        <!-- Lista de Pasos del Índice -->
-        <div class="flex-1 p-4 space-y-2 overflow-y-auto" id="drawerStepList">
-          <!-- Botón para volver al inicio desde el Drawer -->
-          <a href="../" class="lat-capsule-btn glass w-full py-2.5 mb-3 text-xs justify-center shadow-[var(--brillo-vidrio)]">
-            <i class="fa-solid fa-house text-white/70"></i>
-            <span>Volver a la Presentación</span>
-          </a>
-
+        <!-- Lista de Pasos del Índice (Centrada verticalmente y sin deslizador) -->
+        <div class="flex-1 p-5 flex flex-col justify-center gap-2.5 sm:gap-3 overflow-hidden" id="drawerStepList">
           <button onclick="goToStep(1)" id="drawer-step-1" class="drawer-step-item active">
             <span class="drawer-badge">1</span>
             <div class="flex-1 text-left">
