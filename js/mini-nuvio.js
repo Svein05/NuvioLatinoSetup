@@ -273,7 +273,7 @@ export class MiniNuvio {
         data-section-id="${section.id}"
         data-folder-index="${fIndex}"
         data-folder-id="${folder.id}"
-        class="draggable-card group relative ${sizeClasses} rounded-2xl overflow-hidden border ${isFocused ? 'border-2 border-[#ffd479] ring-2 ring-[#ffd479]/40 shadow-lg shadow-[#ffd479]/20' : isEnabled ? 'border border-white/10 hover:border-white/30' : 'border border-white/5 opacity-40'} bg-[#0b0d12] select-none cursor-pointer"
+        class="draggable-card group relative ${sizeClasses} rounded-2xl overflow-hidden border ${isFocused ? 'border-2 border-[#ffd479] ring-2 ring-[#ffd479]/40 shadow-lg shadow-[#ffd479]/20' : isEnabled ? 'border border-white/10 hover:border-white/30' : 'border border-white/5 opacity-40'} bg-[#0b0d12] select-none cursor-grab"
         onmouseenter="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
         onclick="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
       >
@@ -281,13 +281,13 @@ export class MiniNuvio {
         <img src="${imageSrc}" alt="${folder.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
         <div class="absolute inset-0 bg-gradient-to-t from-[#08090c] via-[#08090c]/40 to-transparent pointer-events-none"></div>
 
-        <!-- Controles de Reordenación Izquierda/Derecha (Un toque táctil o mouse) -->
-        <div class="no-drag absolute top-2.5 left-2.5 z-20 flex items-center gap-1 pointer-events-auto" onclick="event.stopPropagation()">
+        <!-- Controles de Reordenación Izquierda/Derecha (Exclusivos para Móvil / Táctil) -->
+        <div class="no-drag absolute top-2.5 left-2.5 z-20 flex md:hidden items-center gap-1 pointer-events-auto" onclick="event.stopPropagation()">
           ${fIndex > 0 ? `
             <button 
               type="button" 
               onclick="event.stopPropagation(); window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, -1)" 
-              class="w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-black/75 hover:bg-[#ffd479] border border-white/25 hover:border-[#ffd479] text-white hover:text-black flex items-center justify-center text-[10px] shadow-sm backdrop-blur-md transition-all active:scale-90" 
+              class="w-7 h-7 rounded-lg bg-black/75 hover:bg-[#ffd479] border border-white/25 hover:border-[#ffd479] text-white hover:text-black flex items-center justify-center text-[10px] shadow-sm backdrop-blur-md transition-all active:scale-90" 
               title="Mover a la izquierda"
             >
               <i class="fa-solid fa-chevron-left"></i>
@@ -297,7 +297,7 @@ export class MiniNuvio {
             <button 
               type="button" 
               onclick="event.stopPropagation(); window.miniNuvioInstance.moveFolder('${section.id}', ${fIndex}, 1)" 
-              class="w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-black/75 hover:bg-[#ffd479] border border-white/25 hover:border-[#ffd479] text-white hover:text-black flex items-center justify-center text-[10px] shadow-sm backdrop-blur-md transition-all active:scale-90" 
+              class="w-7 h-7 rounded-lg bg-black/75 hover:bg-[#ffd479] border border-white/25 hover:border-[#ffd479] text-white hover:text-black flex items-center justify-center text-[10px] shadow-sm backdrop-blur-md transition-all active:scale-90" 
               title="Mover a la derecha"
             >
               <i class="fa-solid fa-chevron-right"></i>
@@ -323,6 +323,24 @@ export class MiniNuvio {
           <div class="text-xs font-semibold text-white drop-shadow truncate flex items-center gap-1.5">
             <span>${folder.coverEmoji || '🎬'}</span>
             <span class="truncate">${folder.title}</span>
+          </div>
+        </div>
+
+        <!-- Overlay con Acciones Rápidas (Exclusivo para Escritorio con Ratón donde no obstruye el desplazamiento) -->
+        <div class="card-hover-overlay absolute inset-0 bg-[#08090c]/85 backdrop-blur-[6px] hidden md:flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity" onclick="event.stopPropagation()">
+          <button onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')" class="no-drag lat-capsule-btn solid text-[11px] py-1.5 px-3">
+            <i class="fa-solid fa-layer-group text-[11px]"></i>
+            <span>Ver Catálogos</span>
+          </button>
+
+          <button onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="no-drag lat-capsule-btn glass text-[11px] py-1 px-2.5" title="Personalizar diseño de fila">
+            <i class="fa-solid fa-sliders text-[10px] text-[#ffd479]"></i>
+            <span>Diseño</span>
+          </button>
+
+          <div class="text-[10px] text-white/50 font-medium flex items-center gap-1 mt-0.5 pointer-events-none">
+            <i class="fa-solid fa-arrows-left-right text-[9px] text-[#ffd479]"></i>
+            <span>Arrastra para ordenar</span>
           </div>
         </div>
       </div>
@@ -1025,12 +1043,13 @@ export class MiniNuvio {
                         <img src="${cover}" alt="${f.title}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
                       </div>
 
-                      <!-- Title: Texto truncado limpio en móvil (< sm), input editable en escritorio (sm:) -->
-                      <div class="flex-1 min-w-0 pr-1">
+                      <!-- Title: Texto truncado limpio en móvil (< sm), input editable y formato en escritorio (sm:) -->
+                      <div class="flex-1 min-w-0 pr-1 flex items-center gap-2">
                         <span class="text-xs font-semibold text-white truncate block sm:hidden" title="${(f.title || '').replace(/"/g, '&quot;')}">
                           ${f.coverEmoji ? f.coverEmoji + ' ' : ''}${f.title || 'Colección'}
                         </span>
                         <input type="text" class="sec-folder-title-input hidden sm:block w-full px-2.5 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-xs text-white" data-folder-id="${f.id}" value="${(f.title || '').replace(/"/g, '&quot;')}" placeholder="Título de la fila">
+                        <span class="text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/50 font-mono shrink-0 hidden sm:inline-block">${f.tileShape || 'LANDSCAPE'}</span>
                       </div>
 
                       <!-- Actions: Catálogos, Diseño y Checkbox -->
