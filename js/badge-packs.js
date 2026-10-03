@@ -2716,16 +2716,37 @@ function enrichSectionForDisplay(sec, pack) {
     style: 'filled'
   };
 
-  const copyStyle = (overrides = {}) => ({
-    text: baseItem.text,
-    border: baseItem.border,
-    bg: baseItem.bg,
-    style: baseItem.style || 'filled',
-    ...overrides
-  });
-
+  const isMonoWhite = Boolean(pack && pack.id === 'mono_white');
+  const isSolid = Boolean(pack && pack.id === 'solid');
+  const hasBlackSuffix = isMonoWhite || isSolid || items.some(it => it.img && it.img.includes('-black.png'));
   const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange|-red|-yellow|-cyan|-gray|-purple/.test(it.img));
   const hasLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
+
+  const copyStyle = (overrides = {}) => {
+    if (isMonoWhite) {
+      return {
+        text: '#000000',
+        border: '#cbd5e1',
+        bg: '#ffffff',
+        style: 'filled',
+        ...overrides
+      };
+    }
+    return {
+      text: baseItem.text,
+      border: baseItem.border,
+      bg: baseItem.bg,
+      style: baseItem.style || 'filled',
+      ...overrides
+    };
+  };
+
+  const getImg = (category, baseName, colorName) => {
+    if (hasColorSuffix && colorName) return `${baseName}-${colorName}.png`;
+    if (hasBlackSuffix) return `${baseName}-black.png`;
+    if (hasLightBlue && (category === 'subtitle' || category === 'special-tags')) return `${baseName}-light-blue.png`;
+    return `${baseName}.png`;
+  };
 
   // 1. IDIOMAS (46 banderas globales priorizando Latino y España)
   if (sec.id === 'glang') {
@@ -2792,54 +2813,57 @@ function enrichSectionForDisplay(sec, pack) {
 
   // 2. SUBTÍTULOS (46 subtítulos globales priorizando Latino y España)
   if (sec.id === 'gsub') {
-    const suffix = hasLightBlue ? '-light-blue.png' : '.png';
+    let subSuffix = '.png';
+    if (hasLightBlue) subSuffix = '-light-blue.png';
+    else if (hasBlackSuffix) subSuffix = '-black.png';
+
     const subs = [
-      { name: 'Latino Sub', img: `latino${suffix}` },
-      { name: 'Español Sub', img: `spanish${suffix}` },
-      { name: 'English Sub', img: `english${suffix}` },
-      { name: 'Japanese Sub', img: `japanese${suffix}` },
-      { name: 'Português Sub', img: `portuguese${suffix}` },
-      { name: 'Français Sub', img: `french${suffix}` },
-      { name: 'Italiano Sub', img: `italian${suffix}` },
-      { name: 'Deutsch Sub', img: `german${suffix}` },
-      { name: 'Russian Sub', img: `russian${suffix}` },
-      { name: 'Chinese Sub', img: `chinese${suffix}` },
-      { name: 'Korean Sub', img: `korean${suffix}` },
-      { name: 'Dutch Sub', img: `dutch${suffix}` },
-      { name: 'Polish Sub', img: `polish${suffix}` },
-      { name: 'Turkish Sub', img: `turkish${suffix}` },
-      { name: 'Swedish Sub', img: `swedish${suffix}` },
-      { name: 'Arabic Sub', img: `arabic${suffix}` },
-      { name: 'Hindi Sub', img: `hindi${suffix}` },
-      { name: 'Greek Sub', img: `greek${suffix}` },
-      { name: 'Danish Sub', img: `danish${suffix}` },
-      { name: 'Norwegian Sub', img: `norwegian${suffix}` },
-      { name: 'Finnish Sub', img: `finnish${suffix}` },
-      { name: 'Czech Sub', img: `czech${suffix}` },
-      { name: 'Hungarian Sub', img: `hungarian${suffix}` },
-      { name: 'Romanian Sub', img: `romanian${suffix}` },
-      { name: 'Thai Sub', img: `thai${suffix}` },
-      { name: 'Vietnamese Sub', img: `vietnamese${suffix}` },
-      { name: 'Indonesian Sub', img: `indonesian${suffix}` },
-      { name: 'Ukrainian Sub', img: `ukrainian${suffix}` },
-      { name: 'Hebrew Sub', img: `hebrew${suffix}` },
-      { name: 'Catalan Sub', img: `catalan${suffix}` },
-      { name: 'Bengali Sub', img: `bengali${suffix}` },
-      { name: 'Bulgarian Sub', img: `bulgarian${suffix}` },
-      { name: 'Croatian Sub', img: `croatian${suffix}` },
-      { name: 'Estonian Sub', img: `estonian${suffix}` },
-      { name: 'Filipino Sub', img: `filipino${suffix}` },
-      { name: 'Icelandic Sub', img: `icelandic${suffix}` },
-      { name: 'Irish Sub', img: `irish${suffix}` },
-      { name: 'Lithuanian Sub', img: `lithuanian${suffix}` },
-      { name: 'Malay Sub', img: `malay${suffix}` },
-      { name: 'Persian Sub', img: `persian${suffix}` },
-      { name: 'Serbian Sub', img: `serbian${suffix}` },
-      { name: 'Slovak Sub', img: `slovak${suffix}` },
-      { name: 'Slovenian Sub', img: `slovenian${suffix}` },
-      { name: 'Tamil Sub', img: `tamil${suffix}` },
-      { name: 'Telugu Sub', img: `telugu${suffix}` },
-      { name: 'Urdu Sub', img: `urdu${suffix}` }
+      { name: 'Latino Sub', img: `latino${subSuffix}` },
+      { name: 'Español Sub', img: `spanish${subSuffix}` },
+      { name: 'English Sub', img: `english${subSuffix}` },
+      { name: 'Japanese Sub', img: `japanese${subSuffix}` },
+      { name: 'Português Sub', img: `portuguese${subSuffix}` },
+      { name: 'Français Sub', img: `french${subSuffix}` },
+      { name: 'Italiano Sub', img: `italian${subSuffix}` },
+      { name: 'Deutsch Sub', img: `german${subSuffix}` },
+      { name: 'Russian Sub', img: `russian${subSuffix}` },
+      { name: 'Chinese Sub', img: `chinese${subSuffix}` },
+      { name: 'Korean Sub', img: `korean${subSuffix}` },
+      { name: 'Dutch Sub', img: `dutch${subSuffix}` },
+      { name: 'Polish Sub', img: `polish${subSuffix}` },
+      { name: 'Turkish Sub', img: `turkish${subSuffix}` },
+      { name: 'Swedish Sub', img: `swedish${subSuffix}` },
+      { name: 'Arabic Sub', img: `arabic${subSuffix}` },
+      { name: 'Hindi Sub', img: `hindi${subSuffix}` },
+      { name: 'Greek Sub', img: `greek${subSuffix}` },
+      { name: 'Danish Sub', img: `danish${subSuffix}` },
+      { name: 'Norwegian Sub', img: `norwegian${subSuffix}` },
+      { name: 'Finnish Sub', img: `finnish${subSuffix}` },
+      { name: 'Czech Sub', img: `czech${subSuffix}` },
+      { name: 'Hungarian Sub', img: `hungarian${subSuffix}` },
+      { name: 'Romanian Sub', img: `romanian${subSuffix}` },
+      { name: 'Thai Sub', img: `thai${subSuffix}` },
+      { name: 'Vietnamese Sub', img: `vietnamese${subSuffix}` },
+      { name: 'Indonesian Sub', img: `indonesian${subSuffix}` },
+      { name: 'Ukrainian Sub', img: `ukrainian${subSuffix}` },
+      { name: 'Hebrew Sub', img: `hebrew${subSuffix}` },
+      { name: 'Catalan Sub', img: `catalan${subSuffix}` },
+      { name: 'Bengali Sub', img: `bengali${subSuffix}` },
+      { name: 'Bulgarian Sub', img: `bulgarian${subSuffix}` },
+      { name: 'Croatian Sub', img: `croatian${subSuffix}` },
+      { name: 'Estonian Sub', img: `estonian${subSuffix}` },
+      { name: 'Filipino Sub', img: `filipino${subSuffix}` },
+      { name: 'Icelandic Sub', img: `icelandic${subSuffix}` },
+      { name: 'Irish Sub', img: `irish${subSuffix}` },
+      { name: 'Lithuanian Sub', img: `lithuanian${subSuffix}` },
+      { name: 'Malay Sub', img: `malay${subSuffix}` },
+      { name: 'Persian Sub', img: `persian${subSuffix}` },
+      { name: 'Serbian Sub', img: `serbian${subSuffix}` },
+      { name: 'Slovak Sub', img: `slovak${subSuffix}` },
+      { name: 'Slovenian Sub', img: `slovenian${subSuffix}` },
+      { name: 'Tamil Sub', img: `tamil${subSuffix}` },
+      { name: 'Telugu Sub', img: `telugu${subSuffix}` },
+      { name: 'Urdu Sub', img: `urdu${subSuffix}` }
     ];
     return {
       ...sec,
@@ -2857,22 +2881,22 @@ function enrichSectionForDisplay(sec, pack) {
   // 3. AUDIO (16 badges oficiales de alta fidelidad)
   if (sec.id === 'ga') {
     const audioItems = [
-      { name: 'Atmos TrueHD', img: hasColorSuffix ? 'dolby-atmos-truehd-gold.png' : 'dolby-atmos-truehd.png', color: '#FFD500' },
-      { name: 'DTS:X MA', img: hasColorSuffix ? 'dts-x-hd-ma-gold.png' : 'dts-x-hd-ma.png', color: '#FFD500' },
-      { name: 'Atmos Digital+', img: hasColorSuffix ? 'dolby-atmos-digital-plus-blue.png' : 'dolby-atmos-digital-plus.png', color: '#176BE8' },
-      { name: 'DTS-HD MA', img: hasColorSuffix ? 'dts-hd-ma-blue.png' : 'dts-hd-ma.png', color: '#176BE8' },
-      { name: 'TrueHD', img: hasColorSuffix ? 'dolby-truehd-blue.png' : 'dolby-truehd.png', color: '#176BE8' },
-      { name: 'DTS-HD', img: hasColorSuffix ? 'dts-hd-green.png' : 'dts-hd.png', color: '#2EB853' },
-      { name: 'DTS:X HD', img: hasColorSuffix ? 'dts-x-hd-blue.png' : 'dts-x-hd.png', color: '#176BE8' },
-      { name: 'DTS:X', img: hasColorSuffix ? 'dts-x-blue.png' : 'dts-x.png', color: '#176BE8' },
-      { name: 'Atmos', img: hasColorSuffix ? 'dolby-atmos-blue.png' : 'dolby-atmos.png', color: '#176BE8' },
-      { name: 'DD+', img: hasColorSuffix ? 'dolby-digital-plus-green.png' : 'dolby-digital-plus.png', color: '#2EB853' },
-      { name: 'DTS-ES', img: hasColorSuffix ? 'dts-es-orange.png' : 'dts-es.png', color: '#FF7300' },
-      { name: 'DTS', img: hasColorSuffix ? 'dts-orange.png' : 'dts.png', color: '#FF7300' },
-      { name: 'DD', img: hasColorSuffix ? 'dolby-digital-orange.png' : 'dolby-digital.png', color: '#FF7300' },
-      { name: 'AAC', img: hasColorSuffix ? 'aac-orange.png' : 'aac.png', color: '#FF7300' },
-      { name: 'FLAC', img: hasColorSuffix ? 'flac-blue.png' : 'flac.png', color: '#176BE8' },
-      { name: 'Opus', img: hasColorSuffix ? 'opus-orange.png' : 'opus.png', color: '#FF7300' }
+      { name: 'Atmos TrueHD', base: 'dolby-atmos-truehd', color: 'gold', hex: '#FFD500' },
+      { name: 'DTS:X MA', base: 'dts-x-hd-ma', color: 'gold', hex: '#FFD500' },
+      { name: 'Atmos Digital+', base: 'dolby-atmos-digital-plus', color: 'blue', hex: '#176BE8' },
+      { name: 'DTS-HD MA', base: 'dts-hd-ma', color: 'blue', hex: '#176BE8' },
+      { name: 'TrueHD', base: 'dolby-truehd', color: 'blue', hex: '#176BE8' },
+      { name: 'DTS-HD', base: 'dts-hd', color: 'green', hex: '#2EB853' },
+      { name: 'DTS:X HD', base: 'dts-x-hd', color: 'blue', hex: '#176BE8' },
+      { name: 'DTS:X', base: 'dts-x', color: 'blue', hex: '#176BE8' },
+      { name: 'Atmos', base: 'dolby-atmos', color: 'blue', hex: '#176BE8' },
+      { name: 'DD+', base: 'dolby-digital-plus', color: 'green', hex: '#2EB853' },
+      { name: 'DTS-ES', base: 'dts-es', color: 'orange', hex: '#FF7300' },
+      { name: 'DTS', base: 'dts', color: 'orange', hex: '#FF7300' },
+      { name: 'DD', base: 'dolby-digital', color: 'orange', hex: '#FF7300' },
+      { name: 'AAC', base: 'aac', color: 'orange', hex: '#FF7300' },
+      { name: 'FLAC', base: 'flac', color: 'blue', hex: '#176BE8' },
+      { name: 'Opus', base: 'opus', color: 'orange', hex: '#FF7300' }
     ];
     return {
       ...sec,
@@ -2881,8 +2905,8 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: Math.max(0, (sec.total || 16) - audioItems.length),
       items: audioItems.map(a => ({
         name: a.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/audio/${a.img}`,
-        ...copyStyle(hasColorSuffix ? { text: a.color, border: a.color, bg: `${a.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/audio/${getImg('audio', a.base, a.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: a.hex, border: a.hex, bg: `${a.hex}24` } : {})
       }))
     };
   }
@@ -2890,15 +2914,15 @@ function enrichSectionForDisplay(sec, pack) {
   // 4. RESOLUCIÓN (9 resoluciones reales y nítidas, sin duplicados)
   if (sec.id === 'gr') {
     const resList = [
-      { name: '4K', img: hasColorSuffix ? '4k-gold.png' : '4k.png', color: '#FFD500' },
-      { name: '1440p', img: hasColorSuffix ? '1440p-blue.png' : '1440p.png', color: '#176BE8' },
-      { name: '1080p', img: hasColorSuffix ? '1080p-green.png' : '1080p.png', color: '#2EB853' },
-      { name: '720p', img: hasColorSuffix ? '720p-orange.png' : '720p.png', color: '#FF7300' },
-      { name: '576p', img: hasColorSuffix ? '576p-red.png' : '576p.png', color: '#E53935' },
-      { name: '480p', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' },
-      { name: '360p', img: hasColorSuffix ? '360p-red.png' : '360p.png', color: '#E53935' },
-      { name: '240p', img: hasColorSuffix ? '240p-red.png' : '240p.png', color: '#E53935' },
-      { name: '144p', img: hasColorSuffix ? '144p-red.png' : '144p.png', color: '#E53935' }
+      { name: '4K', base: '4k', color: 'gold', hex: '#FFD500' },
+      { name: '1440p', base: '1440p', color: 'blue', hex: '#176BE8' },
+      { name: '1080p', base: '1080p', color: 'green', hex: '#2EB853' },
+      { name: '720p', base: '720p', color: 'orange', hex: '#FF7300' },
+      { name: '576p', base: '576p', color: 'red', hex: '#E53935' },
+      { name: '480p', base: '480p', color: 'red', hex: '#E53935' },
+      { name: '360p', base: '360p', color: 'red', hex: '#E53935' },
+      { name: '240p', base: '240p', color: 'red', hex: '#E53935' },
+      { name: '144p', base: '144p', color: 'red', hex: '#E53935' }
     ];
     return {
       ...sec,
@@ -2907,8 +2931,8 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: Math.max(0, (sec.total || 9) - resList.length),
       items: resList.map(r => ({
         name: r.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/${r.img}`,
-        ...copyStyle(hasColorSuffix ? { text: r.color, border: r.color, bg: `${r.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/${getImg('resolution', r.base, r.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: r.hex, border: r.hex, bg: `${r.hex}24` } : {})
       }))
     };
   }
@@ -2916,10 +2940,10 @@ function enrichSectionForDisplay(sec, pack) {
   // 5. CANALES (4 canales auténticos disponibles en el pack)
   if (sec.id === 'gc') {
     const chList = [
-      { name: '7.1', img: hasColorSuffix ? '7-1-gold.png' : '7-1.png', color: '#FFD500' },
-      { name: '6.1', img: hasColorSuffix ? '6-1-blue.png' : '6-1.png', color: '#176BE8' },
-      { name: '5.1', img: hasColorSuffix ? '5-1-green.png' : '5-1.png', color: '#2EB853' },
-      { name: '2.0', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' }
+      { name: '7.1', base: '7-1', color: 'gold', hex: '#FFD500' },
+      { name: '6.1', base: '6-1', color: 'blue', hex: '#176BE8' },
+      { name: '5.1', base: '5-1', color: 'green', hex: '#2EB853' },
+      { name: '2.0', base: '2-0', color: 'orange', hex: '#FF7300' }
     ];
     return {
       ...sec,
@@ -2928,8 +2952,8 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: Math.max(0, (sec.total || 4) - chList.length),
       items: chList.map(c => ({
         name: c.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/channels/${c.img}`,
-        ...copyStyle(hasColorSuffix ? { text: c.color, border: c.color, bg: `${c.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/channels/${getImg('channels', c.base, c.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: c.hex, border: c.hex, bg: `${c.hex}24` } : {})
       }))
     };
   }
@@ -2937,18 +2961,18 @@ function enrichSectionForDisplay(sec, pack) {
   // 6. CALIDAD (12 tipos de calidad reales)
   if (sec.id === 'gq') {
     const qList = [
-      { name: 'Remux', img: hasColorSuffix ? 'remux-gold.png' : 'remux.png', color: '#FFD500' },
-      { name: 'BluRay', img: hasColorSuffix ? 'bluray-blue.png' : 'bluray.png', color: '#176BE8' },
-      { name: 'WEB-DL', img: hasColorSuffix ? 'web-dl-green.png' : 'web-dl.png', color: '#2EB853' },
-      { name: 'WEBRip', img: hasColorSuffix ? 'webrip-orange.png' : 'webrip.png', color: '#FF7300' },
-      { name: 'HDTV', img: hasColorSuffix ? 'hdtv-red.png' : 'hdtv.png', color: '#E53935' },
-      { name: 'DVDRip', img: hasColorSuffix ? 'dvdrip-orange.png' : 'dvdrip.png', color: '#FF7300' },
-      { name: 'HDRip', img: hasColorSuffix ? 'hdrip-orange.png' : 'hdrip.png', color: '#FF7300' },
-      { name: 'HC-HDRip', img: hasColorSuffix ? 'hc-hdrip-orange.png' : 'hc-hdrip.png', color: '#FF7300' },
-      { name: 'TC', img: hasColorSuffix ? 'tc-red.png' : 'tc.png', color: '#E53935' },
-      { name: 'CAM', img: hasColorSuffix ? 'cam-red.png' : 'cam.png', color: '#E53935' },
-      { name: 'TS', img: hasColorSuffix ? 'ts-red.png' : 'ts.png', color: '#E53935' },
-      { name: 'SCR', img: hasColorSuffix ? 'scr-red.png' : 'scr.png', color: '#E53935' }
+      { name: 'Remux', base: 'remux', color: 'gold', hex: '#FFD500' },
+      { name: 'BluRay', base: 'bluray', color: 'blue', hex: '#176BE8' },
+      { name: 'WEB-DL', base: 'web-dl', color: 'green', hex: '#2EB853' },
+      { name: 'WEBRip', base: 'webrip', color: 'orange', hex: '#FF7300' },
+      { name: 'HDTV', base: 'hdtv', color: 'red', hex: '#E53935' },
+      { name: 'DVDRip', base: 'dvdrip', color: 'orange', hex: '#FF7300' },
+      { name: 'HDRip', base: 'hdrip', color: 'orange', hex: '#FF7300' },
+      { name: 'HC-HDRip', base: 'hc-hdrip', color: 'orange', hex: '#FF7300' },
+      { name: 'TC', base: 'tc', color: 'red', hex: '#E53935' },
+      { name: 'CAM', base: 'cam', color: 'red', hex: '#E53935' },
+      { name: 'TS', base: 'ts', color: 'red', hex: '#E53935' },
+      { name: 'SCR', base: 'scr', color: 'red', hex: '#E53935' }
     ];
     return {
       ...sec,
@@ -2957,8 +2981,8 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: Math.max(0, (sec.total || 12) - qList.length),
       items: qList.map(q => ({
         name: q.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/${q.img}`,
-        ...copyStyle(hasColorSuffix ? { text: q.color, border: q.color, bg: `${q.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/${getImg('quality', q.base, q.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: q.hex, border: q.hex, bg: `${q.hex}24` } : {})
       }))
     };
   }
@@ -2966,17 +2990,17 @@ function enrichSectionForDisplay(sec, pack) {
   // 7. VISUAL (11 tipos de formato visual/HDR)
   if (sec.id === 'gv') {
     const vList = [
-      { name: 'DV · HDR10+', img: hasColorSuffix ? 'dolby-vision-hdr10-plus-gold.png' : 'dolby-vision-hdr10-plus.png', color: '#FFD500' },
-      { name: 'DV · HDR10', img: hasColorSuffix ? 'dolby-vision-hdr10-gold.png' : 'dolby-vision-hdr10.png', color: '#FFD500' },
-      { name: 'DV · HDR', img: hasColorSuffix ? 'dolby-vision-hdr-gold.png' : 'dolby-vision-hdr.png', color: '#FFD500' },
-      { name: 'DV', img: hasColorSuffix ? 'dolby-vision-gold.png' : 'dolby-vision.png', color: '#FFD500' },
-      { name: 'HDR10+', img: hasColorSuffix ? 'hdr10-plus-gold.png' : 'hdr10-plus.png', color: '#FFD500' },
-      { name: 'HDR10', img: hasColorSuffix ? 'hdr10-blue.png' : 'hdr10.png', color: '#176BE8' },
-      { name: 'HDR', img: hasColorSuffix ? 'hdr-green.png' : 'hdr.png', color: '#2EB853' },
-      { name: 'HLG', img: hasColorSuffix ? 'hlg-orange.png' : 'hlg.png', color: '#FF7300' },
-      { name: '10bit', img: hasColorSuffix ? '10bit-orange.png' : '10bit.png', color: '#FF7300' },
-      { name: 'SDR', img: hasColorSuffix ? 'sdr-orange.png' : 'sdr.png', color: '#FF7300' },
-      { name: 'AI', img: hasColorSuffix ? 'ai-red.png' : 'ai.png', color: '#E53935' }
+      { name: 'DV · HDR10+', base: 'dolby-vision-hdr10-plus', color: 'gold', hex: '#FFD500' },
+      { name: 'DV · HDR10', base: 'dolby-vision-hdr10', color: 'gold', hex: '#FFD500' },
+      { name: 'DV · HDR', base: 'dolby-vision-hdr', color: 'gold', hex: '#FFD500' },
+      { name: 'DV', base: 'dolby-vision', color: 'gold', hex: '#FFD500' },
+      { name: 'HDR10+', base: 'hdr10-plus', color: 'gold', hex: '#FFD500' },
+      { name: 'HDR10', base: 'hdr10', color: 'blue', hex: '#176BE8' },
+      { name: 'HDR', base: 'hdr', color: 'green', hex: '#2EB853' },
+      { name: 'HLG', base: 'hlg', color: 'orange', hex: '#FF7300' },
+      { name: '10bit', base: '10bit', color: 'orange', hex: '#FF7300' },
+      { name: 'SDR', base: 'sdr', color: 'orange', hex: '#FF7300' },
+      { name: 'AI', base: 'ai', color: 'red', hex: '#E53935' }
     ];
     return {
       ...sec,
@@ -2985,32 +3009,31 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: 0,
       items: vList.map(v => ({
         name: v.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/${v.img}`,
-        ...copyStyle(hasColorSuffix ? { text: v.color, border: v.color, bg: `${v.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/${getImg('visual', v.base, v.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: v.hex, border: v.hex, bg: `${v.hex}24` } : {})
       }))
     };
   }
 
   // 8. SPECIAL TAGS (16 etiquetas especiales que llenan ambas filas sin huecos vacíos)
   if (sec.id === 'gst') {
-    const suffix = hasLightBlue ? '-light-blue.png' : '.png';
     const tagList = [
-      { name: 'SeaDex', img: hasColorSuffix ? 'seadex-gold.png' : 'seadex.png', color: '#FFD500' },
-      { name: 'HYBRID', img: `hybrid${suffix}`, color: '#BBDEFB' },
-      { name: 'CRITERION', img: `criterion${suffix}`, color: '#BBDEFB' },
-      { name: 'PROPER', img: `proper${suffix}`, color: '#BBDEFB' },
-      { name: 'REPACK', img: `repack${suffix}`, color: '#BBDEFB' },
-      { name: 'REMASTERED', img: `remastered${suffix}`, color: '#BBDEFB' },
-      { name: 'OPEN MATTE', img: `open-matte${suffix}`, color: '#BBDEFB' },
-      { name: 'IMAX', img: hasColorSuffix ? 'imax-gold.png' : 'imax.png', color: '#FFD500' },
-      { name: 'DIR CUT', img: `directors-cut${suffix}`, color: '#BBDEFB' },
-      { name: 'EXTENDED', img: `extended${suffix}`, color: '#BBDEFB' },
-      { name: 'THEATRICAL', img: `theatrical${suffix}`, color: '#BBDEFB' },
-      { name: 'UNCUT', img: `uncut${suffix}`, color: '#BBDEFB' },
-      { name: 'UNCENSORED', img: `uncensored${suffix}`, color: '#BBDEFB' },
-      { name: 'REGRADED', img: `regraded${suffix}`, color: '#BBDEFB' },
-      { name: 'B&W', img: `black-and-white${suffix}`, color: '#BBDEFB' },
-      { name: 'TRUE HUE', img: `true-hue${suffix}`, color: '#BBDEFB' }
+      { name: 'SeaDex', base: 'seadex', color: 'gold', hex: '#FFD500' },
+      { name: 'HYBRID', base: 'hybrid', hex: '#BBDEFB' },
+      { name: 'CRITERION', base: 'criterion', hex: '#BBDEFB' },
+      { name: 'PROPER', base: 'proper', hex: '#BBDEFB' },
+      { name: 'REPACK', base: 'repack', hex: '#BBDEFB' },
+      { name: 'REMASTERED', base: 'remastered', hex: '#BBDEFB' },
+      { name: 'OPEN MATTE', base: 'open-matte', hex: '#BBDEFB' },
+      { name: 'IMAX', base: 'imax', color: 'gold', hex: '#FFD500' },
+      { name: 'DIR CUT', base: 'directors-cut', hex: '#BBDEFB' },
+      { name: 'EXTENDED', base: 'extended', hex: '#BBDEFB' },
+      { name: 'THEATRICAL', base: 'theatrical', hex: '#BBDEFB' },
+      { name: 'UNCUT', base: 'uncut', hex: '#BBDEFB' },
+      { name: 'UNCENSORED', base: 'uncensored', hex: '#BBDEFB' },
+      { name: 'REGRADED', base: 'regraded', hex: '#BBDEFB' },
+      { name: 'B&W', base: 'black-and-white', hex: '#BBDEFB' },
+      { name: 'TRUE HUE', base: 'true-hue', hex: '#BBDEFB' }
     ];
     return {
       ...sec,
@@ -3019,8 +3042,8 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: Math.max(0, (sec.total || 16) - tagList.length),
       items: tagList.map(t => ({
         name: t.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/${t.img}`,
-        ...copyStyle(hasColorSuffix ? { text: t.color, border: t.color, bg: `${t.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/${getImg('special-tags', t.base, t.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: t.hex, border: t.hex, bg: `${t.hex}24` } : {})
       }))
     };
   }
@@ -3028,15 +3051,15 @@ function enrichSectionForDisplay(sec, pack) {
   // 9. STREAMING (hasta 9 servicios)
   if (sec.id === 'gs') {
     const sList = [
-      { name: 'PEACOCK', img: hasColorSuffix ? 'peacock-yellow.png' : 'peacock.png', color: '#FCCC12' },
-      { name: 'NETFLIX', img: hasColorSuffix ? 'netflix-red.png' : 'netflix.png', color: '#E50914' },
-      { name: 'PRIME VIDEO', img: hasColorSuffix ? 'prime-video-cyan.png' : 'prime-video.png', color: '#00A8E1' },
-      { name: 'APPLE TV+', img: hasColorSuffix ? 'apple-tv-plus-gray.png' : 'apple-tv-plus.png', color: '#A2AAAD' },
-      { name: 'DISNEY+', img: hasColorSuffix ? 'disney-plus-blue.png' : 'disney-plus.png', color: '#3E82F7' },
-      { name: 'HBO MAX', img: hasColorSuffix ? 'hbo-max-purple.png' : 'hbo-max.png', color: '#9B51E0' },
-      { name: 'PARAMOUNT+', img: hasColorSuffix ? 'paramount-plus-blue.png' : 'paramount-plus.png', color: '#0064FF' },
-      { name: 'HULU', img: hasColorSuffix ? 'hulu-green.png' : 'hulu.png', color: '#1CE783' },
-      { name: 'CRUNCHYROLL', img: hasColorSuffix ? 'crunchyroll-orange.png' : 'crunchyroll.png', color: '#F47521' }
+      { name: 'PEACOCK', base: 'peacock', color: 'yellow', hex: '#FCCC12' },
+      { name: 'NETFLIX', base: 'netflix', color: 'red', hex: '#E50914' },
+      { name: 'PRIME VIDEO', base: 'prime-video', color: 'cyan', hex: '#00A8E1' },
+      { name: 'APPLE TV+', base: 'apple-tv-plus', color: 'gray', hex: '#A2AAAD' },
+      { name: 'DISNEY+', base: 'disney-plus', color: 'blue', hex: '#3E82F7' },
+      { name: 'HBO MAX', base: 'hbo-max', color: 'purple', hex: '#9B51E0' },
+      { name: 'PARAMOUNT+', base: 'paramount-plus', color: 'blue', hex: '#0064FF' },
+      { name: 'HULU', base: 'hulu', color: 'green', hex: '#1CE783' },
+      { name: 'CRUNCHYROLL', base: 'crunchyroll', color: 'orange', hex: '#F47521' }
     ];
     return {
       ...sec,
@@ -3045,8 +3068,8 @@ function enrichSectionForDisplay(sec, pack) {
       hiddenCount: Math.max(0, (sec.total || 9) - sList.length),
       items: sList.map(s => ({
         name: s.name,
-        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/${s.img}`,
-        ...copyStyle(hasColorSuffix ? { text: s.color, border: s.color, bg: `${s.color}24` } : {})
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/${getImg('streaming', s.base, s.color)}`,
+        ...copyStyle(hasColorSuffix ? { text: s.hex, border: s.hex, bg: `${s.hex}24` } : {})
       }))
     };
   }

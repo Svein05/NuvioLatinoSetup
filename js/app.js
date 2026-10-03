@@ -2218,11 +2218,19 @@ class AppController {
         const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
         const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
         const badgesHtml = (sec.items || []).map(b => {
+          const isFlag = (sec.id === 'glang');
+          const isSub = (sec.id === 'gsub');
+          const imgClass = isFlag
+            ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
+            : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
+          const widthAttr = isFlag ? 'width="21"' : '';
+          const heightAttr = 'height="14"';
+
           return `
             <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
                   style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
                   title="${b.name}">
-              ${b.img ? `<img src="${b.img}" alt="${b.name}" class="h-3.5 max-h-[15px] w-auto object-contain block" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
+              ${b.img ? `<img src="${b.img}" alt="${b.name}" ${widthAttr} ${heightAttr} class="${imgClass}" loading="eager" decoding="async" onload="window.appController && window.appController.handleBadgeImgLoaded(this)" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; window.appController && window.appController.handleBadgeImgLoaded(this);"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
             </span>
           `;
         }).join('');
@@ -2279,7 +2287,8 @@ class AppController {
 
     // Ajuste dinámico inteligente: llena el ancho de las filas y oculta desbordes
     requestAnimationFrame(() => this.fitBadgesDynamically());
-    setTimeout(() => this.fitBadgesDynamically(), 150);
+    setTimeout(() => this.fitBadgesDynamically(), 100);
+    setTimeout(() => this.fitBadgesDynamically(), 300);
 
     // Observer para recalcular ante cambios de tamaño de pantalla o contenedor
     if (!this.badgesResizeObserver && window.ResizeObserver) {
@@ -2289,12 +2298,29 @@ class AppController {
       const grid = document.getElementById('badgesGrid');
       if (grid) this.badgesResizeObserver.observe(grid);
     }
+    if (!this._windowResizeListenerAdded) {
+      this._windowResizeListenerAdded = true;
+      window.addEventListener('resize', () => {
+        if (this._badgeResizeDebounce) clearTimeout(this._badgeResizeDebounce);
+        this._badgeResizeDebounce = setTimeout(() => this.fitBadgesDynamically(), 50);
+      });
+    }
+  }
+
+  /**
+   * Recálculo debounced cuando una imagen termina de cargar en el navegador
+   */
+  handleBadgeImgLoaded(img) {
+    if (this._badgeFitDebounce) clearTimeout(this._badgeFitDebounce);
+    this._badgeFitDebounce = setTimeout(() => {
+      this.fitBadgesDynamically();
+    }, 40);
   }
 
   /**
    * Adapta dinámicamente los badges en cada caja para ocupar el espacio horizontal disponible:
    * - Muestra todos los distintivos posibles que quepan en las primeras 2 líneas completas
-   * - Si un distintivo cae a una 3ª línea, se oculta limpiamente
+   * - Si un distintivo cae a una 3ª línea o desborda horizontalmente, se oculta limpiamente
    * - Actualiza el contador dinámico "+N" reflejando la cantidad exacta que no pudo ser mostrada
    */
   fitBadgesDynamically() {
@@ -2309,34 +2335,53 @@ class AppController {
       const chips = Array.from(flow.querySelectorAll('.badge-chip'));
       if (chips.length === 0) return;
 
-      // 1. Mostrar temporalmente todos los chips para poder medir con precisión su offsetTop
+      // 1. Mostrar temporalmente todos los chips para medir geometría real
       chips.forEach(c => {
         c.style.display = '';
       });
 
-      // 2. Medir las alturas relativas de línea (permitir hasta 2 líneas de chips visibles)
+      const flowWidth = flow.clientWidth;
+      if (flowWidth <= 0) return;
+
+      // 2. Medir alturas de línea y límites horizontales (máximo 2 líneas completas)
       const firstTop = chips[0].offsetTop;
       let secondTop = null;
+      let reachedLimit = false;
 
-      chips.forEach(c => {
+      for (let i = 0; i < chips.length; i++) {
+        const c = chips[i];
+        if (reachedLimit) {
+          c.style.display = 'none';
+          continue;
+        }
+
         const top = c.offsetTop;
         if (top > firstTop + 4 && secondTop === null) {
           secondTop = top;
         }
 
-        // Si salta a una 3ª línea (o posterior), se oculta
+        // Si salta a una 3ª línea (o posterior): alcanzamos el límite
         if (secondTop !== null && top > secondTop + 4) {
+          reachedLimit = true;
           c.style.display = 'none';
+          continue;
         }
-      });
 
-      // 3. Calcular cantidad de chips ocultos por desborde a líneas 3+
+        // Si el chip se desborda horizontalmente del contenedor:
+        if (c.offsetLeft + c.offsetWidth > flowWidth + 2) {
+          reachedLimit = true;
+          c.style.display = 'none';
+          continue;
+        }
+      }
+
+      // 3. Calcular cantidad de chips ocultos por desborde
       const hiddenInDom = chips.filter(c => c.style.display === 'none').length;
       const visibleCount = chips.length - hiddenInDom;
       const totalCount = counterEl ? (parseInt(counterEl.dataset.total, 10) || chips.length) : chips.length;
 
-      // REGLA FUNDAMENTAL: Solo mostrar "+N" si realmente se desbordaron elementos a líneas posteriores (hiddenInDom > 0).
-      // Si todos los elementos caben en las 2 líneas, no hay nada oculto y NUNCA se muestra un "+N" fantasma con espacio sobrante.
+      // REGLA FUNDAMENTAL: Solo mostrar "+N" si realmente se desbordaron elementos (hiddenInDom > 0).
+      // Si todos los elementos caben en las 2 líneas, no hay nada oculto y NUNCA se muestra un "+N" fantasma.
       const hiddenCount = (hiddenInDom > 0) ? Math.max(hiddenInDom, totalCount - visibleCount) : 0;
 
       if (counterEl) {
@@ -2654,6 +2699,7 @@ class AppController {
           galleryBadges.classList.add('is-open');
           this.renderBadgeModulesUI();
           this.renderBadgesGrid();
+          setTimeout(() => this.fitBadgesDynamically(), 450);
         } else {
           galleryBadges.classList.remove('is-open');
         }

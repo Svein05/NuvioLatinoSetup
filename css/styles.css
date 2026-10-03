@@ -1255,3 +1255,34 @@ header.lat-floating-nav nav {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Estilos y dimensiones garantizadas para chips e imágenes de badges */
+.badge-chip {
+  min-height: 24px;
+  min-width: 26px;
+  box-sizing: border-box;
+}
+
+.badge-chip img {
+  height: 14px;
+  max-height: 15px;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.badge-chip img.badge-flag-img {
+  width: 21px;
+  height: 14px;
+  aspect-ratio: 3 / 2;
+}
+
+.badge-chip img.badge-sub-img {
+  min-width: 28px;
+  height: 14px;
+  aspect-ratio: 2.1 / 1;
+}
+
+.badges-flow-container {
+  overflow: hidden;
+}
+
