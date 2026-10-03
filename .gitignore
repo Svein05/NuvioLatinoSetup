@@ -19,7 +19,8 @@ run.pyc
 # Residual / removed files
 Plantilla.html
 run.py
-scripts/__pycache__/
+scripts/
+design-reference/
 
 # Debug / analysis files (not part of source)
 collectionResultante.json
