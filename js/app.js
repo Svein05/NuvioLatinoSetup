@@ -1992,7 +1992,7 @@ class AppController {
 
     this.moveBadgeModule = (id, delta) => {
       const activeIds = state.preferences.activeBadgeModules || [];
-      const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size'])];
+      const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'])];
       const activeOrdered = order.filter(x => activeIds.includes(x));
       const curIdx = activeOrdered.indexOf(id);
       const targetIdx = curIdx + delta;
@@ -2198,7 +2198,7 @@ class AppController {
 
     const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
     const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
-    const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size'];
+    const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
 
     container.innerHTML = BADGE_PACKS.map(pack => {
       const isSelected = (pack.id === selectedPackId);
@@ -2330,10 +2330,14 @@ class AppController {
         }
       });
 
-      // 3. Calcular cantidad visible y actualizar contador +N en vivo
-      const visibleCount = chips.filter(c => c.style.display !== 'none').length;
+      // 3. Calcular cantidad de chips ocultos por desborde a líneas 3+
+      const hiddenInDom = chips.filter(c => c.style.display === 'none').length;
+      const visibleCount = chips.length - hiddenInDom;
       const totalCount = counterEl ? (parseInt(counterEl.dataset.total, 10) || chips.length) : chips.length;
-      const hiddenCount = Math.max(0, totalCount - visibleCount);
+
+      // REGLA FUNDAMENTAL: Solo mostrar "+N" si realmente se desbordaron elementos a líneas posteriores (hiddenInDom > 0).
+      // Si todos los elementos caben en las 2 líneas, no hay nada oculto y NUNCA se muestra un "+N" fantasma con espacio sobrante.
+      const hiddenCount = (hiddenInDom > 0) ? Math.max(hiddenInDom, totalCount - visibleCount) : 0;
 
       if (counterEl) {
         if (hiddenCount > 0) {

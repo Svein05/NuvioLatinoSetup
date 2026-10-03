@@ -2654,8 +2654,7 @@ export const BADGE_MODULE_DEFINITIONS = [
   { id: 'gst', labelEs: 'Tags Especiales', defaultActive: true },
   { id: 'gs', labelEs: 'Streaming', defaultActive: false },
   { id: 'glang', labelEs: 'Idiomas', defaultActive: false },
-  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: false },
-  { id: 'size', labelEs: 'Tamaño (GB / MB)', defaultActive: false }
+  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: false }
 ];
 
 export const BADGE_MODULE_TRANSLATIONS = {
@@ -2668,7 +2667,6 @@ export const BADGE_MODULE_TRANSLATIONS = {
   gs: 'Streaming',
   glang: 'Idiomas',
   gsub: 'Subtítulos',
-  size: 'Tamaño',
   resolution: 'Resolución',
   quality: 'Calidad',
   visual: 'Formato Visual',
@@ -2729,7 +2727,7 @@ function enrichSectionForDisplay(sec, pack) {
   const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange|-red|-yellow|-cyan|-gray|-purple/.test(it.img));
   const hasLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
 
-  // 1. IDIOMAS (18 banderas priorizadas: Latino, España y globales)
+  // 1. IDIOMAS (46 banderas globales priorizando Latino y España)
   if (sec.id === 'glang') {
     const langs = [
       { name: 'Latino', img: 'latino.png' },
@@ -2749,13 +2747,41 @@ function enrichSectionForDisplay(sec, pack) {
       { name: 'Swedish', img: 'swedish.png' },
       { name: 'Arabic', img: 'arabic.png' },
       { name: 'Hindi', img: 'hindi.png' },
-      { name: 'Greek', img: 'greek.png' }
+      { name: 'Greek', img: 'greek.png' },
+      { name: 'Danish', img: 'danish.png' },
+      { name: 'Norwegian', img: 'norwegian.png' },
+      { name: 'Finnish', img: 'finnish.png' },
+      { name: 'Czech', img: 'czech.png' },
+      { name: 'Hungarian', img: 'hungarian.png' },
+      { name: 'Romanian', img: 'romanian.png' },
+      { name: 'Thai', img: 'thai.png' },
+      { name: 'Vietnamese', img: 'vietnamese.png' },
+      { name: 'Indonesian', img: 'indonesian.png' },
+      { name: 'Ukrainian', img: 'ukrainian.png' },
+      { name: 'Hebrew', img: 'hebrew.png' },
+      { name: 'Catalan', img: 'catalan.png' },
+      { name: 'Bengali', img: 'bengali.png' },
+      { name: 'Bulgarian', img: 'bulgarian.png' },
+      { name: 'Croatian', img: 'croatian.png' },
+      { name: 'Estonian', img: 'estonian.png' },
+      { name: 'Filipino', img: 'filipino.png' },
+      { name: 'Icelandic', img: 'icelandic.png' },
+      { name: 'Irish', img: 'irish.png' },
+      { name: 'Lithuanian', img: 'lithuanian.png' },
+      { name: 'Malay', img: 'malay.png' },
+      { name: 'Persian', img: 'persian.png' },
+      { name: 'Serbian', img: 'serbian.png' },
+      { name: 'Slovak', img: 'slovak.png' },
+      { name: 'Slovenian', img: 'slovenian.png' },
+      { name: 'Tamil', img: 'tamil.png' },
+      { name: 'Telugu', img: 'telugu.png' },
+      { name: 'Urdu', img: 'urdu.png' }
     ];
     return {
       ...sec,
       name: sec.name || 'Language',
-      total: Math.max(sec.total || 48, 48),
-      hiddenCount: Math.max(0, (sec.total || 48) - langs.length),
+      total: langs.length,
+      hiddenCount: 0,
       items: langs.map(l => ({
         name: l.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/${l.img}`,
@@ -2764,7 +2790,7 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 2. SUBTÍTULOS (18 subtítulos priorizados: Latino, España y globales)
+  // 2. SUBTÍTULOS (46 subtítulos globales priorizando Latino y España)
   if (sec.id === 'gsub') {
     const suffix = hasLightBlue ? '-light-blue.png' : '.png';
     const subs = [
@@ -2785,13 +2811,41 @@ function enrichSectionForDisplay(sec, pack) {
       { name: 'Swedish Sub', img: `swedish${suffix}` },
       { name: 'Arabic Sub', img: `arabic${suffix}` },
       { name: 'Hindi Sub', img: `hindi${suffix}` },
-      { name: 'Greek Sub', img: `greek${suffix}` }
+      { name: 'Greek Sub', img: `greek${suffix}` },
+      { name: 'Danish Sub', img: `danish${suffix}` },
+      { name: 'Norwegian Sub', img: `norwegian${suffix}` },
+      { name: 'Finnish Sub', img: `finnish${suffix}` },
+      { name: 'Czech Sub', img: `czech${suffix}` },
+      { name: 'Hungarian Sub', img: `hungarian${suffix}` },
+      { name: 'Romanian Sub', img: `romanian${suffix}` },
+      { name: 'Thai Sub', img: `thai${suffix}` },
+      { name: 'Vietnamese Sub', img: `vietnamese${suffix}` },
+      { name: 'Indonesian Sub', img: `indonesian${suffix}` },
+      { name: 'Ukrainian Sub', img: `ukrainian${suffix}` },
+      { name: 'Hebrew Sub', img: `hebrew${suffix}` },
+      { name: 'Catalan Sub', img: `catalan${suffix}` },
+      { name: 'Bengali Sub', img: `bengali${suffix}` },
+      { name: 'Bulgarian Sub', img: `bulgarian${suffix}` },
+      { name: 'Croatian Sub', img: `croatian${suffix}` },
+      { name: 'Estonian Sub', img: `estonian${suffix}` },
+      { name: 'Filipino Sub', img: `filipino${suffix}` },
+      { name: 'Icelandic Sub', img: `icelandic${suffix}` },
+      { name: 'Irish Sub', img: `irish${suffix}` },
+      { name: 'Lithuanian Sub', img: `lithuanian${suffix}` },
+      { name: 'Malay Sub', img: `malay${suffix}` },
+      { name: 'Persian Sub', img: `persian${suffix}` },
+      { name: 'Serbian Sub', img: `serbian${suffix}` },
+      { name: 'Slovak Sub', img: `slovak${suffix}` },
+      { name: 'Slovenian Sub', img: `slovenian${suffix}` },
+      { name: 'Tamil Sub', img: `tamil${suffix}` },
+      { name: 'Telugu Sub', img: `telugu${suffix}` },
+      { name: 'Urdu Sub', img: `urdu${suffix}` }
     ];
     return {
       ...sec,
       name: sec.name || 'Subtitle',
-      total: Math.max(sec.total || 48, 48),
-      hiddenCount: Math.max(0, (sec.total || 48) - subs.length),
+      total: subs.length,
+      hiddenCount: 0,
       items: subs.map(s => ({
         name: s.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/${s.img}`,
@@ -2909,7 +2963,7 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 7. VISUAL (hasta 10 tipos de video/HDR)
+  // 7. VISUAL (11 tipos de formato visual/HDR)
   if (sec.id === 'gv') {
     const vList = [
       { name: 'DV · HDR10+', img: hasColorSuffix ? 'dolby-vision-hdr10-plus-gold.png' : 'dolby-vision-hdr10-plus.png', color: '#FFD500' },
@@ -2921,13 +2975,14 @@ function enrichSectionForDisplay(sec, pack) {
       { name: 'HDR', img: hasColorSuffix ? 'hdr-green.png' : 'hdr.png', color: '#2EB853' },
       { name: 'HLG', img: hasColorSuffix ? 'hlg-orange.png' : 'hlg.png', color: '#FF7300' },
       { name: '10bit', img: hasColorSuffix ? '10bit-orange.png' : '10bit.png', color: '#FF7300' },
-      { name: 'SDR', img: hasColorSuffix ? 'sdr-orange.png' : 'sdr.png', color: '#FF7300' }
+      { name: 'SDR', img: hasColorSuffix ? 'sdr-orange.png' : 'sdr.png', color: '#FF7300' },
+      { name: 'AI', img: hasColorSuffix ? 'ai-red.png' : 'ai.png', color: '#E53935' }
     ];
     return {
       ...sec,
       name: sec.name || 'Visual',
-      total: Math.max(sec.total || 10, 10),
-      hiddenCount: Math.max(0, (sec.total || 10) - vList.length),
+      total: vList.length,
+      hiddenCount: 0,
       items: vList.map(v => ({
         name: v.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/${v.img}`,
@@ -3005,23 +3060,6 @@ export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
   (pack.sections || []).forEach(sec => {
     sectionsMap.set(sec.id, enrichSectionForDisplay(sec, pack));
   });
-
-  // Si 'size' está activo pero no existe en el pack, generamos chips estilizados acordes al pack
-  if (activeSet.has('size') && !sectionsMap.has('size')) {
-    const accent = pack.accentColor || '#ffd479';
-    sectionsMap.set('size', {
-      id: 'size',
-      name: 'Tamaño',
-      total: 4,
-      hiddenCount: 0,
-      items: [
-        { name: '18.4 GB', text: accent, border: accent, bg: 'rgba(255,255,255,0.08)' },
-        { name: '4.2 GB', text: '#ffffff', border: 'rgba(255,255,255,0.3)', bg: 'rgba(255,255,255,0.06)' },
-        { name: '850 MB', text: '#a1a1aa', border: 'rgba(255,255,255,0.2)', bg: 'rgba(255,255,255,0.04)' },
-        { name: '320 MB', text: '#71717a', border: 'rgba(255,255,255,0.15)', bg: 'rgba(255,255,255,0.02)' }
-      ]
-    });
-  }
 
   const result = [];
   // Respetar la secuencia ordenada definida por el usuario

@@ -19,7 +19,7 @@ class WizardState {
       badgesEnabled: false,
       selectedBadgePack: 'tinted',
       activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'],
-      badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size']
+      badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub']
     };
 
     // Autenticación Nuvio (Supabase)
