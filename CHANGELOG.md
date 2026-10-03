@@ -28,8 +28,6 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
   - Reorganización centrada de los botones de descarga de respaldos JSON directamente bajo la clave maestra.
   - Reemplazo del ícono de enriquecimiento en el resumen de configuración por `fa-wand-magic-sparkles` compatible con Font Awesome Free.
   - Homogeneización de los 4 pilares informativos de la portada con íconos amarillos dorados (`#ffd479`) y cajas de cristal idénticas.
-- **Saneamiento del Repositorio:**
-  - Exclusión de herramientas locales de actualización de pósters en `.gitignore` para preservar el repositorio limpio de scripts administrativos.
 
 ---
 
