@@ -390,7 +390,7 @@ class AppController {
   }
 
   /**
-   * Sistema de Notificaciones Flotantes (Toasts)
+   * Sistema de Notificaciones Flotantes (Toasts) Cinemático LAT-ADD
    * @param {string} message 
    * @param {'info' | 'success' | 'warning' | 'error'} type 
    * @param {number} duration 
@@ -400,39 +400,43 @@ class AppController {
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = 'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-medium';
+    toast.className = 'lat-toast is-entering';
 
-    let icon = 'fa-circle-info text-brand-400';
-    let colors = 'bg-slate-900/95 border-brand-500/40 text-slate-100 shadow-brand-950/40';
+    let badgeIcon = 'fa-circle-info';
+    let badgeStyle = 'bg-white/[0.08] border-white/20 text-[#ffd479]';
 
     if (type === 'success') {
-      icon = 'fa-circle-check text-emerald-400';
-      colors = 'bg-slate-900/95 border-emerald-500/40 text-emerald-100 shadow-emerald-950/40';
+      badgeIcon = 'fa-check';
+      badgeStyle = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400';
     } else if (type === 'error') {
-      icon = 'fa-circle-exclamation text-rose-400';
-      colors = 'bg-slate-900/95 border-rose-500/40 text-rose-100 shadow-rose-950/40';
+      badgeIcon = 'fa-xmark';
+      badgeStyle = 'bg-rose-500/15 border-rose-500/30 text-rose-400';
     } else if (type === 'warning') {
-      icon = 'fa-triangle-exclamation text-amber-400';
-      colors = 'bg-slate-900/95 border-amber-500/40 text-amber-100 shadow-amber-950/40';
+      badgeIcon = 'fa-triangle-exclamation';
+      badgeStyle = 'bg-amber-500/15 border-amber-500/30 text-amber-300';
     }
 
-    toast.className += ` ${colors}`;
+    // Limpiar caracteres redundantes al inicio del mensaje para mayor elegancia visual
+    const cleanMessage = String(message).replace(/^[✓✔🎉⚠️💡]\s*/u, '').trim();
+
     toast.innerHTML = `
-      <i class="fa-solid ${icon} text-base shrink-0"></i>
-      <span class="flex-1 leading-snug">${message}</span>
+      <div class="w-6 h-6 rounded-full border ${badgeStyle} flex items-center justify-center shrink-0 text-[11px] shadow-[var(--brillo-vidrio)]">
+        <i class="fa-solid ${badgeIcon}"></i>
+      </div>
+      <span class="text-white/90 text-xs font-medium leading-snug">${cleanMessage}</span>
     `;
 
     container.appendChild(toast);
 
     requestAnimationFrame(() => {
-      toast.classList.remove('translate-y-2', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
+      toast.classList.remove('is-entering');
+      toast.classList.add('is-visible');
     });
 
     setTimeout(() => {
-      toast.classList.remove('translate-y-0', 'opacity-100');
-      toast.classList.add('translate-y-2', 'opacity-0');
-      setTimeout(() => toast.remove(), 300);
+      toast.classList.remove('is-visible');
+      toast.classList.add('is-leaving');
+      setTimeout(() => toast.remove(), 280);
     }, duration);
   }
 
@@ -692,10 +696,12 @@ class AppController {
 
     const val = state.validateStep(state.currentStep);
     if (val.valid) {
-      btnNext.className = "px-4 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-500 text-white transition-all flex items-center gap-1.5 shadow-md shadow-brand-500/20 cursor-pointer";
+      btnNext.disabled = false;
+      btnNext.className = "lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-lift)] cursor-pointer flex items-center gap-1.5";
       btnNext.title = "Avanzar al siguiente paso";
     } else {
-      btnNext.className = "px-4 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-500 border border-slate-700/60 shadow-none transition-all flex items-center gap-1.5 cursor-not-allowed";
+      btnNext.disabled = true;
+      btnNext.className = "lat-capsule-btn glass opacity-40 text-xs py-1.5 px-4 cursor-not-allowed flex items-center gap-1.5";
       btnNext.title = val.error || "Completa este paso para continuar";
     }
   }
@@ -717,11 +723,11 @@ class AppController {
     const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
     if (hasPassword) {
       btnExecute.disabled = false;
-      btnExecute.className = "px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-sm transition-all flex items-center gap-2 shadow-lg shadow-brand-600/30 cursor-pointer";
+      btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
       btnExecute.title = "Ejecutar la inyección y configuración automática";
     } else {
       btnExecute.disabled = true;
-      btnExecute.className = "px-6 py-3 bg-slate-800 text-slate-500 border border-slate-700/60 font-medium rounded-xl text-sm transition-all flex items-center gap-2 cursor-not-allowed shadow-none";
+      btnExecute.className = "lat-capsule-btn glass opacity-40 px-7 py-3 text-sm flex items-center gap-2 cursor-not-allowed shadow-none";
       btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
     }
   }
@@ -735,19 +741,19 @@ class AppController {
 
     if (hasPassword) {
       btnCopyAio.disabled = false;
-      btnCopyAio.className = "px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-xs transition-all shadow-lg shadow-brand-600/25 flex items-center gap-2 cursor-pointer";
+      btnCopyAio.className = "lat-capsule-btn solid text-xs py-2 px-4 shadow-[var(--shadow-lift)] flex items-center gap-2 cursor-pointer";
       btnCopyAio.title = "Copiar JSON de configuración de AIOMetadata";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = false;
-        btnDownloadAio.className = "px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer";
+        btnDownloadAio.className = "lat-capsule-btn glass px-4 py-3 text-xs flex items-center gap-2 cursor-pointer";
       }
     } else {
       btnCopyAio.disabled = true;
-      btnCopyAio.className = "px-4 py-2.5 bg-slate-800 text-slate-500 border border-slate-700/60 font-semibold rounded-xl text-xs transition-all shadow-none flex items-center gap-2 cursor-not-allowed";
+      btnCopyAio.className = "lat-capsule-btn glass opacity-40 text-xs py-2 px-4 cursor-not-allowed flex items-center gap-2 shadow-none";
       btnCopyAio.title = "Ingresa una contraseña para el addon (mínimo 4 caracteres) primero";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = true;
-        btnDownloadAio.className = "px-4 py-3 bg-slate-950 text-slate-600 border border-slate-900 rounded-xl text-xs transition-all flex items-center gap-2 cursor-not-allowed";
+        btnDownloadAio.className = "lat-capsule-btn glass opacity-40 px-4 py-3 text-xs flex items-center gap-2 cursor-not-allowed";
       }
     }
   }
@@ -810,25 +816,28 @@ class AppController {
 
     let authMode = 'login'; // 'login' | 'signup'
 
+    const pillIndicator = document.getElementById('authPillIndicator');
+
     const validatePasswordMatch = () => {
       if (authMode !== 'signup' || !confirmInput || !matchBadge) return;
       const p1 = passInput ? passInput.value : '';
       const p2 = confirmInput ? confirmInput.value : '';
+      const baseInputClass = "w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all focus:outline-none focus:ring-2";
 
       if (!p2) {
-        matchBadge.className = 'text-[11px] text-slate-500 mt-1 hidden flex items-center gap-1 font-medium';
+        matchBadge.className = 'text-[11px] text-white/40 mt-1 hidden flex items-center gap-1 font-medium';
         matchBadge.innerHTML = '';
-        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-slate-800 focus:outline-none focus:border-brand-500 text-sm text-slate-200 transition-colors';
+        confirmInput.className = `${baseInputClass} border border-white/[0.12] focus:border-white/40 focus:ring-white/10`;
         return;
       }
 
       matchBadge.classList.remove('hidden');
       if (p1 === p2) {
-        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-emerald-500/60 focus:outline-none focus:border-emerald-500 text-sm text-slate-200 transition-colors';
+        confirmInput.className = `${baseInputClass} border border-emerald-400/60 focus:border-emerald-400 focus:ring-emerald-400/20`;
         matchBadge.className = 'text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium';
         matchBadge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Las contraseñas coinciden perfectamente.</span>';
       } else {
-        confirmInput.className = 'w-full px-4 py-2.5 pr-10 rounded-xl bg-slate-950 border border-rose-500/60 focus:outline-none focus:border-rose-500 text-sm text-slate-200 transition-colors';
+        confirmInput.className = `${baseInputClass} border border-rose-400/60 focus:border-rose-400 focus:ring-rose-400/20`;
         matchBadge.className = 'text-[11px] text-rose-400 mt-1 flex items-center gap-1 font-medium';
         matchBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i> <span>Las contraseñas no coinciden.</span>';
       }
@@ -837,11 +846,14 @@ class AppController {
     const switchAuthMode = (mode) => {
       authMode = mode;
       if (mode === 'login') {
+        if (pillIndicator) {
+          pillIndicator.classList.remove('signup');
+        }
         if (tabLogin) {
-          tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-brand-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+          tabLogin.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-semibold text-[#08090c] transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (tabSignup) {
-          tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
+          tabSignup.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
@@ -851,11 +863,14 @@ class AppController {
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
       } else {
+        if (pillIndicator) {
+          pillIndicator.classList.add('signup');
+        }
         if (tabSignup) {
-          tabSignup.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all bg-emerald-600 text-white shadow-sm flex items-center justify-center gap-1.5";
+          tabSignup.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-semibold text-[#08090c] transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (tabLogin) {
-          tabLogin.className = "flex-1 py-1.5 px-3 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1.5";
+          tabLogin.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
         }
         if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
         if (hintText) hintText.classList.remove('hidden');
@@ -1123,6 +1138,31 @@ class AppController {
     }
   }
 
+  openNewProfileModal() {
+    if (state.profiles && state.profiles.length >= 6) {
+      this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
+      return;
+    }
+    const modal = document.getElementById('modalNewProfile');
+    const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (nameInput) {
+        nameInput.value = '';
+        nameInput.focus();
+      }
+    }
+  }
+
+  closeNewProfileModal() {
+    const modal = document.getElementById('modalNewProfile');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
   setupStep2Profiles() {
     this.renderProfiles();
 
@@ -1133,33 +1173,15 @@ class AppController {
     const btnConfirmModal = document.getElementById('btnConfirmNewProfile') || document.getElementById('btnCreateProfile');
     const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
 
-    if (btnOpenModal && modal) {
-      btnOpenModal.addEventListener('click', () => {
-        if (state.profiles && state.profiles.length >= 6) {
-          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
-          return;
-        }
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        if (nameInput) {
-          nameInput.value = '';
-          nameInput.focus();
-        }
-      });
+    if (btnOpenModal) {
+      btnOpenModal.addEventListener('click', () => this.openNewProfileModal());
     }
 
-    const closeModal = () => {
-      if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-    };
-
-    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
-    if (btnCancelModal) btnCancelModal.addEventListener('click', closeModal);
+    if (btnCloseModal) btnCloseModal.addEventListener('click', () => this.closeNewProfileModal());
+    if (btnCancelModal) btnCancelModal.addEventListener('click', () => this.closeNewProfileModal());
     if (modal) {
       modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
+        if (e.target === modal) this.closeNewProfileModal();
       });
     }
 
@@ -1167,7 +1189,7 @@ class AppController {
       const handleCreate = async () => {
         if (state.profiles && state.profiles.length >= 6) {
           this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
-          closeModal();
+          this.closeNewProfileModal();
           return;
         }
 
@@ -1203,7 +1225,7 @@ class AppController {
           state.selectedProfileName = newProfile.name || name;
           state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
 
-          closeModal();
+          this.closeNewProfileModal();
           this.saveSession();
           this.renderProfiles();
           this.updateProfileWarning(newProfile.id, newProfile.name || name);
@@ -1252,19 +1274,8 @@ class AppController {
     const container = document.getElementById('profilesList') || document.getElementById('profilesContainer');
     if (!container) return;
 
-    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
-    if (btnOpenModal) {
-      if (state.profiles && state.profiles.length >= 6) {
-        btnOpenModal.classList.add('opacity-50', 'cursor-not-allowed');
-        btnOpenModal.setAttribute('title', 'Límite máximo de 6 perfiles alcanzado en tu cuenta de Nuvio');
-      } else {
-        btnOpenModal.classList.remove('opacity-50', 'cursor-not-allowed');
-        btnOpenModal.removeAttribute('title');
-      }
-    }
-
     if (state.profiles && state.profiles.length > 0) {
-      container.innerHTML = state.profiles.map((p, idx) => {
+      let cardsHtml = state.profiles.map((p, idx) => {
         const isSelected = (state.selectedProfileId !== null && state.selectedProfileId !== undefined && String(state.selectedProfileId) === String(p.id)) || (state.selectedProfileId === null && idx === 0);
         if (isSelected && state.selectedProfileId === null) {
           state.selectedProfileId = p.id;
@@ -1277,28 +1288,29 @@ class AppController {
 
         return `
           <div onclick="window.appController.selectProfile('${p.id}', '${name.replace(/'/g, "\\'")}')" 
-               class="group relative cursor-pointer p-4 rounded-xl flex flex-col items-center gap-2.5 transition-all duration-200 select-none ${
+               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none min-h-[140px] w-48 sm:w-52 ${
                  isSelected 
-                   ? 'border-2 border-brand-500 ring-4 ring-brand-500/25 bg-brand-500/15 shadow-lg shadow-brand-500/20 transform -translate-y-0.5' 
-                   : 'border border-slate-800 bg-slate-950/50 hover:border-slate-700 hover:bg-slate-900/60 hover:-translate-y-0.5'
-               }">
+                   ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5' 
+                   : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5'
+               }"
+               style="transform: translateZ(0); backface-visibility: hidden;">
             ${isSelected ? `
-              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] shadow-md ring-2 ring-emerald-400/40">
+              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#ffd479] text-[#08090c] flex items-center justify-center text-[10px] shadow-md font-bold">
                 <i class="fa-solid fa-check"></i>
               </div>
             ` : `
-              <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-slate-700 bg-slate-900/80 flex items-center justify-center text-[8px] text-transparent group-hover:border-slate-500">
-                <i class="fa-solid fa-check text-slate-600"></i>
+              <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-white/20 bg-white/[0.05] flex items-center justify-center text-[8px] text-transparent group-hover:border-white/40">
+                <i class="fa-solid fa-check text-white/40"></i>
               </div>
             `}
             <div class="relative">
               <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
-                isSelected ? 'ring-2 ring-brand-400 shadow-md scale-105' : 'ring-1 ring-slate-700 group-hover:ring-slate-500'
+                isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
               }">
             </div>
-            <div class="text-center w-full">
-              <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-slate-300 group-hover:text-white'}">${name}</div>
-              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-emerald-400 font-bold uppercase tracking-wider' : 'text-slate-500 group-hover:text-slate-400'}">
+            <div class="text-center w-full px-1">
+              <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/70 group-hover:text-white'}">${name}</div>
+              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-[#ffd479] font-mono font-bold uppercase tracking-wider' : 'text-white/40 group-hover:text-white/60'}">
                 ${isSelected ? '✓ Seleccionado' : 'Click para elegir'}
               </div>
             </div>
@@ -1306,14 +1318,32 @@ class AppController {
         `;
       }).join('');
 
+      // Tarjeta interactiva "Nuevo Perfil" visible únicamente si hay menos de 6 perfiles
+      if (state.profiles.length < 6) {
+        cardsHtml += `
+          <div id="cardNewProfile" onclick="window.appController.openNewProfileModal()"
+               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none border-2 border-dashed border-white/20 hover:border-white/50 bg-white/[0.02] hover:bg-white/[0.06] hover:-translate-y-0.5 min-h-[140px] w-48 sm:w-52"
+               style="transform: translateZ(0); backface-visibility: hidden;">
+            <div class="w-12 h-12 rounded-full border border-white/25 bg-white/[0.06] flex items-center justify-center text-white/70 group-hover:text-white group-hover:border-white/60 group-hover:scale-105 transition-all shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-plus text-base"></i>
+            </div>
+            <div class="text-center w-full">
+              <div class="text-xs font-semibold text-white/70 group-hover:text-white transition-colors">Nuevo Perfil</div>
+              <div class="text-[10px] mt-0.5 text-white/40 group-hover:text-white/60 font-mono">${state.profiles.length}/6 perfiles</div>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = cardsHtml;
       this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
     } else {
       container.innerHTML = `
-        <div class="col-span-full py-8 text-center bg-slate-950/40 border border-slate-800/80 rounded-xl p-6">
-          <i class="fa-solid fa-user-circle text-4xl text-slate-600 mb-2"></i>
-          <p class="text-sm font-medium text-slate-300">No se encontraron perfiles en tu cuenta de Nuvio</p>
-          <p class="text-xs text-slate-500 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
-          <button type="button" onclick="document.getElementById('btnOpenNewProfileModal')?.click()" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-md shadow-brand-500/20">
+        <div class="w-full py-8 text-center bg-white/[0.03] border border-white/10 rounded-2xl p-6" style="transform: translateZ(0);">
+          <i class="fa-solid fa-user-circle text-4xl text-white/30 mb-2"></i>
+          <p class="text-sm font-medium text-white/90">No se encontraron perfiles en tu cuenta de Nuvio</p>
+          <p class="text-xs text-white/50 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
+          <button type="button" onclick="window.appController.openNewProfileModal()" class="lat-capsule-btn solid text-xs">
             <i class="fa-solid fa-plus"></i>
             <span>Crear mi primer perfil</span>
           </button>
@@ -1745,13 +1775,37 @@ class AppController {
   setupStep5Preferences() {
     const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
     const toggleRatings = document.getElementById('toggleMdblistRatings');
+    const labelEnrichment = document.getElementById('labelTmdbEnrichment');
+    const labelRatings = document.getElementById('labelMdblistRatings');
     const customBetterInput = document.getElementById('customUrlBetterposter');
     const customPlusInput = document.getElementById('customUrlPostersplus');
+
+    const updateToggleLabels = () => {
+      if (toggleEnrichment && labelEnrichment) {
+        if (toggleEnrichment.checked) {
+          labelEnrichment.textContent = 'Activado';
+          labelEnrichment.className = 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider';
+        } else {
+          labelEnrichment.textContent = 'Desactivado';
+          labelEnrichment.className = 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+        }
+      }
+      if (toggleRatings && labelRatings) {
+        if (toggleRatings.checked) {
+          labelRatings.textContent = 'Activado';
+          labelRatings.className = 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider';
+        } else {
+          labelRatings.textContent = 'Desactivado';
+          labelRatings.className = 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+        }
+      }
+    };
 
     if (toggleEnrichment) {
       toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
       toggleEnrichment.addEventListener('change', (e) => {
         state.preferences.tmdbEnrichment = e.target.checked;
+        updateToggleLabels();
         this.updateNavigationButtons();
       });
     }
@@ -1760,9 +1814,11 @@ class AppController {
       toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
       toggleRatings.addEventListener('change', (e) => {
         state.preferences.mdblistRatings = e.target.checked;
+        updateToggleLabels();
         this.updateNavigationButtons();
       });
     }
+    updateToggleLabels();
 
     if (customBetterInput) {
       customBetterInput.addEventListener('input', (e) => {
@@ -2060,14 +2116,14 @@ class AppController {
       const checkIcon = el.querySelector('.card-check-icon');
 
       if (isSelected) {
-        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-brand-500 shadow-lg shadow-brand-500/10 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        el.className = "poster-option-card relative p-5 rounded-[24px] bg-white/[0.08] border-2 border-[#ffd479] shadow-[0_0_25px_rgba(255,212,121,0.2)] cursor-pointer transition-all flex flex-col justify-between gap-3 group";
         if (checkIcon) {
-          checkIcon.className = "w-5 h-5 rounded-full border-2 border-brand-500 bg-brand-500 flex items-center justify-center text-[10px] text-white card-check-icon";
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] card-check-icon font-bold shadow-sm";
         }
       } else {
-        el.className = "poster-option-card relative p-4 rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-slate-700 cursor-pointer transition-all flex flex-col justify-between gap-3 group";
+        el.className = "poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]";
         if (checkIcon) {
-          checkIcon.className = "w-5 h-5 rounded-full border-2 border-slate-700 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon";
+          checkIcon.className = "w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent card-check-icon";
         }
       }
     });
@@ -2076,8 +2132,26 @@ class AppController {
   updatePreferencesUI() {
     const toggleEnrichment = document.getElementById('toggleTmdbEnrichment');
     const toggleRatings = document.getElementById('toggleMdblistRatings');
-    if (toggleEnrichment) toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
-    if (toggleRatings) toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+    const labelEnrichment = document.getElementById('labelTmdbEnrichment');
+    const labelRatings = document.getElementById('labelMdblistRatings');
+    if (toggleEnrichment) {
+      toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
+      if (labelEnrichment) {
+        labelEnrichment.textContent = toggleEnrichment.checked ? 'Activado' : 'Desactivado';
+        labelEnrichment.className = toggleEnrichment.checked
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+    }
+    if (toggleRatings) {
+      toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
+      if (labelRatings) {
+        labelRatings.textContent = toggleRatings.checked ? 'Activado' : 'Desactivado';
+        labelRatings.className = toggleRatings.checked
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+    }
     this.updatePosterCardsUI();
     this.updateStep5PosterPreviews();
   }
@@ -2246,13 +2320,13 @@ class AppController {
       const engine = state.preferences?.posterEngine || 'default';
       if (engine === 'betterposter') {
         posterEngineEl.innerText = 'BetterPoster (es-MX)';
-        posterEngineEl.className = 'text-brand-400 font-bold block truncate';
+        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else if (engine === 'postersplus') {
         posterEngineEl.innerText = 'PostersPlus (Badges)';
-        posterEngineEl.className = 'text-indigo-400 font-bold block truncate';
+        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else {
         posterEngineEl.innerText = 'Nativo / Limpio';
-        posterEngineEl.className = 'text-emerald-400 font-bold block truncate';
+        posterEngineEl.className = 'text-white font-medium block truncate';
       }
     }
 
@@ -2261,16 +2335,16 @@ class AppController {
       const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
       if (enr && rat) {
         enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
-        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+        enrichmentEl.className = 'text-white font-medium block truncate';
       } else if (enr) {
         enrichmentEl.innerText = 'Solo TMDB (Activo)';
-        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+        enrichmentEl.className = 'text-white font-medium block truncate';
       } else if (rat) {
         enrichmentEl.innerText = 'Solo MDBList (Activo)';
-        enrichmentEl.className = 'text-slate-200 font-bold block truncate';
+        enrichmentEl.className = 'text-white font-medium block truncate';
       } else {
         enrichmentEl.innerText = 'Desactivados';
-        enrichmentEl.className = 'text-slate-500 font-bold block truncate';
+        enrichmentEl.className = 'text-white/40 font-medium block truncate';
       }
     }
   }
