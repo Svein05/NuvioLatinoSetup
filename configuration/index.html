@@ -101,39 +101,39 @@
   <!-- Barra de Navegación Flotante LAT-ADD Style -->
   <header class="lat-floating-nav">
     <!-- Cápsula Izquierda: Marca -->
-    <a href="../" class="lat-floating-pill px-4 sm:px-5 py-2.5 flex items-center gap-2.5 transition-all hover:bg-white/[0.12] group" title="Volver al Inicio">
-      <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-6 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
-      <span class="text-sm sm:text-[15px] font-semibold tracking-wide text-white hidden sm:inline">Metadata Latino</span>
-      <span class="app-version-badge text-[11px] px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">v1.4.0</span>
+    <a href="../" class="lat-floating-pill px-2.5 sm:px-5 py-2 sm:py-2.5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Volver al Inicio">
+      <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
+      <span class="text-sm sm:text-[15px] font-semibold tracking-wide text-white hidden md:inline">Metadata Latino</span>
+      <span class="app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hidden sm:inline">v1.4.0</span>
     </a>
 
-    <!-- Cápsula Central: Segmented Tabs -->
-    <nav class="lat-floating-pill p-1.5 flex items-center gap-1.5 text-xs sm:text-sm font-medium">
-      <a href="../" class="lat-nav-tab">
+    <!-- Cápsula Central: Segmented Tabs (Solo íconos en móvil, texto en sm:) -->
+    <nav class="lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium">
+      <a href="../" class="lat-nav-tab" aria-label="Inicio" title="Inicio">
         <i class="fa-solid fa-house text-xs"></i>
-        <span>Inicio</span>
+        <span class="hidden sm:inline">Inicio</span>
       </a>
-      <a href="./" class="lat-nav-tab is-active">
+      <a href="./" class="lat-nav-tab is-active" aria-label="Asistente" title="Asistente">
         <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
-        <span>Asistente</span>
+        <span class="hidden sm:inline">Asistente</span>
       </a>
-      <a href="../documentation/" class="lat-nav-tab">
+      <a href="../documentation/" class="lat-nav-tab" aria-label="Documentación" title="Documentación">
         <i class="fa-solid fa-book-open text-xs"></i>
-        <span>Documentación</span>
+        <span class="hidden sm:inline">Documentación</span>
       </a>
     </nav>
 
     <!-- Cápsula Derecha: Discord + GitHub -->
-    <div class="flex items-center gap-2 pointer-events-auto">
+    <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
-         class="lat-floating-pill px-4 py-2.5 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-2" title="Comunidad Discord LAT-ADD">
-        <i class="fa-brands fa-discord text-base text-[#5865F2]"></i>
+         class="lat-floating-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
+        <i class="fa-brands fa-discord text-sm sm:text-base text-[#5865F2]"></i>
         <span class="hidden sm:inline">LAT-ADD</span>
       </a>
 
       <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" 
-         class="lat-floating-pill px-4 py-2.5 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-2" title="Repositorio en GitHub">
-        <i class="fa-brands fa-github text-base"></i>
+         class="lat-floating-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Repositorio en GitHub">
+        <i class="fa-brands fa-github text-sm sm:text-base"></i>
         <span class="hidden sm:inline">GitHub</span>
       </a>
     </div>
@@ -142,24 +142,24 @@
   <!-- Contenedor Principal del Asistente -->
   <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-28 sm:pt-32 pb-12 gap-4">
     
-    <main id="wizardView" class="relative overflow-hidden flex-1 bg-[#0b0d12]/90 border border-white/[0.08] rounded-[28px] p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
+    <main id="wizardView" class="relative overflow-hidden flex-1 bg-[#0b0d12]/90 border border-white/[0.08] rounded-2xl sm:rounded-[28px] p-4 sm:p-6 md:p-8 flex flex-col shadow-[var(--shadow-lift)]">
       
       <!-- Barra de Navegación Superior (Índice / Anterior / Paso X de 6 / Siguiente) -->
       <div class="flex items-center justify-between pb-4 mb-6 border-b border-white/[0.08]">
-        <div class="flex items-center gap-2">
-          <button id="btnOpenIndex" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-3.5 flex items-center gap-1.5" title="Abrir Índice de Pasos">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button id="btnOpenIndex" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-2.5 sm:px-3.5 flex items-center gap-1.5" title="Abrir Índice de Pasos">
             <i class="fa-solid fa-bars text-xs"></i>
             <span class="hidden sm:inline">Índice</span>
           </button>
-          <button id="btnBack" onclick="changeStep(-1)" class="lat-capsule-btn glass text-xs py-1.5 px-3.5 invisible">
-            <i class="fa-solid fa-chevron-left text-[10px]"></i> <span>Anterior</span>
+          <button id="btnBack" onclick="changeStep(-1)" class="lat-capsule-btn glass text-xs py-1.5 px-2.5 sm:px-3.5 invisible" title="Paso anterior">
+            <i class="fa-solid fa-chevron-left text-[10px]"></i> <span class="hidden sm:inline">Anterior</span>
           </button>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
           <span class="text-xs text-white/60 font-mono tracking-wider" id="stepCounter">Paso 1 de 6</span>
-          <button id="btnNext" onclick="changeStep(1)" class="lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-lift)]">
-            <span>Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          <button id="btnNext" onclick="changeStep(1)" class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-4 shadow-[var(--shadow-lift)]" title="Paso siguiente">
+            <span class="hidden sm:inline">Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
         </div>
       </div>
