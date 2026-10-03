@@ -1974,7 +1974,7 @@ class AppController {
 
     this.toggleBadgeModule = (id, isChecked) => {
       if (!state.preferences.activeBadgeModules) {
-        state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
+        state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
       }
       if (isChecked) {
         if (!state.preferences.activeBadgeModules.includes(id)) {
@@ -2197,7 +2197,7 @@ class AppController {
     if (!container) return;
 
     const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
-    const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
+    const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
     const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
 
     container.innerHTML = BADGE_PACKS.map(pack => {

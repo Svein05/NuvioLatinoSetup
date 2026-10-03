@@ -2652,9 +2652,9 @@ export const BADGE_MODULE_DEFINITIONS = [
   { id: 'ga', labelEs: 'Audio', defaultActive: true },
   { id: 'gc', labelEs: 'Canales', defaultActive: true },
   { id: 'gst', labelEs: 'Tags Especiales', defaultActive: true },
-  { id: 'gs', labelEs: 'Streaming', defaultActive: false },
-  { id: 'glang', labelEs: 'Idiomas', defaultActive: false },
-  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: false }
+  { id: 'gs', labelEs: 'Streaming', defaultActive: true },
+  { id: 'glang', labelEs: 'Idiomas', defaultActive: true },
+  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: true }
 ];
 
 export const BADGE_MODULE_TRANSLATIONS = {

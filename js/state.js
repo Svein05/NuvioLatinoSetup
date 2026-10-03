@@ -18,7 +18,7 @@ class WizardState {
       customPosterUrl: '',
       badgesEnabled: false,
       selectedBadgePack: 'tinted',
-      activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'],
+      activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'],
       badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub']
     };
 
