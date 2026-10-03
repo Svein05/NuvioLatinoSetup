@@ -1243,6 +1243,7 @@ header.lat-floating-nav nav {
 .badge-section-box {
   flex: 1 1 200px;
   min-width: 190px;
+  align-self: stretch;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

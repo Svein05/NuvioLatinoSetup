@@ -2726,170 +2726,267 @@ function enrichSectionForDisplay(sec, pack) {
     ...overrides
   });
 
-  // Idiomas: Priorizar Latinoamérica y España, luego internacional
+  const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange|-red|-yellow|-cyan|-gray|-purple/.test(it.img));
+  const hasLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
+
+  // 1. IDIOMAS (18 banderas priorizadas: Latino, España y globales)
   if (sec.id === 'glang') {
+    const langs = [
+      { name: 'Latino', img: 'latino.png' },
+      { name: 'Español', img: 'spanish.png' },
+      { name: 'English', img: 'english.png' },
+      { name: 'Japanese', img: 'japanese.png' },
+      { name: 'Português', img: 'portuguese.png' },
+      { name: 'Français', img: 'french.png' },
+      { name: 'Italiano', img: 'italian.png' },
+      { name: 'Deutsch', img: 'german.png' },
+      { name: 'Russian', img: 'russian.png' },
+      { name: 'Chinese', img: 'chinese.png' },
+      { name: 'Korean', img: 'korean.png' },
+      { name: 'Dutch', img: 'dutch.png' },
+      { name: 'Polish', img: 'polish.png' },
+      { name: 'Turkish', img: 'turkish.png' },
+      { name: 'Swedish', img: 'swedish.png' },
+      { name: 'Arabic', img: 'arabic.png' },
+      { name: 'Hindi', img: 'hindi.png' },
+      { name: 'Greek', img: 'greek.png' }
+    ];
     return {
       ...sec,
       name: sec.name || 'Language',
       total: Math.max(sec.total || 48, 48),
-      hiddenCount: Math.max(0, (sec.total || 48) - 6),
-      items: [
-        { name: 'Latino', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/latino.png', ...copyStyle() },
-        { name: 'Español', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/spanish.png', ...copyStyle() },
-        { name: 'English', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english.png', ...copyStyle() },
-        { name: 'Japanese', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese.png', ...copyStyle() },
-        { name: 'Português', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/portuguese.png', ...copyStyle() },
-        { name: 'Français', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/french.png', ...copyStyle() }
-      ]
+      hiddenCount: Math.max(0, (sec.total || 48) - langs.length),
+      items: langs.map(l => ({
+        name: l.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/${l.img}`,
+        ...copyStyle()
+      }))
     };
   }
 
-  // Subtítulos: Priorizar Latinoamérica y España, luego internacional
+  // 2. SUBTÍTULOS (18 subtítulos priorizados: Latino, España y globales)
   if (sec.id === 'gsub') {
-    const useLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
-    const suffix = useLightBlue ? '-light-blue.png' : '.png';
+    const suffix = hasLightBlue ? '-light-blue.png' : '.png';
+    const subs = [
+      { name: 'Latino Sub', img: `latino${suffix}` },
+      { name: 'Español Sub', img: `spanish${suffix}` },
+      { name: 'English Sub', img: `english${suffix}` },
+      { name: 'Japanese Sub', img: `japanese${suffix}` },
+      { name: 'Português Sub', img: `portuguese${suffix}` },
+      { name: 'Français Sub', img: `french${suffix}` },
+      { name: 'Italiano Sub', img: `italian${suffix}` },
+      { name: 'Deutsch Sub', img: `german${suffix}` },
+      { name: 'Russian Sub', img: `russian${suffix}` },
+      { name: 'Chinese Sub', img: `chinese${suffix}` },
+      { name: 'Korean Sub', img: `korean${suffix}` },
+      { name: 'Dutch Sub', img: `dutch${suffix}` },
+      { name: 'Polish Sub', img: `polish${suffix}` },
+      { name: 'Turkish Sub', img: `turkish${suffix}` },
+      { name: 'Swedish Sub', img: `swedish${suffix}` },
+      { name: 'Arabic Sub', img: `arabic${suffix}` },
+      { name: 'Hindi Sub', img: `hindi${suffix}` },
+      { name: 'Greek Sub', img: `greek${suffix}` }
+    ];
     return {
       ...sec,
       name: sec.name || 'Subtitle',
       total: Math.max(sec.total || 48, 48),
-      hiddenCount: Math.max(0, (sec.total || 48) - 6),
-      items: [
-        { name: 'Latino', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/latino${suffix}`, ...copyStyle() },
-        { name: 'Español', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/spanish${suffix}`, ...copyStyle() },
-        { name: 'English', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english${suffix}`, ...copyStyle() },
-        { name: 'Japanese', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese${suffix}`, ...copyStyle() },
-        { name: 'Português', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/portuguese${suffix}`, ...copyStyle() },
-        { name: 'Français', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/french${suffix}`, ...copyStyle() }
-      ]
+      hiddenCount: Math.max(0, (sec.total || 48) - subs.length),
+      items: subs.map(s => ({
+        name: s.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/${s.img}`,
+        ...copyStyle()
+      }))
     };
   }
 
-  // Resolución: hasta 6 elementos (4K, 1440p, 1080p, 720p, 576p, 480p)
-  if (sec.id === 'gr' && items.length <= 4) {
-    const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange/.test(it.img));
-    const lastItem = items[items.length - 1] || baseItem;
-    const redColor = '#E53935';
-    const enriched = [...items];
-    if (enriched.length === 4) {
-      enriched.push(
-        {
-          name: '576p',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/576p-red.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/576p.png',
-          ...copyStyle(hasColorSuffix ? { text: redColor, border: redColor, bg: 'rgba(229,57,53,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
-        },
-        {
-          name: '480p',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/480p-red.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/480p.png',
-          ...copyStyle(hasColorSuffix ? { text: redColor, border: redColor, bg: 'rgba(229,57,53,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
-        }
-      );
-    }
+  // 3. AUDIO (hasta 14 badges oficiales de alta calidad)
+  if (sec.id === 'ga') {
+    const audioItems = [
+      { name: 'Atmos TrueHD', img: hasColorSuffix ? 'dolby-atmos-truehd-gold.png' : 'dolby-atmos-truehd.png', color: '#FFD500' },
+      { name: 'DTS:X MA', img: hasColorSuffix ? 'dts-x-hd-ma-gold.png' : 'dts-x-hd-ma.png', color: '#FFD500' },
+      { name: 'Atmos Digital+', img: hasColorSuffix ? 'dolby-atmos-digital-plus-blue.png' : 'dolby-atmos-digital-plus.png', color: '#176BE8' },
+      { name: 'DTS-HD MA', img: hasColorSuffix ? 'dts-hd-ma-blue.png' : 'dts-hd-ma.png', color: '#176BE8' },
+      { name: 'TrueHD', img: hasColorSuffix ? 'dolby-truehd-blue.png' : 'dolby-truehd.png', color: '#176BE8' },
+      { name: 'DTS-HD', img: hasColorSuffix ? 'dts-hd-green.png' : 'dts-hd.png', color: '#2EB853' },
+      { name: 'DTS:X', img: hasColorSuffix ? 'dts-x-blue.png' : 'dts-x.png', color: '#176BE8' },
+      { name: 'Atmos', img: hasColorSuffix ? 'dolby-atmos-blue.png' : 'dolby-atmos.png', color: '#176BE8' },
+      { name: 'DD+', img: hasColorSuffix ? 'dolby-digital-plus-green.png' : 'dolby-digital-plus.png', color: '#2EB853' },
+      { name: 'DTS', img: hasColorSuffix ? 'dts-orange.png' : 'dts.png', color: '#FF7300' },
+      { name: 'DD', img: hasColorSuffix ? 'dolby-digital-orange.png' : 'dolby-digital.png', color: '#FF7300' },
+      { name: 'AAC', img: hasColorSuffix ? 'aac-orange.png' : 'aac.png', color: '#FF7300' },
+      { name: 'FLAC', img: hasColorSuffix ? 'flac-blue.png' : 'flac.png', color: '#176BE8' },
+      { name: 'Opus', img: hasColorSuffix ? 'opus-orange.png' : 'opus.png', color: '#FF7300' }
+    ];
     return {
       ...sec,
-      hiddenCount: Math.max(0, (sec.total || 9) - enriched.length),
-      items: enriched
+      name: sec.name || 'Audio',
+      total: Math.max(sec.total || 16, 16),
+      hiddenCount: Math.max(0, (sec.total || 16) - audioItems.length),
+      items: audioItems.map(a => ({
+        name: a.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/audio/${a.img}`,
+        ...copyStyle(hasColorSuffix ? { text: a.color, border: a.color, bg: `${a.color}24` } : {})
+      }))
     };
   }
 
-  // Calidad: hasta 6 elementos (Remux, BluRay, WEB-DL, WEBRip, HDTV, DVDRip)
-  if (sec.id === 'gq' && items.length <= 4) {
-    const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange/.test(it.img));
-    const lastItem = items[items.length - 1] || baseItem;
-    const enriched = [...items];
-    if (enriched.length === 4) {
-      enriched.push(
-        {
-          name: 'HDTV',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/hdtv-red.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/hdtv.png',
-          ...copyStyle(hasColorSuffix ? { text: '#E53935', border: '#E53935', bg: 'rgba(229,57,53,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
-        },
-        {
-          name: 'DVDRip',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/dvdrip-orange.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/dvdrip.png',
-          ...copyStyle(hasColorSuffix ? { text: '#FF7300', border: '#FF7300', bg: 'rgba(255,115,0,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
-        }
-      );
-    }
+  // 4. RESOLUCIÓN (hasta 11 resoluciones)
+  if (sec.id === 'gr') {
+    const resList = [
+      { name: '4K', img: hasColorSuffix ? '4k-gold.png' : '4k.png', color: '#FFD500' },
+      { name: '2K', img: hasColorSuffix ? '2k-blue.png' : '2k.png', color: '#176BE8' },
+      { name: '1440p', img: hasColorSuffix ? '1440p-blue.png' : '1440p.png', color: '#176BE8' },
+      { name: '1080p', img: hasColorSuffix ? '1080p-green.png' : '1080p.png', color: '#2EB853' },
+      { name: 'FHD', img: hasColorSuffix ? '1080p-green.png' : '1080p.png', color: '#2EB853' },
+      { name: '720p', img: hasColorSuffix ? '720p-orange.png' : '720p.png', color: '#FF7300' },
+      { name: 'HD', img: hasColorSuffix ? '720p-orange.png' : '720p.png', color: '#FF7300' },
+      { name: '576p', img: hasColorSuffix ? '576p-red.png' : '576p.png', color: '#E53935' },
+      { name: '480p', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' },
+      { name: 'SD', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' },
+      { name: '360p', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' }
+    ];
     return {
       ...sec,
-      hiddenCount: Math.max(0, (sec.total || 12) - enriched.length),
-      items: enriched
+      name: sec.name || 'Resolution',
+      total: Math.max(sec.total || 11, 11),
+      hiddenCount: Math.max(0, (sec.total || 11) - resList.length),
+      items: resList.map(r => ({
+        name: r.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/${r.img}`,
+        ...copyStyle(hasColorSuffix ? { text: r.color, border: r.color, bg: `${r.color}24` } : {})
+      }))
     };
   }
 
-  // Visual: hasta 6 elementos (DV · HDR10+, DV · HDR10, DV · HDR, DV, HDR10+, HDR10)
-  if (sec.id === 'gv' && items.length <= 4) {
-    const hasColorSuffix = items.some(it => it.img && /-gold/.test(it.img));
-    const enriched = [...items];
-    if (enriched.length === 4) {
-      enriched.push(
-        {
-          name: 'HDR10+',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10-plus-gold.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10-plus.png',
-          ...copyStyle()
-        },
-        {
-          name: 'HDR10',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10.png',
-          ...copyStyle()
-        }
-      );
-    }
+  // 5. CANALES (hasta 6 canales)
+  if (sec.id === 'gc') {
+    const chList = [
+      { name: '7.1', img: hasColorSuffix ? '7-1-gold.png' : '7-1.png', color: '#FFD500' },
+      { name: '6.1', img: hasColorSuffix ? '6-1-blue.png' : '6-1.png', color: '#176BE8' },
+      { name: '5.1', img: hasColorSuffix ? '5-1-green.png' : '5-1.png', color: '#2EB853' },
+      { name: '2.1', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' },
+      { name: '2.0', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' },
+      { name: '1.0', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' }
+    ];
     return {
       ...sec,
-      hiddenCount: Math.max(0, (sec.total || 11) - enriched.length),
-      items: enriched
+      name: sec.name || 'Channels',
+      total: Math.max(sec.total || 6, 6),
+      hiddenCount: Math.max(0, (sec.total || 6) - chList.length),
+      items: chList.map(c => ({
+        name: c.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/channels/${c.img}`,
+        ...copyStyle(hasColorSuffix ? { text: c.color, border: c.color, bg: `${c.color}24` } : {})
+      }))
     };
   }
 
-  // Streaming: hasta 6 elementos (PEACOCK, NETFLIX, PRIME VIDEO, APPLE TV+, DISNEY+, HBO MAX)
-  if (sec.id === 'gs' && items.length <= 4) {
-    const hasColorSuffix = items.some(it => it.img && /-red|-cyan|-gray|-yellow/.test(it.img));
-    const enriched = [...items];
-    if (enriched.length === 4) {
-      enriched.push(
-        {
-          name: 'DISNEY+',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/disney-plus-blue.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/disney-plus.png',
-          ...copyStyle(hasColorSuffix ? { text: '#3E82F7', border: '#3E82F7', bg: 'rgba(62,130,247,0.18)' } : {})
-        },
-        {
-          name: 'HBO MAX',
-          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/hbo-max-purple.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/hbo-max.png',
-          ...copyStyle(hasColorSuffix ? { text: '#9B51E0', border: '#9B51E0', bg: 'rgba(155,81,224,0.18)' } : {})
-        }
-      );
-    }
+  // 6. CALIDAD (hasta 10 calidades)
+  if (sec.id === 'gq') {
+    const qList = [
+      { name: 'Remux', img: hasColorSuffix ? 'remux-gold.png' : 'remux.png', color: '#FFD500' },
+      { name: 'BluRay', img: hasColorSuffix ? 'bluray-blue.png' : 'bluray.png', color: '#176BE8' },
+      { name: 'WEB-DL', img: hasColorSuffix ? 'web-dl-green.png' : 'web-dl.png', color: '#2EB853' },
+      { name: 'WEBRip', img: hasColorSuffix ? 'webrip-orange.png' : 'webrip.png', color: '#FF7300' },
+      { name: 'HDTV', img: hasColorSuffix ? 'hdtv-red.png' : 'hdtv.png', color: '#E53935' },
+      { name: 'DVDRip', img: hasColorSuffix ? 'dvdrip-orange.png' : 'dvdrip.png', color: '#FF7300' },
+      { name: 'HDRip', img: hasColorSuffix ? 'hdrip-orange.png' : 'hdrip.png', color: '#FF7300' },
+      { name: 'CAM', img: hasColorSuffix ? 'cam-red.png' : 'cam.png', color: '#E53935' },
+      { name: 'TS', img: hasColorSuffix ? 'ts-red.png' : 'ts.png', color: '#E53935' },
+      { name: 'SCR', img: hasColorSuffix ? 'scr-red.png' : 'scr.png', color: '#E53935' }
+    ];
     return {
       ...sec,
-      hiddenCount: Math.max(0, (sec.total || 9) - enriched.length),
-      items: enriched
+      name: sec.name || 'Quality',
+      total: Math.max(sec.total || 12, 12),
+      hiddenCount: Math.max(0, (sec.total || 12) - qList.length),
+      items: qList.map(q => ({
+        name: q.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/${q.img}`,
+        ...copyStyle(hasColorSuffix ? { text: q.color, border: q.color, bg: `${q.color}24` } : {})
+      }))
     };
   }
 
-  // Special Tags: hasta 6 elementos (SEADEX, HYBRID, CRITERION, PROPER, REPACK, REMASTERED)
-  if (sec.id === 'gst' && items.length <= 4) {
-    const hasLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
+  // 7. VISUAL (hasta 10 tipos de video/HDR)
+  if (sec.id === 'gv') {
+    const vList = [
+      { name: 'DV · HDR10+', img: hasColorSuffix ? 'dolby-vision-hdr10-plus-gold.png' : 'dolby-vision-hdr10-plus.png', color: '#FFD500' },
+      { name: 'DV · HDR10', img: hasColorSuffix ? 'dolby-vision-hdr10-gold.png' : 'dolby-vision-hdr10.png', color: '#FFD500' },
+      { name: 'DV · HDR', img: hasColorSuffix ? 'dolby-vision-hdr-gold.png' : 'dolby-vision-hdr.png', color: '#FFD500' },
+      { name: 'DV', img: hasColorSuffix ? 'dolby-vision-gold.png' : 'dolby-vision.png', color: '#FFD500' },
+      { name: 'HDR10+', img: hasColorSuffix ? 'hdr10-plus-gold.png' : 'hdr10-plus.png', color: '#FFD500' },
+      { name: 'HDR10', img: hasColorSuffix ? 'hdr10-blue.png' : 'hdr10.png', color: '#176BE8' },
+      { name: 'HDR', img: hasColorSuffix ? 'hdr-green.png' : 'hdr.png', color: '#2EB853' },
+      { name: 'HLG', img: hasColorSuffix ? 'hlg-orange.png' : 'hlg.png', color: '#FF7300' },
+      { name: '10bit', img: hasColorSuffix ? '10bit-orange.png' : '10bit.png', color: '#FF7300' },
+      { name: 'SDR', img: hasColorSuffix ? 'sdr-orange.png' : 'sdr.png', color: '#FF7300' }
+    ];
+    return {
+      ...sec,
+      name: sec.name || 'Visual',
+      total: Math.max(sec.total || 11, 11),
+      hiddenCount: Math.max(0, (sec.total || 11) - vList.length),
+      items: vList.map(v => ({
+        name: v.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/${v.img}`,
+        ...copyStyle(hasColorSuffix ? { text: v.color, border: v.color, bg: `${v.color}24` } : {})
+      }))
+    };
+  }
+
+  // 8. SPECIAL TAGS (hasta 10 etiquetas especiales)
+  if (sec.id === 'gst') {
     const suffix = hasLightBlue ? '-light-blue.png' : '.png';
-    const enriched = [...items];
-    if (enriched.length === 4) {
-      enriched.push(
-        {
-          name: 'REPACK',
-          img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/repack${suffix}`,
-          ...copyStyle()
-        },
-        {
-          name: 'REMASTERED',
-          img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/remastered${suffix}`,
-          ...copyStyle()
-        }
-      );
-    }
+    const tagList = [
+      { name: 'SeaDex', img: hasColorSuffix ? 'seadex-gold.png' : 'seadex.png', color: '#FFD500' },
+      { name: 'HYBRID', img: `hybrid${suffix}`, color: '#BBDEFB' },
+      { name: 'CRITERION', img: `criterion${suffix}`, color: '#BBDEFB' },
+      { name: 'PROPER', img: `proper${suffix}`, color: '#BBDEFB' },
+      { name: 'REPACK', img: `repack${suffix}`, color: '#BBDEFB' },
+      { name: 'REMASTERED', img: `remastered${suffix}`, color: '#BBDEFB' },
+      { name: 'OPEN MATTE', img: `open-matte${suffix}`, color: '#BBDEFB' },
+      { name: 'IMAX', img: hasColorSuffix ? 'imax-gold.png' : 'imax.png', color: '#FFD500' },
+      { name: 'DIR CUT', img: `directors-cut${suffix}`, color: '#BBDEFB' },
+      { name: 'EXTENDED', img: `extended${suffix}`, color: '#BBDEFB' }
+    ];
     return {
       ...sec,
-      hiddenCount: Math.max(0, (sec.total || 15) - enriched.length),
-      items: enriched
+      name: sec.name || 'Special Tags',
+      total: Math.max(sec.total || 15, 15),
+      hiddenCount: Math.max(0, (sec.total || 15) - tagList.length),
+      items: tagList.map(t => ({
+        name: t.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/${t.img}`,
+        ...copyStyle(hasColorSuffix ? { text: t.color, border: t.color, bg: `${t.color}24` } : {})
+      }))
+    };
+  }
+
+  // 9. STREAMING (hasta 9 servicios)
+  if (sec.id === 'gs') {
+    const sList = [
+      { name: 'PEACOCK', img: hasColorSuffix ? 'peacock-yellow.png' : 'peacock.png', color: '#FCCC12' },
+      { name: 'NETFLIX', img: hasColorSuffix ? 'netflix-red.png' : 'netflix.png', color: '#E50914' },
+      { name: 'PRIME VIDEO', img: hasColorSuffix ? 'prime-video-cyan.png' : 'prime-video.png', color: '#00A8E1' },
+      { name: 'APPLE TV+', img: hasColorSuffix ? 'apple-tv-plus-gray.png' : 'apple-tv-plus.png', color: '#A2AAAD' },
+      { name: 'DISNEY+', img: hasColorSuffix ? 'disney-plus-blue.png' : 'disney-plus.png', color: '#3E82F7' },
+      { name: 'HBO MAX', img: hasColorSuffix ? 'hbo-max-purple.png' : 'hbo-max.png', color: '#9B51E0' },
+      { name: 'PARAMOUNT+', img: hasColorSuffix ? 'paramount-plus-blue.png' : 'paramount-plus.png', color: '#0064FF' },
+      { name: 'HULU', img: hasColorSuffix ? 'hulu-green.png' : 'hulu.png', color: '#1CE783' },
+      { name: 'CRUNCHYROLL', img: hasColorSuffix ? 'crunchyroll-orange.png' : 'crunchyroll.png', color: '#F47521' }
+    ];
+    return {
+      ...sec,
+      name: sec.name || 'Streaming',
+      total: Math.max(sec.total || 9, 9),
+      hiddenCount: Math.max(0, (sec.total || 9) - sList.length),
+      items: sList.map(s => ({
+        name: s.name,
+        img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/${s.img}`,
+        ...copyStyle(hasColorSuffix ? { text: s.color, border: s.color, bg: `${s.color}24` } : {})
+      }))
     };
   }
 

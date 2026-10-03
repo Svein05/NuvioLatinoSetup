@@ -1953,6 +1953,7 @@ class AppController {
           galleryBadges.classList.add('is-open');
           this.renderBadgeModulesUI();
           this.renderBadgesGrid();
+          setTimeout(() => this.fitBadgesDynamically(), 350);
         } else {
           galleryBadges.classList.remove('is-open');
         }
@@ -2215,23 +2216,24 @@ class AppController {
       // Renderizado de secciones con nombres traducidos al español
       const sectionsHtml = visibleSections.map(sec => {
         const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
+        const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
         const badgesHtml = (sec.items || []).map(b => {
           return `
-            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-[9.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105"
+            <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
                   style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
                   title="${b.name}">
-              ${b.img ? `<img src="${b.img}" alt="${b.name}" class="h-3 max-h-[13px] w-auto object-contain block" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
+              ${b.img ? `<img src="${b.img}" alt="${b.name}" class="h-3.5 max-h-[15px] w-auto object-contain block" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
             </span>
           `;
         }).join('');
 
         return `
-          <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-between min-h-[66px] flex-1 min-w-[190px] sm:min-w-[210px]">
-            <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold mb-1">
+          <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-start gap-1.5 flex-1 min-w-[190px] sm:min-w-[210px]">
+            <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold shrink-0">
               <span class="truncate">${titleEs}</span>
-              ${sec.hiddenCount > 0 ? `<span class="text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1">+${sec.hiddenCount}</span>` : ''}
+              <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
             </div>
-            <div class="flex flex-wrap items-center gap-1.5">
+            <div class="badges-flow-container flex flex-wrap items-center gap-1.5 content-start">
               ${badgesHtml}
             </div>
           </div>
@@ -2274,6 +2276,75 @@ class AppController {
         </div>
       `;
     }).join('');
+
+    // Ajuste dinámico inteligente: llena el ancho de las filas y oculta desbordes
+    requestAnimationFrame(() => this.fitBadgesDynamically());
+    setTimeout(() => this.fitBadgesDynamically(), 150);
+
+    // Observer para recalcular ante cambios de tamaño de pantalla o contenedor
+    if (!this.badgesResizeObserver && window.ResizeObserver) {
+      this.badgesResizeObserver = new ResizeObserver(() => {
+        this.fitBadgesDynamically();
+      });
+      const grid = document.getElementById('badgesGrid');
+      if (grid) this.badgesResizeObserver.observe(grid);
+    }
+  }
+
+  /**
+   * Adapta dinámicamente los badges en cada caja para ocupar el espacio horizontal disponible:
+   * - Muestra todos los distintivos posibles que quepan en las primeras 2 líneas completas
+   * - Si un distintivo cae a una 3ª línea, se oculta limpiamente
+   * - Actualiza el contador dinámico "+N" reflejando la cantidad exacta que no pudo ser mostrada
+   */
+  fitBadgesDynamically() {
+    const boxes = document.querySelectorAll('.badge-section-box');
+    if (!boxes || boxes.length === 0) return;
+
+    boxes.forEach(box => {
+      const flow = box.querySelector('.badges-flow-container');
+      const counterEl = box.querySelector('.badge-hidden-counter');
+      if (!flow) return;
+
+      const chips = Array.from(flow.querySelectorAll('.badge-chip'));
+      if (chips.length === 0) return;
+
+      // 1. Mostrar temporalmente todos los chips para poder medir con precisión su offsetTop
+      chips.forEach(c => {
+        c.style.display = '';
+      });
+
+      // 2. Medir las alturas relativas de línea (permitir hasta 2 líneas de chips visibles)
+      const firstTop = chips[0].offsetTop;
+      let secondTop = null;
+
+      chips.forEach(c => {
+        const top = c.offsetTop;
+        if (top > firstTop + 4 && secondTop === null) {
+          secondTop = top;
+        }
+
+        // Si salta a una 3ª línea (o posterior), se oculta
+        if (secondTop !== null && top > secondTop + 4) {
+          c.style.display = 'none';
+        }
+      });
+
+      // 3. Calcular cantidad visible y actualizar contador +N en vivo
+      const visibleCount = chips.filter(c => c.style.display !== 'none').length;
+      const totalCount = counterEl ? (parseInt(counterEl.dataset.total, 10) || chips.length) : chips.length;
+      const hiddenCount = Math.max(0, totalCount - visibleCount);
+
+      if (counterEl) {
+        if (hiddenCount > 0) {
+          counterEl.innerText = `+${hiddenCount}`;
+          counterEl.style.display = '';
+        } else {
+          counterEl.innerText = '';
+          counterEl.style.display = 'none';
+        }
+      }
+    });
   }
 
   /**
