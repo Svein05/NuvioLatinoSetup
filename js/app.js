@@ -2241,7 +2241,7 @@ class AppController {
               <span class="truncate">${titleEs}</span>
               <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
             </div>
-            <div class="badges-flow-container flex flex-wrap items-center gap-1.5 content-start">
+            <div class="badges-flow-container relative flex flex-wrap items-center gap-1.5 content-start">
               ${badgesHtml}
             </div>
           </div>
@@ -2340,8 +2340,8 @@ class AppController {
         c.style.display = '';
       });
 
-      const flowWidth = flow.clientWidth;
-      if (flowWidth <= 0) return;
+      const flowRect = flow.getBoundingClientRect();
+      if (!flowRect || flowRect.width <= 0) return;
 
       // 2. Medir alturas de línea y límites horizontales (máximo 2 líneas completas)
       const firstTop = chips[0].offsetTop;
@@ -2367,8 +2367,9 @@ class AppController {
           continue;
         }
 
-        // Si el chip se desborda horizontalmente del contenedor:
-        if (c.offsetLeft + c.offsetWidth > flowWidth + 2) {
+        // Comprobación horizontal independiente de la columna usando coordenadas de la caja
+        const chipRect = c.getBoundingClientRect();
+        if (chipRect.right > flowRect.right + 2) {
           reachedLimit = true;
           c.style.display = 'none';
           continue;
