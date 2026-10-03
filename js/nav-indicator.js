@@ -87,6 +87,9 @@ export function initNavIndicator() {
   });
 
   window.addEventListener('resize', () => updateIndicator(activeLink, false));
+  if (document.fonts) {
+    document.fonts.ready.then(() => updateIndicator(activeLink, false));
+  }
 }
 
 // Inicializar automáticamente si el documento ya cargó
