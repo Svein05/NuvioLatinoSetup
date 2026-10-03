@@ -144,11 +144,11 @@
         </div>
       </div>
 
-      <!-- Indicador animado de scroll para invitar a descubrir el contenido inferior -->
-      <a href="#como-funciona" class="mt-6 sm:mt-8 flex flex-col items-center gap-1.5 text-white/40 hover:text-white/80 transition-colors text-xs font-mono animate-bounce cursor-pointer group" title="Desliza para ver más">
+      <!-- Indicador animado de scroll (Informativo, no clickeable) -->
+      <div class="mt-6 sm:mt-8 flex flex-col items-center gap-1.5 text-white/40 text-xs font-mono select-none pointer-events-none" aria-hidden="true">
         <span class="tracking-wider uppercase text-[10px]">Desliza para explorar</span>
-        <i class="fa-solid fa-chevron-down text-[var(--color-estrella)] text-xs group-hover:translate-y-0.5 transition-transform"></i>
-      </a>
+        <i class="fa-solid fa-chevron-down text-[#ffd479] text-xs animate-bounce"></i>
+      </div>
     </section>
 
     <!-- Contenido Inferior (Se revela tras hacer scroll) -->
@@ -165,8 +165,8 @@
           
           <!-- Pilar 1 -->
           <div class="p-6 rounded-[24px] lat-card space-y-3">
-            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-white text-lg shadow-[var(--brillo-vidrio)]">
-              <i class="fa-solid fa-images"></i>
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-images text-[#ffd479]"></i>
             </div>
             <h3 class="text-lg font-semibold text-white">Colecciones Nativas 16:9</h3>
             <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
@@ -176,8 +176,8 @@
 
           <!-- Pilar 2 -->
           <div class="p-6 rounded-[24px] lat-card space-y-3">
-            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-white text-lg shadow-[var(--brillo-vidrio)]">
-              <i class="fa-solid fa-ghost"></i>
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-ghost text-[#ffd479]"></i>
             </div>
             <h3 class="text-lg font-semibold text-white">Estrategia "Ghost Mode"</h3>
             <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
@@ -187,8 +187,8 @@
 
           <!-- Pilar 3 -->
           <div class="p-6 rounded-[24px] lat-card space-y-3">
-            <div class="w-11 h-11 rounded-[14px] bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-lg shadow-[var(--brillo-vidrio)]">
-              <i class="fa-solid fa-language"></i>
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-language text-[#ffd479]"></i>
             </div>
             <h3 class="text-lg font-semibold text-white">TMDB & MDBList Latino (es-MX)</h3>
             <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
@@ -198,8 +198,8 @@
 
           <!-- Pilar 4 -->
           <div class="p-6 rounded-[24px] lat-card space-y-3">
-            <div class="w-11 h-11 rounded-[14px] bg-[var(--color-estrella)]/10 border border-[var(--color-estrella)]/25 flex items-center justify-center text-[var(--color-estrella)] text-lg shadow-[var(--brillo-vidrio)]">
-              <i class="fa-solid fa-arrows-split-up-and-left"></i>
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-arrows-split-up-and-left text-[#ffd479]"></i>
             </div>
             <h3 class="text-lg font-semibold text-white">Doble Modo: Automático o Manual</h3>
             <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
@@ -381,7 +381,7 @@
   <script type="module" src="./js/version.js"></script>
   <!-- Barra de navegación con indicador deslizante animado -->
   <script type="module" src="./js/nav-indicator.js"></script>
-  <!-- Listener de scroll para fade progresivo y difuminado suave del backdrop -->
+  <!-- Listener de scroll para fade progresivo de largo recorrido y atmósfera sutil -->
   <script>
     (function() {
       const backdrop = document.getElementById('heroBackdrop');
@@ -391,13 +391,16 @@
       let ticking = false;
       const updateBackdrop = () => {
         const scrollY = window.scrollY || window.pageYOffset;
-        const fadeEnd = target ? Math.max(300, target.offsetTop - 120) : window.innerHeight * 0.8;
-        const progress = Math.min(1, Math.max(0, scrollY / fadeEnd));
+        // Mayor recorrido de scroll para una animación pausada, fluida y cinematográfica
+        const fadeEnd = target ? Math.max(600, target.offsetTop + 120) : window.innerHeight * 1.2;
+        const rawProgress = Math.min(1, Math.max(0, scrollY / fadeEnd));
+        // Interpolación cuadrática suave (smooth-step)
+        const progress = rawProgress * rawProgress * (3 - 2 * rawProgress);
 
-        // Transición suave: de 0.85 a 0.35 de opacidad (mantiene el póster difuminado de fondo sin oscurecer bruscamente)
-        const opacity = (0.85 - progress * 0.50).toFixed(3);
-        const blurPx = (progress * 5.0).toFixed(1);
-        const brightness = (1.0 - progress * 0.22).toFixed(2);
+        // Transición progresiva: de 0.85 a 0.15 (más negrito, fondo tenue y profesional)
+        const opacity = (0.85 - progress * 0.70).toFixed(3);
+        const blurPx = (progress * 6.0).toFixed(1);
+        const brightness = (1.0 - progress * 0.45).toFixed(2);
 
         backdrop.style.opacity = opacity;
         backdrop.style.filter = `blur(${blurPx}px) brightness(${brightness})`;
