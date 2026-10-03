@@ -209,28 +209,40 @@ export class PipelineInjector {
         state.addLog(`Compilando reglas de badges: "${selectedBadgePack.name}" (${badgeVersion.toUpperCase()})...`, 'info');
 
         let badgeRulesJson = { imports: [] };
-        try {
-          const badgeResp = await fetch(badgePackUrl);
-          if (badgeResp.ok) {
-            const fetchedData = await badgeResp.json();
-            badgeRulesJson.imports.push({
-              sourceUrl: badgePackUrl,
-              filters: fetchedData.filters || [],
-              groups: fetchedData.groups || [],
-              isActive: true
-            });
-          } else {
-            throw new Error(`HTTP ${badgeResp.status}`);
-          }
-        } catch (fetchErr) {
-          console.warn('[Injector] No se pudo precargar JSON de badges de red, usando import por URL:', fetchErr.message);
+        if (selectedBadgePack.isCustom && selectedBadgePack.customJson) {
+          const cJson = selectedBadgePack.customJson;
           badgeRulesJson.imports.push({
-            sourceUrl: badgePackUrl,
-            filters: [],
-            groups: [],
+            sourceUrl: selectedBadgePack.rawV2 || 'custom://badges',
+            filters: cJson.filters || (Array.isArray(cJson) ? cJson : []),
+            groups: cJson.groups || [],
             isActive: true
           });
+        } else {
+          try {
+            const badgeResp = await fetch(badgePackUrl);
+            if (badgeResp.ok) {
+              const fetchedData = await badgeResp.json();
+              badgeRulesJson.imports.push({
+                sourceUrl: badgePackUrl,
+                filters: fetchedData.filters || [],
+                groups: fetchedData.groups || [],
+                isActive: true
+              });
+            } else {
+              throw new Error(`HTTP ${badgeResp.status}`);
+            }
+          } catch (fetchErr) {
+            console.warn('[Injector] No se pudo precargar JSON de badges de red, usando import por URL:', fetchErr.message);
+            badgeRulesJson.imports.push({
+              sourceUrl: badgePackUrl,
+              filters: [],
+              groups: [],
+              isActive: true
+            });
+          }
         }
+
+        const showFileSize = (state.preferences?.badgesModules?.fileSize !== false);
 
         profileSettingsPayload.stream_badge_settings = {
           stream_badge_rules: {
@@ -239,7 +251,7 @@ export class PipelineInjector {
           },
           show_file_size_badges: {
             type: 'boolean',
-            value: true
+            value: showFileSize
           },
           stream_badge_placement: {
             type: 'string',

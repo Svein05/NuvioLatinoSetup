@@ -1156,3 +1156,38 @@ header.lat-floating-nav nav {
   transform: translateY(-2px);
 }
 
+/* Animación Fluida para Contenedor de Badges (Accordion CSS Grid) */
+.badges-collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: grid-template-rows, opacity;
+}
+
+.badges-collapsible.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.badges-collapsible > .badges-collapsible-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Chips / Toggles de Módulos de Badges */
+.badge-module-pill:has(input:checked) {
+  border-color: rgba(255, 212, 121, 0.45) !important;
+  background-color: rgba(255, 212, 121, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.badge-module-pill:has(input:checked) .check-indicator {
+  background-color: #ffd479 !important;
+  border-color: #ffd479 !important;
+}
+
+.badge-module-pill:has(input:checked) .check-indicator i {
+  opacity: 1 !important;
+}

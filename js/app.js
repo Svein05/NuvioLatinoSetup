@@ -7,7 +7,7 @@ import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
-import { BADGE_PACKS, getBadgePackById, getBadgePackUrl } from './badge-packs.js';
+import { BADGE_PACKS, getBadgePackById, getBadgePackUrl, addCustomBadgePack } from './badge-packs.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 export const DEMO_POSTERS = [
@@ -1879,6 +1879,18 @@ class AppController {
     const labelBadges = document.getElementById('labelBadgesCustomization');
     const galleryBadges = document.getElementById('badgesGalleryContainer');
 
+    this.syncBadgeModulesUI = () => {
+      const mods = state.preferences.badgesModules || {};
+      const tLang = document.getElementById('toggleBadgesLanguages');
+      const tStream = document.getElementById('toggleBadgesStreaming');
+      const tSub = document.getElementById('toggleBadgesSubtitles');
+      const tSize = document.getElementById('toggleBadgesFileSize');
+      if (tLang) tLang.checked = Boolean(mods.languages);
+      if (tStream) tStream.checked = Boolean(mods.streaming);
+      if (tSub) tSub.checked = Boolean(mods.subtitles);
+      if (tSize) tSize.checked = (mods.fileSize !== false);
+    };
+
     const updateBadgesCustomizationUI = () => {
       const isBadgesActive = Boolean(state.preferences.badgesEnabled);
       if (toggleBadges) {
@@ -1892,11 +1904,12 @@ class AppController {
       }
       if (galleryBadges) {
         if (isBadgesActive) {
-          galleryBadges.classList.remove('hidden');
+          galleryBadges.classList.add('is-open');
           this.renderBadgesGrid();
           this.updateBadgeVersionUI();
+          this.syncBadgeModulesUI();
         } else {
-          galleryBadges.classList.add('hidden');
+          galleryBadges.classList.remove('is-open');
         }
       }
       this.updateManualModeButtons();
@@ -1912,6 +1925,16 @@ class AppController {
       });
     }
     updateBadgesCustomizationUI();
+
+    this.toggleBadgeModule = (moduleKey, isChecked) => {
+      if (!state.preferences.badgesModules) {
+        state.preferences.badgesModules = { languages: false, streaming: false, subtitles: false, fileSize: true };
+      }
+      state.preferences.badgesModules[moduleKey] = isChecked;
+      this.renderBadgesGrid();
+      this.syncBadgeModulesUI();
+      this.showToast(isChecked ? `Módulo "+ ${moduleKey}" activado en badges` : `Módulo "+ ${moduleKey}" desactivado`, 'info');
+    };
 
     this.selectBadgePack = (packId) => {
       state.preferences.selectedBadgePack = packId;
@@ -1931,12 +1954,169 @@ class AppController {
       const id = packId || state.preferences.selectedBadgePack || 'tinted';
       const version = state.preferences.selectedBadgeVersion || 'v2';
       const pack = getBadgePackById(id);
+
+      if (pack.isCustom && !pack.rawV2 && pack.customJson) {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(pack.customJson, null, 2));
+          this.showToast(`✓ Código JSON de "${pack.name}" copiado al portapapeles`, 'success');
+        } catch (_) {
+          this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+        }
+        return;
+      }
+
       const url = getBadgePackUrl(id, version);
       try {
         await navigator.clipboard.writeText(url);
-        this.showToast(`✓ URL de "${pack.name}" (${version.toUpperCase()}) copiada al portapapeles`, 'success');
+        this.showToast(`✓ Enlace JSON de "${pack.name}" (${version.toUpperCase()}) copiado al portapapeles`, 'success');
       } catch (_) {
         this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+      }
+    };
+
+    this.handleImportCustomBadge = async () => {
+      const sourceInput = document.getElementById('inputCustomBadgeSource');
+      const nameInput = document.getElementById('inputCustomBadgeName');
+      const errorBox = document.getElementById('customBadgeError');
+      const errorText = document.getElementById('customBadgeErrorText');
+
+      if (errorBox) errorBox.classList.add('hidden');
+
+      const source = (sourceInput?.value || '').trim();
+      const customName = (nameInput?.value || '').trim();
+
+      if (!source) {
+        if (errorBox && errorText) {
+          errorText.textContent = 'Por favor ingresa una URL válida o pega el código JSON de tu pack de badges.';
+          errorBox.classList.remove('hidden');
+        }
+        sourceInput?.focus();
+        return;
+      }
+
+      let parsedData = null;
+      let isUrl = false;
+      let rawUrl = '';
+
+      if (/^https?:\/\//i.test(source)) {
+        isUrl = true;
+        rawUrl = source;
+        try {
+          const res = await fetch(source);
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          parsedData = await res.json();
+        } catch (fetchErr) {
+          console.warn('[Badges] No se pudo descargar el JSON directo (posible CORS), se usará la URL directa:', fetchErr.message);
+          parsedData = {
+            name: customName || 'Pack Externo',
+            groups: [{ id: 'gr', name: 'Resolution' }, { id: 'gq', name: 'Quality' }],
+            filters: [
+              { name: '4K', groupId: 'gr', textColor: '#FFD500', borderColor: '#FFD500', tagColor: '#20FFD500' },
+              { name: '1080p', groupId: 'gr', textColor: '#2EB853', borderColor: '#2EB853', tagColor: '#242EB853' },
+              { name: 'Remux', groupId: 'gq', textColor: '#FFD500', borderColor: '#FFD500', tagColor: '#20FFD500' }
+            ]
+          };
+        }
+      } else {
+        try {
+          parsedData = JSON.parse(source);
+        } catch (jsonErr) {
+          if (errorBox && errorText) {
+            errorText.textContent = 'El texto ingresado no es un JSON válido: ' + jsonErr.message;
+            errorBox.classList.remove('hidden');
+          }
+          return;
+        }
+      }
+
+      // Convertir Badger groups / filters a sections para visualización idéntica
+      let sections = [];
+      const groups = parsedData.groups || [];
+      const filters = parsedData.filters || (Array.isArray(parsedData) ? parsedData : []);
+
+      if (groups.length > 0 || filters.length > 0) {
+        const groupMap = new Map();
+        groups.forEach(g => {
+          groupMap.set(g.id, { id: g.id, name: g.name || g.id, items: [], total: 0 });
+        });
+
+        filters.forEach(f => {
+          const gid = f.groupId || 'gr';
+          let g = groupMap.get(gid);
+          if (!g) {
+            g = { id: gid, name: f.groupName || gid.toUpperCase(), items: [], total: 0 };
+            groupMap.set(gid, g);
+          }
+          g.total++;
+          if (g.items.length < 4) {
+            g.items.push({
+              name: f.name || 'Badge',
+              img: f.imageURL || null,
+              text: f.textColor || '#ffffff',
+              border: f.borderColor || '#ffffff',
+              bg: f.tagColor || 'rgba(255,255,255,0.1)'
+            });
+          }
+        });
+
+        sections = Array.from(groupMap.values()).map(g => ({
+          id: g.id,
+          name: g.name,
+          total: g.total,
+          hiddenCount: Math.max(0, g.total - g.items.length),
+          items: g.items
+        })).filter(g => g.items.length > 0);
+      }
+
+      if (sections.length === 0) {
+        sections = [
+          {
+            id: 'custom',
+            name: 'Personalizado',
+            total: 3,
+            hiddenCount: 0,
+            items: [
+              { name: '4K', text: '#FFD500', border: '#FFD500', bg: '#20FFD500' },
+              { name: 'HDR', text: '#BBDEFB', border: '#BBDEFB', bg: '#24BBDEFB' },
+              { name: 'Atmos', text: '#E040FB', border: '#E040FB', bg: '#24E040FB' }
+            ]
+          }
+        ];
+      }
+
+      const customId = `custom-${Date.now()}`;
+      const finalName = customName || parsedData.name || `Estilo Personalizado #${BADGE_PACKS.filter(p => p.isCustom).length + 1}`;
+
+      const newPack = {
+        id: customId,
+        name: finalName,
+        author: 'Personalizado',
+        authorUrl: isUrl ? rawUrl : '#',
+        description: isUrl ? `Estilo importado desde URL: ${rawUrl}` : 'Estilo personalizado cargado mediante código JSON directo.',
+        rawV2: isUrl ? rawUrl : null,
+        rawV1: isUrl ? rawUrl : null,
+        customJson: isUrl ? null : parsedData,
+        isCustom: true,
+        tags: ['Personalizado', 'Importado'],
+        accentColor: '#10b981',
+        sections
+      };
+
+      addCustomBadgePack(newPack);
+      state.preferences.selectedBadgePack = customId;
+      this.renderBadgesGrid();
+      this.refreshStep6Summary();
+
+      if (sourceInput) sourceInput.value = '';
+      if (nameInput) nameInput.value = '';
+      if (errorBox) errorBox.classList.add('hidden');
+
+      this.showToast(`¡Estilo "${finalName}" importado y seleccionado con éxito!`, 'success');
+
+      // Scroll suave hacia la nueva tarjeta
+      const targetCard = document.querySelector(`[onclick*="${customId}"]`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     };
 
@@ -1964,6 +2144,7 @@ class AppController {
     if (!container) return;
 
     const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
+    const activeModules = state.preferences.badgesModules || {};
 
     container.innerHTML = BADGE_PACKS.map(pack => {
       const isSelected = (pack.id === selectedPackId);
@@ -1975,8 +2156,16 @@ class AppController {
         ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
         : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
 
-      // Renderizado directo de secciones (Resolution, Quality, Visual, Audio, Channels, Special Tags)
-      const sectionsHtml = (pack.sections || []).map(sec => {
+      // Filtrar secciones activas según módulos (+ Streaming, + Idiomas, + Subtítulos)
+      const visibleSections = (pack.sections || []).filter(sec => {
+        if (sec.id === 'gs' && !activeModules.streaming) return false;
+        if (sec.id === 'glang' && !activeModules.languages) return false;
+        if (sec.id === 'gsub' && !activeModules.subtitles) return false;
+        return true;
+      });
+
+      // Renderizado directo de secciones (Resolution, Quality, Visual, Audio, Channels, Special Tags y módulos activos)
+      const sectionsHtml = visibleSections.map(sec => {
         const badgesHtml = (sec.items || []).map(b => {
           return `
             <span class="inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105"
@@ -2000,6 +2189,8 @@ class AppController {
         `;
       }).join('');
 
+      const copyBtnLabel = (pack.isCustom && !pack.rawV2) ? 'Copiar Código JSON' : 'Copiar Enlace JSON';
+
       return `
         <div onclick="window.appController.selectBadgePack('${pack.id}')" class="badge-pack-card relative p-5 rounded-[24px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3.5 group shadow-[var(--shadow-lift)]">
           <div class="space-y-3">
@@ -2008,10 +2199,11 @@ class AppController {
                 <div class="flex items-center gap-2">
                   <h4 class="text-sm font-semibold text-white tracking-wide">${pack.name}</h4>
                   ${isSelected ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] border border-[#ffd479]/30">Activo</span>' : ''}
+                  ${pack.isCustom ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Personalizado</span>' : ''}
                 </div>
                 <div class="flex items-center gap-1.5 text-[11px] text-white/50 pt-0.5">
                   <i class="fa-brands fa-github text-[#ffd479]"></i>
-                  <span>Hecho por <a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a></span>
+                  <span>Hecho por ${pack.authorUrl && pack.authorUrl !== '#' ? `<a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a>` : `<span class="text-[#ffd479] font-medium">${pack.author}</span>`}</span>
                 </div>
               </div>
               ${checkIcon}
@@ -2027,22 +2219,11 @@ class AppController {
             </p>
           </div>
 
-          <!-- Botones de Acción (Seleccionar vs Copiar JSON) -->
-          <div class="pt-3 border-t border-white/[0.06] flex items-center gap-2">
-            ${isSelected ? `
-              <button type="button" onclick="event.stopPropagation(); window.appController.selectBadgePack('${pack.id}')" class="flex-1 py-2 px-3 rounded-xl bg-[#ffd479] text-[#08090c] font-bold text-xs flex items-center justify-center gap-2 shadow-[var(--shadow-lift)] transition-all">
-                <i class="fa-solid fa-check"></i>
-                <span>Seleccionado</span>
-              </button>
-            ` : `
-              <button type="button" onclick="event.stopPropagation(); window.appController.selectBadgePack('${pack.id}')" class="flex-1 py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white font-medium text-xs border border-white/10 flex items-center justify-center gap-2 transition-all">
-                <i class="fa-solid fa-wand-magic-sparkles text-xs text-[#ffd479]"></i>
-                <span>Seleccionar Estilo</span>
-              </button>
-            `}
-            <button type="button" onclick="event.stopPropagation(); window.appController.copyBadgeJsonUrl('${pack.id}')" class="flex-1 py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center justify-center gap-2 transition-all" title="Copiar URL directa de este paquete">
+          <!-- Botón Único de Acción: Copiar JSON (El card/círculo ya selecciona el estilo) -->
+          <div class="pt-3 border-t border-white/[0.06] flex items-center justify-end">
+            <button type="button" onclick="event.stopPropagation(); window.appController.copyBadgeJsonUrl('${pack.id}')" class="py-2 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center justify-center gap-2 transition-all w-full sm:w-auto" title="Copiar URL directa o código de este paquete">
               <i class="fa-solid fa-copy text-xs"></i>
-              <span>Copiar Enlace JSON</span>
+              <span>${copyBtnLabel}</span>
             </button>
           </div>
         </div>
@@ -2350,11 +2531,12 @@ class AppController {
       }
       if (galleryBadges) {
         if (isBadgesEnabled) {
-          galleryBadges.classList.remove('hidden');
+          galleryBadges.classList.add('is-open');
           this.renderBadgesGrid();
           this.updateBadgeVersionUI();
+          this.syncBadgeModulesUI();
         } else {
-          galleryBadges.classList.add('hidden');
+          galleryBadges.classList.remove('is-open');
         }
       }
     }

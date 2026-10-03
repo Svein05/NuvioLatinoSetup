@@ -20,6 +20,7 @@ export const BADGE_PACKS = [
     "accentColor": "#6366f1",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -59,6 +60,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -98,6 +100,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -137,6 +140,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -176,6 +180,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -215,6 +220,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -246,6 +252,126 @@ export const BADGE_PACKS = [
           {
             "name": "PROPER",
             "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/proper-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock-yellow.png",
+            "text": "#FCCC12",
+            "border": "#FCCC12",
+            "bg": "#20FCCC12",
+            "style": "filled"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix-red.png",
+            "text": "#E50914",
+            "border": "#E50914",
+            "bg": "#24E50914",
+            "style": "filled"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video-cyan.png",
+            "text": "#00A8E1",
+            "border": "#00A8E1",
+            "bg": "#3000A8E1",
+            "style": "filled"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus-gray.png",
+            "text": "#A2AAAD",
+            "border": "#A2AAAD",
+            "bg": "#24A2AAAD",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#24BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian-light-blue.png",
             "text": "#BBDEFB",
             "border": "#BBDEFB",
             "bg": "#24BBDEFB",
@@ -271,6 +397,7 @@ export const BADGE_PACKS = [
     "accentColor": "#ffd479",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -310,6 +437,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -349,6 +477,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -388,6 +517,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -427,6 +557,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -466,6 +597,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -503,6 +635,126 @@ export const BADGE_PACKS = [
             "style": "bordered"
           }
         ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock.png",
+            "text": "#FFFFFF",
+            "border": "#FCCC12",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix.png",
+            "text": "#FFFFFF",
+            "border": "#E50914",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video.png",
+            "text": "#FFFFFF",
+            "border": "#00A8E1",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus.png",
+            "text": "#FFFFFF",
+            "border": "#A2AAAD",
+            "bg": "#00000000",
+            "style": "bordered"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian.png",
+            "text": "#FFFFFF",
+            "border": "#BBDEFB",
+            "bg": "#000000",
+            "style": "bordered"
+          }
+        ]
       }
     ]
   },
@@ -522,6 +774,7 @@ export const BADGE_PACKS = [
     "accentColor": "#38bdf8",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -561,6 +814,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -600,6 +854,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -639,6 +894,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -678,6 +934,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -717,6 +974,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -754,6 +1012,126 @@ export const BADGE_PACKS = [
             "style": "bordered"
           }
         ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock-yellow.png",
+            "text": "#FCCC12",
+            "border": "#FCCC12",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix-red.png",
+            "text": "#E50914",
+            "border": "#E50914",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video-cyan.png",
+            "text": "#00A8E1",
+            "border": "#00A8E1",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus-gray.png",
+            "text": "#A2AAAD",
+            "border": "#A2AAAD",
+            "bg": "#00000000",
+            "style": "bordered"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian-light-blue.png",
+            "text": "#BBDEFB",
+            "border": "#BBDEFB",
+            "bg": "#00000000",
+            "style": "bordered"
+          }
+        ]
       }
     ]
   },
@@ -773,6 +1151,7 @@ export const BADGE_PACKS = [
     "accentColor": "#f97316",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -812,6 +1191,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -851,6 +1231,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -890,6 +1271,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -929,6 +1311,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -968,6 +1351,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -999,6 +1383,126 @@ export const BADGE_PACKS = [
           {
             "name": "PROPER",
             "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/proper-black.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock-black.png",
+            "text": "#000000",
+            "border": "#FCCC12",
+            "bg": "#FCCC12",
+            "style": "filled"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix-black.png",
+            "text": "#000000",
+            "border": "#E50914",
+            "bg": "#E50914",
+            "style": "filled"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video-black.png",
+            "text": "#000000",
+            "border": "#00A8E1",
+            "bg": "#00A8E1",
+            "style": "filled"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus-black.png",
+            "text": "#000000",
+            "border": "#A2AAAD",
+            "bg": "#A2AAAD",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english-black.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese-black.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese-black.png",
+            "text": "#000000",
+            "border": "#BBDEFB",
+            "bg": "#BBDEFB",
+            "style": "filled"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian-black.png",
             "text": "#000000",
             "border": "#BBDEFB",
             "bg": "#BBDEFB",
@@ -1024,6 +1528,7 @@ export const BADGE_PACKS = [
     "accentColor": "#ffffff",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -1063,6 +1568,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -1102,6 +1608,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -1141,6 +1648,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -1180,6 +1688,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -1219,6 +1728,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -1256,6 +1766,126 @@ export const BADGE_PACKS = [
             "style": "bordered"
           }
         ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#00000000",
+            "style": "bordered"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#00000000",
+            "style": "bordered"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english-white.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese-white.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese-white.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian-white.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian.png",
+            "text": "#FFFFFF",
+            "border": "#FFFFFF",
+            "bg": "#000000",
+            "style": "bordered"
+          }
+        ]
       }
     ]
   },
@@ -1275,6 +1905,7 @@ export const BADGE_PACKS = [
     "accentColor": "#e2e8f0",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -1314,6 +1945,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -1353,6 +1985,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -1392,6 +2025,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -1431,6 +2065,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -1470,6 +2105,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -1507,6 +2143,126 @@ export const BADGE_PACKS = [
             "style": "filled"
           }
         ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian-black.png",
+            "text": "#000000",
+            "border": "#FFFFFF",
+            "bg": "#FFFFFF",
+            "style": "filled"
+          }
+        ]
       }
     ]
   },
@@ -1526,6 +2282,7 @@ export const BADGE_PACKS = [
     "accentColor": "#94a3b8",
     "sections": [
       {
+        "id": "gr",
         "name": "Resolution",
         "total": 9,
         "hiddenCount": 5,
@@ -1565,6 +2322,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gq",
         "name": "Quality",
         "total": 12,
         "hiddenCount": 8,
@@ -1604,6 +2362,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gv",
         "name": "Visual",
         "total": 11,
         "hiddenCount": 7,
@@ -1643,6 +2402,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "ga",
         "name": "Audio",
         "total": 16,
         "hiddenCount": 12,
@@ -1682,6 +2442,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gc",
         "name": "Channels",
         "total": 4,
         "hiddenCount": 0,
@@ -1721,6 +2482,7 @@ export const BADGE_PACKS = [
         ]
       },
       {
+        "id": "gst",
         "name": "Special Tags",
         "total": 15,
         "hiddenCount": 11,
@@ -1758,6 +2520,126 @@ export const BADGE_PACKS = [
             "style": "filled"
           }
         ]
+      },
+      {
+        "id": "gs",
+        "name": "Streaming",
+        "total": 9,
+        "hiddenCount": 5,
+        "items": [
+          {
+            "name": "PEACOCK",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/peacock.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "NETFLIX",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/netflix.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "PRIME VIDEO",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/prime-video.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "APPLE TV+",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/apple-tv-plus.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "glang",
+        "name": "Language",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english-white.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese-white.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/chinese-white.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "Russian",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/russian-white.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          }
+        ]
+      },
+      {
+        "id": "gsub",
+        "name": "Subtitle",
+        "total": 48,
+        "hiddenCount": 44,
+        "items": [
+          {
+            "name": "English Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "Japanese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "Chinese Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/chinese.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          },
+          {
+            "name": "Russian Subtitles",
+            "img": "https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/russian.png",
+            "text": "#FFFFFF",
+            "border": "#000000",
+            "bg": "#000000",
+            "style": "filled"
+          }
+        ]
       }
     ]
   }
@@ -1770,4 +2652,9 @@ export function getBadgePackById(id) {
 export function getBadgePackUrl(packId, version = 'v2') {
   const pack = getBadgePackById(packId);
   return version === 'v1' ? pack.rawV1 : pack.rawV2;
+}
+
+export function addCustomBadgePack(pack) {
+  BADGE_PACKS.unshift(pack);
+  return pack;
 }

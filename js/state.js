@@ -18,7 +18,13 @@ class WizardState {
       customPosterUrl: '',
       badgesEnabled: false,
       selectedBadgePack: 'tinted',
-      selectedBadgeVersion: 'v2' // 'v2' | 'v1'
+      selectedBadgeVersion: 'v2', // 'v2' | 'v1'
+      badgesModules: {
+        languages: false,
+        streaming: false,
+        subtitles: false,
+        fileSize: true
+      }
     };
 
     // Autenticación Nuvio (Supabase)
