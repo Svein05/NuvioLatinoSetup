@@ -1139,3 +1139,20 @@ header.lat-floating-nav nav {
   transform: translateY(8px) scale(0.96);
   opacity: 0;
 }
+
+/* ============================================================ */
+/* 14. TARJETAS DE PAQUETES DE BADGES (FUSION BADGES)          */
+/* ============================================================ */
+
+.badge-pack-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease,
+              background-color 0.22s ease,
+              box-shadow 0.22s ease;
+  will-change: transform, box-shadow;
+}
+
+.badge-pack-card:hover {
+  transform: translateY(-2px);
+}
+

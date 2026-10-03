@@ -7,6 +7,7 @@ import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
+import { BADGE_PACKS, getBadgePackById, getBadgePackUrl } from './badge-packs.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 export const DEMO_POSTERS = [
@@ -735,6 +736,16 @@ class AppController {
   updateManualModeButtons() {
     const btnCopyAio = document.getElementById('btnCopyAioConfig');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
+    const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
+
+    if (btnCopyBadge) {
+      if (state.preferences && state.preferences.badgesEnabled) {
+        btnCopyBadge.classList.remove('hidden');
+      } else {
+        btnCopyBadge.classList.add('hidden');
+      }
+    }
+
     if (!btnCopyAio) return;
 
     const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
@@ -1863,8 +1874,148 @@ class AppController {
       }
     };
 
+    // Alternar Personalización de Fusion Badges
+    const toggleBadges = document.getElementById('toggleBadgesCustomization');
+    const labelBadges = document.getElementById('labelBadgesCustomization');
+    const galleryBadges = document.getElementById('badgesGalleryContainer');
+
+    const updateBadgesCustomizationUI = () => {
+      const isBadgesActive = Boolean(state.preferences.badgesEnabled);
+      if (toggleBadges) {
+        toggleBadges.checked = isBadgesActive;
+      }
+      if (labelBadges) {
+        labelBadges.textContent = isBadgesActive ? 'Activado' : 'Desactivado';
+        labelBadges.className = isBadgesActive
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+      if (galleryBadges) {
+        if (isBadgesActive) {
+          galleryBadges.classList.remove('hidden');
+          this.renderBadgesGrid();
+          this.updateBadgeVersionUI();
+        } else {
+          galleryBadges.classList.add('hidden');
+        }
+      }
+      this.updateManualModeButtons();
+      this.refreshStep6Summary();
+    };
+
+    if (toggleBadges) {
+      toggleBadges.checked = Boolean(state.preferences.badgesEnabled);
+      toggleBadges.addEventListener('change', (e) => {
+        state.preferences.badgesEnabled = e.target.checked;
+        updateBadgesCustomizationUI();
+        this.updateNavigationButtons();
+      });
+    }
+    updateBadgesCustomizationUI();
+
+    this.selectBadgePack = (packId) => {
+      state.preferences.selectedBadgePack = packId;
+      this.renderBadgesGrid();
+      this.refreshStep6Summary();
+      this.updateNavigationButtons();
+    };
+
+    this.setBadgeVersion = (version) => {
+      state.preferences.selectedBadgeVersion = version;
+      this.updateBadgeVersionUI();
+      this.refreshStep6Summary();
+      this.showToast(`Versión de badges configurada a ${version.toUpperCase()}`, 'info');
+    };
+
+    this.copyBadgeJsonUrl = async (packId) => {
+      const id = packId || state.preferences.selectedBadgePack || 'tinted';
+      const version = state.preferences.selectedBadgeVersion || 'v2';
+      const pack = getBadgePackById(id);
+      const url = getBadgePackUrl(id, version);
+      try {
+        await navigator.clipboard.writeText(url);
+        this.showToast(`✓ URL de "${pack.name}" (${version.toUpperCase()}) copiada al portapapeles`, 'success');
+      } catch (_) {
+        this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+      }
+    };
+
     this.updatePosterCardsUI();
     this.updateStep5PosterPreviews();
+  }
+
+  updateBadgeVersionUI() {
+    const v = state.preferences.selectedBadgeVersion || 'v2';
+    const btnV2 = document.getElementById('btnBadgeVersionV2');
+    const btnV1 = document.getElementById('btnBadgeVersionV1');
+    if (btnV2 && btnV1) {
+      if (v === 'v2') {
+        btnV2.className = 'px-2.5 py-1 rounded-lg bg-white/10 text-white font-medium transition-all shadow-sm';
+        btnV1.className = 'px-2.5 py-1 rounded-lg text-white/60 hover:text-white transition-all';
+      } else {
+        btnV1.className = 'px-2.5 py-1 rounded-lg bg-white/10 text-white font-medium transition-all shadow-sm';
+        btnV2.className = 'px-2.5 py-1 rounded-lg text-white/60 hover:text-white transition-all';
+      }
+    }
+  }
+
+  renderBadgesGrid() {
+    const container = document.getElementById('badgesGrid');
+    if (!container) return;
+
+    const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
+
+    container.innerHTML = BADGE_PACKS.map(pack => {
+      const isSelected = (pack.id === selectedPackId);
+      const borderClass = isSelected
+        ? 'border-indigo-400 bg-white/[0.08] shadow-[0_0_20px_rgba(99,102,241,0.25)]'
+        : 'border-white/[0.08] bg-white/[0.03] hover:border-white/20';
+      const checkIcon = isSelected
+        ? `<div class="w-5 h-5 rounded-full border-2 border-indigo-400 bg-indigo-500 flex items-center justify-center text-[10px] text-white font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
+        : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
+
+      const tagsHtml = (pack.tags || []).map(t => `<span class="px-1.5 py-0.5 rounded text-[9px] font-mono bg-white/[0.05] border border-white/10 text-white/70">${t}</span>`).join('');
+
+      return `
+        <div onclick="window.appController.selectBadgePack('${pack.id}')" class="badge-pack-card relative p-4 rounded-[20px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <div class="space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <h5 class="text-xs font-semibold text-white tracking-wide">${pack.name}</h5>
+                <div class="flex items-center gap-1.5 text-[10px] text-white/50 pt-0.5">
+                  <i class="fa-brands fa-github text-[#ffd479]"></i>
+                  <span>Hecho por <a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a></span>
+                </div>
+              </div>
+              ${checkIcon}
+            </div>
+
+            <!-- Previsualización del diseño del badge -->
+            <div class="w-full aspect-[16/7] rounded-xl overflow-hidden bg-black/60 border border-white/10 relative shadow-inner p-2 flex items-center justify-center group-hover:border-white/20 transition-all">
+              <img src="${pack.previewUrl}" alt="Previsualización ${pack.name}" class="w-full h-full object-contain filter group-hover:scale-[1.02] transition-transform duration-300" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+              <div class="hidden flex-col items-center justify-center text-white/30 text-[10px] font-mono text-center p-2">
+                <i class="fa-solid fa-tags text-base mb-1"></i>
+                <span>Vista previa disponible online</span>
+              </div>
+            </div>
+
+            <p class="text-[11px] text-white/60 leading-relaxed font-light line-clamp-2" title="${pack.description}">
+              ${pack.description}
+            </p>
+          </div>
+
+          <div class="pt-2 border-t border-white/[0.06] flex items-center justify-between gap-2">
+            <div class="flex flex-wrap gap-1">
+              ${tagsHtml}
+            </div>
+            <button type="button" onclick="event.stopPropagation(); window.appController.copyBadgeJsonUrl('${pack.id}')" class="lat-capsule-btn glass text-[10px] !py-1 !px-2.5 flex items-center gap-1.5 shrink-0 hover:text-white" title="Copiar URL directa de este paquete">
+              <i class="fa-solid fa-copy text-[10px]"></i>
+              <span>Copiar URL</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   /**
@@ -2152,6 +2303,30 @@ class AppController {
           : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
       }
     }
+
+    const toggleBadges = document.getElementById('toggleBadgesCustomization');
+    const labelBadges = document.getElementById('labelBadgesCustomization');
+    const galleryBadges = document.getElementById('badgesGalleryContainer');
+    if (toggleBadges) {
+      const isBadgesEnabled = Boolean(state.preferences.badgesEnabled);
+      toggleBadges.checked = isBadgesEnabled;
+      if (labelBadges) {
+        labelBadges.textContent = isBadgesEnabled ? 'Activado' : 'Desactivado';
+        labelBadges.className = isBadgesEnabled
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+      if (galleryBadges) {
+        if (isBadgesEnabled) {
+          galleryBadges.classList.remove('hidden');
+          this.renderBadgesGrid();
+          this.updateBadgeVersionUI();
+        } else {
+          galleryBadges.classList.add('hidden');
+        }
+      }
+    }
+
     this.updatePosterCardsUI();
     this.updateStep5PosterPreviews();
   }
@@ -2162,6 +2337,7 @@ class AppController {
     const btnExecute = document.getElementById('btnExecutePipeline');
     const btnDownloadCol = document.getElementById('btnDownloadCollections');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
+    const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
 
     // Forzar modo Real en producción
     state.execution.mode = 'real';
@@ -2191,6 +2367,21 @@ class AppController {
     // Botones de Modo Manual: Copiar JSON al portapapeles
     const btnCopyCol = document.getElementById('btnCopyCollectionsJson');
     const btnCopyAio = document.getElementById('btnCopyAioConfig');
+
+    if (btnCopyBadge) {
+      btnCopyBadge.addEventListener('click', async () => {
+        try {
+          const packId = state.preferences.selectedBadgePack || 'tinted';
+          const version = state.preferences.selectedBadgeVersion || 'v2';
+          const badgeUrl = getBadgePackUrl(packId, version);
+          const pack = getBadgePackById(packId);
+          await navigator.clipboard.writeText(badgeUrl);
+          this.showToast(`✓ Enlace JSON de badges (${pack.name} - ${version.toUpperCase()}) copiado al portapapeles`, 'success');
+        } catch (err) {
+          this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+        }
+      });
+    }
 
     if (btnCopyCol) {
       btnCopyCol.addEventListener('click', async () => {
@@ -2345,6 +2536,19 @@ class AppController {
       } else {
         enrichmentEl.innerText = 'Desactivados';
         enrichmentEl.className = 'text-white/40 font-medium block truncate';
+      }
+    }
+
+    const badgesEl = document.getElementById('summaryBadgesStatus');
+    if (badgesEl) {
+      if (state.preferences && state.preferences.badgesEnabled) {
+        const pack = getBadgePackById(state.preferences.selectedBadgePack);
+        const ver = (state.preferences.selectedBadgeVersion || 'v2').toUpperCase();
+        badgesEl.innerText = `${pack.name} (${ver})`;
+        badgesEl.className = 'text-indigo-400 font-medium block truncate';
+      } else {
+        badgesEl.innerText = 'Desactivado';
+        badgesEl.className = 'text-white/40 font-medium block truncate';
       }
     }
   }
