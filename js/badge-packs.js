@@ -2701,11 +2701,206 @@ export function addCustomBadgePack(pack) {
   return pack;
 }
 
+/**
+ * Enriquece una sección para la vista previa en pantalla:
+ * - Prioriza banderas de América Latina y España en idiomas y subtítulos
+ * - Provee hasta 6 distintivos representativos por categoría para aprovechar el ancho dinámico
+ * - Hereda el estilo cromático y visual del pack activo
+ */
+function enrichSectionForDisplay(sec, pack) {
+  if (!sec) return sec;
+  const items = Array.isArray(sec.items) ? [...sec.items] : [];
+  const baseItem = items[0] || {
+    name: '',
+    text: '#ffffff',
+    border: pack.accentColor || '#ffd479',
+    bg: 'rgba(255,255,255,0.08)',
+    style: 'filled'
+  };
+
+  const copyStyle = (overrides = {}) => ({
+    text: baseItem.text,
+    border: baseItem.border,
+    bg: baseItem.bg,
+    style: baseItem.style || 'filled',
+    ...overrides
+  });
+
+  // Idiomas: Priorizar Latinoamérica y España, luego internacional
+  if (sec.id === 'glang') {
+    return {
+      ...sec,
+      name: sec.name || 'Language',
+      total: Math.max(sec.total || 48, 48),
+      hiddenCount: Math.max(0, (sec.total || 48) - 6),
+      items: [
+        { name: 'Latino', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/latino.png', ...copyStyle() },
+        { name: 'Español', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/spanish.png', ...copyStyle() },
+        { name: 'English', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/english.png', ...copyStyle() },
+        { name: 'Japanese', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/japanese.png', ...copyStyle() },
+        { name: 'Português', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/portuguese.png', ...copyStyle() },
+        { name: 'Français', img: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/french.png', ...copyStyle() }
+      ]
+    };
+  }
+
+  // Subtítulos: Priorizar Latinoamérica y España, luego internacional
+  if (sec.id === 'gsub') {
+    const useLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
+    const suffix = useLightBlue ? '-light-blue.png' : '.png';
+    return {
+      ...sec,
+      name: sec.name || 'Subtitle',
+      total: Math.max(sec.total || 48, 48),
+      hiddenCount: Math.max(0, (sec.total || 48) - 6),
+      items: [
+        { name: 'Latino', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/latino${suffix}`, ...copyStyle() },
+        { name: 'Español', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/spanish${suffix}`, ...copyStyle() },
+        { name: 'English', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/english${suffix}`, ...copyStyle() },
+        { name: 'Japanese', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/japanese${suffix}`, ...copyStyle() },
+        { name: 'Português', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/portuguese${suffix}`, ...copyStyle() },
+        { name: 'Français', img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/subtitle/french${suffix}`, ...copyStyle() }
+      ]
+    };
+  }
+
+  // Resolución: hasta 6 elementos (4K, 1440p, 1080p, 720p, 576p, 480p)
+  if (sec.id === 'gr' && items.length <= 4) {
+    const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange/.test(it.img));
+    const lastItem = items[items.length - 1] || baseItem;
+    const redColor = '#E53935';
+    const enriched = [...items];
+    if (enriched.length === 4) {
+      enriched.push(
+        {
+          name: '576p',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/576p-red.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/576p.png',
+          ...copyStyle(hasColorSuffix ? { text: redColor, border: redColor, bg: 'rgba(229,57,53,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
+        },
+        {
+          name: '480p',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/480p-red.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/480p.png',
+          ...copyStyle(hasColorSuffix ? { text: redColor, border: redColor, bg: 'rgba(229,57,53,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
+        }
+      );
+    }
+    return {
+      ...sec,
+      hiddenCount: Math.max(0, (sec.total || 9) - enriched.length),
+      items: enriched
+    };
+  }
+
+  // Calidad: hasta 6 elementos (Remux, BluRay, WEB-DL, WEBRip, HDTV, DVDRip)
+  if (sec.id === 'gq' && items.length <= 4) {
+    const hasColorSuffix = items.some(it => it.img && /-gold|-blue|-green|-orange/.test(it.img));
+    const lastItem = items[items.length - 1] || baseItem;
+    const enriched = [...items];
+    if (enriched.length === 4) {
+      enriched.push(
+        {
+          name: 'HDTV',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/hdtv-red.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/hdtv.png',
+          ...copyStyle(hasColorSuffix ? { text: '#E53935', border: '#E53935', bg: 'rgba(229,57,53,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
+        },
+        {
+          name: 'DVDRip',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/dvdrip-orange.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/quality/dvdrip.png',
+          ...copyStyle(hasColorSuffix ? { text: '#FF7300', border: '#FF7300', bg: 'rgba(255,115,0,0.18)' } : { text: lastItem.text, border: lastItem.border, bg: lastItem.bg })
+        }
+      );
+    }
+    return {
+      ...sec,
+      hiddenCount: Math.max(0, (sec.total || 12) - enriched.length),
+      items: enriched
+    };
+  }
+
+  // Visual: hasta 6 elementos (DV · HDR10+, DV · HDR10, DV · HDR, DV, HDR10+, HDR10)
+  if (sec.id === 'gv' && items.length <= 4) {
+    const hasColorSuffix = items.some(it => it.img && /-gold/.test(it.img));
+    const enriched = [...items];
+    if (enriched.length === 4) {
+      enriched.push(
+        {
+          name: 'HDR10+',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10-plus-gold.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10-plus.png',
+          ...copyStyle()
+        },
+        {
+          name: 'HDR10',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/hdr10.png',
+          ...copyStyle()
+        }
+      );
+    }
+    return {
+      ...sec,
+      hiddenCount: Math.max(0, (sec.total || 11) - enriched.length),
+      items: enriched
+    };
+  }
+
+  // Streaming: hasta 6 elementos (PEACOCK, NETFLIX, PRIME VIDEO, APPLE TV+, DISNEY+, HBO MAX)
+  if (sec.id === 'gs' && items.length <= 4) {
+    const hasColorSuffix = items.some(it => it.img && /-red|-cyan|-gray|-yellow/.test(it.img));
+    const enriched = [...items];
+    if (enriched.length === 4) {
+      enriched.push(
+        {
+          name: 'DISNEY+',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/disney-plus-blue.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/disney-plus.png',
+          ...copyStyle(hasColorSuffix ? { text: '#3E82F7', border: '#3E82F7', bg: 'rgba(62,130,247,0.18)' } : {})
+        },
+        {
+          name: 'HBO MAX',
+          img: hasColorSuffix ? 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/hbo-max-purple.png' : 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/streaming/hbo-max.png',
+          ...copyStyle(hasColorSuffix ? { text: '#9B51E0', border: '#9B51E0', bg: 'rgba(155,81,224,0.18)' } : {})
+        }
+      );
+    }
+    return {
+      ...sec,
+      hiddenCount: Math.max(0, (sec.total || 9) - enriched.length),
+      items: enriched
+    };
+  }
+
+  // Special Tags: hasta 6 elementos (SEADEX, HYBRID, CRITERION, PROPER, REPACK, REMASTERED)
+  if (sec.id === 'gst' && items.length <= 4) {
+    const hasLightBlue = items.some(it => it.img && it.img.includes('-light-blue.png'));
+    const suffix = hasLightBlue ? '-light-blue.png' : '.png';
+    const enriched = [...items];
+    if (enriched.length === 4) {
+      enriched.push(
+        {
+          name: 'REPACK',
+          img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/repack${suffix}`,
+          ...copyStyle()
+        },
+        {
+          name: 'REMASTERED',
+          img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/remastered${suffix}`,
+          ...copyStyle()
+        }
+      );
+    }
+    return {
+      ...sec,
+      hiddenCount: Math.max(0, (sec.total || 15) - enriched.length),
+      items: enriched
+    };
+  }
+
+  return sec;
+}
+
 export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
   const activeSet = new Set(activeModuleIds);
   const sectionsMap = new Map();
   (pack.sections || []).forEach(sec => {
-    sectionsMap.set(sec.id, sec);
+    sectionsMap.set(sec.id, enrichSectionForDisplay(sec, pack));
   });
 
   // Si 'size' está activo pero no existe en el pack, generamos chips estilizados acordes al pack
@@ -2714,12 +2909,13 @@ export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
     sectionsMap.set('size', {
       id: 'size',
       name: 'Tamaño',
-      total: 3,
+      total: 4,
       hiddenCount: 0,
       items: [
         { name: '18.4 GB', text: accent, border: accent, bg: 'rgba(255,255,255,0.08)' },
         { name: '4.2 GB', text: '#ffffff', border: 'rgba(255,255,255,0.3)', bg: 'rgba(255,255,255,0.06)' },
-        { name: '850 MB', text: '#a1a1aa', border: 'rgba(255,255,255,0.2)', bg: 'rgba(255,255,255,0.04)' }
+        { name: '850 MB', text: '#a1a1aa', border: 'rgba(255,255,255,0.2)', bg: 'rgba(255,255,255,0.04)' },
+        { name: '320 MB', text: '#71717a', border: 'rgba(255,255,255,0.15)', bg: 'rgba(255,255,255,0.02)' }
       ]
     });
   }

@@ -2115,7 +2115,7 @@ class AppController {
             groupMap.set(gid, g);
           }
           g.total++;
-          if (g.items.length < 4) {
+          if (g.items.length < 6) {
             g.items.push({
               name: f.name || 'Badge',
               img: f.imageURL || null,
@@ -2217,16 +2217,16 @@ class AppController {
         const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
         const badgesHtml = (sec.items || []).map(b => {
           return `
-            <span class="inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105"
+            <span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded-md text-[9.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105"
                   style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
                   title="${b.name}">
-              ${b.img ? `<img src="${b.img}" alt="${b.name}" class="h-3.5 max-h-[14px] w-auto object-contain block" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
+              ${b.img ? `<img src="${b.img}" alt="${b.name}" class="h-3 max-h-[13px] w-auto object-contain block" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
             </span>
           `;
         }).join('');
 
         return `
-          <div class="bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-between min-h-[66px]">
+          <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-between min-h-[66px] flex-1 min-w-[190px] sm:min-w-[210px]">
             <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold mb-1">
               <span class="truncate">${titleEs}</span>
               ${sec.hiddenCount > 0 ? `<span class="text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1">+${sec.hiddenCount}</span>` : ''}
@@ -2258,8 +2258,8 @@ class AppController {
               ${checkIcon}
             </div>
 
-            <!-- Grilla de Secciones con Badges Renderizados Directamente -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5">
+            <!-- Distribución flexible de secciones auto-equilibradas para aprovechar el 100% del ancho -->
+            <div class="flex flex-wrap gap-2 pt-0.5">
               ${sectionsHtml}
             </div>
           </div>

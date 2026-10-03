@@ -1238,3 +1238,11 @@ header.lat-floating-nav nav {
   opacity: 0.2;
   cursor: not-allowed;
 }
+
+/* Cajas de secciones de badges auto-balanceadas */
+.badge-section-box {
+  flex: 1 1 200px;
+  min-width: 190px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
