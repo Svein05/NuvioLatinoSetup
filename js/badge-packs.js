@@ -2800,7 +2800,7 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 3. AUDIO (hasta 14 badges oficiales de alta calidad)
+  // 3. AUDIO (16 badges oficiales de alta fidelidad)
   if (sec.id === 'ga') {
     const audioItems = [
       { name: 'Atmos TrueHD', img: hasColorSuffix ? 'dolby-atmos-truehd-gold.png' : 'dolby-atmos-truehd.png', color: '#FFD500' },
@@ -2809,9 +2809,11 @@ function enrichSectionForDisplay(sec, pack) {
       { name: 'DTS-HD MA', img: hasColorSuffix ? 'dts-hd-ma-blue.png' : 'dts-hd-ma.png', color: '#176BE8' },
       { name: 'TrueHD', img: hasColorSuffix ? 'dolby-truehd-blue.png' : 'dolby-truehd.png', color: '#176BE8' },
       { name: 'DTS-HD', img: hasColorSuffix ? 'dts-hd-green.png' : 'dts-hd.png', color: '#2EB853' },
+      { name: 'DTS:X HD', img: hasColorSuffix ? 'dts-x-hd-blue.png' : 'dts-x-hd.png', color: '#176BE8' },
       { name: 'DTS:X', img: hasColorSuffix ? 'dts-x-blue.png' : 'dts-x.png', color: '#176BE8' },
       { name: 'Atmos', img: hasColorSuffix ? 'dolby-atmos-blue.png' : 'dolby-atmos.png', color: '#176BE8' },
       { name: 'DD+', img: hasColorSuffix ? 'dolby-digital-plus-green.png' : 'dolby-digital-plus.png', color: '#2EB853' },
+      { name: 'DTS-ES', img: hasColorSuffix ? 'dts-es-orange.png' : 'dts-es.png', color: '#FF7300' },
       { name: 'DTS', img: hasColorSuffix ? 'dts-orange.png' : 'dts.png', color: '#FF7300' },
       { name: 'DD', img: hasColorSuffix ? 'dolby-digital-orange.png' : 'dolby-digital.png', color: '#FF7300' },
       { name: 'AAC', img: hasColorSuffix ? 'aac-orange.png' : 'aac.png', color: '#FF7300' },
@@ -2831,26 +2833,24 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 4. RESOLUCIÓN (hasta 11 resoluciones)
+  // 4. RESOLUCIÓN (9 resoluciones reales y nítidas, sin duplicados)
   if (sec.id === 'gr') {
     const resList = [
       { name: '4K', img: hasColorSuffix ? '4k-gold.png' : '4k.png', color: '#FFD500' },
-      { name: '2K', img: hasColorSuffix ? '2k-blue.png' : '2k.png', color: '#176BE8' },
       { name: '1440p', img: hasColorSuffix ? '1440p-blue.png' : '1440p.png', color: '#176BE8' },
       { name: '1080p', img: hasColorSuffix ? '1080p-green.png' : '1080p.png', color: '#2EB853' },
-      { name: 'FHD', img: hasColorSuffix ? '1080p-green.png' : '1080p.png', color: '#2EB853' },
       { name: '720p', img: hasColorSuffix ? '720p-orange.png' : '720p.png', color: '#FF7300' },
-      { name: 'HD', img: hasColorSuffix ? '720p-orange.png' : '720p.png', color: '#FF7300' },
       { name: '576p', img: hasColorSuffix ? '576p-red.png' : '576p.png', color: '#E53935' },
       { name: '480p', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' },
-      { name: 'SD', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' },
-      { name: '360p', img: hasColorSuffix ? '480p-red.png' : '480p.png', color: '#E53935' }
+      { name: '360p', img: hasColorSuffix ? '360p-red.png' : '360p.png', color: '#E53935' },
+      { name: '240p', img: hasColorSuffix ? '240p-red.png' : '240p.png', color: '#E53935' },
+      { name: '144p', img: hasColorSuffix ? '144p-red.png' : '144p.png', color: '#E53935' }
     ];
     return {
       ...sec,
       name: sec.name || 'Resolution',
-      total: Math.max(sec.total || 11, 11),
-      hiddenCount: Math.max(0, (sec.total || 11) - resList.length),
+      total: Math.max(sec.total || 9, 9),
+      hiddenCount: Math.max(0, (sec.total || 9) - resList.length),
       items: resList.map(r => ({
         name: r.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/resolution/${r.img}`,
@@ -2859,21 +2859,19 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 5. CANALES (hasta 6 canales)
+  // 5. CANALES (4 canales auténticos disponibles en el pack)
   if (sec.id === 'gc') {
     const chList = [
       { name: '7.1', img: hasColorSuffix ? '7-1-gold.png' : '7-1.png', color: '#FFD500' },
       { name: '6.1', img: hasColorSuffix ? '6-1-blue.png' : '6-1.png', color: '#176BE8' },
       { name: '5.1', img: hasColorSuffix ? '5-1-green.png' : '5-1.png', color: '#2EB853' },
-      { name: '2.1', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' },
-      { name: '2.0', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' },
-      { name: '1.0', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' }
+      { name: '2.0', img: hasColorSuffix ? '2-0-orange.png' : '2-0.png', color: '#FF7300' }
     ];
     return {
       ...sec,
       name: sec.name || 'Channels',
-      total: Math.max(sec.total || 6, 6),
-      hiddenCount: Math.max(0, (sec.total || 6) - chList.length),
+      total: Math.max(sec.total || 4, 4),
+      hiddenCount: Math.max(0, (sec.total || 4) - chList.length),
       items: chList.map(c => ({
         name: c.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/channels/${c.img}`,
@@ -2882,7 +2880,7 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 6. CALIDAD (hasta 10 calidades)
+  // 6. CALIDAD (12 tipos de calidad reales)
   if (sec.id === 'gq') {
     const qList = [
       { name: 'Remux', img: hasColorSuffix ? 'remux-gold.png' : 'remux.png', color: '#FFD500' },
@@ -2892,6 +2890,8 @@ function enrichSectionForDisplay(sec, pack) {
       { name: 'HDTV', img: hasColorSuffix ? 'hdtv-red.png' : 'hdtv.png', color: '#E53935' },
       { name: 'DVDRip', img: hasColorSuffix ? 'dvdrip-orange.png' : 'dvdrip.png', color: '#FF7300' },
       { name: 'HDRip', img: hasColorSuffix ? 'hdrip-orange.png' : 'hdrip.png', color: '#FF7300' },
+      { name: 'HC-HDRip', img: hasColorSuffix ? 'hc-hdrip-orange.png' : 'hc-hdrip.png', color: '#FF7300' },
+      { name: 'TC', img: hasColorSuffix ? 'tc-red.png' : 'tc.png', color: '#E53935' },
       { name: 'CAM', img: hasColorSuffix ? 'cam-red.png' : 'cam.png', color: '#E53935' },
       { name: 'TS', img: hasColorSuffix ? 'ts-red.png' : 'ts.png', color: '#E53935' },
       { name: 'SCR', img: hasColorSuffix ? 'scr-red.png' : 'scr.png', color: '#E53935' }
@@ -2926,8 +2926,8 @@ function enrichSectionForDisplay(sec, pack) {
     return {
       ...sec,
       name: sec.name || 'Visual',
-      total: Math.max(sec.total || 11, 11),
-      hiddenCount: Math.max(0, (sec.total || 11) - vList.length),
+      total: Math.max(sec.total || 10, 10),
+      hiddenCount: Math.max(0, (sec.total || 10) - vList.length),
       items: vList.map(v => ({
         name: v.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/visual/${v.img}`,
@@ -2936,7 +2936,7 @@ function enrichSectionForDisplay(sec, pack) {
     };
   }
 
-  // 8. SPECIAL TAGS (hasta 10 etiquetas especiales)
+  // 8. SPECIAL TAGS (16 etiquetas especiales que llenan ambas filas sin huecos vacíos)
   if (sec.id === 'gst') {
     const suffix = hasLightBlue ? '-light-blue.png' : '.png';
     const tagList = [
@@ -2949,13 +2949,19 @@ function enrichSectionForDisplay(sec, pack) {
       { name: 'OPEN MATTE', img: `open-matte${suffix}`, color: '#BBDEFB' },
       { name: 'IMAX', img: hasColorSuffix ? 'imax-gold.png' : 'imax.png', color: '#FFD500' },
       { name: 'DIR CUT', img: `directors-cut${suffix}`, color: '#BBDEFB' },
-      { name: 'EXTENDED', img: `extended${suffix}`, color: '#BBDEFB' }
+      { name: 'EXTENDED', img: `extended${suffix}`, color: '#BBDEFB' },
+      { name: 'THEATRICAL', img: `theatrical${suffix}`, color: '#BBDEFB' },
+      { name: 'UNCUT', img: `uncut${suffix}`, color: '#BBDEFB' },
+      { name: 'UNCENSORED', img: `uncensored${suffix}`, color: '#BBDEFB' },
+      { name: 'REGRADED', img: `regraded${suffix}`, color: '#BBDEFB' },
+      { name: 'B&W', img: `black-and-white${suffix}`, color: '#BBDEFB' },
+      { name: 'TRUE HUE', img: `true-hue${suffix}`, color: '#BBDEFB' }
     ];
     return {
       ...sec,
       name: sec.name || 'Special Tags',
-      total: Math.max(sec.total || 15, 15),
-      hiddenCount: Math.max(0, (sec.total || 15) - tagList.length),
+      total: Math.max(sec.total || 16, 16),
+      hiddenCount: Math.max(0, (sec.total || 16) - tagList.length),
       items: tagList.map(t => ({
         name: t.name,
         img: `https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/special-tags/${t.img}`,
