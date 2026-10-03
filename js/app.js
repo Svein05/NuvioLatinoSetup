@@ -390,7 +390,7 @@ class AppController {
   }
 
   /**
-   * Sistema de Notificaciones Flotantes (Toasts)
+   * Sistema de Notificaciones Flotantes (Toasts) Cinemático LAT-ADD
    * @param {string} message 
    * @param {'info' | 'success' | 'warning' | 'error'} type 
    * @param {number} duration 
@@ -400,39 +400,43 @@ class AppController {
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = 'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-2xl backdrop-blur-md transition-all duration-300 transform translate-y-2 opacity-0 text-xs font-medium';
+    toast.className = 'lat-toast is-entering';
 
-    let icon = 'fa-circle-info text-brand-400';
-    let colors = 'bg-slate-900/95 border-brand-500/40 text-slate-100 shadow-brand-950/40';
+    let badgeIcon = 'fa-circle-info';
+    let badgeStyle = 'bg-white/[0.08] border-white/20 text-[#ffd479]';
 
     if (type === 'success') {
-      icon = 'fa-circle-check text-emerald-400';
-      colors = 'bg-slate-900/95 border-emerald-500/40 text-emerald-100 shadow-emerald-950/40';
+      badgeIcon = 'fa-check';
+      badgeStyle = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400';
     } else if (type === 'error') {
-      icon = 'fa-circle-exclamation text-rose-400';
-      colors = 'bg-slate-900/95 border-rose-500/40 text-rose-100 shadow-rose-950/40';
+      badgeIcon = 'fa-xmark';
+      badgeStyle = 'bg-rose-500/15 border-rose-500/30 text-rose-400';
     } else if (type === 'warning') {
-      icon = 'fa-triangle-exclamation text-amber-400';
-      colors = 'bg-slate-900/95 border-amber-500/40 text-amber-100 shadow-amber-950/40';
+      badgeIcon = 'fa-triangle-exclamation';
+      badgeStyle = 'bg-amber-500/15 border-amber-500/30 text-amber-300';
     }
 
-    toast.className += ` ${colors}`;
+    // Limpiar caracteres redundantes al inicio del mensaje para mayor elegancia visual
+    const cleanMessage = String(message).replace(/^[✓✔🎉⚠️💡]\s*/u, '').trim();
+
     toast.innerHTML = `
-      <i class="fa-solid ${icon} text-base shrink-0"></i>
-      <span class="flex-1 leading-snug">${message}</span>
+      <div class="w-6 h-6 rounded-full border ${badgeStyle} flex items-center justify-center shrink-0 text-[11px] shadow-[var(--brillo-vidrio)]">
+        <i class="fa-solid ${badgeIcon}"></i>
+      </div>
+      <span class="text-white/90 text-xs font-medium leading-snug">${cleanMessage}</span>
     `;
 
     container.appendChild(toast);
 
     requestAnimationFrame(() => {
-      toast.classList.remove('translate-y-2', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
+      toast.classList.remove('is-entering');
+      toast.classList.add('is-visible');
     });
 
     setTimeout(() => {
-      toast.classList.remove('translate-y-0', 'opacity-100');
-      toast.classList.add('translate-y-2', 'opacity-0');
-      setTimeout(() => toast.remove(), 300);
+      toast.classList.remove('is-visible');
+      toast.classList.add('is-leaving');
+      setTimeout(() => toast.remove(), 280);
     }, duration);
   }
 

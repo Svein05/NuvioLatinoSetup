@@ -257,26 +257,6 @@
               No, este asistente es un proyecto de código abierto libre (licencia MIT) mantenido por y para la comunidad.
             </p>
           </details>
-        </div>
-      </section>
-
-      <!-- 6. Banner Final CTA -->
-      <section class="max-w-4xl mx-auto w-full px-2">
-        <div class="p-8 sm:p-12 rounded-[28px] bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/[0.12] backdrop-blur-[34px] shadow-[var(--shadow-lift)] text-center space-y-4 relative overflow-hidden">
-          <div class="absolute -top-20 -right-20 w-44 h-44 bg-white/[0.04] rounded-full blur-3xl pointer-events-none"></div>
-          
-          <h3 class="text-3xl sm:text-4xl font-normal font-serif text-white">¿Listo para comenzar?</h3>
-          <p class="text-xs sm:text-sm text-white/60 max-w-lg mx-auto">
-            El asistente te guiará paso a paso en 6 sencillas etapas. Puedes cambiar, personalizar o reordenar cada catálogo a tu gusto.
-          </p>
-
-          <div class="pt-2">
-            <a href="./configuration/" class="lat-capsule-btn solid text-base px-8 py-3.5 shadow-[var(--shadow-lift)]">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              <span>Comenzar Configuración</span>
-            </a>
-          </div>
-        </div>
       </section>
 
     </div>
@@ -401,16 +381,37 @@
   <script type="module" src="./js/version.js"></script>
   <!-- Barra de navegación con indicador deslizante animado -->
   <script type="module" src="./js/nav-indicator.js"></script>
-  <!-- Listener de scroll para fade y oscurecimiento cinemático del backdrop -->
+  <!-- Listener de scroll para fade progresivo y difuminado suave del backdrop -->
   <script>
     (function() {
       const backdrop = document.getElementById('heroBackdrop');
       if (!backdrop) return;
-      const onScroll = () => {
-        backdrop.classList.toggle('scrolled', window.scrollY > 80);
+      const target = document.getElementById('como-funciona');
+
+      let ticking = false;
+      const updateBackdrop = () => {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const fadeEnd = target ? Math.max(300, target.offsetTop - 120) : window.innerHeight * 0.8;
+        const progress = Math.min(1, Math.max(0, scrollY / fadeEnd));
+
+        // Transición suave: de 0.85 a 0.35 de opacidad (mantiene el póster difuminado de fondo sin oscurecer bruscamente)
+        const opacity = (0.85 - progress * 0.50).toFixed(3);
+        const blurPx = (progress * 5.0).toFixed(1);
+        const brightness = (1.0 - progress * 0.22).toFixed(2);
+
+        backdrop.style.opacity = opacity;
+        backdrop.style.filter = `blur(${blurPx}px) brightness(${brightness})`;
+        ticking = false;
       };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(updateBackdrop);
+          ticking = true;
+        }
+      }, { passive: true });
+
+      updateBackdrop();
     })();
   </script>
 </body>
