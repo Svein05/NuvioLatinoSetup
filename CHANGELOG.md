@@ -7,6 +7,32 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.4.0] - 2026-10-02
+
+### ✨ Añadido
+- **Sistema de Diseño Latino y Tipografía Editorial:**
+  - Rediseño estético integral fundamentado en *Instrument Serif* e *Instrument Sans* sobre una atmósfera OLED con paneles de cristal esmerilado (*glassmorphism*).
+  - Barra de navegación flotante minimalista con indicador deslizante interactivo y dinámico (`js/nav-indicator.js`).
+- **Fondo Cinemático Dinámico con Desvanecimiento Continuo:**
+  - Collage panorámico de alta resolución con pósters oficiales en español latino distribuidos en patrón escalonado de ladrillo.
+  - Efecto dinámico de desvanecimiento progresivo y desenfoque por scroll (*smooth-step*) que transiciona hacia un fondo oscuro sutil al navegar hacia las secciones inferiores.
+- **Rediseño del Gestor de Perfiles (Paso 2):**
+  - Cuadrícula centrada y simétrica (3 columnas x 2 filas) adaptativa para hasta 6 perfiles.
+  - Tarjeta interactiva para la creación de perfiles con desenfoque modal delimitado estrictamente al área de pasos del asistente (*scoped blur*), preservando la barra de navegación superior.
+- **Generador de Banner de Incrustación para Discord:**
+  - Generación automatizada de la tarjeta oficial de previsualización `assets/preview/incrustacion.png` con título centrado y fondo dinámico de cartelera.
+
+### 🐛 Corregido
+- **Armonización Visual y Eliminación de Parpadeos (Flicker):**
+  - Supresión de interferencias dinámicas y destellos en los botones del Paso 6 y carruseles de selección.
+  - Reorganización centrada de los botones de descarga de respaldos JSON directamente bajo la clave maestra.
+  - Reemplazo del ícono de enriquecimiento en el resumen de configuración por `fa-wand-magic-sparkles` compatible con Font Awesome Free.
+  - Homogeneización de los 4 pilares informativos de la portada con íconos amarillos dorados (`#ffd479`) y cajas de cristal idénticas.
+- **Saneamiento del Repositorio:**
+  - Exclusión de herramientas locales de actualización de pósters en `.gitignore` para preservar el repositorio limpio de scripts administrativos.
+
+---
+
 ## [1.3.0] - 2026-09-30
 
 ### ✨ Añadido
