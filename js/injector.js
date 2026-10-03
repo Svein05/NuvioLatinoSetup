@@ -187,11 +187,9 @@ export class PipelineInjector {
       const isBadgesActive = Boolean(state.preferences?.badgesEnabled);
       let selectedBadgePack = null;
       let badgePackUrl = '';
-      let badgeVersion = 'v2';
       if (isBadgesActive) {
         selectedBadgePack = getBadgePackById(state.preferences.selectedBadgePack);
-        badgeVersion = state.preferences.selectedBadgeVersion || 'v2';
-        badgePackUrl = getBadgePackUrl(state.preferences.selectedBadgePack, badgeVersion);
+        badgePackUrl = getBadgePackUrl(state.preferences.selectedBadgePack);
       }
 
       state.addLog(`Configurando perfil Nuvio: TMDB Enrichment = ${isEnrichmentActive ? 'ACTIVADO' : 'DESACTIVADO'}, Calificaciones MDBList = ${isRatingsActive ? 'ACTIVADO' : 'DESACTIVADO'} (Pósters: ${posterEngineLabel}${isBadgesActive && selectedBadgePack ? `, Badges: ${selectedBadgePack.name}` : ''})...`, 'info');
@@ -206,15 +204,29 @@ export class PipelineInjector {
       };
 
       if (isBadgesActive && selectedBadgePack) {
-        state.addLog(`Compilando reglas de badges: "${selectedBadgePack.name}" (${badgeVersion.toUpperCase()})...`, 'info');
+        state.addLog(`Compilando reglas de badges: "${selectedBadgePack.name}"...`, 'info');
+
+        const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
+        const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size'];
 
         let badgeRulesJson = { imports: [] };
         if (selectedBadgePack.isCustom && selectedBadgePack.customJson) {
           const cJson = selectedBadgePack.customJson;
+          let rawGroups = cJson.groups || [];
+          let rawFilters = cJson.filters || (Array.isArray(cJson) ? cJson : []);
+
+          let filteredGroups = rawGroups.filter(g => activeIds.includes(g.id));
+          filteredGroups.sort((a, b) => {
+            const idxA = orderIds.indexOf(a.id);
+            const idxB = orderIds.indexOf(b.id);
+            return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
+          });
+          let filteredFilters = rawFilters.filter(f => !f.groupId || activeIds.includes(f.groupId));
+
           badgeRulesJson.imports.push({
             sourceUrl: selectedBadgePack.rawV2 || 'custom://badges',
-            filters: cJson.filters || (Array.isArray(cJson) ? cJson : []),
-            groups: cJson.groups || [],
+            filters: filteredFilters,
+            groups: filteredGroups.length > 0 ? filteredGroups : rawGroups,
             isActive: true
           });
         } else {
@@ -222,10 +234,22 @@ export class PipelineInjector {
             const badgeResp = await fetch(badgePackUrl);
             if (badgeResp.ok) {
               const fetchedData = await badgeResp.json();
+              let rawGroups = fetchedData.groups || [];
+              let rawFilters = fetchedData.filters || [];
+
+              // Filtrar y ordenar grupos según la personalización del usuario
+              let filteredGroups = rawGroups.filter(g => activeIds.includes(g.id));
+              filteredGroups.sort((a, b) => {
+                const idxA = orderIds.indexOf(a.id);
+                const idxB = orderIds.indexOf(b.id);
+                return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
+              });
+              let filteredFilters = rawFilters.filter(f => !f.groupId || activeIds.includes(f.groupId));
+
               badgeRulesJson.imports.push({
                 sourceUrl: badgePackUrl,
-                filters: fetchedData.filters || [],
-                groups: fetchedData.groups || [],
+                filters: filteredFilters,
+                groups: filteredGroups.length > 0 ? filteredGroups : rawGroups,
                 isActive: true
               });
             } else {
@@ -242,7 +266,7 @@ export class PipelineInjector {
           }
         }
 
-        const showFileSize = (state.preferences?.badgesModules?.fileSize !== false);
+        const showFileSize = Boolean(activeIds.includes('size'));
 
         profileSettingsPayload.stream_badge_settings = {
           stream_badge_rules: {

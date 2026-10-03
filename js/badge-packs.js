@@ -2645,16 +2645,99 @@ export const BADGE_PACKS = [
   }
 ];
 
+export const BADGE_MODULE_DEFINITIONS = [
+  { id: 'gr', labelEs: 'Resolución', defaultActive: true },
+  { id: 'gq', labelEs: 'Calidad', defaultActive: true },
+  { id: 'gv', labelEs: 'Formato Visual', defaultActive: true },
+  { id: 'ga', labelEs: 'Audio', defaultActive: true },
+  { id: 'gc', labelEs: 'Canales', defaultActive: true },
+  { id: 'gst', labelEs: 'Tags Especiales', defaultActive: true },
+  { id: 'gs', labelEs: 'Streaming', defaultActive: false },
+  { id: 'glang', labelEs: 'Idiomas', defaultActive: false },
+  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: false },
+  { id: 'size', labelEs: 'Tamaño (GB / MB)', defaultActive: false }
+];
+
+export const BADGE_MODULE_TRANSLATIONS = {
+  gr: 'Resolución',
+  gq: 'Calidad',
+  gv: 'Formato Visual',
+  ga: 'Audio',
+  gc: 'Canales',
+  gst: 'Tags Especiales',
+  gs: 'Streaming',
+  glang: 'Idiomas',
+  gsub: 'Subtítulos',
+  size: 'Tamaño',
+  resolution: 'Resolución',
+  quality: 'Calidad',
+  visual: 'Formato Visual',
+  audio: 'Audio',
+  channels: 'Canales',
+  'special tags': 'Tags Especiales',
+  streaming: 'Streaming',
+  language: 'Idiomas',
+  subtitle: 'Subtítulos'
+};
+
+export function getBadgeModuleLabel(id, fallbackName = '') {
+  if (BADGE_MODULE_TRANSLATIONS[id]) return BADGE_MODULE_TRANSLATIONS[id];
+  const lower = (fallbackName || '').toLowerCase().trim();
+  if (BADGE_MODULE_TRANSLATIONS[lower]) return BADGE_MODULE_TRANSLATIONS[lower];
+  return fallbackName || id.toUpperCase();
+}
+
 export function getBadgePackById(id) {
   return BADGE_PACKS.find(p => p.id === id) || BADGE_PACKS[0];
 }
 
-export function getBadgePackUrl(packId, version = 'v2') {
+export function getBadgePackUrl(packId) {
   const pack = getBadgePackById(packId);
-  return version === 'v1' ? pack.rawV1 : pack.rawV2;
+  return pack.rawV2 || pack.rawV1 || '';
 }
 
 export function addCustomBadgePack(pack) {
   BADGE_PACKS.unshift(pack);
   return pack;
+}
+
+export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
+  const activeSet = new Set(activeModuleIds);
+  const sectionsMap = new Map();
+  (pack.sections || []).forEach(sec => {
+    sectionsMap.set(sec.id, sec);
+  });
+
+  // Si 'size' está activo pero no existe en el pack, generamos chips estilizados acordes al pack
+  if (activeSet.has('size') && !sectionsMap.has('size')) {
+    const accent = pack.accentColor || '#ffd479';
+    sectionsMap.set('size', {
+      id: 'size',
+      name: 'Tamaño',
+      total: 3,
+      hiddenCount: 0,
+      items: [
+        { name: '18.4 GB', text: accent, border: accent, bg: 'rgba(255,255,255,0.08)' },
+        { name: '4.2 GB', text: '#ffffff', border: 'rgba(255,255,255,0.3)', bg: 'rgba(255,255,255,0.06)' },
+        { name: '850 MB', text: '#a1a1aa', border: 'rgba(255,255,255,0.2)', bg: 'rgba(255,255,255,0.04)' }
+      ]
+    });
+  }
+
+  const result = [];
+  // Respetar la secuencia ordenada definida por el usuario
+  order.forEach(id => {
+    if (activeSet.has(id) && sectionsMap.has(id)) {
+      result.push(sectionsMap.get(id));
+    }
+  });
+
+  // Si hay alguna sección activa no presente en el orden, añadirla al final
+  sectionsMap.forEach((sec, id) => {
+    if (activeSet.has(id) && !order.includes(id)) {
+      result.push(sec);
+    }
+  });
+
+  return result;
 }

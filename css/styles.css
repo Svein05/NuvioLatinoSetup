@@ -1191,3 +1191,50 @@ header.lat-floating-nav nav {
 .badge-module-pill:has(input:checked) .check-indicator i {
   opacity: 1 !important;
 }
+
+/* Chips y Controles de Reordenamiento de Secciones de Badges */
+.badge-order-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.badge-order-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 212, 121, 0.35);
+}
+
+.badge-order-btn {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.625rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.badge-order-btn:hover:not(:disabled) {
+  background: #ffd479;
+  color: #08090c;
+  transform: scale(1.08);
+}
+
+.badge-order-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}

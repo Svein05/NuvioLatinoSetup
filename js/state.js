@@ -18,13 +18,8 @@ class WizardState {
       customPosterUrl: '',
       badgesEnabled: false,
       selectedBadgePack: 'tinted',
-      selectedBadgeVersion: 'v2', // 'v2' | 'v1'
-      badgesModules: {
-        languages: false,
-        streaming: false,
-        subtitles: false,
-        fileSize: true
-      }
+      activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'],
+      badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size']
     };
 
     // Autenticación Nuvio (Supabase)

@@ -7,7 +7,15 @@ import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
-import { BADGE_PACKS, getBadgePackById, getBadgePackUrl, addCustomBadgePack } from './badge-packs.js';
+import { 
+  BADGE_PACKS, 
+  getBadgePackById, 
+  getBadgePackUrl, 
+  addCustomBadgePack,
+  BADGE_MODULE_DEFINITIONS,
+  getBadgeModuleLabel,
+  getPackSectionsOrdered
+} from './badge-packs.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 export const DEMO_POSTERS = [
@@ -1879,16 +1887,54 @@ class AppController {
     const labelBadges = document.getElementById('labelBadgesCustomization');
     const galleryBadges = document.getElementById('badgesGalleryContainer');
 
-    this.syncBadgeModulesUI = () => {
-      const mods = state.preferences.badgesModules || {};
-      const tLang = document.getElementById('toggleBadgesLanguages');
-      const tStream = document.getElementById('toggleBadgesStreaming');
-      const tSub = document.getElementById('toggleBadgesSubtitles');
-      const tSize = document.getElementById('toggleBadgesFileSize');
-      if (tLang) tLang.checked = Boolean(mods.languages);
-      if (tStream) tStream.checked = Boolean(mods.streaming);
-      if (tSub) tSub.checked = Boolean(mods.subtitles);
-      if (tSize) tSize.checked = (mods.fileSize !== false);
+    this.renderBadgeModulesUI = () => {
+      const containerCheckboxes = document.getElementById('badgeModulesCheckboxes');
+      const containerOrderBar = document.getElementById('badgeModulesOrderBar');
+      const activeIds = state.preferences.activeBadgeModules || [];
+      const orderIds = state.preferences.badgeModulesOrder || [];
+
+      if (containerCheckboxes) {
+        containerCheckboxes.innerHTML = BADGE_MODULE_DEFINITIONS.map(def => {
+          const isChecked = activeIds.includes(def.id);
+          return `
+            <label class="badge-module-pill flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 cursor-pointer text-xs text-white/70 hover:text-white transition-all select-none">
+              <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.appController.toggleBadgeModule('${def.id}', this.checked)" class="sr-only">
+              <div class="w-4 h-4 rounded-md border border-white/30 flex items-center justify-center transition-all check-indicator">
+                <i class="fa-solid fa-check text-[10px] text-[#08090c] ${isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity"></i>
+              </div>
+              <span class="font-medium">+ ${def.labelEs}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      if (containerOrderBar) {
+        // Mostrar únicamente los módulos activos en el orden actual
+        const activeOrdered = orderIds.filter(id => activeIds.includes(id));
+        if (activeOrdered.length === 0) {
+          containerOrderBar.innerHTML = `<span class="text-[11px] text-white/40 italic">Ningún módulo activado. Marca categorías arriba para incluirlas y ordenarlas.</span>`;
+        } else {
+          containerOrderBar.innerHTML = activeOrdered.map((id, idx) => {
+            const isFirst = (idx === 0);
+            const isLast = (idx === activeOrdered.length - 1);
+            const label = getBadgeModuleLabel(id);
+            return `
+              <div class="badge-order-chip">
+                <span class="font-mono text-[10px] text-[#ffd479]">${idx + 1}.</span>
+                <span>${label}</span>
+                <div class="flex items-center gap-1 ml-1">
+                  <button type="button" ${isFirst ? 'disabled' : ''} onclick="window.appController.moveBadgeModule('${id}', -1)" class="badge-order-btn" title="Mover a la izquierda / antes">
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <button type="button" ${isLast ? 'disabled' : ''} onclick="window.appController.moveBadgeModule('${id}', 1)" class="badge-order-btn" title="Mover a la derecha / después">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
     };
 
     const updateBadgesCustomizationUI = () => {
@@ -1905,9 +1951,8 @@ class AppController {
       if (galleryBadges) {
         if (isBadgesActive) {
           galleryBadges.classList.add('is-open');
+          this.renderBadgeModulesUI();
           this.renderBadgesGrid();
-          this.updateBadgeVersionUI();
-          this.syncBadgeModulesUI();
         } else {
           galleryBadges.classList.remove('is-open');
         }
@@ -1926,14 +1971,44 @@ class AppController {
     }
     updateBadgesCustomizationUI();
 
-    this.toggleBadgeModule = (moduleKey, isChecked) => {
-      if (!state.preferences.badgesModules) {
-        state.preferences.badgesModules = { languages: false, streaming: false, subtitles: false, fileSize: true };
+    this.toggleBadgeModule = (id, isChecked) => {
+      if (!state.preferences.activeBadgeModules) {
+        state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
       }
-      state.preferences.badgesModules[moduleKey] = isChecked;
+      if (isChecked) {
+        if (!state.preferences.activeBadgeModules.includes(id)) {
+          state.preferences.activeBadgeModules.push(id);
+        }
+      } else {
+        state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== id);
+      }
+      this.renderBadgeModulesUI();
       this.renderBadgesGrid();
-      this.syncBadgeModulesUI();
-      this.showToast(isChecked ? `Módulo "+ ${moduleKey}" activado en badges` : `Módulo "+ ${moduleKey}" desactivado`, 'info');
+      this.refreshStep6Summary();
+      const label = getBadgeModuleLabel(id);
+      this.showToast(isChecked ? `Módulo "${label}" activado` : `Módulo "${label}" desactivado`, 'info');
+    };
+
+    this.moveBadgeModule = (id, delta) => {
+      const activeIds = state.preferences.activeBadgeModules || [];
+      const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size'])];
+      const activeOrdered = order.filter(x => activeIds.includes(x));
+      const curIdx = activeOrdered.indexOf(id);
+      const targetIdx = curIdx + delta;
+
+      if (curIdx < 0 || targetIdx < 0 || targetIdx >= activeOrdered.length) return;
+
+      const targetId = activeOrdered[targetIdx];
+      const globalCurIdx = order.indexOf(id);
+      const globalTargetIdx = order.indexOf(targetId);
+
+      if (globalCurIdx >= 0 && globalTargetIdx >= 0) {
+        order[globalCurIdx] = targetId;
+        order[globalTargetIdx] = id;
+        state.preferences.badgeModulesOrder = order;
+        this.renderBadgeModulesUI();
+        this.renderBadgesGrid();
+      }
     };
 
     this.selectBadgePack = (packId) => {
@@ -1943,16 +2018,8 @@ class AppController {
       this.updateNavigationButtons();
     };
 
-    this.setBadgeVersion = (version) => {
-      state.preferences.selectedBadgeVersion = version;
-      this.updateBadgeVersionUI();
-      this.refreshStep6Summary();
-      this.showToast(`Versión de badges configurada a ${version.toUpperCase()}`, 'info');
-    };
-
     this.copyBadgeJsonUrl = async (packId) => {
       const id = packId || state.preferences.selectedBadgePack || 'tinted';
-      const version = state.preferences.selectedBadgeVersion || 'v2';
       const pack = getBadgePackById(id);
 
       if (pack.isCustom && !pack.rawV2 && pack.customJson) {
@@ -1965,10 +2032,10 @@ class AppController {
         return;
       }
 
-      const url = getBadgePackUrl(id, version);
+      const url = getBadgePackUrl(id);
       try {
         await navigator.clipboard.writeText(url);
-        this.showToast(`✓ Enlace JSON de "${pack.name}" (${version.toUpperCase()}) copiado al portapapeles`, 'success');
+        this.showToast(`✓ Enlace JSON de "${pack.name}" copiado al portapapeles`, 'success');
       } catch (_) {
         this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
       }
@@ -2124,27 +2191,13 @@ class AppController {
     this.updateStep5PosterPreviews();
   }
 
-  updateBadgeVersionUI() {
-    const v = state.preferences.selectedBadgeVersion || 'v2';
-    const btnV2 = document.getElementById('btnBadgeVersionV2');
-    const btnV1 = document.getElementById('btnBadgeVersionV1');
-    if (btnV2 && btnV1) {
-      if (v === 'v2') {
-        btnV2.className = 'px-2.5 py-1 rounded-lg bg-white/10 text-white font-medium transition-all shadow-sm';
-        btnV1.className = 'px-2.5 py-1 rounded-lg text-white/60 hover:text-white transition-all';
-      } else {
-        btnV1.className = 'px-2.5 py-1 rounded-lg bg-white/10 text-white font-medium transition-all shadow-sm';
-        btnV2.className = 'px-2.5 py-1 rounded-lg text-white/60 hover:text-white transition-all';
-      }
-    }
-  }
-
   renderBadgesGrid() {
     const container = document.getElementById('badgesGrid');
     if (!container) return;
 
     const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
-    const activeModules = state.preferences.badgesModules || {};
+    const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
+    const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size'];
 
     container.innerHTML = BADGE_PACKS.map(pack => {
       const isSelected = (pack.id === selectedPackId);
@@ -2156,16 +2209,12 @@ class AppController {
         ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
         : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
 
-      // Filtrar secciones activas según módulos (+ Streaming, + Idiomas, + Subtítulos)
-      const visibleSections = (pack.sections || []).filter(sec => {
-        if (sec.id === 'gs' && !activeModules.streaming) return false;
-        if (sec.id === 'glang' && !activeModules.languages) return false;
-        if (sec.id === 'gsub' && !activeModules.subtitles) return false;
-        return true;
-      });
+      // Secciones filtradas y ordenadas de acuerdo a la configuración activa del usuario
+      const visibleSections = getPackSectionsOrdered(pack, activeIds, orderIds);
 
-      // Renderizado directo de secciones (Resolution, Quality, Visual, Audio, Channels, Special Tags y módulos activos)
+      // Renderizado de secciones con nombres traducidos al español
       const sectionsHtml = visibleSections.map(sec => {
+        const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
         const badgesHtml = (sec.items || []).map(b => {
           return `
             <span class="inline-flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105"
@@ -2179,7 +2228,7 @@ class AppController {
         return `
           <div class="bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-between min-h-[66px]">
             <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold mb-1">
-              <span class="truncate">${sec.name}</span>
+              <span class="truncate">${titleEs}</span>
               ${sec.hiddenCount > 0 ? `<span class="text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1">+${sec.hiddenCount}</span>` : ''}
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
@@ -2213,10 +2262,6 @@ class AppController {
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5">
               ${sectionsHtml}
             </div>
-
-            <p class="text-[11px] text-white/60 leading-relaxed font-light" title="${pack.description}">
-              ${pack.description}
-            </p>
           </div>
 
           <!-- Botón Único de Acción: Copiar JSON (El card/círculo ya selecciona el estilo) -->
@@ -2532,9 +2577,8 @@ class AppController {
       if (galleryBadges) {
         if (isBadgesEnabled) {
           galleryBadges.classList.add('is-open');
+          this.renderBadgeModulesUI();
           this.renderBadgesGrid();
-          this.updateBadgeVersionUI();
-          this.syncBadgeModulesUI();
         } else {
           galleryBadges.classList.remove('is-open');
         }
@@ -2586,11 +2630,10 @@ class AppController {
       btnCopyBadge.addEventListener('click', async () => {
         try {
           const packId = state.preferences.selectedBadgePack || 'tinted';
-          const version = state.preferences.selectedBadgeVersion || 'v2';
-          const badgeUrl = getBadgePackUrl(packId, version);
+          const badgeUrl = getBadgePackUrl(packId);
           const pack = getBadgePackById(packId);
           await navigator.clipboard.writeText(badgeUrl);
-          this.showToast(`✓ Enlace JSON de badges (${pack.name} - ${version.toUpperCase()}) copiado al portapapeles`, 'success');
+          this.showToast(`✓ Enlace JSON de badges (${pack.name}) copiado al portapapeles`, 'success');
         } catch (err) {
           this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
         }
@@ -2757,8 +2800,7 @@ class AppController {
     if (badgesEl) {
       if (state.preferences && state.preferences.badgesEnabled) {
         const pack = getBadgePackById(state.preferences.selectedBadgePack);
-        const ver = (state.preferences.selectedBadgeVersion || 'v2').toUpperCase();
-        badgesEl.innerText = `${pack.name} (${ver})`;
+        badgesEl.innerText = `${pack.name}`;
         badgesEl.className = 'text-indigo-400 font-medium block truncate';
       } else {
         badgesEl.innerText = 'Desactivado';
