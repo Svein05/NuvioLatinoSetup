@@ -786,7 +786,7 @@ option, optgroup {
 /* Cápsula de Colección (Mini Tarjetas) */
 .draggable-card {
   transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
-  cursor: grab;
+  cursor: pointer;
 }
 
 .draggable-card:active {

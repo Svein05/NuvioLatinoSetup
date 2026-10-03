@@ -145,7 +145,7 @@ export class MiniNuvio {
     }).join(' ');
 
     return `
-      <div class="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden border border-white/10 shadow-[var(--shadow-lift)] bg-[#08090c] flex flex-col justify-end p-6 transition-all duration-300">
+      <div id="miniNuvioHeroBanner" class="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden border border-white/10 shadow-[var(--shadow-lift)] bg-[#08090c] flex flex-col justify-end p-4 sm:p-6 transition-all duration-300">
         <!-- Imagen de Fondo con Gradiente Cinematográfico -->
         <img src="${backdrop}" alt="${title}" class="absolute inset-0 w-full h-full object-cover opacity-35 filter blur-[1px] scale-105 transition-all duration-500" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200'">
         <div class="absolute inset-0 bg-gradient-to-t from-[#08090c] via-[#08090c]/70 to-transparent"></div>
@@ -273,9 +273,9 @@ export class MiniNuvio {
         data-section-id="${section.id}"
         data-folder-index="${fIndex}"
         data-folder-id="${folder.id}"
-        class="draggable-card group relative ${sizeClasses} rounded-2xl overflow-hidden border ${isFocused ? 'border-2 border-[#ffd479] ring-2 ring-[#ffd479]/40 shadow-lg shadow-[#ffd479]/20' : isEnabled ? 'border border-white/10 hover:border-white/30' : 'border border-white/5 opacity-40'} bg-[#0b0d12] select-none cursor-grab"
+        class="draggable-card group relative ${sizeClasses} rounded-2xl overflow-hidden border ${isFocused ? 'border-2 border-[#ffd479] ring-2 ring-[#ffd479]/40 shadow-lg shadow-[#ffd479]/20' : isEnabled ? 'border border-white/10 hover:border-white/30' : 'border border-white/5 opacity-40'} bg-[#0b0d12] select-none cursor-pointer"
         onmouseenter="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
-        onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')"
+        onclick="window.miniNuvioInstance.focusFolder('${section.id}', '${folder.id}')"
       >
         <!-- Imagen de Portada -->
         <img src="${imageSrc}" alt="${folder.title}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
@@ -325,24 +325,6 @@ export class MiniNuvio {
             <span class="truncate">${folder.title}</span>
           </div>
         </div>
-
-        <!-- Overlay con Acciones Rápidas (Visible en Hover) -->
-        <div class="absolute inset-0 bg-[#08090c]/85 backdrop-blur-[6px] opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity" onclick="event.stopPropagation()">
-          <button onclick="window.miniNuvioInstance.openCatalogExplorer('${section.id}', '${folder.id}')" class="no-drag lat-capsule-btn solid text-[11px] py-1.5 px-3">
-            <i class="fa-solid fa-layer-group text-[11px]"></i>
-            <span>Ver Catálogos</span>
-          </button>
-
-          <button onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="no-drag lat-capsule-btn glass text-[11px] py-1 px-2.5" title="Personalizar diseño de fila">
-            <i class="fa-solid fa-sliders text-[10px] text-[#ffd479]"></i>
-            <span>Diseño</span>
-          </button>
-
-          <div class="text-[10px] text-white/50 font-medium flex items-center gap-1 mt-0.5 pointer-events-none">
-            <i class="fa-solid fa-arrows-left-right text-[9px] text-[#ffd479]"></i>
-            <span>Arrastra para ordenar</span>
-          </div>
-        </div>
       </div>
     `;
   }
@@ -357,7 +339,7 @@ export class MiniNuvio {
     if (folder) {
       this.focusedFolder = folder;
       // Actualizar solo el hero banner para no perder scroll del carrusel
-      const heroEl = this.container.querySelector('.relative.w-full.h-48');
+      const heroEl = document.getElementById('miniNuvioHeroBanner') || this.container.querySelector('.relative.w-full.h-48');
       if (heroEl) {
         heroEl.outerHTML = this.renderHeroBanner();
       } else {
@@ -965,37 +947,37 @@ export class MiniNuvio {
 
     modalContainer.innerHTML = `
       <div id="sectionEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#08090c]/85 backdrop-blur-xl transition-opacity">
-        <div class="bg-[#0b0d12]/95 border border-white/10 rounded-3xl max-w-2xl w-full p-6 shadow-[var(--shadow-lift)] backdrop-blur-[34px] flex flex-col max-h-[88vh] text-white/90">
+        <div class="bg-[#0b0d12]/95 border border-white/10 rounded-2xl sm:rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-[var(--shadow-lift)] backdrop-blur-[34px] flex flex-col max-h-[88vh] text-white/90">
           
           <!-- Header -->
-          <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4 shrink-0">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-white/[0.06] text-[#ffd479] flex items-center justify-center border border-white/10">
-                <i class="fa-solid fa-layer-group"></i>
+          <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-3 sm:mb-4 shrink-0">
+            <div class="flex items-center gap-2 sm:gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-white/[0.06] text-[#ffd479] flex items-center justify-center border border-white/10 shrink-0">
+                <i class="fa-solid fa-layer-group text-sm"></i>
               </div>
-              <div>
-                <h3 class="text-base font-bold text-white">Personalizar Sección</h3>
-                <p class="text-[11px] text-white/50">Edita el nombre de la sección y el orden o visibilidad de sus filas</p>
+              <div class="min-w-0">
+                <h3 class="text-sm sm:text-base font-bold text-white truncate">Personalizar Sección</h3>
+                <p class="text-[10px] sm:text-[11px] text-white/50 truncate">Edita el nombre y el orden de sus filas</p>
               </div>
             </div>
-            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors shrink-0">
               <i class="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
 
           <!-- Scrollable Content -->
-          <div class="overflow-y-auto space-y-4 pr-1 scrollbar-thin scrollbar-thumb-white/10 flex-1">
+          <div class="overflow-y-auto space-y-3 sm:space-y-4 pr-1 scrollbar-thin scrollbar-thumb-white/10 flex-1">
             
             <!-- Nombre de Sección y Toggle General -->
-            <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-4 space-y-3">
+            <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-3 sm:p-4 space-y-2.5 sm:space-y-3">
               <div>
-                <label class="block text-[11px] font-semibold text-white/70 uppercase tracking-wider mb-1">
+                <label class="block text-[10px] sm:text-[11px] font-semibold text-white/70 uppercase tracking-wider mb-1">
                   Nombre de la Sección en Nuvio
                 </label>
-                <input id="secEditTitle" type="text" value="${(sec.title || sec.id).replace(/"/g, '&quot;')}" class="w-full px-3 py-2 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-sm text-white font-medium">
+                <input id="secEditTitle" type="text" value="${(sec.title || sec.id).replace(/"/g, '&quot;')}" class="w-full px-3 py-2 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-xs sm:text-sm text-white font-medium">
               </div>
 
-              <div class="flex items-center justify-between pt-1">
+              <div class="flex items-center justify-between pt-0.5">
                 <span class="text-xs text-white/80">Mostrar esta sección en Nuvio</span>
                 <label class="lat-switch shrink-0" title="Mostrar esta sección">
                   <input id="secEditEnabled" type="checkbox" ${sec.enabled !== false ? 'checked' : ''}>
@@ -1009,10 +991,10 @@ export class MiniNuvio {
             <!-- Filas / Colecciones contenidas -->
             <div>
               <div class="flex items-center justify-between mb-2">
-                <label class="text-[11px] font-semibold text-white/70 uppercase tracking-wider">
+                <label class="text-[10px] sm:text-[11px] font-semibold text-white/70 uppercase tracking-wider">
                   Filas contenidas en esta Sección (${folders.length})
                 </label>
-                <span class="text-[10px] text-white/40 font-mono">Reordena, renombra o explora pósters</span>
+                <span class="text-[10px] text-white/40 font-mono hidden sm:inline">Reordena, renombra o explora pósters</span>
               </div>
 
               <div class="space-y-2">
@@ -1020,49 +1002,51 @@ export class MiniNuvio {
                   const isFEnabled = f.enabled !== false;
                   const cover = f.coverImageUrl || f.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
                   return `
-                    <div class="flex items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/10 rounded-2xl hover:border-white/20 transition-colors">
+                    <div class="flex items-center justify-between gap-2 sm:gap-3 p-2.5 sm:p-3 bg-white/[0.02] border border-white/10 rounded-2xl hover:border-white/20 transition-colors">
                       
-                      <!-- Orden Controls: Subir, Bajar y Extremos Cielo / Fondo -->
+                      <!-- Orden Controls: Subir / Bajar en móvil; Cielo / Fondo en sm: -->
                       <div class="flex items-center gap-0.5 shrink-0 bg-white/[0.05] border border-white/10 rounded-xl p-0.5">
-                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1"' : 'class="p-1 text-white/50 hover:text-white transition-colors"'} title="Subir">
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1"' : 'class="p-1 text-white/60 hover:text-white transition-colors"'} title="Subir">
                           <i class="fa-solid fa-chevron-up text-[10px]"></i>
                         </button>
-                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, 1)" ${idx === folders.length - 1 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1"' : 'class="p-1 text-white/50 hover:text-white transition-colors"'} title="Bajar">
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSection('${sec.id}', ${idx}, 1)" ${idx === folders.length - 1 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1"' : 'class="p-1 text-white/60 hover:text-white transition-colors"'} title="Bajar">
                           <i class="fa-solid fa-chevron-down text-[10px]"></i>
                         </button>
-                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSectionExtreme('${sec.id}', ${idx}, 'top')" ${idx === 0 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1"' : 'class="p-1 text-white/50 hover:text-[#ffd479] transition-colors"'} title="Mover al cielo (primera posición)">
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSectionExtreme('${sec.id}', ${idx}, 'top')" ${idx === 0 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1 hidden sm:inline-block"' : 'class="p-1 text-white/40 hover:text-[#ffd479] transition-colors hidden sm:inline-block"'} title="Mover al cielo (primera posición)">
                           <i class="fa-solid fa-angles-up text-[10px]"></i>
                         </button>
-                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSectionExtreme('${sec.id}', ${idx}, 'bottom')" ${idx === folders.length - 1 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1"' : 'class="p-1 text-white/50 hover:text-[#ffd479] transition-colors"'} title="Tirar al fondo (última posición)">
+                        <button type="button" onclick="window.miniNuvioInstance.moveFolderInSectionExtreme('${sec.id}', ${idx}, 'bottom')" ${idx === folders.length - 1 ? 'disabled class="opacity-20 text-white/20 cursor-not-allowed p-1 hidden sm:inline-block"' : 'class="p-1 text-white/40 hover:text-[#ffd479] transition-colors hidden sm:inline-block"'} title="Tirar al fondo (última posición)">
                           <i class="fa-solid fa-angles-down text-[10px]"></i>
                         </button>
                       </div>
 
                       <!-- Mini Preview -->
-                      <div class="w-12 h-8 rounded-xl overflow-hidden shrink-0 border border-white/10 bg-black/60 cursor-pointer" onclick="window.miniNuvioInstance.openCatalogExplorer('${sec.id}', '${f.id}')" title="Ver pósters de esta fila">
+                      <div class="w-9 h-6 sm:w-12 sm:h-8 rounded-lg sm:rounded-xl overflow-hidden shrink-0 border border-white/10 bg-black/60 cursor-pointer" onclick="window.miniNuvioInstance.openCatalogExplorer('${sec.id}', '${f.id}')" title="Ver catálogos de esta fila">
                         <img src="${cover}" alt="${f.title}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400'">
                       </div>
 
-                      <!-- Title Input & Shape -->
-                      <div class="flex-1 min-w-0 flex items-center gap-2">
-                        <input type="text" class="sec-folder-title-input w-full px-2.5 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-xs text-white" data-folder-id="${f.id}" value="${(f.title || '').replace(/"/g, '&quot;')}" placeholder="Título de la fila">
-                        <span class="text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/50 font-mono shrink-0">${f.tileShape || 'LANDSCAPE'}</span>
+                      <!-- Title: Texto truncado limpio en móvil (< sm), input editable en escritorio (sm:) -->
+                      <div class="flex-1 min-w-0 pr-1">
+                        <span class="text-xs font-semibold text-white truncate block sm:hidden" title="${(f.title || '').replace(/"/g, '&quot;')}">
+                          ${f.coverEmoji ? f.coverEmoji + ' ' : ''}${f.title || 'Colección'}
+                        </span>
+                        <input type="text" class="sec-folder-title-input hidden sm:block w-full px-2.5 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-xs text-white" data-folder-id="${f.id}" value="${(f.title || '').replace(/"/g, '&quot;')}" placeholder="Título de la fila">
                       </div>
 
-                      <!-- Actions: Explore, Details & Toggle -->
-                      <div class="flex items-center gap-2 shrink-0">
-                        <button type="button" onclick="window.miniNuvioInstance.openCatalogExplorer('${sec.id}', '${f.id}')" class="lat-capsule-btn solid text-[10px] py-1 px-2.5" title="Explorar catálogos y pósters reales">
-                          <i class="fa-solid fa-film text-[10px]"></i>
-                          <span class="hidden sm:inline">Pósters</span>
+                      <!-- Actions: Catálogos, Diseño y Checkbox -->
+                      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <button type="button" onclick="window.miniNuvioInstance.openCatalogExplorer('${sec.id}', '${f.id}')" class="w-7 h-7 sm:w-auto lat-capsule-btn solid text-[10px] p-0 sm:py-1 sm:px-2.5 flex items-center justify-center shadow-sm" title="Ver y ordenar catálogos">
+                          <i class="fa-solid fa-layer-group text-[10px]"></i>
+                          <span class="hidden sm:inline ml-1">Catálogos</span>
                         </button>
 
-                        <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${f.id}')" class="lat-capsule-btn glass text-[10px] py-1 px-2.5" title="Personalizar portada, diseño y logos">
-                          <i class="fa-solid fa-sliders text-[10px] text-[#ffd479]"></i>
-                          <span class="hidden sm:inline">Diseño</span>
+                        <button type="button" onclick="window.miniNuvioInstance.openEditModal('${sec.id}', '${f.id}')" class="w-7 h-7 sm:w-auto lat-capsule-btn glass text-[10px] p-0 sm:py-1 sm:px-2.5 flex items-center justify-center text-[#ffd479]" title="Personalizar portada, diseño y logos">
+                          <i class="fa-solid fa-sliders text-[10px]"></i>
+                          <span class="hidden sm:inline ml-1 text-white">Diseño</span>
                         </button>
 
                         <div 
-                          class="no-drag cursor-pointer p-0.5" 
+                          class="no-drag cursor-pointer p-0.5 shrink-0" 
                           onclick="window.miniNuvioInstance.toggleFolder('${sec.id}', '${f.id}'); this.querySelector('.lat-folder-checkbox').classList.toggle('checked');"
                           title="${isFEnabled ? 'Desactivar fila' : 'Activar fila'}"
                         >
@@ -1081,11 +1065,11 @@ export class MiniNuvio {
           </div>
 
           <!-- Footer -->
-          <div class="flex items-center justify-end gap-2 pt-4 mt-4 border-t border-white/10 shrink-0">
-            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="lat-capsule-btn glass text-xs py-2 px-4">
+          <div class="flex items-center justify-end gap-2 pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-white/10 shrink-0">
+            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="lat-capsule-btn glass text-xs py-2 px-3 sm:px-4">
               Cancelar
             </button>
-            <button type="button" onclick="window.miniNuvioInstance.saveSectionModal('${sec.id}')" class="lat-capsule-btn solid text-xs py-2 px-5">
+            <button type="button" onclick="window.miniNuvioInstance.saveSectionModal('${sec.id}')" class="lat-capsule-btn solid text-xs py-2 px-4 sm:px-5">
               <i class="fa-solid fa-check mr-1"></i>
               <span>Guardar Sección</span>
             </button>
@@ -1157,16 +1141,16 @@ export class MiniNuvio {
     const currentBackdrop = folder.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200';
 
     modalContainer.innerHTML = `
-      <div id="miniNuvioEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#08090c]/85 backdrop-blur-xl transition-opacity">
-        <div class="bg-[#0b0d12]/95 border border-white/10 rounded-3xl max-w-lg w-full p-6 shadow-[var(--shadow-lift)] backdrop-blur-[34px] flex flex-col max-h-[90vh] text-white/90">
+      <div id="miniNuvioEditModal" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#08090c]/85 backdrop-blur-xl transition-opacity">
+        <div class="bg-[#0b0d12]/95 border border-white/10 rounded-2xl sm:rounded-3xl max-w-lg w-full p-4 sm:p-6 shadow-[var(--shadow-lift)] backdrop-blur-[34px] flex flex-col max-h-[90vh] text-white/90">
           
           <!-- Header -->
-          <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-4 shrink-0">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <div class="flex justify-between items-center border-b border-white/10 pb-3 mb-3 sm:mb-4 shrink-0">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
               <i class="fa-solid fa-sliders text-[#ffd479]"></i>
-              <span>Diseño de Fila: ${folder.title}</span>
+              <span class="truncate">Diseño de Fila: ${folder.title}</span>
             </h3>
-            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors">
+            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors shrink-0">
               <i class="fa-solid fa-xmark text-lg"></i>
             </button>
           </div>
@@ -1180,7 +1164,7 @@ export class MiniNuvio {
               <div class="absolute inset-0 bg-gradient-to-t from-[#08090c] via-[#08090c]/60 to-transparent"></div>
               <div class="relative z-10 flex items-center gap-2">
                 <span id="editPreviewEmoji" class="text-lg">${folder.coverEmoji || '🎬'}</span>
-                <span id="editPreviewTitle" class="text-sm font-bold text-white drop-shadow">${folder.title || 'Título'}</span>
+                <span id="editPreviewTitle" class="text-sm font-bold text-white drop-shadow truncate">${folder.title || 'Título'}</span>
               </div>
             </div>
 
@@ -1221,22 +1205,21 @@ export class MiniNuvio {
           </div>
 
           <!-- Footer -->
-          <div class="flex justify-between items-center pt-3 mt-3 border-t border-white/10 shrink-0">
+          <div class="flex flex-wrap justify-between items-center gap-2 pt-3 mt-3 border-t border-white/10 shrink-0">
             <button type="button" onclick="window.miniNuvioInstance.openCatalogExplorer('${sectionId}', '${folderId}')" class="lat-capsule-btn glass text-xs py-1.5 px-3">
               <i class="fa-solid fa-layer-group text-[#ffd479]"></i>
-              <span>Ver Catálogos de esta Fila</span>
+              <span>Ver Catálogos</span>
             </button>
 
-            <div class="flex gap-2">
-              <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="lat-capsule-btn glass text-xs py-2 px-4">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="lat-capsule-btn glass text-xs py-1.5 px-3 sm:px-4">
                 Cancelar
               </button>
-              <button type="button" onclick="window.miniNuvioInstance.saveEditModal()" class="lat-capsule-btn solid text-xs py-2 px-5">
-                Guardar Cambios
+              <button type="button" onclick="window.miniNuvioInstance.saveEditModal()" class="lat-capsule-btn solid text-xs py-1.5 px-4 sm:px-5">
+                Guardar
               </button>
             </div>
           </div>
-
         </div>
       </div>
     `;
