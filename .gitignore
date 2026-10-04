@@ -21,10 +21,13 @@ env/
 .env
 .env.*
 
+# Local user scripts (not uploaded to GitHub)
+scripts/generate_github_preview.py
+scripts/*.bat
+
 # Residual / removed files
 Plantilla.html
 run.py
-scripts/
 design-reference/
 
 # Debug / analysis files (not part of source)
