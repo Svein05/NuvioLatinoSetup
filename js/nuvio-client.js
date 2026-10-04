@@ -306,6 +306,79 @@ export class NuvioClient {
   }
 
   /**
+   * Elimina un perfil de la cuenta de Nuvio (mediante RPC sync_push_profiles con fallback REST)
+   */
+  static async deleteProfile({ apiUrl, apikey, accessToken, userId, profileId }) {
+    const targetId = Number(profileId);
+
+    // 1. Obtener lista actual de perfiles
+    let existing = [];
+    try {
+      existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+    } catch (fetchErr) {
+      console.warn('[NuvioClient] Error obteniendo perfiles previos a eliminación:', fetchErr);
+    }
+
+    const remainingProfiles = existing
+      .filter(p => Number(p.profile_index ?? p.id) !== targetId)
+      .map(p => ({
+        profile_index: Number(p.profile_index ?? p.id),
+        name: p.name,
+        avatar_color_hex: '#6366F1',
+        uses_primary_addons: false,
+        uses_primary_plugins: false,
+        avatar_id: null,
+        avatar_url: p.avatar_url
+      }));
+
+    // 2. Intentar sincronización con RPC sync_push_profiles
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profiles',
+        body: { p_profiles: remainingProfiles }
+      });
+
+      return {
+        success: true,
+        remainingProfiles
+      };
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_push_profiles para eliminación falló, probando fallback REST:', rpcErr.message);
+    }
+
+    // 3. Fallback REST directo: DELETE /rest/v1/profiles?user_id=eq...&profile_index=eq...
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const endpoint = `${cleanUrl}/rest/v1/profiles?user_id=eq.${encodeURIComponent(userId)}&profile_index=eq.${encodeURIComponent(targetId)}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error en fallback REST de eliminación (${response.status}): ${errorText}`);
+      }
+
+      return {
+        success: true,
+        remainingProfiles
+      };
+    } catch (err) {
+      console.error('[NuvioClient] Error eliminando perfil:', err);
+      throw new Error(`Fallo al eliminar perfil en Nuvio: ${err.message}`);
+    }
+  }
+
+  /**
    * Resuelve el sync owner de la cuenta
    */
   static async getSyncOwner({ apiUrl, apikey, accessToken, userId }) {

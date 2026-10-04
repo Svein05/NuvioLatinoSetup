@@ -13,6 +13,7 @@ import {
   getCanonicalModuleId,
   compileUniversalBadgeRules
 } from './badge-packs.js';
+import { recordSuccessfulCompletion } from './counter.js';
 
 export class PipelineInjector {
   /**
@@ -342,6 +343,13 @@ export class PipelineInjector {
 
       state.execution.isCompleted = true;
       state.addLog('🎉 ¡Configuración completada con éxito! Tu Nuvio está listo.', 'success');
+
+      // Registrar finalización exitosa en el contador global (solo ejecuciones reales)
+      if (!isSimulation) {
+        recordSuccessfulCompletion().catch(err => {
+          console.warn('[PipelineInjector] Error actualizando contador de configuraciones:', err);
+        });
+      }
     } catch (err) {
       console.error('[PipelineInjector] Error:', err);
       const errMsg = err?.message || String(err);

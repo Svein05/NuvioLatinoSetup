@@ -93,8 +93,17 @@
       </a>
     </nav>
 
-    <!-- Cápsula Derecha: Discord + GitHub -->
+    <!-- Cápsula Derecha: Contador + Discord + GitHub -->
     <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
+      <!-- Pastilla Contador de Usuarios Ayudados / Completados -->
+      <div id="completionsCounterPill"
+           class="lat-floating-pill completions-counter-pill px-2.5 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-all flex items-center gap-1.5 cursor-default group"
+           title="Usuarios que han completado su configuración exitosamente">
+        <i class="fa-solid fa-users text-xs sm:text-sm text-emerald-400 group-hover:scale-110 transition-transform"></i>
+        <span id="completionsCountNumber" class="completions-count-number font-semibold text-emerald-300 font-mono tracking-tight">--</span>
+        <span class="hidden lg:inline text-[11px] text-emerald-400/80 font-normal">ayudados</span>
+      </div>
+
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
          class="lat-floating-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
         <i class="fa-brands fa-discord text-sm sm:text-base text-[#5865F2]"></i>
@@ -387,6 +396,11 @@
   <script type="module" src="./js/version.js"></script>
   <!-- Barra de navegación con indicador deslizante animado -->
   <script type="module" src="./js/nav-indicator.js"></script>
+  <!-- Inicializador del Contador Global de Configuraciones -->
+  <script type="module">
+    import { initCompletionsCounterUI } from './js/counter.js';
+    initCompletionsCounterUI();
+  </script>
   <!-- Listener de scroll para fade progresivo de largo recorrido y atmósfera sutil -->
   <script>
     (function() {

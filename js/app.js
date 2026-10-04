@@ -20,6 +20,7 @@ import {
   isSectionActive,
   compileUniversalBadgeRules
 } from './badge-packs.js';
+import { initCompletionsCounterUI, recordSuccessfulCompletion } from './counter.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 export const DEMO_POSTERS = [
@@ -278,6 +279,7 @@ class AppController {
     this.posterRotationTimer = null;
     this.posterDeck = [];
     this.isTransitioningPoster = false;
+    this.profilePendingDelete = null;
     this.nextDemoPoster = this.nextDemoPoster.bind(this);
     this.prevDemoPoster = this.prevDemoPoster.bind(this);
   }
@@ -287,6 +289,9 @@ class AppController {
     this.miniNuvio = new MiniNuvio('miniNuvioContainer');
     window.miniNuvioInstance = this.miniNuvio;
     window.appController = this;
+
+    // Inicializar contador global de configuraciones
+    initCompletionsCounterUI();
 
     await state.loadTemplates();
     this.miniNuvio.init();
@@ -809,6 +814,11 @@ class AppController {
     if (!modal) return;
 
     if (isManual) {
+      // Registrar finalización exitosa en el contador global para modo manual
+      recordSuccessfulCompletion().catch(err => {
+        console.warn('[AppController] Error actualizando contador de configuraciones:', err);
+      });
+
       if (titleEl) titleEl.innerText = "¡Archivos JSON Listos!";
       if (msgEl) {
         msgEl.innerHTML = `
@@ -1205,6 +1215,84 @@ class AppController {
     }
   }
 
+  promptDeleteProfile(profileId, profileName) {
+    this.profilePendingDelete = { id: profileId, name: profileName };
+    const modal = document.getElementById('modalDeleteProfile');
+    const nameEl = document.getElementById('deleteProfileTargetName');
+    if (nameEl) nameEl.textContent = `"${profileName}"`;
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeDeleteProfileModal() {
+    this.profilePendingDelete = null;
+    const modal = document.getElementById('modalDeleteProfile');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  async confirmDeleteProfile() {
+    if (!this.profilePendingDelete) return;
+
+    if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) {
+      this.showToast('Debes haber iniciado sesión con tu cuenta de Nuvio en el Paso 1.', 'error');
+      this.closeDeleteProfileModal();
+      return;
+    }
+
+    const { id: profileId, name: profileName } = this.profilePendingDelete;
+    const btnConfirm = document.getElementById('btnConfirmDeleteProfile');
+    const originalHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando...';
+    }
+
+    try {
+      await NuvioClient.deleteProfile({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: state.nuvioAuth.accessToken,
+        userId: state.nuvioAuth.userId,
+        profileId: profileId
+      });
+
+      // Actualizar la lista en state
+      state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
+
+      // Si el perfil eliminado era el seleccionado actualmente
+      if (String(state.selectedProfileId) === String(profileId)) {
+        if (state.profiles.length > 0) {
+          state.selectedProfileId = state.profiles[0].id;
+          state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
+          state.unlockStep(3);
+        } else {
+          state.selectedProfileId = null;
+          state.selectedProfileName = '';
+        }
+      }
+
+      this.closeDeleteProfileModal();
+      this.saveSession();
+      this.renderProfiles();
+      this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
+      this.updateUI();
+      this.showToast(`✓ Perfil "${profileName}" eliminado correctamente.`, 'success');
+    } catch (err) {
+      console.error('[AppController] Error al eliminar perfil:', err);
+      this.showToast(`Error al eliminar perfil: ${err.message}`, 'error');
+    } finally {
+      if (btnConfirm) {
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = originalHtml;
+      }
+    }
+  }
+
   setupStep2Profiles() {
     this.renderProfiles();
 
@@ -1225,6 +1313,23 @@ class AppController {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) this.closeNewProfileModal();
       });
+    }
+
+    // Modal de Eliminar Perfil
+    const modalDelete = document.getElementById('modalDeleteProfile');
+    const btnCloseDeleteModal = document.getElementById('btnCloseDeleteProfileModal');
+    const btnCancelDeleteModal = document.getElementById('btnCancelDeleteProfile');
+    const btnConfirmDeleteModal = document.getElementById('btnConfirmDeleteProfile');
+
+    if (btnCloseDeleteModal) btnCloseDeleteModal.addEventListener('click', () => this.closeDeleteProfileModal());
+    if (btnCancelDeleteModal) btnCancelDeleteModal.addEventListener('click', () => this.closeDeleteProfileModal());
+    if (modalDelete) {
+      modalDelete.addEventListener('click', (e) => {
+        if (e.target === modalDelete) this.closeDeleteProfileModal();
+      });
+    }
+    if (btnConfirmDeleteModal) {
+      btnConfirmDeleteModal.addEventListener('click', () => this.confirmDeleteProfile());
     }
 
     if (btnConfirmModal && nameInput) {
@@ -1345,6 +1450,13 @@ class AppController {
                 <i class="fa-solid fa-check text-white/40"></i>
               </div>
             `}
+            <!-- Botón de Eliminar Perfil -->
+            <button type="button" 
+                    onclick="event.stopPropagation(); window.appController.promptDeleteProfile('${p.id}', '${name.replace(/'/g, "\\'")}')"
+                    class="absolute top-2 left-2 w-6 h-6 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/15 flex items-center justify-center transition-all opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 z-10"
+                    title="Eliminar perfil '${name.replace(/'/g, "\\'")}'">
+              <i class="fa-solid fa-trash-can text-[10px]"></i>
+            </button>
             <div class="relative">
               <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
                 isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
