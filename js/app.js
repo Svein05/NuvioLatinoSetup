@@ -1216,6 +1216,10 @@ class AppController {
   }
 
   promptDeleteProfile(profileId, profileName) {
+    if (state.profiles && state.profiles.length <= 1) {
+      this.showToast('No puedes eliminar el único perfil de tu cuenta. Nuvio requiere al menos un perfil activo.', 'warning');
+      return;
+    }
     this.profilePendingDelete = { id: profileId, name: profileName };
     const modal = document.getElementById('modalDeleteProfile');
     const nameEl = document.getElementById('deleteProfileTargetName');
@@ -1238,6 +1242,12 @@ class AppController {
   async confirmDeleteProfile() {
     if (!this.profilePendingDelete) return;
 
+    if (state.profiles && state.profiles.length <= 1) {
+      this.showToast('No puedes eliminar el único perfil de tu cuenta.', 'warning');
+      this.closeDeleteProfileModal();
+      return;
+    }
+
     if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) {
       this.showToast('Debes haber iniciado sesión con tu cuenta de Nuvio en el Paso 1.', 'error');
       this.closeDeleteProfileModal();
@@ -1253,7 +1263,7 @@ class AppController {
     }
 
     try {
-      await NuvioClient.deleteProfile({
+      const deleteResult = await NuvioClient.deleteProfile({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
         accessToken: state.nuvioAuth.accessToken,
@@ -1261,8 +1271,12 @@ class AppController {
         profileId: profileId
       });
 
-      // Actualizar la lista en state
-      state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
+      // Actualizar la lista en state con los perfiles reales verificados de Nuvio
+      if (Array.isArray(deleteResult?.remainingProfiles)) {
+        state.profiles = deleteResult.remainingProfiles;
+      } else {
+        state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
+      }
 
       // Si el perfil eliminado era el seleccionado actualmente
       if (String(state.selectedProfileId) === String(profileId)) {
@@ -1281,7 +1295,7 @@ class AppController {
       this.renderProfiles();
       this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
       this.updateUI();
-      this.showToast(`✓ Perfil "${profileName}" eliminado correctamente.`, 'success');
+      this.showToast(`✓ Perfil "${profileName}" eliminado permanentemente de Nuvio.`, 'success');
     } catch (err) {
       console.error('[AppController] Error al eliminar perfil:', err);
       this.showToast(`Error al eliminar perfil: ${err.message}`, 'error');
@@ -1450,13 +1464,15 @@ class AppController {
                 <i class="fa-solid fa-check text-white/40"></i>
               </div>
             `}
-            <!-- Botón de Eliminar Perfil -->
+            <!-- Botón de Eliminar Perfil (visible solo si hay más de 1 perfil) -->
+            ${state.profiles.length > 1 ? `
             <button type="button" 
                     onclick="event.stopPropagation(); window.appController.promptDeleteProfile('${p.id}', '${name.replace(/'/g, "\\'")}')"
                     class="absolute top-2 left-2 w-6 h-6 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/15 flex items-center justify-center transition-all opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 z-10"
                     title="Eliminar perfil '${name.replace(/'/g, "\\'")}'">
               <i class="fa-solid fa-trash-can text-[10px]"></i>
             </button>
+            ` : ''}
             <div class="relative">
               <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
                 isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
