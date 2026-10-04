@@ -3511,6 +3511,33 @@ export async function compileUniversalBadgeRules(pack, activeIds = [], orderIds 
     return activeGroupIds.has(f.groupId) || activeCanonicals.has(getCanonicalModuleId(f.groupId)) || isSectionActive(f.groupId, activeSet);
   });
 
+  // 5. Ordenar filtros según el orden de los grupos (imprescindible para que Nuvio pinte los badges en la vista de streams en el orden correcto)
+  const groupOrderIndex = new Map();
+  filteredGroups.forEach((g, idx) => {
+    groupOrderIndex.set(g.id, idx);
+    const canon = getCanonicalModuleId(g.id);
+    if (canon && !groupOrderIndex.has(canon)) {
+      groupOrderIndex.set(canon, idx);
+    }
+  });
+
+  finalFilters.sort((a, b) => {
+    const gidA = a.groupId || '';
+    const gidB = b.groupId || '';
+    const canonA = getCanonicalModuleId(gidA) || gidA;
+    const canonB = getCanonicalModuleId(gidB) || gidB;
+
+    const orderA = groupOrderIndex.has(gidA)
+      ? groupOrderIndex.get(gidA)
+      : (groupOrderIndex.has(canonA) ? groupOrderIndex.get(canonA) : 999);
+
+    const orderB = groupOrderIndex.has(gidB)
+      ? groupOrderIndex.get(gidB)
+      : (groupOrderIndex.has(canonB) ? groupOrderIndex.get(canonB) : 999);
+
+    return orderA - orderB;
+  });
+
   return {
     groups: filteredGroups,
     filters: finalFilters
