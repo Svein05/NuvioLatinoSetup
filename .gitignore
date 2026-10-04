@@ -24,6 +24,7 @@ env/
 # Residual / removed files
 Plantilla.html
 run.py
+scripts/
 design-reference/
 
 # Debug / analysis files (not part of source)
