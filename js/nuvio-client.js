@@ -145,14 +145,20 @@ export class NuvioClient {
 
       const list = Array.isArray(data) ? data : (data?.profiles || []);
       if (list.length > 0) {
-        return list.map(p => {
-          const profileIndex = p.profile_index ?? p.id ?? 1;
+        return list.map((p, idx) => {
+          const profileIndex = Number(p.profile_index ?? p.profile_id ?? p.id ?? (idx + 1));
           const name = String(p.name || '').trim() || `Perfil ${profileIndex}`;
           return {
             id: profileIndex,
             profile_index: profileIndex,
+            profile_id: p.profile_id != null ? Number(p.profile_id) : profileIndex,
+            uuid: (typeof p.id === 'string' && p.id.includes('-')) ? p.id : (p.uuid || null),
             name: name,
-            avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`
+            avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+            avatar_color_hex: p.avatar_color_hex || '#6366F1',
+            avatar_id: p.avatar_id ?? null,
+            uses_primary_addons: Boolean(p.uses_primary_addons),
+            uses_primary_plugins: Boolean(p.uses_primary_plugins)
           };
         });
       }
@@ -180,12 +186,22 @@ export class NuvioClient {
       }
 
       const profiles = await response.json();
-      return Array.isArray(profiles) ? profiles.map((p, idx) => ({
-        id: p.profile_index ?? p.id ?? (idx + 1),
-        profile_index: p.profile_index ?? (idx + 1),
-        name: p.name || `Perfil ${idx + 1}`,
-        avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(p.name || idx)}`
-      })) : [];
+      return Array.isArray(profiles) ? profiles.map((p, idx) => {
+        const profileIndex = Number(p.profile_index ?? p.profile_id ?? (idx + 1));
+        const name = String(p.name || '').trim() || `Perfil ${profileIndex}`;
+        return {
+          id: profileIndex,
+          profile_index: profileIndex,
+          profile_id: p.profile_id != null ? Number(p.profile_id) : profileIndex,
+          uuid: (typeof p.id === 'string' && p.id.includes('-')) ? p.id : (p.uuid || null),
+          name: name,
+          avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(p.name || idx)}`,
+          avatar_color_hex: p.avatar_color_hex || '#6366F1',
+          avatar_id: p.avatar_id ?? null,
+          uses_primary_addons: Boolean(p.uses_primary_addons),
+          uses_primary_plugins: Boolean(p.uses_primary_plugins)
+        };
+      }) : [];
     } catch (err) {
       console.error('[NuvioClient] Error obteniendo perfiles:', err);
       throw new Error(`Fallo al obtener perfiles de Nuvio: ${err.message}`);
@@ -246,7 +262,11 @@ export class NuvioClient {
         apikey,
         accessToken,
         path: 'sync_push_profiles',
-        body: { p_profiles: allProfiles }
+        body: {
+          p_profiles: allProfiles,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
       });
 
       // Limpiar addons por defecto (nuvio catalog addon y opensubtitles) para que el perfil inicie limpio
@@ -306,12 +326,18 @@ export class NuvioClient {
   }
 
   /**
-   * Elimina un perfil de la cuenta de Nuvio (mediante RPC sync_push_profiles con fallback REST)
+   * Elimina un perfil de la cuenta de Nuvio mediante pipeline multi-vector:
+   * 1. RPC sync_delete_profile_data (procedimiento oficial de Nuvio).
+   * 2. Limpieza de addons y colecciones asociadas.
+   * 3. DELETE directo en tabla PostgREST /rest/v1/profiles.
+   * 4. Sincronización de perfiles restantes vía sync_push_profiles.
+   * 5. Verificación fresca contra el backend de Nuvio.
    */
   static async deleteProfile({ apiUrl, apikey, accessToken, userId, profileId }) {
     const targetId = Number(profileId);
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
 
-    // 1. Obtener lista actual de perfiles
+    // 1. Obtener lista actual de perfiles para identificar UUID y restantes
     let existing = [];
     try {
       existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
@@ -319,63 +345,136 @@ export class NuvioClient {
       console.warn('[NuvioClient] Error obteniendo perfiles previos a eliminación:', fetchErr);
     }
 
+    const targetProfile = existing.find(p => Number(p.profile_index ?? p.id) === targetId);
+    const targetUuid = targetProfile?.uuid || null;
+
     const remainingProfiles = existing
       .filter(p => Number(p.profile_index ?? p.id) !== targetId)
       .map(p => ({
         profile_index: Number(p.profile_index ?? p.id),
         name: p.name,
-        avatar_color_hex: '#6366F1',
-        uses_primary_addons: false,
-        uses_primary_plugins: false,
-        avatar_id: null,
+        avatar_color_hex: p.avatar_color_hex || '#6366F1',
+        uses_primary_addons: Boolean(p.uses_primary_addons),
+        uses_primary_plugins: Boolean(p.uses_primary_plugins),
+        avatar_id: p.avatar_id ?? null,
         avatar_url: p.avatar_url
       }));
 
-    // 2. Intentar sincronización con RPC sync_push_profiles
+    // Resolver sync_owner de la cuenta
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    // Vector 1: RPC oficial sync_delete_profile_data de Nuvio
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_delete_profile_data',
+        body: {
+          p_profile_id: targetId,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+      console.log(`[NuvioClient] sync_delete_profile_data ejecutado exitosamente para perfil ${targetId}`);
+    } catch (rpcDelErr) {
+      console.warn('[NuvioClient] sync_delete_profile_data no disponible o falló:', rpcDelErr.message);
+    }
+
+    // Vector 2: Limpieza de addons huérfanos del perfil
+    try {
+      await this.cleanProfileAddons({ apiUrl, apikey, accessToken, userId, profileId: targetId });
+    } catch (addonErr) {
+      console.warn('[NuvioClient] cleanProfileAddons durante eliminación falló:', addonErr.message);
+    }
+
+    // Vector 3: Limpieza de colecciones asociadas al perfil en /rest/v1/collections
+    try {
+      const colFilters = [
+        `profile_id=eq.${encodeURIComponent(targetId)}`,
+        `user_id=eq.${encodeURIComponent(ownerId)}&profile_id=eq.${encodeURIComponent(targetId)}`
+      ];
+      for (const filter of colFilters) {
+        await fetch(`${cleanUrl}/rest/v1/collections?${filter}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }).catch(() => {});
+      }
+    } catch (_) {}
+
+    // Vector 4: Eliminación directa en la tabla PostgREST /rest/v1/profiles
+    const restDeleteAttempts = [];
+    if (targetUuid) {
+      restDeleteAttempts.push(`id=eq.${encodeURIComponent(targetUuid)}`);
+    }
+    restDeleteAttempts.push(`profile_index=eq.${encodeURIComponent(targetId)}`);
+    restDeleteAttempts.push(`profile_id=eq.${encodeURIComponent(targetId)}`);
+    if (ownerId) {
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(ownerId)}&profile_index=eq.${encodeURIComponent(targetId)}`);
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(ownerId)}&profile_id=eq.${encodeURIComponent(targetId)}`);
+    }
+    if (userId && userId !== ownerId) {
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(userId)}&profile_index=eq.${encodeURIComponent(targetId)}`);
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(userId)}&profile_id=eq.${encodeURIComponent(targetId)}`);
+    }
+
+    for (const filter of restDeleteAttempts) {
+      try {
+        await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Prefer': 'return=representation'
+          }
+        });
+      } catch (delErr) {
+        console.warn(`[NuvioClient] DELETE /rest/v1/profiles?${filter} falló:`, delErr.message);
+      }
+    }
+
+    // Vector 5: Sincronización oficial del array restante mediante sync_push_profiles
     try {
       await this.rpc({
         apiUrl,
         apikey,
         accessToken,
         path: 'sync_push_profiles',
-        body: { p_profiles: remainingProfiles }
-      });
-
-      return {
-        success: true,
-        remainingProfiles
-      };
-    } catch (rpcErr) {
-      console.warn('[NuvioClient] sync_push_profiles para eliminación falló, probando fallback REST:', rpcErr.message);
-    }
-
-    // 3. Fallback REST directo: DELETE /rest/v1/profiles?user_id=eq...&profile_index=eq...
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-    const endpoint = `${cleanUrl}/rest/v1/profiles?user_id=eq.${encodeURIComponent(userId)}&profile_index=eq.${encodeURIComponent(targetId)}`;
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'DELETE',
-        headers: {
-          'apikey': apikey,
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
+        body: {
+          p_profiles: remainingProfiles,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
         }
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error en fallback REST de eliminación (${response.status}): ${errorText}`);
-      }
-
-      return {
-        success: true,
-        remainingProfiles
-      };
-    } catch (err) {
-      console.error('[NuvioClient] Error eliminando perfil:', err);
-      throw new Error(`Fallo al eliminar perfil en Nuvio: ${err.message}`);
+    } catch (pushErr) {
+      console.warn('[NuvioClient] sync_push_profiles falló tras eliminar perfil:', pushErr.message);
     }
+
+    // Vector 6: Verificación fresca en el backend de Nuvio
+    let freshProfiles = remainingProfiles;
+    try {
+      freshProfiles = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+      const stillPresent = freshProfiles.some(p => Number(p.profile_index ?? p.id) === targetId);
+      if (stillPresent) {
+        throw new Error(`El perfil ${targetId} aún figura en Nuvio tras la eliminación. Verifica que no sea el perfil principal o único de la cuenta.`);
+      }
+    } catch (verifyErr) {
+      if (verifyErr.message?.includes('aún figura en Nuvio')) {
+        throw verifyErr;
+      }
+      console.warn('[NuvioClient] No se pudo verificar perfiles post-eliminación:', verifyErr.message);
+    }
+
+    return {
+      success: true,
+      remainingProfiles: freshProfiles
+    };
   }
 
   /**
