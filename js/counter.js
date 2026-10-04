@@ -4,6 +4,8 @@
  * Incluye Odómetro (Ruleta de Dígitos estilo YouTube Live), Live Sync y Menú Responsive
  */
 
+import { INJECTED_COUNTER_CONFIG } from './counter-config.js';
+
 const STORAGE_KEYS = {
   CACHED_COUNT: 'nuvio_completions_cached_count',
   CACHED_TIMESTAMP: 'nuvio_completions_cached_ts',
@@ -11,18 +13,18 @@ const STORAGE_KEYS = {
   SESSION_RECORDED: 'nuvio_completion_session_recorded'
 };
 
-// Endpoints primario y secundario para redundancia
+// Endpoints primario y secundario para redundancia (soporta inyeccion en build/deploy)
 const API_ENDPOINTS = {
   PRIMARY: {
     name: 'Abacus',
-    get: 'https://abacus.jasoncameron.dev/get/nuvio-latino-setup/completions',
-    hit: 'https://abacus.jasoncameron.dev/hit/nuvio-latino-setup/completions',
+    get: INJECTED_COUNTER_CONFIG?.primaryGet || 'https://abacus.jasoncameron.dev/get/nuvio-latino-setup/completions',
+    hit: INJECTED_COUNTER_CONFIG?.primaryHit || 'https://abacus.jasoncameron.dev/hit/nuvio-latino-setup/completions',
     extract: (data) => (typeof data?.value === 'number' ? data.value : null)
   },
   FALLBACK: {
     name: 'CountAPI',
-    get: 'https://countapi.mileshilliard.com/api/v1/get/nuviolatino_setups_v1',
-    hit: 'https://countapi.mileshilliard.com/api/v1/hit/nuviolatino_setups_v1',
+    get: INJECTED_COUNTER_CONFIG?.fallbackGet || 'https://countapi.mileshilliard.com/api/v1/get/nuviolatino_setups_v1',
+    hit: INJECTED_COUNTER_CONFIG?.fallbackHit || 'https://countapi.mileshilliard.com/api/v1/hit/nuviolatino_setups_v1',
     extract: (data) => (typeof data?.value === 'number' ? data.value : null)
   }
 };

@@ -25,6 +25,29 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Inject Production Secrets
+        env:
+          COUNTER_PRIMARY_GET: ${{ secrets.COUNTER_PRIMARY_GET }}
+          COUNTER_PRIMARY_HIT: ${{ secrets.COUNTER_PRIMARY_HIT }}
+          COUNTER_FALLBACK_GET: ${{ secrets.COUNTER_FALLBACK_GET }}
+          COUNTER_FALLBACK_HIT: ${{ secrets.COUNTER_FALLBACK_HIT }}
+        run: |
+          if [ -n "$COUNTER_PRIMARY_GET" ] || [ -n "$COUNTER_FALLBACK_GET" ]; then
+            echo "Inyectando configuración de endpoints para producción..."
+            node -e '
+              const fs = require("fs");
+              const cfg = {};
+              if (process.env.COUNTER_PRIMARY_GET) cfg.primaryGet = process.env.COUNTER_PRIMARY_GET;
+              if (process.env.COUNTER_PRIMARY_HIT) cfg.primaryHit = process.env.COUNTER_PRIMARY_HIT;
+              if (process.env.COUNTER_FALLBACK_GET) cfg.fallbackGet = process.env.COUNTER_FALLBACK_GET;
+              if (process.env.COUNTER_FALLBACK_HIT) cfg.fallbackHit = process.env.COUNTER_FALLBACK_HIT;
+              const content = "export const INJECTED_COUNTER_CONFIG = " + JSON.stringify(cfg, null, 2) + ";\n";
+              fs.writeFileSync("js/counter-config.js", content, "utf8");
+            '
+          else
+            echo "Sin secretos definidos; manteniendo configuración fallback estándar."
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
