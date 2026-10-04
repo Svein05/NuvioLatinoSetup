@@ -5,6 +5,7 @@
 import { state } from './state.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { NuvioClient } from './nuvio-client.js';
+import { CONFIG } from './config.js';
 import { 
   getBadgePackById, 
   getBadgePackUrl,
