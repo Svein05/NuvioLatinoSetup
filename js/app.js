@@ -17,7 +17,8 @@ import {
   getPackSectionsOrdered,
   normalizeBadgeColor,
   getCanonicalModuleId,
-  isSectionActive
+  isSectionActive,
+  compileUniversalBadgeRules
 } from './badge-packs.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
@@ -748,12 +749,31 @@ class AppController {
     const btnCopyAio = document.getElementById('btnCopyAioConfig');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
     const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
+    const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
+    const btnDownloadBadges = document.getElementById('btnDownloadBadges');
+    const isBadgesEnabled = Boolean(state.preferences && state.preferences.badgesEnabled);
 
     if (btnCopyBadge) {
-      if (state.preferences && state.preferences.badgesEnabled) {
+      if (isBadgesEnabled) {
         btnCopyBadge.classList.remove('hidden');
       } else {
         btnCopyBadge.classList.add('hidden');
+      }
+    }
+
+    if (btnCopyBadgeCompiled) {
+      if (isBadgesEnabled) {
+        btnCopyBadgeCompiled.classList.remove('hidden');
+      } else {
+        btnCopyBadgeCompiled.classList.add('hidden');
+      }
+    }
+
+    if (btnDownloadBadges) {
+      if (isBadgesEnabled) {
+        btnDownloadBadges.classList.remove('hidden');
+      } else {
+        btnDownloadBadges.classList.add('hidden');
       }
     }
 
@@ -2082,6 +2102,49 @@ class AppController {
       }
     };
 
+    this.getCompiledBadgeRulesJson = async (packId) => {
+      const id = packId || state.preferences.selectedBadgePack || 'tinted';
+      const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+      const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+      const rules = await compileUniversalBadgeRules(id, activeIds, orderIds);
+      return JSON.stringify(rules, null, 2);
+    };
+
+    this.copyCompiledBadgeJson = async (packId) => {
+      try {
+        const id = packId || state.preferences.selectedBadgePack || 'tinted';
+        const pack = getBadgePackById(id);
+        const jsonStr = await this.getCompiledBadgeRulesJson(id);
+        await navigator.clipboard.writeText(jsonStr);
+        this.showToast(`✓ JSON de Badges ("${pack ? pack.name : id}") copiado con tu orden y módulos activos`, 'success');
+      } catch (err) {
+        console.error('[Badges] Error al copiar JSON compilado:', err);
+        this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+      }
+    };
+
+    this.downloadCompiledBadgeJson = async (packId) => {
+      try {
+        const id = packId || state.preferences.selectedBadgePack || 'tinted';
+        const pack = getBadgePackById(id);
+        const jsonStr = await this.getCompiledBadgeRulesJson(id);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const cleanName = (pack ? pack.name : id).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        a.download = `nuvio-badges-${cleanName}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast(`✓ Archivo de badges ("${pack ? pack.name : id}") descargado con éxito`, 'success');
+      } catch (err) {
+        console.error('[Badges] Error al descargar JSON compilado:', err);
+        this.showToast('No se pudo descargar el archivo de badges.', 'error');
+      }
+    };
+
     this.handleImportCustomBadge = async () => {
       const sourceInput = document.getElementById('inputCustomBadgeSource');
       const nameInput = document.getElementById('inputCustomBadgeName');
@@ -2412,11 +2475,21 @@ class AppController {
             </div>
           </div>
 
-          <!-- Botón Único de Acción: Copiar JSON (El card/círculo ya selecciona el estilo) -->
-          <div class="pt-3 border-t border-white/[0.06] flex items-center justify-end">
-            <button type="button" onclick="event.stopPropagation(); window.appController.copyBadgeJsonUrl('${pack.id}')" class="py-2 px-4 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center justify-center gap-2 transition-all w-full sm:w-auto" title="Copiar URL directa o código de este paquete">
-              <i class="fa-solid fa-copy text-xs"></i>
-              <span>${copyBtnLabel}</span>
+          <!-- Acciones del Pack: Descargar JSON, Copiar JSON Adaptado y Enlace URL -->
+          <div class="pt-3 border-t border-white/[0.06] flex items-center justify-end gap-2 flex-wrap">
+            ${pack.rawV2 ? `
+              <button type="button" onclick="event.stopPropagation(); window.appController.copyBadgeJsonUrl('${pack.id}')" class="py-1.5 px-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] text-white/50 hover:text-white/80 text-[11px] border border-white/[0.06] flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Copiar URL directa original">
+                <i class="fa-solid fa-link text-[10px]"></i>
+                <span>Enlace</span>
+              </button>
+            ` : ''}
+            <button type="button" onclick="event.stopPropagation(); window.appController.downloadCompiledBadgeJson('${pack.id}')" class="py-1.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Descargar archivo JSON optimizado con tu orden y módulos activos">
+              <i class="fa-solid fa-download text-[11px]"></i>
+              <span>Descargar</span>
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.appController.copyCompiledBadgeJson('${pack.id}')" class="py-1.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-white text-xs border border-white/[0.12] flex items-center justify-center gap-1.5 transition-all font-medium cursor-pointer" title="Copiar código JSON sanitizado con tu orden y módulos activos">
+              <i class="fa-solid fa-copy text-[11px]"></i>
+              <span>Copiar JSON</span>
             </button>
           </div>
         </div>
@@ -2856,6 +2929,8 @@ class AppController {
     const btnDownloadCol = document.getElementById('btnDownloadCollections');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
     const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
+    const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
+    const btnDownloadBadges = document.getElementById('btnDownloadBadges');
 
     // Forzar modo Real en producción
     state.execution.mode = 'real';
@@ -2897,6 +2972,12 @@ class AppController {
         } catch (err) {
           this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
         }
+      });
+    }
+
+    if (btnCopyBadgeCompiled) {
+      btnCopyBadgeCompiled.addEventListener('click', async () => {
+        await this.copyCompiledBadgeJson();
       });
     }
 
@@ -2992,6 +3073,12 @@ class AppController {
           return;
         }
         PipelineInjector.downloadAioConfigJson();
+      });
+    }
+
+    if (btnDownloadBadges) {
+      btnDownloadBadges.addEventListener('click', () => {
+        this.downloadCompiledBadgeJson();
       });
     }
   }

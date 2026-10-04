@@ -3215,3 +3215,304 @@ export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
 
   return result;
 }
+
+export const CANONICAL_FALLBACKS = {
+  // Resolutions
+  '4k': '(?<![a-z0-9])(?:4k|2160[pi]?|uhd(?:tv)?|3840x2160|4096x2160)(?![a-z0-9])',
+  '1440p': '(?<![a-z0-9])(?:1440[pi]?|2k|2560x1440|qhd|wqhd)(?![a-z0-9])',
+  '1080p': '(?<![a-z0-9])(?:1080[pi]?|1920x1080|fhd|full[-_. ]?hd)(?![a-z0-9])',
+  '720p': '(?<![a-z0-9])(?:720[pi]?|1280x720|hd(?:720)?)(?![a-z0-9])',
+  '576p': '(?<![a-z0-9])(?:576[pi]?)(?![a-z0-9])',
+  '480p': '(?<![a-z0-9])(?:480[pi]?|sd)(?![a-z0-9])',
+  '360p': '(?<![a-z0-9])(?:360[pi]?)(?![a-z0-9])',
+  '240p': '(?<![a-z0-9])(?:240[pi]?)(?![a-z0-9])',
+  '144p': '(?<![a-z0-9])(?:144[pi]?)(?![a-z0-9])',
+
+  // Quality
+  'remux': '(?<![a-z0-9])(?:(?:bd|uhd)[-_. ]?)?remux(?![a-z0-9])',
+  'bluray': '(?<![a-z0-9])(?:bluray|blu[-_. ]?ray|bdrip|brrip|bdmux)(?![a-z0-9])',
+  'web-dl': '(?<![a-z0-9])(?:web[-_. ]?dl(?:mux)?|webdl)(?![a-z0-9])',
+  'webrip': '(?<![a-z0-9])(?:web[-_. ]?rip|webrip)(?![a-z0-9])',
+  'hdrip': '(?<![a-z0-9])(?:hd[-_. ]?rip|hdrip)(?![a-z0-9])',
+  'hc hdrip': '(?<![a-z0-9])(?:hc[-_. ]?hd[-_. ]?rip|hardcoded)(?![a-z0-9])',
+  'dvdrip': '(?<![a-z0-9])(?:dvd[-_. ]?rip|dvdrip)(?![a-z0-9])',
+  'hdtv': '(?<![a-z0-9])(?:hdtv|hd[-_. ]?tv)(?![a-z0-9])',
+  'cam': '(?<![a-z0-9])(?:camrip|hd[-_. ]?cam|cam)(?![a-z0-9])',
+  'ts': '(?<![a-z0-9])(?:telesync|hd[-_. ]?ts|ts)(?![a-z0-9])',
+  'tc': '(?<![a-z0-9])(?:telecine|hd[-_. ]?tc|tc)(?![a-z0-9])',
+  'scr': '(?<![a-z0-9])(?:screener|scr|dvd[-_. ]?scr)(?![a-z0-9])',
+
+  // Visual
+  'dv · hdr10+': '(?=.*?(?:dv|dolby[-_. ]?vision))(?=.*?(?:hdr10\\+|hdr10[-_. ]?plus))',
+  'dv · hdr10': '(?=.*?(?:dv|dolby[-_. ]?vision))(?=.*?(?:hdr10\\b|hdr[-_. ]?10))',
+  'dv · hdr': '(?=.*?(?:dv|dolby[-_. ]?vision))(?=.*?(?:hdr\\b))',
+  'dv': '(?<![a-z0-9])(?:dv|dovi|dolby[-_. ]?vision)(?![a-z0-9])',
+  'hdr10+': '(?<![a-z0-9])(?:hdr10\\+|hdr10[-_. ]?plus)(?![a-z0-9])',
+  'hdr10': '(?<![a-z0-9])(?:hdr10\\b|hdr[-_. ]?10)(?![a-z0-9])',
+  'hdr': '(?<![a-z0-9])hdr(?![a-z0-9])',
+  'hlg': '(?<![a-z0-9])hlg(?![a-z0-9])',
+  '10bit': '(?<![a-z0-9])10[-_. ]?bit(?![a-z0-9])',
+  'sdr': '(?<![a-z0-9])sdr(?![a-z0-9])',
+  'imax': '(?<![a-z0-9])imax(?:[-_. ]?enhanced)?(?![a-z0-9])',
+
+  // Audio
+  'atmos truehd': '(?=.*?(?:atmos))(?=.*?(?:true[-_. ]?hd))',
+  'atmos digital+': '(?=.*?(?:atmos))(?=.*?(?:ddp|dd\\+|e[-_. ]?ac3|digital[-_. ]?plus))',
+  'atmos': '(?<![a-z0-9])(?:atmos|dolby[-_. ]?atmos)(?![a-z0-9])',
+  'truehd': '(?<![a-z0-9])(?:true[-_. ]?hd)(?![a-z0-9])',
+  'dts:x hd ma': '(?<![a-z0-9])(?:dts[-_. ]?x[-_. ]?hd[-_. ]?ma|dts[-_. ]?x)(?![a-z0-9])',
+  'dts-hd ma': '(?<![a-z0-9])(?:dts[-_. ]?hd[-_. ]?ma)(?![a-z0-9])',
+  'dts:x hd': '(?<![a-z0-9])(?:dts[-_. ]?x[-_. ]?hd)(?![a-z0-9])',
+  'dts-hd': '(?<![a-z0-9])dts[-_. ]?hd(?![a-z0-9])',
+  'dts:x': '(?<![a-z0-9])dts[-_. ]?x(?![a-z0-9])',
+  'dts': '(?<![a-z0-9])dts(?![a-z0-9])',
+  'dd+': '(?<![a-z0-9])(?:dd\\+|ddp|e[-_. ]?ac[-_. ]?3|dolby[-_. ]?digital[-_. ]?plus)(?![a-z0-9])',
+  'dd': '(?<![a-z0-9])(?:dd|ac[-_. ]?3|dolby[-_. ]?digital)(?![a-z0-9])',
+  'aac': '(?<![a-z0-9])aac(?![a-z0-9])',
+  'flac': '(?<![a-z0-9])flac(?![a-z0-9])',
+  'opus': '(?<![a-z0-9])opus(?![a-z0-9])',
+
+  // Channels
+  '7.1': '(?<![0-9])7[._ ]1(?:ch)?(?![0-9])',
+  '6.1': '(?<![0-9])6[._ ]1(?:ch)?(?![0-9])',
+  '5.1': '(?<![0-9])5[._ ]1(?:ch)?(?![0-9])',
+  '2.0': '(?<![0-9])2[._ ]0(?:ch)?(?![0-9])',
+
+  // Codecs / Encoders
+  'av1': '(?<![a-z0-9])av1(?![a-z0-9])',
+  'hevc': '(?<![a-z0-9])(?:hevc|h[-_. ]?265|x265)(?![a-z0-9])',
+  'avc': '(?<![a-z0-9])(?:avc|h[-_. ]?264|x264)(?![a-z0-9])'
+};
+
+export const CANONICAL_LATINO_PATTERN = '(?i)(?<![^\\s\\[(_\\-.,])(latino|lat|latam|es[-_.]?(?:mx|la|419)|audio[ .\\-_]?latino)(?![ .\\-_]?sub(title)?s?)(?=[\\s\\)\\]_.\\-,]|$)';
+
+export function stripRegexFlags(pattern) {
+  if (!pattern) return '';
+  return String(pattern).replace(/^\(\?[a-z]+\)/i, '');
+}
+
+/**
+ * Convierte un filtro con marcadores Unicode invisibles (V2) en un filtro híbrido dual
+ * que reconoce tanto marcadores V2 (BetterFormatter) como texto plano (LAT-ADD / torrents).
+ */
+export function toUniversalHybridFilter(filter) {
+  if (!filter || !filter.pattern) return filter;
+  const raw = filter.pattern;
+  const hasHidden = /[\u200B-\u200D\uFEFF\u2060-\u2064]/.test(raw);
+
+  if (!hasHidden) return filter;
+
+  const normName = String(filter.name || '').trim().toLowerCase();
+  const normId = String(filter.id || '').trim().toLowerCase();
+
+  let fallback = CANONICAL_FALLBACKS[normName] || CANONICAL_FALLBACKS[normId];
+  if (!fallback) {
+    for (const [k, v] of Object.entries(CANONICAL_FALLBACKS)) {
+      if (normName === k || normId === k || normName.includes(k) || normId.includes(k)) {
+        fallback = v;
+        break;
+      }
+    }
+  }
+
+  if (!fallback) return filter;
+
+  const cleanOriginal = stripRegexFlags(raw);
+  const cleanFallback = stripRegexFlags(fallback);
+  const hybridPattern = `(?is)(?:${cleanOriginal}|${cleanFallback})`;
+
+  return {
+    ...filter,
+    pattern: hybridPattern
+  };
+}
+
+export function decoupleLatinoFromSpainPattern(pattern) {
+  if (!pattern) return '';
+  return pattern
+    .replace(/\b(?:latino|latam|lat)\b/gi, '')
+    .replace(/es[-_.]?(?:\(\?:)?(?:mx|la|419)\)?/gi, '')
+    .replace(/\|+/g, '|')
+    .replace(/\(\|/g, '(')
+    .replace(/\|\)/g, ')');
+}
+
+/**
+ * Sanitiza filtros de idiomas:
+ * - Detecta si el pack ya tiene su propio badge nativo para Latino (preservando su imagen original).
+ * - Si no lo tiene, genera uno armónico con la paleta de colores del grupo.
+ * - Desacopla 'latino|lat' del filtro de España (🇪🇸) para evitar falsos positivos.
+ */
+export function sanitizeLanguageAndBadges(filters = [], groups = []) {
+  const result = [];
+  let existingLatinoIndex = -1;
+  let spainFilter = null;
+  let langGroupId = 'glang';
+
+  // 1. Detección de activo propio de Latino en el pack
+  for (let i = 0; i < filters.length; i++) {
+    const f = filters[i];
+    const n = String(f.name || '').toLowerCase().trim();
+    const id = String(f.id || '').toLowerCase().trim();
+    const img = String(f.imageURL || '').toLowerCase();
+
+    const isLatino = (
+      n === 'lat' || n === 'latino' || n === 'latam' || n.includes('latino') ||
+      id === 'lat' || id === 'latino' || id === 'latam' || id.includes('latino') ||
+      img.includes('lat.png') || img.includes('latino') || img.includes('lang_lat') || img.includes('lang%20lat')
+    );
+
+    if (isLatino && existingLatinoIndex === -1) {
+      existingLatinoIndex = i;
+    }
+
+    if (f.groupId === 'gl' || f.groupId === 'glang' || /lang/i.test(f.groupId || '')) {
+      langGroupId = f.groupId;
+    }
+  }
+
+  // 2. Transformación y preservación
+  for (let i = 0; i < filters.length; i++) {
+    const f = filters[i];
+    const n = String(f.name || '').toLowerCase().trim();
+    const isSpain = f.name === '🇪🇸' || n === 'spa' || n === 'es' || n.includes('spain') || n.includes('españa') || n.includes('spanish');
+    const hasLatinoInPattern = /(?:latino|lat\b|latam)/i.test(f.pattern || '');
+
+    if (i === existingLatinoIndex) {
+      // Activo propio del pack: preservar imagen, estilo y nombre original, pero potenciar su regex
+      result.push({
+        ...f,
+        pattern: CANONICAL_LATINO_PATTERN
+      });
+    } else if (isSpain && hasLatinoInPattern) {
+      // Limpiar España para que no capture streams en español latino
+      const cleaned = decoupleLatinoFromSpainPattern(f.pattern);
+      const cleanedFilter = {
+        ...f,
+        pattern: cleaned
+      };
+      result.push(cleanedFilter);
+      spainFilter = cleanedFilter;
+    } else {
+      result.push(f);
+    }
+  }
+
+  // 3. Si no traía distintivo propio de Latino, crear uno armónico
+  if (existingLatinoIndex === -1) {
+    const sample = spainFilter || filters.find(f => f.groupId === langGroupId) || filters[0] || {};
+    const createdLatino = {
+      id: 'latino-audio-native',
+      name: 'Latino',
+      groupId: langGroupId,
+      type: 'filter',
+      isEnabled: true,
+      imageURL: 'https://raw.githubusercontent.com/kingsizew/badges/main/badge-images/language/latino.png',
+      pattern: CANONICAL_LATINO_PATTERN,
+      tagColor: sample.tagColor || 'rgba(99, 102, 241, 0.15)',
+      borderColor: sample.borderColor || '#6366F1',
+      textColor: sample.textColor || '#FFFFFF',
+      tagStyle: sample.tagStyle || 'filled'
+    };
+
+    const spainIdx = result.findIndex(f => f === spainFilter);
+    if (spainIdx >= 0) {
+      result.splice(spainIdx, 0, createdLatino);
+    } else {
+      result.push(createdLatino);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Compila las reglas finales de badges para inyección y exportación:
+ * - Sanitiza y separa idiomas respetando activos nativos.
+ * - Aplica el motor híbrido dual (V2 + texto plano).
+ * - Filtra y ordena los grupos según las preferencias del usuario.
+ */
+export async function compileUniversalBadgeRules(pack, activeIds = [], orderIds = []) {
+  const packObj = typeof pack === 'string' ? getBadgePackById(pack) : pack;
+  if (!packObj) return { groups: [], filters: [] };
+
+  const activeSet = new Set(activeIds && activeIds.length > 0 ? activeIds : ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms']);
+  const sortOrder = orderIds && orderIds.length > 0 ? orderIds : ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+
+  let rawGroups = [];
+  let rawFilters = [];
+
+  if (packObj.isCustom && packObj.customJson) {
+    const cJson = packObj.customJson;
+    rawGroups = Array.isArray(cJson.groups) ? [...cJson.groups] : [];
+    rawFilters = Array.isArray(cJson.filters) ? [...cJson.filters] : (Array.isArray(cJson) ? [...cJson] : []);
+  } else {
+    const packUrl = packObj.rawV2 || packObj.rawV1 || '';
+    if (packUrl) {
+      try {
+        const resp = await fetch(packUrl);
+        if (resp.ok) {
+          const data = await resp.json();
+          rawGroups = Array.isArray(data.groups) ? [...data.groups] : [];
+          rawFilters = Array.isArray(data.filters) ? [...data.filters] : (Array.isArray(data) ? [...data] : []);
+        } else {
+          throw new Error(`HTTP ${resp.status}`);
+        }
+      } catch (err) {
+        console.warn('[compileUniversalBadgeRules] Fetch directo falló, intentando con proxy CORS:', err.message);
+        try {
+          const proxyResp = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(packUrl)}`);
+          if (proxyResp.ok) {
+            const data = await proxyResp.json();
+            rawGroups = Array.isArray(data.groups) ? [...data.groups] : [];
+            rawFilters = Array.isArray(data.filters) ? [...data.filters] : (Array.isArray(data) ? [...data] : []);
+          }
+        } catch (proxyErr) {
+          console.error('[compileUniversalBadgeRules] Error descargando pack:', proxyErr);
+        }
+      }
+    }
+  }
+
+  // 1. Sanitizador de idiomas y preservación armónica de Latino
+  let processedFilters = sanitizeLanguageAndBadges(rawFilters, rawGroups);
+
+  // 2. Motor híbrido dual para todos los filtros con marcadores invisibles
+  processedFilters = processedFilters.map(f => toUniversalHybridFilter(f));
+
+  // 3. Filtrar y ordenar grupos
+  let filteredGroups = rawGroups.filter(g => isSectionActive(g.id, activeSet));
+  filteredGroups.sort((a, b) => {
+    const canonA = getCanonicalModuleId(a.id);
+    const canonB = getCanonicalModuleId(b.id);
+    const idxA = sortOrder.indexOf(canonA);
+    const idxB = sortOrder.indexOf(canonB);
+    return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
+  });
+
+  // Si no había grupos en el JSON pero sí filtros, construir grupos estándar
+  if (filteredGroups.length === 0 && rawGroups.length === 0) {
+    const usedGroupIds = [...new Set(processedFilters.map(f => f.groupId).filter(Boolean))];
+    filteredGroups = usedGroupIds
+      .filter(gid => isSectionActive(gid, activeSet))
+      .map(gid => ({
+        id: gid,
+        name: getBadgeModuleLabel(gid, gid),
+        isExpanded: true
+      }));
+  }
+
+  // 4. Filtrar filtros pertenecientes a grupos activos
+  const activeGroupIds = new Set(filteredGroups.map(g => g.id));
+  const activeCanonicals = new Set(filteredGroups.map(g => getCanonicalModuleId(g.id)));
+
+  const finalFilters = processedFilters.filter(f => {
+    if (!f.groupId) return true;
+    return activeGroupIds.has(f.groupId) || activeCanonicals.has(getCanonicalModuleId(f.groupId)) || isSectionActive(f.groupId, activeSet);
+  });
+
+  return {
+    groups: filteredGroups,
+    filters: finalFilters
+  };
+}

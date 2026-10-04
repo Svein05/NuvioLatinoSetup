@@ -579,6 +579,19 @@
                     <div id="badgeModulesOrderBar" class="flex flex-wrap items-center gap-2">
                       <!-- Chips de orden con botones < y > generados dinámicamente -->
                     </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/[0.04]">
+                      <span class="text-[10px] text-white/40 font-mono">Exportar configuración personalizada:</span>
+                      <div class="flex items-center gap-2">
+                        <button type="button" onclick="window.appController.downloadCompiledBadgeJson()" class="py-1.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center gap-1.5 transition-all cursor-pointer" title="Descargar archivo JSON con tu orden y módulos activos">
+                          <i class="fa-solid fa-download text-[11px]"></i>
+                          <span>Descargar JSON</span>
+                        </button>
+                        <button type="button" onclick="window.appController.copyCompiledBadgeJson()" class="py-1.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-white text-xs border border-white/[0.12] flex items-center gap-1.5 transition-all font-medium cursor-pointer" title="Copiar código JSON listo para Nuvio con tus ajustes">
+                          <i class="fa-solid fa-copy text-[11px]"></i>
+                          <span>Copiar JSON Personalizado</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -797,8 +810,12 @@
                   <span>Copiar JSON de Metadata</span>
                 </button>
                 <button id="btnCopyBadgeUrl" type="button" class="hidden lat-capsule-btn glass text-xs py-2 px-4 flex items-center gap-2" title="Copiar enlace de badges seleccionados para Fusion Badge URLs">
-                  <i class="fa-solid fa-tags text-indigo-400"></i>
+                  <i class="fa-solid fa-link text-white/70"></i>
                   <span>Copiar Enlace de Badges</span>
+                </button>
+                <button id="btnCopyBadgeCompiledJson" type="button" class="hidden lat-capsule-btn glass text-xs py-2 px-4 flex items-center gap-2" title="Copiar JSON de badges compilado y sanitizado con tu orden personalizado">
+                  <i class="fa-solid fa-tags text-white"></i>
+                  <span>Copiar JSON de Badges</span>
                 </button>
               </div>
             </div>
@@ -813,6 +830,11 @@
               <button id="btnDownloadAioConfig" class="lat-capsule-btn glass px-4 py-2.5 text-xs flex items-center gap-2" title="Descargar configuración filtrada para AIOMetadata">
                 <i class="fa-solid fa-file-code"></i>
                 <span>Descargar Config AIOMetadata</span>
+              </button>
+
+              <button id="btnDownloadBadges" class="hidden lat-capsule-btn glass px-4 py-2.5 text-xs flex items-center gap-2" title="Descargar archivo JSON de badges compilado y sanitizado para Nuvio">
+                <i class="fa-solid fa-tags"></i>
+                <span>Descargar Badges JSON</span>
               </button>
             </div>
 

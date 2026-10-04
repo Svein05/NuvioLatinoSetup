@@ -10,7 +10,8 @@ import {
   getBadgePackById, 
   getBadgePackUrl,
   isSectionActive,
-  getCanonicalModuleId 
+  getCanonicalModuleId,
+  compileUniversalBadgeRules
 } from './badge-packs.js';
 
 export class PipelineInjector {
@@ -209,72 +210,28 @@ export class PipelineInjector {
       };
 
       if (isBadgesActive && selectedBadgePack) {
-        state.addLog(`Compilando reglas de badges: "${selectedBadgePack.name}"...`, 'info');
+        state.addLog(`Compilando reglas universales e híbridas de badges: "${selectedBadgePack.name}"...`, 'info');
 
         const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
         const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-        const activeSet = new Set(activeIds);
 
-        let badgeRulesJson = { imports: [] };
-        if (selectedBadgePack.isCustom && selectedBadgePack.customJson) {
-          const cJson = selectedBadgePack.customJson;
-          let rawGroups = cJson.groups || [];
-          let rawFilters = cJson.filters || (Array.isArray(cJson) ? cJson : []);
-
-          let filteredGroups = rawGroups.filter(g => isSectionActive(g.id, activeSet));
-          filteredGroups.sort((a, b) => {
-            const canonA = getCanonicalModuleId(a.id);
-            const canonB = getCanonicalModuleId(b.id);
-            const idxA = orderIds.indexOf(canonA);
-            const idxB = orderIds.indexOf(canonB);
-            return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
-          });
-          let filteredFilters = rawFilters.filter(f => !f.groupId || isSectionActive(f.groupId, activeSet));
-
-          badgeRulesJson.imports.push({
-            sourceUrl: selectedBadgePack.rawV2 || 'custom://badges',
-            filters: filteredFilters,
-            groups: filteredGroups.length > 0 ? filteredGroups : rawGroups,
-            isActive: true
-          });
-        } else {
-          try {
-            const badgeResp = await fetch(badgePackUrl);
-            if (badgeResp.ok) {
-              const fetchedData = await badgeResp.json();
-              let rawGroups = fetchedData.groups || [];
-              let rawFilters = fetchedData.filters || [];
-
-              // Filtrar y ordenar grupos según la personalización del usuario
-              let filteredGroups = rawGroups.filter(g => isSectionActive(g.id, activeSet));
-              filteredGroups.sort((a, b) => {
-                const canonA = getCanonicalModuleId(a.id);
-                const canonB = getCanonicalModuleId(b.id);
-                const idxA = orderIds.indexOf(canonA);
-                const idxB = orderIds.indexOf(canonB);
-                return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
-              });
-              let filteredFilters = rawFilters.filter(f => !f.groupId || isSectionActive(f.groupId, activeSet));
-
-              badgeRulesJson.imports.push({
-                sourceUrl: badgePackUrl,
-                filters: filteredFilters,
-                groups: filteredGroups.length > 0 ? filteredGroups : rawGroups,
-                isActive: true
-              });
-            } else {
-              throw new Error(`HTTP ${badgeResp.status}`);
-            }
-          } catch (fetchErr) {
-            console.warn('[Injector] No se pudo precargar JSON de badges de red, usando import por URL:', fetchErr.message);
-            badgeRulesJson.imports.push({
-              sourceUrl: badgePackUrl,
-              filters: [],
-              groups: [],
-              isActive: true
-            });
-          }
+        let compiled = { groups: [], filters: [] };
+        try {
+          compiled = await compileUniversalBadgeRules(selectedBadgePack, activeIds, orderIds);
+        } catch (compileErr) {
+          console.warn('[Injector] Error en compilación universal de badges:', compileErr);
         }
+
+        const badgeRulesJson = {
+          imports: [
+            {
+              sourceUrl: 'custom://nuvio-badges-latino',
+              filters: compiled.filters,
+              groups: compiled.groups,
+              isActive: true
+            }
+          ]
+        };
 
         const showFileSize = Boolean(activeIds.includes('size'));
 
