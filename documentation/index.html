@@ -85,13 +85,23 @@
 
     <!-- Cápsula Derecha: Contador + Discord + GitHub -->
     <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
-      <!-- Pastilla Contador de Usuarios Ayudados / Completados -->
+      <!-- Pastilla Dinámica: Contador de Setups Completados -->
       <div id="completionsCounterPill"
-           class="lat-floating-pill completions-counter-pill px-2.5 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/15 transition-all flex items-center gap-1.5 cursor-default group"
-           title="Usuarios que han completado su configuración exitosamente">
-        <i class="fa-solid fa-users text-xs sm:text-sm text-emerald-400 group-hover:scale-110 transition-transform"></i>
-        <span id="completionsCountNumber" class="completions-count-number font-semibold text-emerald-300 font-mono tracking-tight">--</span>
-        <span class="hidden lg:inline text-[11px] text-emerald-400/80 font-normal">ayudados</span>
+           class="lat-floating-pill completions-counter-pill px-2.5 sm:px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer group select-none"
+           title="Setups Completados">
+        <i class="fa-solid fa-users text-xs sm:text-sm text-white/70 group-hover:text-emerald-400 group-hover:scale-105 transition-all duration-200 shrink-0"></i>
+        
+        <!-- Número Compacto en Reposo (ej: 150, 1.5k, 2M) -->
+        <span class="completions-count-compact font-mono font-semibold text-white/90 shrink-0">--</span>
+
+        <!-- Bloque Expandible en Hover (Número Completo + Setups Completados) -->
+        <div class="completions-expanded-wrap">
+          <span class="completions-count-full font-mono font-semibold text-emerald-300 shrink-0">--</span>
+          <span class="text-white/80 font-normal text-xs tracking-tight">
+            <span class="hidden sm:inline">Setups Completados</span>
+            <span class="sm:hidden">Completados</span>
+          </span>
+        </div>
       </div>
 
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 

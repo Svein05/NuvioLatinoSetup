@@ -162,9 +162,48 @@ function getLocalCache() {
 }
 
 /**
+ * Formatea un número en notación compacta para la pastilla en reposo:
+ * - Menos de 1.000: "150", "999"
+ * - 1.000 a 999.999: "1k", "1.5k", "12k", "12.4k", "150k"
+ * - 1.000.000+: "1M", "2.5M"
+ */
+export function formatCompactNumber(num) {
+  if (num === null || num === undefined || isNaN(num)) return '--';
+  const n = Number(num);
+  if (n < 1000) return n.toString();
+  
+  if (n < 1000000) {
+    const k = n / 1000;
+    const formatted = k < 100 ? k.toFixed(1).replace(/\.0$/, '') : Math.round(k).toString();
+    return `${formatted}k`;
+  }
+  
+  if (n < 1000000000) {
+    const m = n / 1000000;
+    const formatted = m < 100 ? m.toFixed(1).replace(/\.0$/, '') : Math.round(m).toString();
+    return `${formatted}M`;
+  }
+  
+  const b = n / 1000000000;
+  return `${b.toFixed(1).replace(/\.0$/, '')}B`;
+}
+
+/**
+ * Formatea el número completo con separador de miles
+ */
+export function formatFullNumber(num) {
+  if (num === null || num === undefined || isNaN(num)) return '--';
+  try {
+    return new Intl.NumberFormat('es-MX').format(Number(num));
+  } catch (_) {
+    return Number(num).toLocaleString();
+  }
+}
+
+/**
  * Anima la transición numérica suave en el DOM
  */
-function animateNumber(element, start, end, durationMs = 1200) {
+function animateNumber(element, start, end, durationMs = 1000, onStep = null) {
   if (!element) return;
   const startTime = performance.now();
   const diff = end - start;
@@ -175,12 +214,14 @@ function animateNumber(element, start, end, durationMs = 1200) {
     // Easing easeOutExpo
     const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
     const currentVal = Math.round(start + diff * ease);
-    element.textContent = currentVal.toLocaleString();
+    element.textContent = formatFullNumber(currentVal);
+    if (typeof onStep === 'function') onStep(currentVal);
 
     if (progress < 1) {
       requestAnimationFrame(step);
     } else {
-      element.textContent = end.toLocaleString();
+      element.textContent = formatFullNumber(end);
+      if (typeof onStep === 'function') onStep(end);
     }
   }
 
@@ -191,17 +232,34 @@ function animateNumber(element, start, end, durationMs = 1200) {
  * Actualiza los elementos del DOM asociados al contador
  */
 export function updateCounterPillUI(count, animate = false) {
-  const numberEls = document.querySelectorAll('.completions-count-number, #completionsCountNumber');
+  const compactEls = document.querySelectorAll('.completions-count-compact');
+  const fullEls = document.querySelectorAll('.completions-count-full');
+  const legacyEls = document.querySelectorAll('.completions-count-number, #completionsCountNumber');
   const pillEls = document.querySelectorAll('.completions-counter-pill, #completionsCounterPill');
 
-  numberEls.forEach(el => {
-    if (animate) {
+  if (animate) {
+    fullEls.forEach(el => {
       const currentVal = parseInt(el.textContent.replace(/[^0-9]/g, ''), 10) || Math.max(0, count - 1);
-      animateNumber(el, currentVal, count, 1000);
-    } else {
-      el.textContent = count.toLocaleString();
-    }
-  });
+      animateNumber(el, currentVal, count, 1000, (stepVal) => {
+        compactEls.forEach(cEl => {
+          cEl.textContent = formatCompactNumber(stepVal);
+        });
+        legacyEls.forEach(lEl => {
+          lEl.textContent = formatCompactNumber(stepVal);
+        });
+      });
+    });
+  } else {
+    compactEls.forEach(el => {
+      el.textContent = formatCompactNumber(count);
+    });
+    fullEls.forEach(el => {
+      el.textContent = formatFullNumber(count);
+    });
+    legacyEls.forEach(el => {
+      el.textContent = formatCompactNumber(count);
+    });
+  }
 
   pillEls.forEach(pill => {
     pill.classList.remove('opacity-0');
