@@ -15,7 +15,9 @@ import {
   BADGE_MODULE_DEFINITIONS,
   getBadgeModuleLabel,
   getPackSectionsOrdered,
-  normalizeBadgeColor
+  normalizeBadgeColor,
+  getCanonicalModuleId,
+  isSectionActive
 } from './badge-packs.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
@@ -1893,6 +1895,7 @@ class AppController {
       const containerOrderBar = document.getElementById('badgeModulesOrderBar');
       const activeIds = state.preferences.activeBadgeModules || [];
       const orderIds = state.preferences.badgeModulesOrder || [];
+      const activeSet = new Set(activeIds);
       const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
       const currentPack = getBadgePackById(selectedPackId);
 
@@ -1901,7 +1904,8 @@ class AppController {
       BADGE_MODULE_DEFINITIONS.forEach(def => allModulesMap.set(def.id, def));
       if (currentPack && currentPack.sections) {
         currentPack.sections.forEach(sec => {
-          if (!allModulesMap.has(sec.id)) {
+          const canonId = getCanonicalModuleId(sec.id);
+          if (!allModulesMap.has(canonId) && !allModulesMap.has(sec.id)) {
             allModulesMap.set(sec.id, {
               id: sec.id,
               labelEs: getBadgeModuleLabel(sec.id, sec.name),
@@ -1914,11 +1918,7 @@ class AppController {
 
       if (containerCheckboxes) {
         containerCheckboxes.innerHTML = moduleDefs.map(def => {
-          const isChecked = activeIds.includes(def.id) || 
-            (def.id === 'glang' && activeIds.includes('gl')) || 
-            (def.id === 'gl' && activeIds.includes('glang')) ||
-            (def.id === 'gsub' && activeIds.includes('sub')) ||
-            (def.id === 'sub' && activeIds.includes('gsub'));
+          const isChecked = isSectionActive(def.id, activeSet);
           return `
             <label class="badge-module-pill flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 cursor-pointer text-xs text-white/70 hover:text-white transition-all select-none">
               <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.appController.toggleBadgeModule('${def.id}', this.checked)" class="sr-only">
@@ -1932,8 +1932,8 @@ class AppController {
       }
 
       if (containerOrderBar) {
-        // Mostrar los módulos activos en el orden actual
-        const activeOrdered = orderIds.filter(id => activeIds.includes(id) || allModulesMap.has(id));
+        // Mostrar exclusivamente los módulos activos en el orden actual
+        const activeOrdered = orderIds.filter(id => isSectionActive(id, activeSet));
         if (activeOrdered.length === 0) {
           containerOrderBar.innerHTML = `<span class="text-[11px] text-white/40 italic">Ningún módulo activado. Marca categorías arriba para incluirlas y ordenarlas.</span>`;
         } else {
@@ -1999,20 +1999,18 @@ class AppController {
       if (!state.preferences.activeBadgeModules) {
         state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
       }
+      const canon = getCanonicalModuleId(id);
       if (isChecked) {
         if (!state.preferences.activeBadgeModules.includes(id)) {
           state.preferences.activeBadgeModules.push(id);
         }
-        if (id === 'glang' && !state.preferences.activeBadgeModules.includes('gl')) state.preferences.activeBadgeModules.push('gl');
-        if (id === 'gl' && !state.preferences.activeBadgeModules.includes('glang')) state.preferences.activeBadgeModules.push('glang');
-        if (id === 'gsub' && !state.preferences.activeBadgeModules.includes('sub')) state.preferences.activeBadgeModules.push('sub');
-        if (id === 'sub' && !state.preferences.activeBadgeModules.includes('gsub')) state.preferences.activeBadgeModules.push('gsub');
+        if (canon && canon !== id && !state.preferences.activeBadgeModules.includes(canon)) {
+          state.preferences.activeBadgeModules.push(canon);
+        }
       } else {
-        state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== id);
-        if (id === 'glang') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'gl');
-        if (id === 'gl') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'glang');
-        if (id === 'gsub') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'sub');
-        if (id === 'sub') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'gsub');
+        state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(
+          x => x !== id && getCanonicalModuleId(x) !== canon
+        );
       }
       this.renderBadgeModulesUI();
       this.renderBadgesGrid();
@@ -2024,7 +2022,8 @@ class AppController {
     this.moveBadgeModule = (id, delta) => {
       const activeIds = state.preferences.activeBadgeModules || [];
       const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'])];
-      const activeOrdered = order.filter(x => activeIds.includes(x));
+      const activeSet = new Set(activeIds);
+      const activeOrdered = order.filter(x => isSectionActive(x, activeSet));
       const curIdx = activeOrdered.indexOf(id);
       const targetIdx = curIdx + delta;
 
@@ -2048,10 +2047,8 @@ class AppController {
       const pack = getBadgePackById(packId);
       if (pack && pack.sections) {
         pack.sections.forEach(sec => {
-          if (!state.preferences.activeBadgeModules.includes(sec.id)) {
-            state.preferences.activeBadgeModules.push(sec.id);
-          }
-          if (!state.preferences.badgeModulesOrder.includes(sec.id)) {
+          const canon = getCanonicalModuleId(sec.id);
+          if (!state.preferences.badgeModulesOrder.includes(sec.id) && !state.preferences.badgeModulesOrder.includes(canon)) {
             state.preferences.badgeModulesOrder.push(sec.id);
           }
         });
@@ -2184,14 +2181,7 @@ class AppController {
       // Normalizador de identificadores de grupo para Badger y Nuvio
       const normalizeGid = (rawGid) => {
         const id = (rawGid || 'gr').trim();
-        const lower = id.toLowerCase();
-        if (lower === 'gl' || lower === 'lang' || lower === 'language') return 'glang';
-        if (lower === 'sub' || lower === 'subtitle' || lower === 'subtitles') return 'gsub';
-        if (lower === 'codec' || lower === 'encoder') return 'ge';
-        if (lower === 'source' || lower === 'media-source' || lower === 'media source') return 'gms';
-        if (lower === 'special' || lower === 'special-tags' || lower === 'special tags') return 'gst';
-        if (lower === 'stream' || lower === 'streaming') return 'gs';
-        return id;
+        return getCanonicalModuleId(id) || id;
       };
 
       // Convertir Badger groups / filters a sections para visualización fiel y completa

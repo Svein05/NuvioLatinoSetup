@@ -3141,14 +3141,37 @@ function enrichSectionForDisplay(sec, pack) {
   return sec;
 }
 
+export function getCanonicalModuleId(rawId) {
+  if (!rawId) return '';
+  const lower = String(rawId).trim().toLowerCase();
+  if (lower === 'gr' || lower === 'g-res' || lower === 'res' || lower === 'resolution') return 'gr';
+  if (lower === 'gq' || lower === 'g-src' || lower === 'grl' || lower === 'quality') return 'gq';
+  if (lower === 'gv' || lower === 'g-rng' || lower === 'g-depth' || lower === 'visual') return 'gv';
+  if (lower === 'ga' || lower === 'g-snd' || lower === 'snd' || lower === 'audio' || lower === 'sound formats') return 'ga';
+  if (lower === 'gc' || lower === 'g-ch' || lower === 'ch' || lower === 'channels' || lower === 'audio channels') return 'gc';
+  if (lower === 'ge' || lower === 'codec' || lower === 'encoder') return 'ge';
+  if (lower === 'gl' || lower === 'glang' || lower === 'lang' || lower === 'language') return 'glang';
+  if (lower === 'gsub' || lower === 'sub' || lower === 'subtitle' || lower === 'subtitles') return 'gsub';
+  if (lower === 'gst' || lower === 'special' || lower === 'special-tags' || lower === 'special tags') return 'gst';
+  if (lower === 'gs' || lower === 'stream' || lower === 'streaming') return 'gs';
+  if (lower === 'gms' || lower === 'source' || lower === 'media-source' || lower === 'media source' || lower === 'mediasource') return 'gms';
+  return lower;
+}
+
+export function isSectionActive(secId, activeSet) {
+  if (!activeSet || activeSet.size === 0) return false;
+  if (activeSet.has(secId)) return true;
+  const canon = getCanonicalModuleId(secId);
+  if (activeSet.has(canon)) return true;
+  for (const activeId of activeSet) {
+    if (getCanonicalModuleId(activeId) === canon) return true;
+  }
+  return false;
+}
+
 export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
   if (!pack) return [];
-  const activeSet = new Set(activeModuleIds);
-  // Expandir alias bidireccionales en activeSet
-  if (activeSet.has('glang')) activeSet.add('gl');
-  if (activeSet.has('gl')) activeSet.add('glang');
-  if (activeSet.has('gsub')) activeSet.add('sub');
-  if (activeSet.has('sub')) activeSet.add('gsub');
+  const activeSet = new Set(activeModuleIds || []);
 
   const sectionsMap = new Map();
   (pack.sections || []).forEach(sec => {
@@ -3157,33 +3180,33 @@ export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
 
   const result = [];
   const addedIds = new Set();
+  const checkActive = (id) => isSectionActive(id, activeSet);
 
   // 1. Respetar la secuencia ordenada definida por el usuario
-  order.forEach(id => {
+  (order || []).forEach(id => {
     let matchedSec = sectionsMap.get(id);
     if (!matchedSec) {
-      if (id === 'glang') matchedSec = sectionsMap.get('gl') || sectionsMap.get('lang');
-      else if (id === 'ge') matchedSec = sectionsMap.get('codec') || sectionsMap.get('encoder');
-      else if (id === 'gsub') matchedSec = sectionsMap.get('sub');
-      else if (id === 'ga') matchedSec = sectionsMap.get('g-snd') || sectionsMap.get('snd');
-      else if (id === 'gc') matchedSec = sectionsMap.get('g-ch') || sectionsMap.get('ch');
-      else if (id === 'gr') matchedSec = sectionsMap.get('g-res');
-      else if (id === 'gq') matchedSec = sectionsMap.get('g-src') || sectionsMap.get('grl');
-      else if (id === 'gv') matchedSec = sectionsMap.get('g-rng') || sectionsMap.get('g-depth');
+      const targetCanon = getCanonicalModuleId(id);
+      for (const [secId, sec] of sectionsMap.entries()) {
+        if (!addedIds.has(secId) && getCanonicalModuleId(secId) === targetCanon) {
+          matchedSec = sec;
+          break;
+        }
+      }
     }
 
     if (matchedSec && !addedIds.has(matchedSec.id)) {
-      if (activeSet.size === 0 || activeSet.has(id) || activeSet.has(matchedSec.id) || pack.isCustom) {
+      if (checkActive(matchedSec.id) || checkActive(id)) {
         result.push(matchedSec);
         addedIds.add(matchedSec.id);
       }
     }
   });
 
-  // 2. Si hay alguna sección en el pack no presente en el orden, añadirla al final si está activa (o en packs personalizados)
+  // 2. Si hay alguna sección en el pack no presente en el orden, añadirla si está activa
   sectionsMap.forEach((sec, id) => {
     if (!addedIds.has(id)) {
-      if (activeSet.size === 0 || activeSet.has(id) || pack.isCustom) {
+      if (checkActive(id)) {
         result.push(sec);
         addedIds.add(id);
       }
