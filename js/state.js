@@ -351,6 +351,7 @@ class WizardState {
       // Inicializar cada carpeta con propiedad `enabled: true` si no viene definida
       this.collections = collectionsData.map(section => ({
         ...section,
+        pinToTop: section.pinToTop !== undefined ? section.pinToTop : true,
         enabled: section.enabled !== false,
         folders: (section.folders || []).map(folder => ({
           ...folder,
@@ -374,6 +375,7 @@ class WizardState {
     if (!this.originalCollectionsTemplate) return;
     this.collections = JSON.parse(JSON.stringify(this.originalCollectionsTemplate)).map(section => ({
       ...section,
+      pinToTop: section.pinToTop !== undefined ? section.pinToTop : true,
       enabled: true,
       folders: (section.folders || []).map(f => ({ ...f, enabled: true }))
     }));
@@ -863,6 +865,7 @@ class WizardState {
       .filter(sec => sec.enabled !== false && (sec.folders || []).some(f => f.enabled !== false))
       .map(sec => ({
         ...sec,
+        pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
         folders: sec.folders.filter(f => f.enabled !== false)
       }));
   }
