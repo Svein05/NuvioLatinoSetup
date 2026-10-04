@@ -1,12 +1,14 @@
 /**
  * Módulo de Contador Global de Configuraciones Completadas
  * Nuvio Latino Setup - Arquitectura Jamstack / GitHub Pages ($0 Costo)
+ * Incluye Odómetro (Ruleta de Dígitos estilo YouTube Live), Live Sync y Menú Responsive
  */
 
 const STORAGE_KEYS = {
   CACHED_COUNT: 'nuvio_completions_cached_count',
   CACHED_TIMESTAMP: 'nuvio_completions_cached_ts',
-  COMPLETION_TOKEN: 'nuvio_completion_recorded_token'
+  COMPLETION_TOKEN: 'nuvio_completion_recorded_token',
+  SESSION_RECORDED: 'nuvio_completion_session_recorded'
 };
 
 // Endpoints primario y secundario para redundancia
@@ -78,19 +80,55 @@ export async function fetchCompletionsCount() {
 }
 
 /**
+ * Dispara el efecto visual de auto-expansión celebratoria en desktop
+ */
+export function triggerCelebrationEffect() {
+  const pillEls = document.querySelectorAll('.completions-counter-pill, #completionsCounterPill');
+  pillEls.forEach(pill => {
+    pill.classList.remove('is-celebrating');
+    // Forzar reflujo para reiniciar la animación
+    void pill.offsetWidth;
+    pill.classList.add('is-celebrating');
+  });
+
+  if (window._counterCelebrationTimer) {
+    clearTimeout(window._counterCelebrationTimer);
+  }
+  window._counterCelebrationTimer = setTimeout(() => {
+    pillEls.forEach(pill => pill.classList.remove('is-celebrating'));
+  }, 3600);
+}
+
+/**
  * Incrementa el contador global tras una configuración completada con éxito.
- * Implementa protección anti-spam local para no inflar la cifra ante reintentos consecutivos.
+ * Implementa protección anti-spam local por sesión para no inflar la cifra ante reintentos consecutivos.
  */
 export async function recordSuccessfulCompletion() {
-  // Control anti-spam: máximo 1 incremento por navegador cada 45 minutos
+  // Disparar siempre la animación celebratoria (+1 visual) para deleite del usuario
+  triggerCelebrationEffect();
+
+  // Control anti-spam: máximo 1 incremento por navegador cada 45 minutos o por sesión
+  let isAlreadyRecorded = false;
+  try {
+    if (sessionStorage.getItem(STORAGE_KEYS.SESSION_RECORDED) === 'true') {
+      isAlreadyRecorded = true;
+    }
+  } catch (_) {}
+
   const lastToken = localStorage.getItem(STORAGE_KEYS.COMPLETION_TOKEN);
   const now = Date.now();
   if (lastToken) {
     const lastTimestamp = parseInt(lastToken, 10);
     if (!isNaN(lastTimestamp) && (now - lastTimestamp) < 45 * 60 * 1000) {
-      console.info('[Counter] Configuración ya contabilizada recientemente en esta sesión. Omitiendo incremento duplicado.');
-      return getLocalCache();
+      isAlreadyRecorded = true;
     }
+  }
+
+  if (isAlreadyRecorded) {
+    console.info('[Counter] Configuración ya contabilizada recientemente en esta sesión. Mostrando animación celebratoria sin duplicar incremento.');
+    const current = getLocalCache();
+    updateCounterPillUI(current, true);
+    return current;
   }
 
   let newCount = null;
@@ -125,13 +163,14 @@ export async function recordSuccessfulCompletion() {
     newCount = current + 1;
   }
 
-  // Marcar token anti-spam y guardar caché
+  // Marcar tokens de sesión y anti-spam
   try {
+    sessionStorage.setItem(STORAGE_KEYS.SESSION_RECORDED, 'true');
     localStorage.setItem(STORAGE_KEYS.COMPLETION_TOKEN, String(now));
   } catch (_) {}
   saveLocalCache(newCount);
 
-  // Actualizar la interfaz en vivo con animación
+  // Actualizar la interfaz en vivo con animación de odómetro
   updateCounterPillUI(newCount, true);
 
   return newCount;
@@ -201,35 +240,126 @@ export function formatFullNumber(num) {
 }
 
 /**
- * Anima la transición numérica suave en el DOM
+ * Motor del Odómetro / Ruleta Digital Estilo YouTube Live Subscriber Count
+ * Renderiza los caracteres en slots y anima los dígitos descendiendo desde arriba hacia abajo
  */
-function animateNumber(element, start, end, durationMs = 1000, onStep = null) {
-  if (!element) return;
-  const startTime = performance.now();
-  const diff = end - start;
+export function renderOdometer(container, textValue, animate = false) {
+  if (!container) return;
+  const str = String(textValue);
 
-  function step(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / durationMs, 1);
-    // Easing easeOutExpo
-    const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-    const currentVal = Math.round(start + diff * ease);
-    element.textContent = formatFullNumber(currentVal);
-    if (typeof onStep === 'function') onStep(currentVal);
+  const prevStr = container.__odometerPrevStr || '';
+  container.__odometerPrevStr = str;
 
-    if (progress < 1) {
-      requestAnimationFrame(step);
+  // Si no se solicita animación o no había valor previo, renderizado directo estático
+  if (!animate || !prevStr) {
+    container.innerHTML = '';
+    const wrapper = document.createElement('span');
+    wrapper.className = 'odometer-wrapper';
+    for (const char of str) {
+      if (/\d/.test(char)) {
+        const slot = document.createElement('span');
+        slot.className = 'odometer-digit-slot';
+        slot.dataset.digit = char;
+        const val = document.createElement('span');
+        val.className = 'odometer-digit-val';
+        val.textContent = char;
+        slot.appendChild(val);
+        wrapper.appendChild(slot);
+      } else {
+        const sym = document.createElement('span');
+        sym.className = 'odometer-static-char';
+        sym.textContent = char;
+        wrapper.appendChild(sym);
+      }
+    }
+    container.appendChild(wrapper);
+    return;
+  }
+
+  // Renderizado animado con ruleta de dígitos que bajan desde arriba
+  container.innerHTML = '';
+  const wrapper = document.createElement('span');
+  wrapper.className = 'odometer-wrapper';
+
+  const maxLen = Math.max(prevStr.length, str.length);
+  const paddedPrev = prevStr.padStart(maxLen, ' ');
+  const paddedNext = str.padStart(maxLen, ' ');
+
+  for (let i = 0; i < maxLen; i++) {
+    const cPrev = paddedPrev[i];
+    const cNext = paddedNext[i];
+
+    if (cNext === ' ') continue;
+
+    if (/\d/.test(cNext)) {
+      const slot = document.createElement('span');
+      slot.className = 'odometer-digit-slot';
+      slot.dataset.digit = cNext;
+
+      const nPrev = /\d/.test(cPrev) ? parseInt(cPrev, 10) : null;
+      const nNext = parseInt(cNext, 10);
+
+      if (nPrev !== null && nPrev !== nNext) {
+        // Ruleta de YouTube: los números bajan desde arriba (el nuevo dígito entra rodando desde arriba)
+        // Secuencia donde nNext está en la cima (índice 0) y nPrev está en el fondo
+        const digits = [];
+        let curr = nNext;
+        digits.push(curr);
+        let steps = (nNext - nPrev + 10) % 10;
+        if (steps === 0) steps = 10;
+        for (let s = 1; s <= steps; s++) {
+          curr = (curr - 1 + 10) % 10;
+          digits.push(curr);
+          if (curr === nPrev) break;
+        }
+
+        const strip = document.createElement('span');
+        strip.className = 'odometer-digit-strip';
+
+        digits.forEach(d => {
+          const val = document.createElement('span');
+          val.className = 'odometer-digit-val';
+          val.textContent = String(d);
+          strip.appendChild(val);
+        });
+
+        // Mostrar inicialmente nPrev (al fondo de la tira vertical)
+        const totalHeightEm = (digits.length - 1) * 1.15;
+        strip.style.transform = `translateY(-${totalHeightEm}em)`;
+        strip.style.transition = 'none';
+
+        slot.appendChild(strip);
+        wrapper.appendChild(slot);
+
+        // En el cuadro siguiente, animar suavemente hacia translateY(0)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            strip.style.transition = 'transform 0.72s cubic-bezier(0.16, 1, 0.3, 1)';
+            strip.style.transform = 'translateY(0)';
+          });
+        });
+      } else {
+        // El dígito no cambió
+        const val = document.createElement('span');
+        val.className = 'odometer-digit-val';
+        val.textContent = cNext;
+        slot.appendChild(val);
+        wrapper.appendChild(slot);
+      }
     } else {
-      element.textContent = formatFullNumber(end);
-      if (typeof onStep === 'function') onStep(end);
+      // Símbolo estático (coma, punto, 'k', 'M')
+      const sym = document.createElement('span');
+      sym.className = 'odometer-static-char';
+      sym.textContent = cNext;
+      wrapper.appendChild(sym);
     }
   }
 
-  requestAnimationFrame(step);
+  container.appendChild(wrapper);
 }
 
 /**
- * Actualiza los elementos del DOM asociados al contador
+ * Actualiza los elementos del DOM asociados al contador utilizando el odómetro
  */
 export function updateCounterPillUI(count, animate = false) {
   const compactEls = document.querySelectorAll('.completions-count-compact');
@@ -237,29 +367,20 @@ export function updateCounterPillUI(count, animate = false) {
   const legacyEls = document.querySelectorAll('.completions-count-number, #completionsCountNumber');
   const pillEls = document.querySelectorAll('.completions-counter-pill, #completionsCounterPill');
 
-  if (animate) {
-    fullEls.forEach(el => {
-      const currentVal = parseInt(el.textContent.replace(/[^0-9]/g, ''), 10) || Math.max(0, count - 1);
-      animateNumber(el, currentVal, count, 1000, (stepVal) => {
-        compactEls.forEach(cEl => {
-          cEl.textContent = formatCompactNumber(stepVal);
-        });
-        legacyEls.forEach(lEl => {
-          lEl.textContent = formatCompactNumber(stepVal);
-        });
-      });
-    });
-  } else {
-    compactEls.forEach(el => {
-      el.textContent = formatCompactNumber(count);
-    });
-    fullEls.forEach(el => {
-      el.textContent = formatFullNumber(count);
-    });
-    legacyEls.forEach(el => {
-      el.textContent = formatCompactNumber(count);
-    });
-  }
+  const compactStr = formatCompactNumber(count);
+  const fullStr = formatFullNumber(count);
+
+  compactEls.forEach(el => {
+    renderOdometer(el, compactStr, animate);
+  });
+
+  fullEls.forEach(el => {
+    renderOdometer(el, fullStr, animate);
+  });
+
+  legacyEls.forEach(el => {
+    renderOdometer(el, compactStr, animate);
+  });
 
   pillEls.forEach(pill => {
     pill.classList.remove('opacity-0');
@@ -268,14 +389,82 @@ export function updateCounterPillUI(count, animate = false) {
 }
 
 /**
+ * Polling en tiempo real de bajo consumo con Page Visibility API
+ */
+let livePollingInterval = null;
+
+export function startLiveSyncPolling(intervalMs = 25000) {
+  if (livePollingInterval) return;
+
+  const checkLive = async () => {
+    // Si la pestaña está oculta o en segundo plano, no realizar peticiones
+    if (document.hidden) return;
+
+    try {
+      const liveCount = await fetchCompletionsCount();
+      const currentCache = getLocalCache();
+      if (liveCount && liveCount > currentCache) {
+        saveLocalCache(liveCount);
+        // Actualizar UI con animación de odómetro, pero sin forzar auto-expansión
+        updateCounterPillUI(liveCount, true);
+      }
+    } catch (_) {}
+  };
+
+  livePollingInterval = setInterval(checkLive, intervalMs);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      checkLive();
+    }
+  });
+}
+
+/**
+ * Inicializa el menú desplegable vertical de cabecera en móviles y tablets
+ */
+export function initMobileHeaderMenu() {
+  const btn = document.getElementById('btnMobileHeaderMenu');
+  const dropdown = document.getElementById('mobileHeaderDropdown');
+  if (!btn || !dropdown || btn._hasMobileMenuInit) return;
+  btn._hasMobileMenuInit = true;
+
+  const toggle = (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('is-open');
+  };
+
+  btn.addEventListener('click', toggle);
+
+  // Cerrar al hacer clic en cualquier otra parte
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+      dropdown.classList.remove('is-open');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      dropdown.classList.remove('is-open');
+    }
+  });
+}
+
+/**
  * Inicializa la pastilla en la cabecera al cargar la página
  */
 export async function initCompletionsCounterUI() {
-  // 1. Mostrar inmediatamente el valor en caché para evitar saltos o parpadeos (0 ms)
+  // 1. Inicializar menú móvil
+  initMobileHeaderMenu();
+
+  // 2. Mostrar inmediatamente el valor en caché para evitar saltos o parpadeos (0 ms)
   const cached = getLocalCache();
   updateCounterPillUI(cached, false);
 
-  // 2. Consultar en segundo plano el valor actualizado
+  // 3. Iniciar polling en vivo (25 segundos)
+  startLiveSyncPolling(25000);
+
+  // 4. Consultar en segundo plano el valor actualizado inicial
   try {
     const liveCount = await fetchCompletionsCount();
     if (liveCount && liveCount !== cached) {

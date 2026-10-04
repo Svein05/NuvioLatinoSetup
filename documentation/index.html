@@ -61,9 +61,9 @@
   <!-- Barra de Navegación Flotante LAT-ADD -->
   <header class="lat-floating-nav">
     <!-- Cápsula Izquierda: Marca -->
-    <a href="../" class="lat-floating-pill px-2.5 sm:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
+    <a href="../" class="lat-floating-pill px-2.5 sm:px-4 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-6 w-auto object-contain transition-transform group-hover:scale-105">
-      <span class="text-sm sm:text-[15px] font-semibold tracking-wide text-white hidden md:inline">Metadata Latino</span>
+      <span class="text-sm sm:text-[15px] font-semibold tracking-wide text-white hidden lg:inline">Metadata Latino</span>
       <span class="app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hidden sm:inline">v1.4.0</span>
     </a>
 
@@ -83,8 +83,35 @@
       </a>
     </nav>
 
-    <!-- Cápsula Derecha: Contador + Discord + GitHub -->
-    <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
+    <!-- Cápsula Derecha Móvil / Tablet Angosta (< 768px): Cápsula Circular con Dropdown Vertical -->
+    <div class="relative md:hidden pointer-events-auto shrink-0 lat-mobile-nav-cluster">
+      <button id="btnMobileHeaderMenu"
+              type="button"
+              class="lat-floating-pill w-[38px] h-[38px] p-0 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
+              title="Enlaces Rápidos y Contador"
+              aria-label="Abrir enlaces rápidos">
+        <i class="fa-solid fa-layer-group text-sm"></i>
+      </button>
+
+      <!-- Dropdown Flotante Vertical hacia Abajo (Efecto Glass) -->
+      <div id="mobileHeaderDropdown" class="lat-mobile-dropdown">
+        <div class="lat-mobile-dropdown-item completions-counter-pill text-emerald-400 font-mono font-semibold" title="Setups Completados">
+          <i class="fa-solid fa-users text-emerald-400 text-xs"></i>
+          <span class="completions-count-compact text-xs">--</span>
+        </div>
+        <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer"
+           class="lat-mobile-dropdown-item text-[#a5b4fc] hover:text-white" title="Comunidad Discord LAT-ADD">
+          <i class="fa-brands fa-discord text-sm text-[#5865F2]"></i>
+        </a>
+        <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer"
+           class="lat-mobile-dropdown-item text-white/80 hover:text-white" title="Repositorio en GitHub">
+          <i class="fa-brands fa-github text-sm"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Cápsula Derecha para Tablet y Desktop (>= 768px): Contador + Discord + GitHub -->
+    <div class="hidden md:flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
       <!-- Pastilla Dinámica: Contador de Setups Completados -->
       <div id="completionsCounterPill"
            class="lat-floating-pill completions-counter-pill px-2.5 sm:px-3.5 text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer group select-none text-emerald-400 shrink-0"
@@ -94,26 +121,25 @@
         <!-- Número Compacto en Reposo (ej: 150, 1.5k, 2M) -->
         <span class="completions-count-compact font-mono font-semibold text-emerald-400 shrink-0">--</span>
 
-        <!-- Bloque Expandible en Hover (Número Completo + Setups Completados) -->
+        <!-- Bloque Expandible en Hover (Solo en Desktop >= 1024px) -->
         <div class="completions-expanded-wrap">
           <span class="completions-count-full font-mono font-semibold text-emerald-400 shrink-0">--</span>
-          <span class="text-emerald-400/90 font-normal text-xs sm:text-sm tracking-tight">
-            <span class="hidden sm:inline">Setups Completados</span>
-            <span class="sm:hidden">Completados</span>
+          <span class="text-emerald-400/90 font-normal text-xs sm:text-sm tracking-tight whitespace-nowrap">
+            Setups Completados
           </span>
         </div>
       </div>
 
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
-         class="lat-floating-pill px-2.5 sm:px-4 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
+         class="lat-floating-pill px-2.5 sm:px-3.5 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
         <i class="fa-brands fa-discord text-sm sm:text-base text-[#5865F2]"></i>
-        <span class="hidden sm:inline">LAT-ADD</span>
+        <span class="hidden lg:inline">LAT-ADD</span>
       </a>
 
       <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" 
-         class="lat-floating-pill px-2.5 sm:px-4 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Repositorio en GitHub">
+         class="lat-floating-pill px-2.5 sm:px-3.5 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Repositorio en GitHub">
         <i class="fa-brands fa-github text-sm sm:text-base"></i>
-        <span class="hidden sm:inline">GitHub</span>
+        <span class="hidden lg:inline">GitHub</span>
       </a>
     </div>
   </header>

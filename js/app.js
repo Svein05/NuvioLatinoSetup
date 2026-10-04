@@ -3173,6 +3173,9 @@ class AppController {
     if (btnDownloadCol) {
       btnDownloadCol.addEventListener('click', () => {
         PipelineInjector.downloadCollectionsJson();
+        recordSuccessfulCompletion().catch(err => {
+          console.warn('[Counter] Error actualizando contador tras descargar colecciones:', err);
+        });
       });
     }
 
@@ -3185,6 +3188,9 @@ class AppController {
           return;
         }
         PipelineInjector.downloadAioConfigJson();
+        recordSuccessfulCompletion().catch(err => {
+          console.warn('[Counter] Error actualizando contador tras descargar metadata:', err);
+        });
       });
     }
 
