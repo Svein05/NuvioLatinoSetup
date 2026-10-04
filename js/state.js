@@ -7,7 +7,7 @@ import { CONFIG } from './config.js';
 class WizardState {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 6;
+    this.totalSteps = 7;
     this.maxUnlockedStep = 1; // Control restrictivo de avance de pasos
 
     // Preferencias de Perfil y Motor de Pósters (Paso 5)
@@ -21,6 +21,13 @@ class WizardState {
       activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
       badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms']
     };
+
+    // Gestor de Addons de Perfil (Paso 6)
+    this.profileAddons = []; // Lista de addons secundarios (streaming, catálogos, debrids)
+    this.deletedAddonIds = new Set(); // IDs de addons a remover de Nuvio
+    this.existingAioAddon = null; // Addon de AIOMetadata previo detectado en la cuenta
+    this.hasLoadedAddonsForProfile = null; // ID del perfil para el que se descargaron los addons
+    this.isLoadingAddons = false;
 
     // Autenticación Nuvio (Supabase)
     this.nuvioAuth = {
@@ -180,6 +187,10 @@ class WizardState {
         return { valid: true, error: null };
 
       case 6:
+        // Gestor de Addons de Perfil: siempre válido, AIOMetadata queda anclado en #1
+        return { valid: true, error: null };
+
+      case 7:
         if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {
           return {
             valid: false,
@@ -191,6 +202,104 @@ class WizardState {
       default:
         return { valid: true, error: null };
     }
+  }
+
+  /**
+   * Carga y normaliza los addons recuperados de un perfil de Nuvio
+   */
+  setProfileAddons(addons, profileId) {
+    this.hasLoadedAddonsForProfile = profileId;
+    this.deletedAddonIds.clear();
+
+    const rawList = Array.isArray(addons) ? [...addons] : [];
+    
+    // Identificar si existe un addon previo de AIOMetadata
+    const aioIndex = rawList.findIndex(a => {
+      const name = String(a.name || '').toLowerCase();
+      const url = String(a.url || a.manifest_url || '').toLowerCase();
+      return name.includes('aiometadata') || (url.includes('/stremio/') && url.includes('manifest.json')) || url.includes('aiometadata');
+    });
+
+    if (aioIndex !== -1) {
+      this.existingAioAddon = rawList[aioIndex];
+      rawList.splice(aioIndex, 1);
+    } else {
+      this.existingAioAddon = null;
+    }
+
+    // Los addons restantes se ordenan y normalizan comenzando en sort_order: 2
+    this.profileAddons = rawList.map((a, idx) => ({
+      id: a.id || null,
+      name: a.name || `Addon ${idx + 2}`,
+      url: a.url || a.manifest_url || '',
+      manifest_url: a.manifest_url || a.url || '',
+      enabled: a.enabled !== false,
+      sort_order: idx + 2,
+      raw: a
+    }));
+
+    this.notify('ADDONS_UPDATED');
+  }
+
+  /**
+   * Mueve un addon relativo (▲ -1 para subir prioridad, ▼ +1 para bajar)
+   */
+  moveAddon(index, direction) {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= this.profileAddons.length) return false;
+
+    const [moved] = this.profileAddons.splice(index, 1);
+    this.profileAddons.splice(targetIndex, 0, moved);
+
+    // Reindexar sort_order (AIOMetadata siempre ocupa la posición 1)
+    this.profileAddons.forEach((a, idx) => {
+      a.sort_order = idx + 2;
+    });
+
+    this.notify('ADDONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Remueve un addon de la lista y lo marca para eliminación en Nuvio
+   */
+  removeAddon(index) {
+    if (index < 0 || index >= this.profileAddons.length) return false;
+
+    const [removed] = this.profileAddons.splice(index, 1);
+    if (removed && removed.id) {
+      this.deletedAddonIds.add(removed.id);
+    }
+
+    // Reindexar restantes
+    this.profileAddons.forEach((a, idx) => {
+      a.sort_order = idx + 2;
+    });
+
+    this.notify('ADDONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Agrega un nuevo addon mediante manifest URL
+   */
+  addCustomAddon(manifestUrl, customName = '') {
+    const cleanUrl = String(manifestUrl || '').trim();
+    if (!cleanUrl) return false;
+
+    const newAddon = {
+      id: null,
+      name: customName.trim() || 'Nuevo Addon',
+      url: cleanUrl,
+      manifest_url: cleanUrl,
+      enabled: true,
+      sort_order: this.profileAddons.length + 2,
+      isCustomAdded: true
+    };
+
+    this.profileAddons.push(newAddon);
+    this.notify('ADDONS_UPDATED');
+    return true;
   }
 
   unlockStep(stepNumber) {

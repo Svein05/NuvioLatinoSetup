@@ -202,7 +202,7 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
-          <span class="text-xs text-white/60 font-mono tracking-wider" id="stepCounter">Paso 1 de 6</span>
+          <span class="text-xs text-white/60 font-mono tracking-wider" id="stepCounter">Paso 1 de 7</span>
           <button id="btnNext" onclick="changeStep(1)" class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-4 shadow-[var(--shadow-lift)]" title="Paso siguiente">
             <span class="hidden sm:inline">Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
@@ -319,11 +319,11 @@
           <!-- Renderizado dinámicamente por js/app.js (incluye tarjeta interactiva Nuevo Perfil si < 6) -->
         </div>
 
-        <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente (Centrada) -->
-        <div id="profileOverwriteWarning" class="mt-5 p-4 bg-amber-500/10 border border-amber-500/25 rounded-[18px] flex items-center justify-center text-center gap-3 max-w-2xl mx-auto hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
-          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm shrink-0"></i>
-          <div class="text-xs text-amber-200/90 leading-relaxed">
-            Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración.
+        <!-- Alerta Contextual Informativa al Seleccionar Perfil (Centrada) -->
+        <div id="profileOverwriteWarning" class="mt-5 p-4 bg-white/[0.04] border border-white/[0.12] rounded-[18px] flex items-center justify-center text-center gap-3 max-w-2xl mx-auto hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
+          <i id="profileWarningIcon" class="fa-solid fa-circle-info text-[#ffd479] text-base shrink-0"></i>
+          <div id="profileWarningText" class="text-xs text-white/80 leading-relaxed">
+            <!-- Contenido dinámico renderizado por app.js -->
           </div>
         </div>
       </div>
@@ -791,9 +791,75 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 6: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
+      <!-- PASO 6: GESTOR DE ADDONS DEL PERFIL        -->
       <!-- ========================================== -->
       <div id="step-6" class="step-content">
+        <div class="mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-cubes text-[#ffd479] text-lg"></i>
+                <span>Gestor de Addons del Perfil</span>
+              </h2>
+              <p class="text-sm text-white/60 mt-1">
+                Organiza la prioridad de los addons en tu perfil de Nuvio. <strong>AIOMetadata</strong> se ancla automáticamente en la posición #1 como addon principal de metadatos, preservando tus addons de streaming debajo.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button id="btnOpenAddAddonModal" type="button" class="lat-capsule-btn solid text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-[var(--shadow-lift)]">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Agregar Addon</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sugerencias Populares / Acceso Rápido -->
+          <div class="mt-4 p-3.5 bg-white/[0.03] border border-white/[0.08] rounded-[18px] flex flex-wrap items-center gap-2 text-xs">
+            <span class="text-white/50 text-[11px] font-mono flex items-center gap-1">
+              <i class="fa-solid fa-sparkles text-[#ffd479]"></i>
+              <span>Sugerencias:</span>
+            </span>
+            <button type="button" onclick="window.appController.quickAddSuggestion('aiostreams')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-play text-[9px] text-[#ffd479]"></i>
+              <span>AIOStreams</span>
+            </button>
+            <button type="button" onclick="window.appController.quickAddSuggestion('addlat')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-film text-[9px] text-indigo-400"></i>
+              <span>ADD-LAT</span>
+            </button>
+            <button type="button" onclick="window.appController.quickAddSuggestion('torbox')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-box text-[9px] text-emerald-400"></i>
+              <span>Torbox</span>
+            </button>
+            <button type="button" onclick="window.appController.quickAddSuggestion('torrentio')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-[9px] text-amber-400"></i>
+              <span>Torrentio</span>
+            </button>
+            <button type="button" onclick="window.appController.quickAddSuggestion('cinetorrent')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
+              <i class="fa-solid fa-clapperboard text-[9px] text-rose-400"></i>
+              <span>CineTorrent</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Contenedor Principal de la Lista de Addons -->
+        <div id="addonsManagerContainer" class="space-y-3 max-w-4xl mx-auto py-2">
+          <!-- Renderizado dinámicamente por js/app.js -->
+        </div>
+
+        <!-- Alerta Informativa de Prioridad -->
+        <div class="mt-6 p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] flex items-start gap-3 max-w-4xl mx-auto text-xs text-white/60 leading-relaxed shadow-[var(--brillo-vidrio)]">
+          <i class="fa-solid fa-circle-info text-[#ffd479] text-sm shrink-0 mt-0.5"></i>
+          <div>
+            <strong>Regla de Prioridad en Nuvio:</strong> Nuvio consulta los catálogos y resolutores de metadatos en orden descendente. Al colocar <strong>AIOMetadata Latino</strong> en la cúspide (#1), aseguras que las carátulas, calificaciones y sinopsis en español latino prevalezcan sin interferir con tus fuentes de streaming debajo.
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PASO 7: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
+      <!-- ========================================== -->
+      <div id="step-7" class="step-content">
         <div class="mb-6">
           <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
             <i class="fa-solid fa-rocket text-[#ffd479] text-lg"></i>
@@ -969,6 +1035,17 @@
                     <span id="summaryBadgesStatus" class="text-xs sm:text-sm text-white/50 font-medium block truncate">Desactivado</span>
                   </div>
                 </div>
+
+                <!-- Item 7: Addons del Perfil -->
+                <div class="flex items-start gap-3.5">
+                  <div class="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0 text-white/80 text-xs shadow-[var(--brillo-vidrio)]">
+                    <i class="fa-solid fa-cubes text-[#ffd479]"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="text-[10px] text-white/40 uppercase tracking-widest font-semibold block">Addons del Perfil</span>
+                    <span id="summaryAddonsStatus" class="text-xs sm:text-sm text-white/80 font-medium block truncate">AIOMetadata (#1)</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1044,6 +1121,15 @@
           <button onclick="goToStep(6)" id="drawer-step-6" class="drawer-step-item locked">
             <span class="drawer-badge">6</span>
             <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Gestor de Addons</div>
+              <div class="text-[10px] text-white/50">Orden, manifests y streaming</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+
+          <button onclick="goToStep(7)" id="drawer-step-7" class="drawer-step-item locked">
+            <span class="drawer-badge">7</span>
+            <div class="flex-1 text-left">
               <div class="font-medium text-xs">Inyección</div>
               <div class="text-[10px] text-white/50">Seguridad y sincronización</div>
             </div>
@@ -1053,7 +1139,7 @@
 
         <!-- Pie del Drawer -->
         <div class="p-4 border-t border-white/[0.08] text-[11px] text-white/40 flex items-center justify-between">
-          <span id="drawerStepCounter">Paso 1 de 6</span>
+          <span id="drawerStepCounter">Paso 1 de 7</span>
           <span class="text-[10px] text-white/50 font-mono">Nuvio Latino</span>
         </div>
       </aside>
@@ -1112,6 +1198,38 @@
               <i class="fa-solid fa-trash-can text-[10px]"></i>
               <span>Eliminar Perfil</span>
             </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Agregar Addon mediante Manifest URL -->
+      <div id="modalAddAddon" class="absolute inset-0 bg-black/45 backdrop-blur-md z-40 hidden items-center justify-center p-4 rounded-[28px] transition-all duration-300">
+        <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[26px] max-w-md w-full p-6 shadow-[var(--shadow-lift)] space-y-4 text-white transform transition-all relative overflow-hidden" style="transform: translateZ(0);">
+          <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-white/[0.08] border border-white/20 text-[#ffd479] flex items-center justify-center text-[10px]">
+                <i class="fa-solid fa-puzzle-piece"></i>
+              </div>
+              <span>Agregar Addon al Perfil</span>
+            </h3>
+            <button id="btnCloseAddAddonModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="lat-label block mb-1.5">URL del Manifest (.json)</label>
+              <input id="inputAddonManifestUrl" type="url" placeholder="https://.../manifest.json" class="w-full px-4 py-2.5 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)]">
+              <p class="text-[11px] text-white/40 mt-1">Pega el enlace de instalación o manifiesto de Stremio / Nuvio.</p>
+            </div>
+            <div>
+              <label class="lat-label block mb-1.5">Nombre del Addon (opcional)</label>
+              <input id="inputAddonCustomName" type="text" placeholder="Ej: AIOStreams, Torrentio, Subtítulos" class="w-full px-4 py-2.5 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)]">
+            </div>
+          </div>
+          <div class="flex justify-end gap-2.5 pt-2">
+            <button id="btnCancelAddAddon" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+            <button id="btnConfirmAddAddon" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 shadow-[var(--shadow-pill)]">Agregar a la Lista</button>
           </div>
         </div>
       </div>

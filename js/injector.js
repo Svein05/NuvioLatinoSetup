@@ -130,21 +130,30 @@ export class PipelineInjector {
       }
 
       // ========================================================
-      // FASE 3: Limpieza de Addons y Configuración de Perfil (es-MX)
+      // FASE 3: Saneamiento de Addons y Configuración de Perfil (es-MX)
       // ========================================================
-      state.addLog('[3/5] Limpiando addons preexistentes del perfil...', 'info');
+      state.addLog('[3/5] Verificando y saneando addons del perfil...', 'info');
       if (isSimulation) {
-        await this.delay(500);
-        state.addLog('✓ [Simulado] Addons preexistentes ("nuvio catalog addon", "opensubtitles") eliminados.', 'success');
+        await this.delay(400);
+        state.addLog('✓ [Simulado] Addons del perfil listos para actualización.', 'success');
       } else {
-        await NuvioClient.cleanProfileAddons({
-          apiUrl: CONFIG.NUVIO_API_URL,
-          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
-          accessToken,
-          userId: state.nuvioAuth.userId,
-          profileId: targetProfileId
-        });
-        state.addLog('✓ Perfil limpio: catálogo previo removido para evitar duplicados.', 'success');
+        if (state.deletedAddonIds && state.deletedAddonIds.size > 0) {
+          state.addLog(`Eliminando ${state.deletedAddonIds.size} addon(s) descartados del perfil...`, 'info');
+          for (const delId of state.deletedAddonIds) {
+            try {
+              await NuvioClient.deleteAddon({
+                apiUrl: CONFIG.NUVIO_API_URL,
+                apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+                accessToken,
+                addonId: delId,
+                profileId: targetProfileId
+              });
+            } catch (_) {}
+          }
+          state.addLog(`✓ ${state.deletedAddonIds.size} addon(s) descartados eliminados correctamente.`, 'success');
+        } else {
+          state.addLog('✓ Addons preexistentes conservados intactos.', 'success');
+        }
       }
 
       // Sincronizar credenciales de proveedores (TMDB y MDBList)
@@ -283,30 +292,67 @@ export class PipelineInjector {
       }
 
       // ========================================================
-      // FASE 4: Registro del Addon AIOMetadata en Nuvio
+      // FASE 4: Registro y Ordenamiento de Addons en Nuvio
       // ========================================================
-      state.addLog('[4/5] Registrando Addon AIOMetadata Latino en Nuvio (/rest/v1/addons)...', 'info');
-      const addonPayload = {
-        profile_id: targetProfileId,
-        addon_id: addonId,
-        manifest_url: manifestUrl,
-        transport_url: manifestUrl,
-        name: addonName,
-        enabled: true
-      };
+      state.addLog('[4/5] Registrando AIOMetadata (#1) y sincronizando orden de addons...', 'info');
 
       if (isSimulation) {
         await this.delay(600);
-        state.addLog('✓ [Simulado] Addon registrado correctamente en el perfil.', 'success');
+        state.addLog('✓ [Simulado] AIOMetadata anclado en #1 y addons secundarios organizados.', 'success');
       } else {
-        await NuvioClient.installAddon({
+        // 1. Instalar o actualizar AIOMetadata en posición #1
+        const existingAioId = state.existingAioAddon?.id || null;
+        await NuvioClient.installOrUpdateAioAddon({
           apiUrl: CONFIG.NUVIO_API_URL,
           apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
           accessToken,
           userId: state.nuvioAuth.userId,
-          addonData: addonPayload
+          profileId: targetProfileId,
+          manifestUrl,
+          existingAioId
         });
-        state.addLog('✓ Addon instalado exitosamente en el perfil de Nuvio.', 'success');
+        state.addLog('✓ AIOMetadata registrado como addon principal de metadatos (#1).', 'success');
+
+        // 2. Registrar nuevos addons añadidos manualmente en el Paso 6
+        const secondaryAddons = state.profileAddons || [];
+        for (const secAddon of secondaryAddons) {
+          if (!secAddon.id && secAddon.manifest_url) {
+            try {
+              await NuvioClient.installAddon({
+                apiUrl: CONFIG.NUVIO_API_URL,
+                apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+                accessToken,
+                userId: state.nuvioAuth.userId,
+                addonData: {
+                  profile_id: targetProfileId,
+                  manifest_url: secAddon.manifest_url,
+                  url: secAddon.manifest_url,
+                  name: secAddon.name,
+                  sort_order: secAddon.sort_order
+                }
+              });
+            } catch (instErr) {
+              console.warn(`[Pipeline] Falló registro de addon adicional ${secAddon.name}:`, instErr.message);
+            }
+          }
+        }
+
+        // 3. Sincronizar el orden completo en Nuvio
+        const allFinalAddons = [
+          { id: existingAioId, name: 'AIOMetadata', url: manifestUrl, sort_order: 1 },
+          ...secondaryAddons
+        ];
+        try {
+          await NuvioClient.syncAddonsOrder({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken,
+            userId: state.nuvioAuth.userId,
+            profileId: targetProfileId,
+            addons: allFinalAddons
+          });
+          state.addLog(`✓ ${secondaryAddons.length} addons de streaming/catálogos organizados y sincronizados.`, 'success');
+        } catch (_) {}
       }
 
       // ========================================================

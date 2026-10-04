@@ -302,7 +302,8 @@ class AppController {
     this.setupStep2Profiles();
     this.setupStep3ApiKeys();
     this.setupStep5Preferences();
-    this.setupStep6Injection();
+    this.setupStep6AddonsManager();
+    this.setupStep7Injection();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -669,7 +670,7 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 2, 3, 5 o 6, refrescar o sincronizar vistas
+    // Si estamos en el paso 2, 3, 5, 6 o 7, refrescar o sincronizar vistas
     if (currentStep === 2) {
       this.renderProfiles();
     } else if (currentStep === 3) {
@@ -679,6 +680,9 @@ class AppController {
       this.updatePreferencesUI();
       this.startPosterRotation();
     } else if (currentStep === 6) {
+      state.unlockStep(7);
+      this.renderAddonsManager();
+    } else if (currentStep === 7) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
       if (state.isManualMode) {
@@ -695,8 +699,8 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
-      this.refreshStep6Summary();
-      this.updateStep6ExecuteButton();
+      this.refreshStep7Summary();
+      this.updateStep7ExecuteButton();
     }
 
     // Rotación sincronizada de demostración activa exclusivamente en el Paso 5
@@ -725,6 +729,10 @@ class AppController {
   }
 
   updateStep6ExecuteButton() {
+    this.updateStep7ExecuteButton();
+  }
+
+  updateStep7ExecuteButton() {
     const btnExecute = document.getElementById('btnExecutePipeline');
     if (!btnExecute) return;
 
@@ -1412,22 +1420,70 @@ class AppController {
     }
   }
 
-  updateProfileWarning(profileId, profileName) {
+  async updateProfileWarning(profileId, profileName) {
     const warningContainer = document.getElementById('profileOverwriteWarning');
-    const nameEl = document.getElementById('warningProfileName');
+    const warningTextEl = document.getElementById('profileWarningText');
+    const warningIcon = document.getElementById('profileWarningIcon');
     if (!warningContainer) return;
 
-    if (!profileId) {
+    if (!profileId || state.isManualMode) {
       warningContainer.classList.add('hidden');
       return;
     }
 
+    const displayName = profileName || 'seleccionado';
     const isNew = state.isProfileNew(profileId);
-    if (!isNew) {
-      if (nameEl) nameEl.innerText = `"${profileName || 'seleccionado'}"`;
+
+    if (isNew) {
+      if (warningTextEl) {
+        warningTextEl.innerHTML = `Perfil nuevo (<strong class="text-white">"${displayName}"</strong>): se aprovisionará de forma limpia con <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1) y podrás añadir tus addons de streaming en el Paso 6.`;
+      }
+      if (warningIcon) warningIcon.className = "fa-solid fa-sparkles text-[#ffd479] text-base shrink-0";
       warningContainer.classList.remove('hidden');
-    } else {
-      warningContainer.classList.add('hidden');
+      return;
+    }
+
+    // Comprobar si ya tiene AIOMetadata en segundo plano
+    if (warningTextEl) {
+      warningTextEl.innerHTML = `Analizando addons del perfil <strong class="text-white">"${displayName}"</strong>...`;
+    }
+    warningContainer.classList.remove('hidden');
+
+    try {
+      let hasAio = false;
+      if (state.hasLoadedAddonsForProfile === profileId && state.existingAioAddon) {
+        hasAio = true;
+      } else if (state.nuvioAuth?.accessToken) {
+        const addons = await NuvioClient.listAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: state.nuvioAuth.accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: profileId
+        });
+        hasAio = (addons || []).some(a => {
+          const name = String(a.name || '').toLowerCase();
+          const url = String(a.url || a.manifest_url || '').toLowerCase();
+          return name.includes('aiometadata') || url.includes('aiometadata') || (url.includes('/stremio/') && url.includes('manifest.json'));
+        });
+        if (state.hasLoadedAddonsForProfile !== profileId) {
+          state.setProfileAddons(addons, profileId);
+        }
+      }
+
+      if (warningTextEl) {
+        if (hasAio) {
+          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se actualizará tu configuración de <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1). Todos tus addons de streaming y catálogos existentes se conservarán intactos y podrás gestionarlos en el Paso 6.`;
+          if (warningIcon) warningIcon.className = "fa-solid fa-rotate text-[#ffd479] text-base shrink-0";
+        } else {
+          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se instalará <strong class="text-[#ffd479]">AIOMetadata</strong> como tu addon principal de metadatos (#1). Tus addons actuales de streaming se mantendrán intactos y podrás organizarlos en el Paso 6.`;
+          if (warningIcon) warningIcon.className = "fa-solid fa-circle-info text-[#ffd479] text-base shrink-0";
+        }
+      }
+    } catch (_) {
+      if (warningTextEl) {
+        warningTextEl.innerHTML = `En el perfil <strong class="text-white">"${displayName}"</strong> se conservarán intactos tus addons de streaming y se priorizará <strong class="text-[#ffd479]">AIOMetadata</strong> en la posición principal (#1).`;
+      }
     }
   }
 
@@ -3050,7 +3106,284 @@ class AppController {
     this.updateStep5PosterPreviews();
   }
 
+  setupStep6AddonsManager() {
+    const btnOpenModal = document.getElementById('btnOpenAddAddonModal');
+    const modal = document.getElementById('modalAddAddon');
+    const btnCloseModal = document.getElementById('btnCloseAddAddonModal');
+    const btnCancelModal = document.getElementById('btnCancelAddAddon');
+    const btnConfirmModal = document.getElementById('btnConfirmAddAddon');
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+    const nameInput = document.getElementById('inputAddonCustomName');
+
+    if (btnOpenModal) {
+      btnOpenModal.addEventListener('click', () => this.openAddAddonModal());
+    }
+    if (btnCloseModal) {
+      btnCloseModal.addEventListener('click', () => this.closeAddAddonModal());
+    }
+    if (btnCancelModal) {
+      btnCancelModal.addEventListener('click', () => this.closeAddAddonModal());
+    }
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeAddAddonModal();
+      });
+    }
+    if (btnConfirmModal) {
+      btnConfirmModal.addEventListener('click', () => this.handleAddAddonConfirm());
+    }
+    if (urlInput) {
+      urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleAddAddonConfirm();
+        }
+      });
+    }
+    if (nameInput) {
+      nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleAddAddonConfirm();
+        }
+      });
+    }
+  }
+
+  async renderAddonsManager() {
+    const container = document.getElementById('addonsManagerContainer');
+    if (!container) return;
+
+    if (!state.isManualMode && state.selectedProfileId && state.hasLoadedAddonsForProfile !== state.selectedProfileId) {
+      container.innerHTML = `
+        <div class="py-12 flex flex-col items-center justify-center text-center space-y-3">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-[#ffd479]"></i>
+          <p class="text-xs text-white/60">Cargando addons de tu cuenta de Nuvio...</p>
+        </div>
+      `;
+      try {
+        const addons = await NuvioClient.listAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: state.nuvioAuth.accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: state.selectedProfileId
+        });
+        state.setProfileAddons(addons, state.selectedProfileId);
+      } catch (err) {
+        console.warn('[AppController] Error cargando addons de perfil:', err);
+      }
+    }
+
+    this.renderAddonsList();
+  }
+
+  renderAddonsList() {
+    const container = document.getElementById('addonsManagerContainer');
+    if (!container) return;
+
+    const addons = state.profileAddons || [];
+
+    // Tarjeta Anclada de AIOMetadata en posición #1
+    let html = `
+      <div class="p-4 sm:p-4.5 rounded-[20px] bg-white/[0.05] border-2 border-[#ffd479]/40 shadow-[0_0_20px_rgba(255,212,121,0.12)] flex items-center justify-between gap-3 select-none transition-all">
+        <div class="flex items-center gap-3.5 min-w-0">
+          <div class="w-10 h-10 rounded-xl bg-[#ffd479]/15 border border-[#ffd479]/30 text-[#ffd479] flex items-center justify-center text-base shrink-0 shadow-sm">
+            <i class="fa-solid fa-sparkles"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-sm text-white tracking-wide">AIOMetadata Latino</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#ffd479]/15 text-[#ffd479] border border-[#ffd479]/30 font-semibold">Posición #1</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Anclado Arriba</span>
+            </div>
+            <p class="text-[11px] text-white/60 truncate mt-0.5">
+              Addon Principal de Metadatos: catálogos, sinopsis, calificaciones y pósters personalizados en español latino.
+            </p>
+          </div>
+        </div>
+        <div class="shrink-0 flex items-center gap-2">
+          <span class="text-xs text-[#ffd479]/80 font-mono hidden sm:inline-block pr-1 font-semibold">Prioridad #1</span>
+          <div class="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/10 text-white/40 flex items-center justify-center text-xs" title="AIOMetadata siempre permanece en la posición #1">
+            <i class="fa-solid fa-lock text-[10px]"></i>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tarjetas para cada uno de los addons secundarios
+    if (addons.length > 0) {
+      addons.forEach((addon, idx) => {
+        const pos = idx + 2;
+        const isFirstSecondary = idx === 0;
+        const isLastSecondary = idx === addons.length - 1;
+        const name = addon.name || `Addon ${pos}`;
+        const url = addon.manifest_url || addon.url || '';
+
+        html += `
+          <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150">
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/10 text-white/70 flex items-center justify-center text-sm shrink-0">
+                <i class="fa-solid fa-puzzle-piece"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-semibold text-xs sm:text-sm text-white">${name}</span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.06] text-white/70 border border-white/10">Posición #${pos}</span>
+                  ${addon.isCustomAdded ? '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Nuevo</span>' : ''}
+                </div>
+                <p class="text-[10px] font-mono text-white/40 truncate max-w-md mt-0.5 select-all" title="${url}">
+                  ${url || 'Sin URL de manifiesto'}
+                </p>
+              </div>
+            </div>
+            
+            <div class="shrink-0 flex items-center gap-1.5">
+              <!-- Subir orden (▲) -->
+              <button type="button" 
+                      onclick="window.appController.moveAddon(${idx}, -1)" 
+                      ${isFirstSecondary ? 'disabled' : ''} 
+                      class="w-7 h-7 rounded-lg ${isFirstSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      title="${isFirstSecondary ? 'No puede subir por encima de AIOMetadata' : 'Subir prioridad'}">
+                <i class="fa-solid fa-chevron-up text-[10px]"></i>
+              </button>
+
+              <!-- Bajar orden (▼) -->
+              <button type="button" 
+                      onclick="window.appController.moveAddon(${idx}, 1)" 
+                      ${isLastSecondary ? 'disabled' : ''} 
+                      class="w-7 h-7 rounded-lg ${isLastSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      title="${isLastSecondary ? 'Último elemento de la lista' : 'Bajar prioridad'}">
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              </button>
+
+              <!-- Eliminar Addon (🗑️) -->
+              <button type="button" 
+                      onclick="window.appController.removeAddon(${idx})" 
+                      class="w-7 h-7 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-1" 
+                      title="Eliminar addon de este perfil">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      html += `
+        <div class="py-8 px-4 rounded-[18px] bg-white/[0.02] border border-dashed border-white/10 text-center space-y-2 mt-2">
+          <i class="fa-solid fa-circle-nodes text-2xl text-white/20"></i>
+          <p class="text-xs text-white/60">No hay addons secundarios registrados en este perfil.</p>
+          <p class="text-[11px] text-white/40 max-w-md mx-auto">
+            Puedes agregar tus addons de streaming (AIOStreams, Torrentio, Torbox, etc.) pulsando el botón <strong class="text-white">"Agregar Addon"</strong> o usando las sugerencias de arriba.
+          </p>
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+  }
+
+  moveAddon(index, direction) {
+    state.moveAddon(index, direction);
+    this.renderAddonsList();
+  }
+
+  removeAddon(index) {
+    const addon = state.profileAddons[index];
+    const name = addon?.name || 'este addon';
+    if (confirm(`¿Deseas remover el addon "${name}" de este perfil?`)) {
+      state.removeAddon(index);
+      this.renderAddonsList();
+      this.showToast(`Addon "${name}" removido de la lista.`, 'info');
+    }
+  }
+
+  quickAddSuggestion(key) {
+    const suggestions = {
+      aiostreams: {
+        name: 'AIOStreams',
+        url: 'https://aiostreams.viren070.me/manifest.json'
+      },
+      addlat: {
+        name: 'ADD-LAT (Latino)',
+        url: 'https://lat-add.midnightignite.me/manifest.json'
+      },
+      torbox: {
+        name: 'Torbox Stremio',
+        url: 'https://stremio.torbox.app/manifest.json'
+      },
+      torrentio: {
+        name: 'Torrentio Lite',
+        url: 'https://torrentio.strem.fun/manifest.json'
+      },
+      cinetorrent: {
+        name: 'CineTorrent',
+        url: 'https://cinetorrent.midnightignite.me/manifest.json'
+      }
+    };
+
+    const item = suggestions[key];
+    if (!item) return;
+
+    this.openAddAddonModal(item.url, item.name);
+  }
+
+  openAddAddonModal(defaultUrl = '', defaultName = '') {
+    const modal = document.getElementById('modalAddAddon');
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+    const nameInput = document.getElementById('inputAddonCustomName');
+
+    if (urlInput) urlInput.value = defaultUrl;
+    if (nameInput) nameInput.value = defaultName;
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (urlInput) urlInput.focus();
+    }
+  }
+
+  closeAddAddonModal() {
+    const modal = document.getElementById('modalAddAddon');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  handleAddAddonConfirm() {
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+    const nameInput = document.getElementById('inputAddonCustomName');
+    const url = (urlInput ? urlInput.value : '').trim();
+    let name = (nameInput ? nameInput.value : '').trim();
+
+    if (!url) {
+      this.showToast('Por favor ingresa la URL del manifest del addon.', 'warning');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    if (!name) {
+      try {
+        const u = new URL(url);
+        name = u.hostname.replace(/^(www\.|stremio\.)/, '').split('.')[0];
+        name = name.charAt(0).toUpperCase() + name.slice(1);
+      } catch (_) {
+        name = 'Nuevo Addon';
+      }
+    }
+
+    state.addCustomAddon(url, name);
+    this.closeAddAddonModal();
+    this.renderAddonsList();
+    this.showToast(`✓ Addon "${name}" agregado exitosamente a la lista.`, 'success');
+  }
+
   setupStep6Injection() {
+    this.setupStep7Injection();
+  }
+
+  setupStep7Injection() {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
     const btnExecute = document.getElementById('btnExecutePipeline');
@@ -3161,8 +3494,8 @@ class AppController {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            if (i < 6) window.goToStep(i);
-            if (i === 6 && passwordInput) passwordInput.focus();
+            if (i < 7) window.goToStep(i);
+            if (i === 7 && passwordInput) passwordInput.focus();
             return;
           }
         }
@@ -3218,6 +3551,10 @@ class AppController {
   }
 
   refreshStep6Summary() {
+    this.refreshStep7Summary();
+  }
+
+  refreshStep7Summary() {
     const targetEl = document.getElementById('summaryProfileTarget');
     const countEl = document.getElementById('summaryCollectionsCount');
     const catalogsEl = document.getElementById('summaryCatalogsCount');
@@ -3291,6 +3628,17 @@ class AppController {
         badgesEl.innerText = 'Desactivado';
         badgesEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
       }
+    }
+
+    const addonsEl = document.getElementById('summaryAddonsStatus');
+    if (addonsEl) {
+      const extraCount = state.profileAddons ? state.profileAddons.length : 0;
+      if (extraCount > 0) {
+        addonsEl.innerText = `AIOMetadata (#1) + ${extraCount} addons`;
+      } else {
+        addonsEl.innerText = `AIOMetadata (#1 principal)`;
+      }
+      addonsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
     }
   }
 

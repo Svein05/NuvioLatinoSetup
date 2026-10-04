@@ -646,6 +646,164 @@ export class NuvioClient {
   }
 
   /**
+   * Elimina un addon específico de un perfil por su ID
+   */
+  static async deleteAddon({ apiUrl, apikey, accessToken, addonId, profileId }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const profId = Number(profileId) || profileId;
+
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}&profile_id=eq.${encodeURIComponent(profId)}`;
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      return response.ok;
+    } catch (err) {
+      console.warn(`[NuvioClient] Error eliminando addon ${addonId}:`, err);
+      return false;
+    }
+  }
+
+  /**
+   * Actualiza el orden (sort_order) de un addon existente
+   */
+  static async updateAddonOrder({ apiUrl, apikey, accessToken, addonId, sortOrder }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}`;
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ sort_order: Number(sortOrder) })
+      });
+      return response.ok;
+    } catch (err) {
+      console.warn(`[NuvioClient] Error actualizando sort_order de addon ${addonId}:`, err);
+      return false;
+    }
+  }
+
+  /**
+   * Instala o actualiza el addon principal AIOMetadata en la posición #1
+   */
+  static async installOrUpdateAioAddon({ apiUrl, apikey, accessToken, userId, profileId, manifestUrl, existingAioId }) {
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const profId = Number(profileId) || profileId;
+
+    // Si ya existe un AIOMetadata previo, actualizarlo
+    if (existingAioId) {
+      try {
+        const patchEndpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(existingAioId)}`;
+        const patchRes = await fetch(patchEndpoint, {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            url: manifestUrl,
+            manifest_url: manifestUrl,
+            transport_url: manifestUrl,
+            name: 'AIOMetadata',
+            sort_order: 1,
+            enabled: true
+          })
+        });
+
+        if (patchRes.ok) {
+          return { success: true, updated: true, addonId: existingAioId };
+        }
+      } catch (patchErr) {
+        console.warn('[NuvioClient] Falló PATCH de AIOMetadata existente, instalando nuevo:', patchErr.message);
+      }
+    }
+
+    // Instalar como nuevo en posición 1
+    return await this.installAddon({
+      apiUrl,
+      apikey,
+      accessToken,
+      userId,
+      addonData: {
+        profile_id: profId,
+        manifest_url: manifestUrl,
+        url: manifestUrl,
+        name: 'AIOMetadata',
+        sort_order: 1
+      }
+    });
+  }
+
+  /**
+   * Sincroniza la lista completa de addons de un perfil en Nuvio
+   */
+  static async syncAddonsOrder({ apiUrl, apikey, accessToken, userId, profileId, addons }) {
+    const profId = Number(profileId) || profileId;
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    // 1. Actualizar sort_order de cada addon existente en la tabla
+    const updatePromises = (addons || []).map(addon => {
+      if (addon.id) {
+        return this.updateAddonOrder({
+          apiUrl,
+          apikey,
+          accessToken,
+          addonId: addon.id,
+          sortOrder: addon.sort_order
+        });
+      }
+      return Promise.resolve(true);
+    });
+
+    await Promise.all(updatePromises);
+
+    // 2. Invocar RPC sync_push_addons si está disponible en Nuvio
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_addons',
+        body: {
+          p_profile_id: profId,
+          p_addons: addons.map(a => ({
+            id: a.id || undefined,
+            user_id: ownerId,
+            profile_id: profId,
+            name: a.name,
+            url: a.manifest_url || a.url,
+            manifest_url: a.manifest_url || a.url,
+            sort_order: a.sort_order,
+            enabled: a.enabled !== false
+          }))
+        }
+      });
+    } catch (_) {}
+
+    return { success: true };
+  }
+
+  /**
    * Limpia y elimina todos los addons preexistentes de un perfil
    * (Metodología probada en stremio-perfect-setup: listar por perfil y eliminar por ID atómicamente)
    */
