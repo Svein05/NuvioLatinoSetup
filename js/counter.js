@@ -13,18 +13,18 @@ const STORAGE_KEYS = {
   SESSION_RECORDED: 'nuvio_completion_session_recorded'
 };
 
-// Endpoints primario y secundario para redundancia (soporta inyeccion en build/deploy)
+// Endpoints primario y secundario para redundancia (inyectados exclusivamente en despliegue)
 const API_ENDPOINTS = {
   PRIMARY: {
-    name: 'Abacus',
-    get: INJECTED_COUNTER_CONFIG?.primaryGet || 'https://abacus.jasoncameron.dev/get/nuvio-latino-setup/completions',
-    hit: INJECTED_COUNTER_CONFIG?.primaryHit || 'https://abacus.jasoncameron.dev/hit/nuvio-latino-setup/completions',
+    name: 'Primary',
+    get: INJECTED_COUNTER_CONFIG?.primaryGet || '',
+    hit: INJECTED_COUNTER_CONFIG?.primaryHit || '',
     extract: (data) => (typeof data?.value === 'number' ? data.value : null)
   },
   FALLBACK: {
-    name: 'CountAPI',
-    get: INJECTED_COUNTER_CONFIG?.fallbackGet || 'https://countapi.mileshilliard.com/api/v1/get/nuviolatino_setups_v1',
-    hit: INJECTED_COUNTER_CONFIG?.fallbackHit || 'https://countapi.mileshilliard.com/api/v1/hit/nuviolatino_setups_v1',
+    name: 'Fallback',
+    get: INJECTED_COUNTER_CONFIG?.fallbackGet || '',
+    hit: INJECTED_COUNTER_CONFIG?.fallbackHit || '',
     extract: (data) => (typeof data?.value === 'number' ? data.value : null)
   }
 };
@@ -36,6 +36,7 @@ const BASELINE_COUNT = 150;
  * Realiza una petición con timeout de seguridad
  */
 async function fetchWithTimeout(url, timeoutMs = 3500) {
+  if (!url) throw new Error('URL de endpoint no configurada.');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -53,28 +54,32 @@ async function fetchWithTimeout(url, timeoutMs = 3500) {
  * Obtiene el total global actual de configuraciones completadas
  */
 export async function fetchCompletionsCount() {
-  // 1. Intentar proveedor principal (Abacus)
-  try {
-    const data = await fetchWithTimeout(API_ENDPOINTS.PRIMARY.get, 3000);
-    const count = API_ENDPOINTS.PRIMARY.extract(data);
-    if (count !== null && count >= 0) {
-      saveLocalCache(count);
-      return count;
+  // 1. Intentar proveedor principal si está configurado
+  if (API_ENDPOINTS.PRIMARY.get) {
+    try {
+      const data = await fetchWithTimeout(API_ENDPOINTS.PRIMARY.get, 3000);
+      const count = API_ENDPOINTS.PRIMARY.extract(data);
+      if (count !== null && count >= 0) {
+        saveLocalCache(count);
+        return count;
+      }
+    } catch (errPrimary) {
+      console.warn(`[Counter] Proveedor principal no disponible:`, errPrimary.message);
     }
-  } catch (errPrimary) {
-    console.warn(`[Counter] Proveedor principal (${API_ENDPOINTS.PRIMARY.name}) no disponible:`, errPrimary.message);
   }
 
-  // 2. Intentar proveedor secundario (CountAPI)
-  try {
-    const data = await fetchWithTimeout(API_ENDPOINTS.FALLBACK.get, 3000);
-    const count = API_ENDPOINTS.FALLBACK.extract(data);
-    if (count !== null && count >= 0) {
-      saveLocalCache(count);
-      return count;
+  // 2. Intentar proveedor secundario si está configurado
+  if (API_ENDPOINTS.FALLBACK.get) {
+    try {
+      const data = await fetchWithTimeout(API_ENDPOINTS.FALLBACK.get, 3000);
+      const count = API_ENDPOINTS.FALLBACK.extract(data);
+      if (count !== null && count >= 0) {
+        saveLocalCache(count);
+        return count;
+      }
+    } catch (errFallback) {
+      console.warn(`[Counter] Proveedor secundario no disponible:`, errFallback.message);
     }
-  } catch (errFallback) {
-    console.warn(`[Counter] Proveedor secundario (${API_ENDPOINTS.FALLBACK.name}) no disponible:`, errFallback.message);
   }
 
   // 3. Respaldo: leer caché local de localStorage

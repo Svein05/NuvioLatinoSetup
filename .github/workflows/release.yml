@@ -44,7 +44,7 @@ jobs:
           TARGET_VER="${GITHUB_REF_NAME:-${{ inputs.version }}}"
           [ -z "$TARGET_VER" ] && TARGET_VER="v1.4.0"
           echo "Ejecutando pipeline de posters y social preview para versión: $TARGET_VER..."
-          python scripts/update_hero_backdrop.py --version "$TARGET_VER" --quality 90
+          python scripts/generate_assets.py --version "$TARGET_VER" --quality 90
 
       - name: Commit and Push Updated Assets to Main
         if: ${{ secrets.TMDB_API_KEY != '' }}

@@ -31,22 +31,39 @@ jobs:
           COUNTER_PRIMARY_HIT: ${{ secrets.COUNTER_PRIMARY_HIT }}
           COUNTER_FALLBACK_GET: ${{ secrets.COUNTER_FALLBACK_GET }}
           COUNTER_FALLBACK_HIT: ${{ secrets.COUNTER_FALLBACK_HIT }}
+          COUNTER_API_URL: ${{ secrets.COUNTER_API_URL }}
         run: |
-          if [ -n "$COUNTER_PRIMARY_GET" ] || [ -n "$COUNTER_FALLBACK_GET" ]; then
-            echo "Inyectando configuración de endpoints para producción..."
-            node -e '
-              const fs = require("fs");
-              const cfg = {};
-              if (process.env.COUNTER_PRIMARY_GET) cfg.primaryGet = process.env.COUNTER_PRIMARY_GET;
-              if (process.env.COUNTER_PRIMARY_HIT) cfg.primaryHit = process.env.COUNTER_PRIMARY_HIT;
-              if (process.env.COUNTER_FALLBACK_GET) cfg.fallbackGet = process.env.COUNTER_FALLBACK_GET;
-              if (process.env.COUNTER_FALLBACK_HIT) cfg.fallbackHit = process.env.COUNTER_FALLBACK_HIT;
+          node -e '
+            const fs = require("fs");
+            const cfg = {};
+            let pGet = process.env.COUNTER_PRIMARY_GET;
+            let pHit = process.env.COUNTER_PRIMARY_HIT;
+            const apiBase = process.env.COUNTER_API_URL;
+
+            if (!pGet && apiBase) {
+              if (apiBase.includes("/get/")) {
+                pGet = apiBase;
+                pHit = apiBase.replace("/get/", "/hit/");
+              } else {
+                const base = apiBase.replace(/\/+$/, "");
+                pGet = base + "/get/nuvio-latino-setup/completions";
+                pHit = base + "/hit/nuvio-latino-setup/completions";
+              }
+            }
+
+            if (pGet) cfg.primaryGet = pGet;
+            if (pHit) cfg.primaryHit = pHit;
+            if (process.env.COUNTER_FALLBACK_GET) cfg.fallbackGet = process.env.COUNTER_FALLBACK_GET;
+            if (process.env.COUNTER_FALLBACK_HIT) cfg.fallbackHit = process.env.COUNTER_FALLBACK_HIT;
+
+            if (Object.keys(cfg).length > 0) {
+              console.log("Inyectando configuración de endpoints para producción...");
               const content = "export const INJECTED_COUNTER_CONFIG = " + JSON.stringify(cfg, null, 2) + ";\n";
               fs.writeFileSync("js/counter-config.js", content, "utf8");
-            '
-          else
-            echo "Sin secretos definidos; manteniendo configuración fallback estándar."
-          fi
+            } else {
+              console.log("Sin secretos de contador definidos.");
+            }
+          '
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

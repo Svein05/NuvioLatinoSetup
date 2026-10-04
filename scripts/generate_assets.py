@@ -541,10 +541,13 @@ def generate_github_social_preview(
     uidraw.text((v_text_x, v_text_y), ver_str, font=font_sans_badge, fill=(110, 231, 183, 255))
 
     # -------------------------------------------------------------
-    # 2. CENTER TYPOGRAPHY & HERO
+    # 2. CENTER TYPOGRAPHY & HERO (Centrado en el espacio restante)
     # -------------------------------------------------------------
     title1 = "Transforma tu Nuvio con"
     title2 = "Metadatos y Colecciones Latinas"
+    desc_text = "Un entorno web diseñado para aprovisionar de Colecciones y Metadata en Español Latino para la plataforma Nuvio"
+
+    font_sans_desc = ImageFont.truetype(FONT_SANS, 22)
 
     bbox_t1 = uidraw.textbbox((0, 0), title1, font=font_serif_h1)
     w_t1, h_t1 = bbox_t1[2] - bbox_t1[0], bbox_t1[3] - bbox_t1[1]
@@ -552,17 +555,30 @@ def generate_github_social_preview(
     bbox_t2 = uidraw.textbbox((0, 0), title2, font=font_serif_h2)
     w_t2, h_t2 = bbox_t2[2] - bbox_t2[0], bbox_t2[3] - bbox_t2[1]
 
-    title_spacing = 16
-    total_title_h = h_t1 + title_spacing + h_t2
-    title_start_y = 175
+    bbox_desc = uidraw.textbbox((0, 0), desc_text, font=font_sans_desc)
+    w_desc, h_desc = bbox_desc[2] - bbox_desc[0], bbox_desc[3] - bbox_desc[1]
+
+    # Cálculos de centrado vertical considerando la cabecera superior
+    top_limit = header_y1  # Límite superior: parte inferior de la cabecera (114 px)
+    bottom_limit = target_h  # Límite inferior del lienzo (640 px)
+    available_h = bottom_limit - top_limit
+
+    spacing_titles = 12
+    spacing_desc = 24
+    total_content_h = h_t1 + spacing_titles + h_t2 + spacing_desc + h_desc
+
+    start_y = top_limit + (available_h - total_content_h) // 2
 
     t1_x = (target_w - w_t1) // 2 - bbox_t1[0]
-    t1_y = title_start_y - bbox_t1[1]
+    t1_y = start_y - bbox_t1[1]
 
     t2_x = (target_w - w_t2) // 2 - bbox_t2[0]
-    t2_y = title_start_y + h_t1 + title_spacing - bbox_t2[1]
+    t2_y = start_y + h_t1 + spacing_titles - bbox_t2[1]
 
-    # Multilayer shadow for title
+    desc_x = (target_w - w_desc) // 2 - bbox_desc[0]
+    desc_y = start_y + h_t1 + spacing_titles + h_t2 + spacing_desc - bbox_desc[1]
+
+    # Capa de sombra multicapa para alto contraste cinematográfico
     shadow = Image.new("RGBA", (target_w, target_h), (0, 0, 0, 0))
     sdraw = ImageDraw.Draw(shadow)
     offsets = [
@@ -573,65 +589,14 @@ def generate_github_social_preview(
     for ox, oy in offsets:
         sdraw.text((t1_x + ox, t1_y + oy), title1, font=font_serif_h1, fill=(0, 0, 0, 160))
         sdraw.text((t2_x + ox, t2_y + oy), title2, font=font_serif_h2, fill=(0, 0, 0, 190))
+        sdraw.text((desc_x + ox, desc_y + oy), desc_text, font=font_sans_desc, fill=(0, 0, 0, 180))
 
     shadow_blurred = shadow.filter(ImageFilter.GaussianBlur(radius=3))
     composed = Image.alpha_composite(composed, shadow_blurred)
 
     uidraw.text((t1_x, t1_y), title1, font=font_serif_h1, fill=(255, 255, 255, 255))
     uidraw.text((t2_x, t2_y), title2, font=font_serif_h2, fill=(255, 212, 121, 255))
-
-    # -------------------------------------------------------------
-    # 3. FEATURE TAG PILLS (Center bottom)
-    # -------------------------------------------------------------
-    tag_pills = [
-        "Español Latino (es-MX)",
-        "Sincronización Instantánea",
-        "Jamstack • $0 Costo"
-    ]
-    pill_padding_x = 22
-    pill_h = 38
-    pill_spacing = 14
-
-    measured_pills = []
-    total_pills_w = 0
-    for tag in tag_pills:
-        bbox_pill = uidraw.textbbox((0, 0), tag, font=font_sans_pills)
-        tw = bbox_pill[2] - bbox_pill[0]
-        th = bbox_pill[3] - bbox_pill[1]
-        pw = tw + pill_padding_x * 2
-        measured_pills.append((tag, pw, tw, th, bbox_pill))
-        total_pills_w += pw
-    total_pills_w += pill_spacing * (len(tag_pills) - 1)
-
-    pills_start_x = (target_w - total_pills_w) // 2
-    pills_y = 445
-
-    curr_px = pills_start_x
-    for tag, pw, tw, th, bbox_pill in measured_pills:
-        draw_rounded_pill(
-            uidraw,
-            (curr_px, pills_y, curr_px + pw, pills_y + pill_h),
-            radius=19,
-            fill=(15, 23, 42, 170),
-            outline=(255, 255, 255, 40),
-            width=1
-        )
-        tx = curr_px + (pw - tw) // 2 - bbox_pill[0]
-        ty = pills_y + (pill_h - th) // 2 - bbox_pill[1]
-        uidraw.text((tx, ty), tag, font=font_sans_pills, fill=(226, 232, 240, 240))
-        curr_px += pw + pill_spacing
-
-    # -------------------------------------------------------------
-    # 4. FOOTER BAR (Subtle repo & web URLs)
-    # -------------------------------------------------------------
-    footer_y = 575
-    left_footer = "github.com/Svein05/NuvioLatinoSetup"
-    right_footer = "svein05.github.io/NuvioLatinoSetup"
-
-    uidraw.text((64, footer_y), left_footer, font=font_sans_footer, fill=(148, 163, 184, 180))
-    bbox_rf = uidraw.textbbox((0, 0), right_footer, font=font_sans_footer)
-    rf_w = bbox_rf[2] - bbox_rf[0]
-    uidraw.text((target_w - 64 - rf_w, footer_y), right_footer, font=font_sans_footer, fill=(148, 163, 184, 180))
+    uidraw.text((desc_x, desc_y), desc_text, font=font_sans_desc, fill=(203, 213, 225, 230))
 
     composed = Image.alpha_composite(composed, ui_layer)
 
