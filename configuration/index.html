@@ -812,34 +812,6 @@
               </button>
             </div>
           </div>
-
-          <!-- Sugerencias Populares / Acceso Rápido -->
-          <div class="mt-4 p-3.5 bg-white/[0.03] border border-white/[0.08] rounded-[18px] flex flex-wrap items-center gap-2 text-xs">
-            <span class="text-white/50 text-[11px] font-mono flex items-center gap-1">
-              <i class="fa-solid fa-sparkles text-[#ffd479]"></i>
-              <span>Sugerencias:</span>
-            </span>
-            <button type="button" onclick="window.appController.quickAddSuggestion('aiostreams')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
-              <i class="fa-solid fa-play text-[9px] text-[#ffd479]"></i>
-              <span>AIOStreams</span>
-            </button>
-            <button type="button" onclick="window.appController.quickAddSuggestion('addlat')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
-              <i class="fa-solid fa-film text-[9px] text-indigo-400"></i>
-              <span>ADD-LAT</span>
-            </button>
-            <button type="button" onclick="window.appController.quickAddSuggestion('torbox')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
-              <i class="fa-solid fa-box text-[9px] text-emerald-400"></i>
-              <span>Torbox</span>
-            </button>
-            <button type="button" onclick="window.appController.quickAddSuggestion('torrentio')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
-              <i class="fa-solid fa-bolt text-[9px] text-amber-400"></i>
-              <span>Torrentio</span>
-            </button>
-            <button type="button" onclick="window.appController.quickAddSuggestion('cinetorrent')" class="addon-chip-btn px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.1] text-white/80 hover:text-white transition-all text-[11px] flex items-center gap-1.5">
-              <i class="fa-solid fa-clapperboard text-[9px] text-rose-400"></i>
-              <span>CineTorrent</span>
-            </button>
-          </div>
         </div>
 
         <!-- Contenedor Principal de la Lista de Addons -->
@@ -1221,10 +1193,6 @@
               <label class="lat-label block mb-1.5">URL del Manifest (.json)</label>
               <input id="inputAddonManifestUrl" type="url" placeholder="https://.../manifest.json" class="w-full px-4 py-2.5 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)]">
               <p class="text-[11px] text-white/40 mt-1">Pega el enlace de instalación o manifiesto de Stremio / Nuvio.</p>
-            </div>
-            <div>
-              <label class="lat-label block mb-1.5">Nombre del Addon (opcional)</label>
-              <input id="inputAddonCustomName" type="text" placeholder="Ej: AIOStreams, Torrentio, Subtítulos" class="w-full px-4 py-2.5 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)]">
             </div>
           </div>
           <div class="flex justify-end gap-2.5 pt-2">

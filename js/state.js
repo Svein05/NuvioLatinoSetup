@@ -233,12 +233,25 @@ class WizardState {
       name: a.name || `Addon ${idx + 2}`,
       url: a.url || a.manifest_url || '',
       manifest_url: a.manifest_url || a.url || '',
+      logo: a.logo || a.icon || (a.raw && (a.raw.logo || a.raw.icon)) || null,
       enabled: a.enabled !== false,
       sort_order: idx + 2,
       raw: a
     }));
 
     this.notify('ADDONS_UPDATED');
+  }
+
+  /**
+   * Comprueba si una URL de manifiesto ya se encuentra en la lista de addons
+   */
+  hasAddonManifest(manifestUrl) {
+    if (!manifestUrl) return false;
+    const clean = String(manifestUrl).trim().toLowerCase().replace(/\/+$/, '');
+    return this.profileAddons.some(a => {
+      const u = String(a.manifest_url || a.url || '').trim().toLowerCase().replace(/\/+$/, '');
+      return u === clean;
+    });
   }
 
   /**
@@ -283,15 +296,20 @@ class WizardState {
   /**
    * Agrega un nuevo addon mediante manifest URL
    */
-  addCustomAddon(manifestUrl, customName = '') {
+  addCustomAddon(manifestUrl, name = '', logo = '') {
     const cleanUrl = String(manifestUrl || '').trim();
     if (!cleanUrl) return false;
 
+    if (this.hasAddonManifest(cleanUrl)) {
+      return false;
+    }
+
     const newAddon = {
       id: null,
-      name: customName.trim() || 'Nuevo Addon',
+      name: (name || '').trim() || 'Nuevo Addon',
       url: cleanUrl,
       manifest_url: cleanUrl,
+      logo: (logo || '').trim() || null,
       enabled: true,
       sort_order: this.profileAddons.length + 2,
       isCustomAdded: true

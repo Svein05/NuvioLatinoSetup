@@ -3113,7 +3113,6 @@ class AppController {
     const btnCancelModal = document.getElementById('btnCancelAddAddon');
     const btnConfirmModal = document.getElementById('btnConfirmAddAddon');
     const urlInput = document.getElementById('inputAddonManifestUrl');
-    const nameInput = document.getElementById('inputAddonCustomName');
 
     if (btnOpenModal) {
       btnOpenModal.addEventListener('click', () => this.openAddAddonModal());
@@ -3140,14 +3139,80 @@ class AppController {
         }
       });
     }
-    if (nameInput) {
-      nameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          this.handleAddAddonConfirm();
-        }
-      });
+  }
+
+  /**
+   * Intenta obtener información del manifest de un addon (nombre y logo oficial)
+   */
+  async fetchManifestInfo(manifestUrl) {
+    if (!manifestUrl) return null;
+    if (!this.manifestCache) this.manifestCache = new Map();
+
+    let cleanUrl = String(manifestUrl).trim();
+    if (cleanUrl.startsWith('stremio://')) {
+      cleanUrl = 'https://' + cleanUrl.slice(10);
     }
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+    if (!cleanUrl.includes('.json') && !cleanUrl.endsWith('manifest.json')) {
+      cleanUrl = cleanUrl.replace(/\/+$/, '') + '/manifest.json';
+    }
+
+    if (this.manifestCache.has(cleanUrl)) {
+      return this.manifestCache.get(cleanUrl);
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(cleanUrl, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const info = {
+        name: data.name || data.id || null,
+        logo: data.logo || data.icon || null,
+        description: data.description || null
+      };
+      this.manifestCache.set(cleanUrl, info);
+      return info;
+    } catch (_) {
+      // Fallback silencioso en caso de CORS o offline
+      return null;
+    }
+  }
+
+  /**
+   * Proveedor de logos conocidos para addons populares en caso de fallo de red/CORS
+   */
+  getAddonFallbackLogo(url = '', name = '') {
+    const lowerUrl = String(url || '').toLowerCase();
+    const lowerName = String(name || '').toLowerCase();
+
+    if (lowerUrl.includes('aiostreams') || lowerName.includes('aiostreams')) {
+      return 'https://aiostreams.am/logo.png';
+    }
+    if (lowerUrl.includes('lat-add') || lowerUrl.includes('latadd') || lowerName.includes('lat-add') || lowerName.includes('latadd')) {
+      return 'https://lat-add.midnightignite.me/logo.png';
+    }
+    if (lowerUrl.includes('torrentio') || lowerName.includes('torrentio')) {
+      return 'https://torrentio.strem.fun/images/logo.png';
+    }
+    if (lowerUrl.includes('torbox') || lowerName.includes('torbox')) {
+      return 'https://stremio.torbox.app/logo.png';
+    }
+    if (lowerUrl.includes('cinetorrent') || lowerName.includes('cinetorrent')) {
+      return 'https://cinetorrent.midnightignite.me/logo.png';
+    }
+    if (lowerUrl.includes('subtitles') || lowerName.includes('opensubtitles')) {
+      return 'https://www.opensubtitles.com/favicon.ico';
+    }
+    return null;
   }
 
   async renderAddonsManager() {
@@ -3176,6 +3241,41 @@ class AppController {
     }
 
     this.renderAddonsList();
+    this.enrichProfileAddonsManifests();
+  }
+
+  /**
+   * Enriquecimiento en segundo plano de logos y nombres desde manifests oficiales
+   */
+  async enrichProfileAddonsManifests() {
+    const addonsToFetch = (state.profileAddons || []).filter(a => !a.logo && (a.manifest_url || a.url));
+    if (addonsToFetch.length === 0) return;
+
+    let updatedAny = false;
+    await Promise.allSettled(addonsToFetch.map(async (addon) => {
+      const url = addon.manifest_url || addon.url;
+      const fallbackLogo = this.getAddonFallbackLogo(url, addon.name);
+      if (fallbackLogo && !addon.logo) {
+        addon.logo = fallbackLogo;
+        updatedAny = true;
+      }
+
+      const info = await this.fetchManifestInfo(url);
+      if (info) {
+        if (info.logo && addon.logo !== info.logo) {
+          addon.logo = info.logo;
+          updatedAny = true;
+        }
+        if (info.name && (!addon.name || addon.name.startsWith('Addon '))) {
+          addon.name = info.name;
+          updatedAny = true;
+        }
+      }
+    }));
+
+    if (updatedAny) {
+      this.renderAddonsList();
+    }
   }
 
   renderAddonsList() {
@@ -3184,28 +3284,42 @@ class AppController {
 
     const addons = state.profileAddons || [];
 
+    const escapeText = (str) => {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+
     // Tarjeta Anclada de AIOMetadata en posición #1
     let html = `
-      <div class="p-4 sm:p-4.5 rounded-[20px] bg-white/[0.05] border-2 border-[#ffd479]/40 shadow-[0_0_20px_rgba(255,212,121,0.12)] flex items-center justify-between gap-3 select-none transition-all">
-        <div class="flex items-center gap-3.5 min-w-0">
-          <div class="w-10 h-10 rounded-xl bg-[#ffd479]/15 border border-[#ffd479]/30 text-[#ffd479] flex items-center justify-center text-base shrink-0 shadow-sm">
-            <i class="fa-solid fa-sparkles"></i>
+      <div class="p-3.5 sm:p-4 rounded-[20px] bg-white/[0.05] border-2 border-[#ffd479]/40 shadow-[0_0_20px_rgba(255,212,121,0.12)] flex items-center justify-between gap-3 select-none transition-all">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+          <!-- Posición #1 en grande a la extrema izquierda -->
+          <span class="text-2xl sm:text-3xl font-mono font-bold text-[#ffd479] min-w-[2.5rem] sm:min-w-[3rem] text-center select-none shrink-0 tracking-tight">#1</span>
+
+          <!-- Logo oficial de AIOMetadata -->
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+            <img src="https://raw.githubusercontent.com/cedya77/aiometadata/main/assets/logo.png" 
+                 alt="AIOMetadata" 
+                 class="w-full h-full object-cover" 
+                 onerror="this.onerror=null; this.src='https://aiometadatafortheweebs.midnightignite.me/logo.png';">
           </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-sm text-white tracking-wide">AIOMetadata Latino</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#ffd479]/15 text-[#ffd479] border border-[#ffd479]/30 font-semibold">Posición #1</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">Anclado Arriba</span>
-            </div>
-            <p class="text-[11px] text-white/60 truncate mt-0.5">
-              Addon Principal de Metadatos: catálogos, sinopsis, calificaciones y pósters personalizados en español latino.
+
+          <!-- Título y descripción -->
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-sm sm:text-base text-white truncate tracking-wide">AIOMetadata Latino</h4>
+            <p class="text-[11px] sm:text-xs text-white/50 truncate mt-0.5">
+              Addon Principal de Metadatos: catálogos, sinopsis, calificaciones y pósters en español latino.
             </p>
           </div>
         </div>
-        <div class="shrink-0 flex items-center gap-2">
-          <span class="text-xs text-[#ffd479]/80 font-mono hidden sm:inline-block pr-1 font-semibold">Prioridad #1</span>
-          <div class="w-8 h-8 rounded-lg bg-white/[0.05] border border-white/10 text-white/40 flex items-center justify-center text-xs" title="AIOMetadata siempre permanece en la posición #1">
-            <i class="fa-solid fa-lock text-[10px]"></i>
+
+        <div class="shrink-0 flex items-center">
+          <div class="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/10 text-white/40 flex items-center justify-center text-xs" title="AIOMetadata siempre permanece en la posición #1">
+            <i class="fa-solid fa-lock text-[11px]"></i>
           </div>
         </div>
       </div>
@@ -3219,21 +3333,29 @@ class AppController {
         const isLastSecondary = idx === addons.length - 1;
         const name = addon.name || `Addon ${pos}`;
         const url = addon.manifest_url || addon.url || '';
+        const logoUrl = addon.logo || this.getAddonFallbackLogo(url, name);
+        const initials = (name.replace(/[^a-zA-Z0-9]/g, '') || 'AD').slice(0, 2).toUpperCase();
+
+        const logoHtml = logoUrl
+          ? `<img src="${escapeText(logoUrl)}" alt="${escapeText(name)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]\\'>${escapeText(initials)}</div>';">`
+          : `<div class="w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]">${escapeText(initials)}</div>`;
 
         html += `
           <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150">
-            <div class="flex items-center gap-3.5 min-w-0">
-              <div class="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/10 text-white/70 flex items-center justify-center text-sm shrink-0">
-                <i class="fa-solid fa-puzzle-piece"></i>
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <!-- Posición en grande a la extrema izquierda -->
+              <span class="text-2xl sm:text-3xl font-mono font-bold text-white/40 min-w-[2.5rem] sm:min-w-[3rem] text-center select-none shrink-0 tracking-tight">#${pos}</span>
+
+              <!-- Logo del Addon -->
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+                ${logoHtml}
               </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="font-semibold text-xs sm:text-sm text-white">${name}</span>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/[0.06] text-white/70 border border-white/10">Posición #${pos}</span>
-                  ${addon.isCustomAdded ? '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">Nuevo</span>' : ''}
-                </div>
-                <p class="text-[10px] font-mono text-white/40 truncate max-w-md mt-0.5 select-all" title="${url}">
-                  ${url || 'Sin URL de manifiesto'}
+
+              <!-- Nombre y URL -->
+              <div class="min-w-0 flex-1">
+                <h4 class="font-semibold text-sm sm:text-base text-white truncate">${escapeText(name)}</h4>
+                <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeText(url)}">
+                  ${escapeText(url || 'Sin URL de manifiesto')}
                 </p>
               </div>
             </div>
@@ -3243,7 +3365,7 @@ class AppController {
               <button type="button" 
                       onclick="window.appController.moveAddon(${idx}, -1)" 
                       ${isFirstSecondary ? 'disabled' : ''} 
-                      class="w-7 h-7 rounded-lg ${isFirstSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isFirstSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
                       title="${isFirstSecondary ? 'No puede subir por encima de AIOMetadata' : 'Subir prioridad'}">
                 <i class="fa-solid fa-chevron-up text-[10px]"></i>
               </button>
@@ -3252,7 +3374,7 @@ class AppController {
               <button type="button" 
                       onclick="window.appController.moveAddon(${idx}, 1)" 
                       ${isLastSecondary ? 'disabled' : ''} 
-                      class="w-7 h-7 rounded-lg ${isLastSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isLastSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
                       title="${isLastSecondary ? 'Último elemento de la lista' : 'Bajar prioridad'}">
                 <i class="fa-solid fa-chevron-down text-[10px]"></i>
               </button>
@@ -3260,7 +3382,7 @@ class AppController {
               <!-- Eliminar Addon (🗑️) -->
               <button type="button" 
                       onclick="window.appController.removeAddon(${idx})" 
-                      class="w-7 h-7 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-1" 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" 
                       title="Eliminar addon de este perfil">
                 <i class="fa-solid fa-trash-can text-[10px]"></i>
               </button>
@@ -3274,7 +3396,7 @@ class AppController {
           <i class="fa-solid fa-circle-nodes text-2xl text-white/20"></i>
           <p class="text-xs text-white/60">No hay addons secundarios registrados en este perfil.</p>
           <p class="text-[11px] text-white/40 max-w-md mx-auto">
-            Puedes agregar tus addons de streaming (AIOStreams, Torrentio, Torbox, etc.) pulsando el botón <strong class="text-white">"Agregar Addon"</strong> o usando las sugerencias de arriba.
+            Puedes agregar tus addons de streaming (AIOStreams, Torrentio, Torbox, etc.) pulsando el botón <strong class="text-white">"Agregar Addon"</strong>.
           </p>
         </div>
       `;
@@ -3298,43 +3420,13 @@ class AppController {
     }
   }
 
-  quickAddSuggestion(key) {
-    const suggestions = {
-      aiostreams: {
-        name: 'AIOStreams',
-        url: 'https://aiostreams.viren070.me/manifest.json'
-      },
-      addlat: {
-        name: 'ADD-LAT (Latino)',
-        url: 'https://lat-add.midnightignite.me/manifest.json'
-      },
-      torbox: {
-        name: 'Torbox Stremio',
-        url: 'https://stremio.torbox.app/manifest.json'
-      },
-      torrentio: {
-        name: 'Torrentio Lite',
-        url: 'https://torrentio.strem.fun/manifest.json'
-      },
-      cinetorrent: {
-        name: 'CineTorrent',
-        url: 'https://cinetorrent.midnightignite.me/manifest.json'
-      }
-    };
-
-    const item = suggestions[key];
-    if (!item) return;
-
-    this.openAddAddonModal(item.url, item.name);
-  }
-
-  openAddAddonModal(defaultUrl = '', defaultName = '') {
+  openAddAddonModal(defaultUrl = '') {
     const modal = document.getElementById('modalAddAddon');
     const urlInput = document.getElementById('inputAddonManifestUrl');
-    const nameInput = document.getElementById('inputAddonCustomName');
 
-    if (urlInput) urlInput.value = defaultUrl;
-    if (nameInput) nameInput.value = defaultName;
+    if (urlInput) {
+      urlInput.value = defaultUrl;
+    }
 
     if (modal) {
       modal.classList.remove('hidden');
@@ -3351,32 +3443,78 @@ class AppController {
     }
   }
 
-  handleAddAddonConfirm() {
+  async handleAddAddonConfirm() {
     const urlInput = document.getElementById('inputAddonManifestUrl');
-    const nameInput = document.getElementById('inputAddonCustomName');
-    const url = (urlInput ? urlInput.value : '').trim();
-    let name = (nameInput ? nameInput.value : '').trim();
+    const btnConfirm = document.getElementById('btnConfirmAddAddon');
+    let rawUrl = (urlInput ? urlInput.value : '').trim();
 
-    if (!url) {
-      this.showToast('Por favor ingresa la URL del manifest del addon.', 'warning');
+    if (!rawUrl) {
+      this.showToast('Por favor ingresa la URL del manifest (.json).', 'warning');
       if (urlInput) urlInput.focus();
       return;
     }
 
-    if (!name) {
+    // Normalizar protocolo stremio:// a https://
+    if (rawUrl.startsWith('stremio://')) {
+      rawUrl = 'https://' + rawUrl.slice(10);
+    }
+    if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+      rawUrl = 'https://' + rawUrl;
+    }
+
+    // 1. Verificar si es AIOMetadata
+    const lower = rawUrl.toLowerCase();
+    if (lower.includes('aiometadata') || (lower.includes('/stremio/') && lower.includes('manifest.json'))) {
+      this.showToast('AIOMetadata ya es tu addon principal (#1) y se encuentra anclado en la parte superior.', 'info');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    // 2. Verificar duplicados por enlace del manifiesto
+    if (state.hasAddonManifest(rawUrl)) {
+      this.showToast('Este enlace de manifiesto ya se encuentra agregado en tu perfil.', 'warning');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    const originalConfirmHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando manifest...';
+    }
+
+    let manifestInfo = null;
+    try {
+      manifestInfo = await this.fetchManifestInfo(rawUrl);
+    } catch (_) {}
+
+    let finalName = manifestInfo?.name || '';
+    let finalLogo = manifestInfo?.logo || this.getAddonFallbackLogo(rawUrl, finalName);
+
+    if (!finalName) {
       try {
-        const u = new URL(url);
-        name = u.hostname.replace(/^(www\.|stremio\.)/, '').split('.')[0];
-        name = name.charAt(0).toUpperCase() + name.slice(1);
+        const u = new URL(rawUrl);
+        finalName = u.hostname.replace(/^(www\.|stremio\.)/, '').split('.')[0];
+        finalName = finalName.charAt(0).toUpperCase() + finalName.slice(1);
       } catch (_) {
-        name = 'Nuevo Addon';
+        finalName = `Addon ${state.profileAddons.length + 2}`;
       }
     }
 
-    state.addCustomAddon(url, name);
+    state.addCustomAddon(rawUrl, finalName, finalLogo);
+
+    if (btnConfirm) {
+      btnConfirm.disabled = false;
+      btnConfirm.innerHTML = originalConfirmHtml;
+    }
+
+    if (urlInput) {
+      urlInput.value = '';
+    }
+
     this.closeAddAddonModal();
     this.renderAddonsList();
-    this.showToast(`✓ Addon "${name}" agregado exitosamente a la lista.`, 'success');
+    this.showToast(`✓ Addon "${finalName}" agregado exitosamente a la lista.`, 'success');
   }
 
   setupStep6Injection() {
