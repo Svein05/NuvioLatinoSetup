@@ -2651,32 +2651,92 @@ export const BADGE_MODULE_DEFINITIONS = [
   { id: 'gv', labelEs: 'Formato Visual', defaultActive: true },
   { id: 'ga', labelEs: 'Audio', defaultActive: true },
   { id: 'gc', labelEs: 'Canales', defaultActive: true },
+  { id: 'ge', labelEs: 'Códec', defaultActive: true },
+  { id: 'glang', labelEs: 'Idiomas', defaultActive: true },
+  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: true },
   { id: 'gst', labelEs: 'Tags Especiales', defaultActive: true },
   { id: 'gs', labelEs: 'Streaming', defaultActive: true },
-  { id: 'glang', labelEs: 'Idiomas', defaultActive: true },
-  { id: 'gsub', labelEs: 'Subtítulos', defaultActive: true }
+  { id: 'gms', labelEs: 'Media Source', defaultActive: true }
 ];
 
 export const BADGE_MODULE_TRANSLATIONS = {
   gr: 'Resolución',
-  gq: 'Calidad',
-  gv: 'Formato Visual',
-  ga: 'Audio',
-  gc: 'Canales',
-  gst: 'Tags Especiales',
-  gs: 'Streaming',
-  glang: 'Idiomas',
-  gsub: 'Subtítulos',
+  'g-res': 'Resolución',
   resolution: 'Resolución',
+  res: 'Resolución',
+  gq: 'Calidad',
   quality: 'Calidad',
+  'g-src': 'Fuente / Calidad',
+  src: 'Fuente',
+  source: 'Fuente',
+  gv: 'Formato Visual',
   visual: 'Formato Visual',
+  'g-rng': 'Rango Dinámico',
+  'dynamic range': 'Rango Dinámico',
+  'g-depth': 'Profundidad de Color',
+  'color depth': 'Profundidad de Color',
+  ga: 'Audio',
   audio: 'Audio',
+  'g-snd': 'Formatos de Audio',
+  snd: 'Formatos de Audio',
+  'sound formats': 'Formatos de Audio',
+  gc: 'Canales',
   channels: 'Canales',
-  'special tags': 'Tags Especiales',
-  streaming: 'Streaming',
+  'g-ch': 'Canales de Audio',
+  ch: 'Canales',
+  'audio channels': 'Canales de Audio',
+  ge: 'Códec',
+  codec: 'Códec',
+  encoder: 'Códec',
+  gl: 'Idiomas',
+  glang: 'Idiomas',
+  lang: 'Idiomas',
   language: 'Idiomas',
-  subtitle: 'Subtítulos'
+  gsub: 'Subtítulos',
+  sub: 'Subtítulos',
+  subtitle: 'Subtítulos',
+  subtitles: 'Subtítulos',
+  gst: 'Tags Especiales',
+  'special tags': 'Tags Especiales',
+  'special-tags': 'Tags Especiales',
+  gs: 'Streaming',
+  streaming: 'Streaming',
+  gms: 'Media Source',
+  'media source': 'Media Source',
+  'media-source': 'Media Source',
+  grl: 'Release / Edición',
+  rel: 'Release / Edición',
+  release: 'Release / Edición'
 };
+
+/**
+ * Convierte colores de Badger / Flutter / Android ARGB (#AARRGGBB) a formato CSS seguro (#RRGGBB o rgba)
+ */
+export function normalizeBadgeColor(colorStr, fallback = 'transparent') {
+  if (!colorStr || typeof colorStr !== 'string') return fallback;
+  const str = colorStr.trim();
+  // Formato ARGB de 8 dígitos hexadecimales: #AARRGGBB
+  if (/^#[0-9a-fA-F]{8}$/.test(str)) {
+    const a = str.slice(1, 3);
+    const r = str.slice(3, 5);
+    const g = str.slice(5, 7);
+    const b = str.slice(7, 9);
+    // Si opacidad es 100% (FF), devolver #RRGGBB directo
+    if (a.toLowerCase() === 'ff') {
+      return `#${r}${g}${b}`;
+    }
+    // Si es 0% opaco, transparent
+    if (a === '00') {
+      return 'transparent';
+    }
+    const alphaFloat = (parseInt(a, 16) / 255).toFixed(2);
+    const rInt = parseInt(r, 16);
+    const gInt = parseInt(g, 16);
+    const bInt = parseInt(b, 16);
+    return `rgba(${rInt}, ${gInt}, ${bInt}, ${parseFloat(alphaFloat)})`;
+  }
+  return str;
+}
 
 export function getBadgeModuleLabel(id, fallbackName = '') {
   if (BADGE_MODULE_TRANSLATIONS[id]) return BADGE_MODULE_TRANSLATIONS[id];
@@ -2707,6 +2767,10 @@ export function addCustomBadgePack(pack) {
  */
 function enrichSectionForDisplay(sec, pack) {
   if (!sec) return sec;
+  // Si el pack es personalizado, preservar al 100% sus items, logos y colores originales
+  if (pack && pack.isCustom) {
+    return sec;
+  }
   const items = Array.isArray(sec.items) ? [...sec.items] : [];
   const baseItem = items[0] || {
     name: '',
@@ -3078,24 +3142,51 @@ function enrichSectionForDisplay(sec, pack) {
 }
 
 export function getPackSectionsOrdered(pack, activeModuleIds = [], order = []) {
+  if (!pack) return [];
   const activeSet = new Set(activeModuleIds);
+  // Expandir alias bidireccionales en activeSet
+  if (activeSet.has('glang')) activeSet.add('gl');
+  if (activeSet.has('gl')) activeSet.add('glang');
+  if (activeSet.has('gsub')) activeSet.add('sub');
+  if (activeSet.has('sub')) activeSet.add('gsub');
+
   const sectionsMap = new Map();
   (pack.sections || []).forEach(sec => {
     sectionsMap.set(sec.id, enrichSectionForDisplay(sec, pack));
   });
 
   const result = [];
-  // Respetar la secuencia ordenada definida por el usuario
+  const addedIds = new Set();
+
+  // 1. Respetar la secuencia ordenada definida por el usuario
   order.forEach(id => {
-    if (activeSet.has(id) && sectionsMap.has(id)) {
-      result.push(sectionsMap.get(id));
+    let matchedSec = sectionsMap.get(id);
+    if (!matchedSec) {
+      if (id === 'glang') matchedSec = sectionsMap.get('gl') || sectionsMap.get('lang');
+      else if (id === 'ge') matchedSec = sectionsMap.get('codec') || sectionsMap.get('encoder');
+      else if (id === 'gsub') matchedSec = sectionsMap.get('sub');
+      else if (id === 'ga') matchedSec = sectionsMap.get('g-snd') || sectionsMap.get('snd');
+      else if (id === 'gc') matchedSec = sectionsMap.get('g-ch') || sectionsMap.get('ch');
+      else if (id === 'gr') matchedSec = sectionsMap.get('g-res');
+      else if (id === 'gq') matchedSec = sectionsMap.get('g-src') || sectionsMap.get('grl');
+      else if (id === 'gv') matchedSec = sectionsMap.get('g-rng') || sectionsMap.get('g-depth');
+    }
+
+    if (matchedSec && !addedIds.has(matchedSec.id)) {
+      if (activeSet.size === 0 || activeSet.has(id) || activeSet.has(matchedSec.id) || pack.isCustom) {
+        result.push(matchedSec);
+        addedIds.add(matchedSec.id);
+      }
     }
   });
 
-  // Si hay alguna sección activa no presente en el orden, añadirla al final
+  // 2. Si hay alguna sección en el pack no presente en el orden, añadirla al final si está activa (o en packs personalizados)
   sectionsMap.forEach((sec, id) => {
-    if (activeSet.has(id) && !order.includes(id)) {
-      result.push(sec);
+    if (!addedIds.has(id)) {
+      if (activeSet.size === 0 || activeSet.has(id) || pack.isCustom) {
+        result.push(sec);
+        addedIds.add(id);
+      }
     }
   });
 

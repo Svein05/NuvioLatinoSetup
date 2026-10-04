@@ -14,7 +14,8 @@ import {
   addCustomBadgePack,
   BADGE_MODULE_DEFINITIONS,
   getBadgeModuleLabel,
-  getPackSectionsOrdered
+  getPackSectionsOrdered,
+  normalizeBadgeColor
 } from './badge-packs.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
@@ -1892,10 +1893,32 @@ class AppController {
       const containerOrderBar = document.getElementById('badgeModulesOrderBar');
       const activeIds = state.preferences.activeBadgeModules || [];
       const orderIds = state.preferences.badgeModulesOrder || [];
+      const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
+      const currentPack = getBadgePackById(selectedPackId);
+
+      // Combinar módulos base con cualquier módulo adicional presente en el pack actual
+      const allModulesMap = new Map();
+      BADGE_MODULE_DEFINITIONS.forEach(def => allModulesMap.set(def.id, def));
+      if (currentPack && currentPack.sections) {
+        currentPack.sections.forEach(sec => {
+          if (!allModulesMap.has(sec.id)) {
+            allModulesMap.set(sec.id, {
+              id: sec.id,
+              labelEs: getBadgeModuleLabel(sec.id, sec.name),
+              defaultActive: true
+            });
+          }
+        });
+      }
+      const moduleDefs = Array.from(allModulesMap.values());
 
       if (containerCheckboxes) {
-        containerCheckboxes.innerHTML = BADGE_MODULE_DEFINITIONS.map(def => {
-          const isChecked = activeIds.includes(def.id);
+        containerCheckboxes.innerHTML = moduleDefs.map(def => {
+          const isChecked = activeIds.includes(def.id) || 
+            (def.id === 'glang' && activeIds.includes('gl')) || 
+            (def.id === 'gl' && activeIds.includes('glang')) ||
+            (def.id === 'gsub' && activeIds.includes('sub')) ||
+            (def.id === 'sub' && activeIds.includes('gsub'));
           return `
             <label class="badge-module-pill flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 cursor-pointer text-xs text-white/70 hover:text-white transition-all select-none">
               <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.appController.toggleBadgeModule('${def.id}', this.checked)" class="sr-only">
@@ -1909,8 +1932,8 @@ class AppController {
       }
 
       if (containerOrderBar) {
-        // Mostrar únicamente los módulos activos en el orden actual
-        const activeOrdered = orderIds.filter(id => activeIds.includes(id));
+        // Mostrar los módulos activos en el orden actual
+        const activeOrdered = orderIds.filter(id => activeIds.includes(id) || allModulesMap.has(id));
         if (activeOrdered.length === 0) {
           containerOrderBar.innerHTML = `<span class="text-[11px] text-white/40 italic">Ningún módulo activado. Marca categorías arriba para incluirlas y ordenarlas.</span>`;
         } else {
@@ -1974,14 +1997,22 @@ class AppController {
 
     this.toggleBadgeModule = (id, isChecked) => {
       if (!state.preferences.activeBadgeModules) {
-        state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
+        state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
       }
       if (isChecked) {
         if (!state.preferences.activeBadgeModules.includes(id)) {
           state.preferences.activeBadgeModules.push(id);
         }
+        if (id === 'glang' && !state.preferences.activeBadgeModules.includes('gl')) state.preferences.activeBadgeModules.push('gl');
+        if (id === 'gl' && !state.preferences.activeBadgeModules.includes('glang')) state.preferences.activeBadgeModules.push('glang');
+        if (id === 'gsub' && !state.preferences.activeBadgeModules.includes('sub')) state.preferences.activeBadgeModules.push('sub');
+        if (id === 'sub' && !state.preferences.activeBadgeModules.includes('gsub')) state.preferences.activeBadgeModules.push('gsub');
       } else {
         state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== id);
+        if (id === 'glang') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'gl');
+        if (id === 'gl') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'glang');
+        if (id === 'gsub') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'sub');
+        if (id === 'sub') state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(x => x !== 'gsub');
       }
       this.renderBadgeModulesUI();
       this.renderBadgesGrid();
@@ -1992,7 +2023,7 @@ class AppController {
 
     this.moveBadgeModule = (id, delta) => {
       const activeIds = state.preferences.activeBadgeModules || [];
-      const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'])];
+      const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'])];
       const activeOrdered = order.filter(x => activeIds.includes(x));
       const curIdx = activeOrdered.indexOf(id);
       const targetIdx = curIdx + delta;
@@ -2014,6 +2045,18 @@ class AppController {
 
     this.selectBadgePack = (packId) => {
       state.preferences.selectedBadgePack = packId;
+      const pack = getBadgePackById(packId);
+      if (pack && pack.sections) {
+        pack.sections.forEach(sec => {
+          if (!state.preferences.activeBadgeModules.includes(sec.id)) {
+            state.preferences.activeBadgeModules.push(sec.id);
+          }
+          if (!state.preferences.badgeModulesOrder.includes(sec.id)) {
+            state.preferences.badgeModulesOrder.push(sec.id);
+          }
+        });
+      }
+      this.renderBadgeModulesUI();
       this.renderBadgesGrid();
       this.refreshStep6Summary();
       this.updateNavigationButtons();
@@ -2069,25 +2112,66 @@ class AppController {
       if (/^https?:\/\//i.test(source)) {
         isUrl = true;
         rawUrl = source;
+        let fetchUrl = source;
+
+        // Auto-corregir enlaces comunes para acceder directamente al RAW
+        if (fetchUrl.includes('github.com') && fetchUrl.includes('/blob/')) {
+          fetchUrl = fetchUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+        } else if (fetchUrl.includes('gist.github.com/') && !fetchUrl.includes('/raw')) {
+          fetchUrl = fetchUrl.replace('gist.github.com', 'gist.githubusercontent.com') + '/raw';
+        } else if (fetchUrl.includes('pastebin.com/') && !fetchUrl.includes('/raw/')) {
+          fetchUrl = fetchUrl.replace('pastebin.com/', 'pastebin.com/raw/');
+        }
+
+        // Función de auto-reparación para JSONs comunitarios con errores menores (comas faltantes o trailing commas)
+        const tryRepairJson = (jsonStr) => {
+          try {
+            return JSON.parse(jsonStr);
+          } catch (err) {
+            let repaired = jsonStr;
+            // 1. Eliminar comas finales antes de } o ]
+            repaired = repaired.replace(/,\s*([\]}])/g, '$1');
+            // 2. Insertar comas faltantes entre propiedades ("valor"\n"propiedad":)
+            repaired = repaired.replace(/(["\dtruefalsenull\]}])\s*\n\s*("[a-zA-Z0-9_$-]+"\s*:)/g, '$1,\n$2');
+            return JSON.parse(repaired);
+          }
+        };
+
         try {
-          const res = await fetch(source);
+          const res = await fetch(fetchUrl);
           if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-          parsedData = await res.json();
+          const rawText = await res.text();
+          parsedData = tryRepairJson(rawText);
         } catch (fetchErr) {
-          console.warn('[Badges] No se pudo descargar el JSON directo (posible CORS), se usará la URL directa:', fetchErr.message);
-          parsedData = {
-            name: customName || 'Pack Externo',
-            groups: [{ id: 'gr', name: 'Resolution' }, { id: 'gq', name: 'Quality' }],
-            filters: [
-              { name: '4K', groupId: 'gr', textColor: '#FFD500', borderColor: '#FFD500', tagColor: '#20FFD500' },
-              { name: '1080p', groupId: 'gr', textColor: '#2EB853', borderColor: '#2EB853', tagColor: '#242EB853' },
-              { name: 'Remux', groupId: 'gq', textColor: '#FFD500', borderColor: '#FFD500', tagColor: '#20FFD500' }
-            ]
-          };
+          console.warn('[Badges] Descarga directa falló, intentando con proxy CORS:', fetchErr.message);
+          try {
+            const proxyRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`);
+            if (!proxyRes.ok) throw new Error(`Proxy HTTP ${proxyRes.status}`);
+            const rawText = await proxyRes.text();
+            parsedData = tryRepairJson(rawText);
+          } catch (proxyErr) {
+            console.error('[Badges] No se pudo descargar el JSON:', proxyErr.message);
+            if (errorBox && errorText) {
+              errorText.textContent = `No se pudo descargar el archivo JSON (${fetchErr.message}). Verifica que el enlace sea público o pega el código JSON directamente.`;
+              errorBox.classList.remove('hidden');
+            }
+            return;
+          }
         }
       } else {
+        const tryRepairJson = (jsonStr) => {
+          try {
+            return JSON.parse(jsonStr);
+          } catch (err) {
+            let repaired = jsonStr;
+            repaired = repaired.replace(/,\s*([\]}])/g, '$1');
+            repaired = repaired.replace(/(["\dtruefalsenull\]}])\s*\n\s*("[a-zA-Z0-9_$-]+"\s*:)/g, '$1,\n$2');
+            return JSON.parse(repaired);
+          }
+        };
+
         try {
-          parsedData = JSON.parse(source);
+          parsedData = tryRepairJson(source);
         } catch (jsonErr) {
           if (errorBox && errorText) {
             errorText.textContent = 'El texto ingresado no es un JSON válido: ' + jsonErr.message;
@@ -2097,7 +2181,20 @@ class AppController {
         }
       }
 
-      // Convertir Badger groups / filters a sections para visualización idéntica
+      // Normalizador de identificadores de grupo para Badger y Nuvio
+      const normalizeGid = (rawGid) => {
+        const id = (rawGid || 'gr').trim();
+        const lower = id.toLowerCase();
+        if (lower === 'gl' || lower === 'lang' || lower === 'language') return 'glang';
+        if (lower === 'sub' || lower === 'subtitle' || lower === 'subtitles') return 'gsub';
+        if (lower === 'codec' || lower === 'encoder') return 'ge';
+        if (lower === 'source' || lower === 'media-source' || lower === 'media source') return 'gms';
+        if (lower === 'special' || lower === 'special-tags' || lower === 'special tags') return 'gst';
+        if (lower === 'stream' || lower === 'streaming') return 'gs';
+        return id;
+      };
+
+      // Convertir Badger groups / filters a sections para visualización fiel y completa
       let sections = [];
       const groups = parsedData.groups || [];
       const filters = parsedData.filters || (Array.isArray(parsedData) ? parsedData : []);
@@ -2105,24 +2202,34 @@ class AppController {
       if (groups.length > 0 || filters.length > 0) {
         const groupMap = new Map();
         groups.forEach(g => {
-          groupMap.set(g.id, { id: g.id, name: g.name || g.id, items: [], total: 0 });
+          const gid = normalizeGid(g.id);
+          groupMap.set(gid, {
+            id: gid,
+            name: g.name || getBadgeModuleLabel(gid),
+            items: [],
+            total: 0
+          });
         });
 
         filters.forEach(f => {
-          const gid = f.groupId || 'gr';
+          if (f.isEnabled === false) return; // Omitir distintivos desactivados
+          const gid = normalizeGid(f.groupId);
           let g = groupMap.get(gid);
           if (!g) {
-            g = { id: gid, name: f.groupName || gid.toUpperCase(), items: [], total: 0 };
+            const groupName = f.groupName || getBadgeModuleLabel(gid, gid.toUpperCase());
+            g = { id: gid, name: groupName, items: [], total: 0 };
             groupMap.set(gid, g);
           }
           g.total++;
-          if (g.items.length < 6) {
+          // Permitir hasta 24 items para que fitBadgesDynamically() aproveche todo el ancho dinámico
+          if (g.items.length < 24) {
             g.items.push({
               name: f.name || 'Badge',
               img: f.imageURL || null,
-              text: f.textColor || '#ffffff',
-              border: f.borderColor || '#ffffff',
-              bg: f.tagColor || 'rgba(255,255,255,0.1)'
+              text: normalizeBadgeColor(f.textColor, '#ffffff'),
+              border: normalizeBadgeColor(f.borderColor, 'rgba(255,255,255,0.2)'),
+              bg: normalizeBadgeColor(f.tagColor, 'rgba(255,255,255,0.08)'),
+              style: f.tagStyle || 'filled'
             });
           }
         });
@@ -2144,22 +2251,50 @@ class AppController {
             total: 3,
             hiddenCount: 0,
             items: [
-              { name: '4K', text: '#FFD500', border: '#FFD500', bg: '#20FFD500' },
-              { name: 'HDR', text: '#BBDEFB', border: '#BBDEFB', bg: '#24BBDEFB' },
-              { name: 'Atmos', text: '#E040FB', border: '#E040FB', bg: '#24E040FB' }
+              { name: '4K', text: '#FFD500', border: '#FFD500', bg: 'rgba(255,213,0,0.15)' },
+              { name: 'HDR', text: '#BBDEFB', border: '#BBDEFB', bg: 'rgba(187,222,251,0.15)' },
+              { name: 'Atmos', text: '#E040FB', border: '#E040FB', bg: 'rgba(224,64,251,0.15)' }
             ]
           }
         ];
       }
 
+      // Detección automática del autor desde metadatos o URL
+      let authorName = (parsedData.author || parsedData.creator || '').trim();
+      if (!authorName && isUrl) {
+        const ghMatch = rawUrl.match(/(?:githubusercontent\.com|github\.com)\/([^/]+)/i);
+        if (ghMatch && ghMatch[1] && !['raw', 'gist'].includes(ghMatch[1])) {
+          authorName = ghMatch[1];
+        }
+      }
+      if (!authorName) authorName = 'Personalizado';
+
+      let authorUrl = (parsedData.authorUrl || '').trim();
+      if (!authorUrl && authorName !== 'Personalizado') {
+        authorUrl = `https://github.com/${authorName}`;
+      } else if (!authorUrl && isUrl) {
+        authorUrl = rawUrl;
+      }
+
+      // Nombre del paquete
+      let finalName = (customName || parsedData.name || parsedData.title || '').trim();
+      if (!finalName && isUrl) {
+        const fileMatch = rawUrl.split('/').pop().replace(/\.json$/i, '').replace(/[-_]/g, ' ');
+        if (fileMatch) {
+          finalName = fileMatch.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+      }
+      if (!finalName) {
+        finalName = `Estilo Personalizado #${BADGE_PACKS.filter(p => p.isCustom).length + 1}`;
+      }
+
       const customId = `custom-${Date.now()}`;
-      const finalName = customName || parsedData.name || `Estilo Personalizado #${BADGE_PACKS.filter(p => p.isCustom).length + 1}`;
 
       const newPack = {
         id: customId,
         name: finalName,
-        author: 'Personalizado',
-        authorUrl: isUrl ? rawUrl : '#',
+        author: authorName,
+        authorUrl: authorUrl,
         description: isUrl ? `Estilo importado desde URL: ${rawUrl}` : 'Estilo personalizado cargado mediante código JSON directo.',
         rawV2: isUrl ? rawUrl : null,
         rawV1: isUrl ? rawUrl : null,
@@ -2171,12 +2306,25 @@ class AppController {
       };
 
       addCustomBadgePack(newPack);
+
+      // Activar automáticamente todas las secciones que trae el pack en las preferencias
+      sections.forEach(sec => {
+        if (!state.preferences.activeBadgeModules.includes(sec.id)) {
+          state.preferences.activeBadgeModules.push(sec.id);
+        }
+        if (!state.preferences.badgeModulesOrder.includes(sec.id)) {
+          state.preferences.badgeModulesOrder.push(sec.id);
+        }
+      });
+
       state.preferences.selectedBadgePack = customId;
+      this.renderBadgeModulesUI();
       this.renderBadgesGrid();
       this.refreshStep6Summary();
 
       if (sourceInput) sourceInput.value = '';
       if (nameInput) nameInput.value = '';
+      if (errorBox) errorBox.classList.remove('hidden'); // reset error display
       if (errorBox) errorBox.classList.add('hidden');
 
       this.showToast(`¡Estilo "${finalName}" importado y seleccionado con éxito!`, 'success');
@@ -2197,8 +2345,8 @@ class AppController {
     if (!container) return;
 
     const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
-    const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
-    const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub'];
+    const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+    const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
 
     container.innerHTML = BADGE_PACKS.map(pack => {
       const isSelected = (pack.id === selectedPackId);
@@ -2218,8 +2366,8 @@ class AppController {
         const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
         const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
         const badgesHtml = (sec.items || []).map(b => {
-          const isFlag = (sec.id === 'glang');
-          const isSub = (sec.id === 'gsub');
+          const isFlag = (sec.id === 'glang' || sec.id === 'gl' || sec.id === 'lang');
+          const isSub = (sec.id === 'gsub' || sec.id === 'sub');
           const imgClass = isFlag
             ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
             : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
