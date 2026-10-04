@@ -5,8 +5,12 @@
 import { state } from './state.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { NuvioClient } from './nuvio-client.js';
-import { CONFIG } from './config.js';
-import { getBadgePackById, getBadgePackUrl } from './badge-packs.js';
+import { 
+  getBadgePackById, 
+  getBadgePackUrl,
+  isSectionActive,
+  getCanonicalModuleId 
+} from './badge-packs.js';
 
 export class PipelineInjector {
   /**
@@ -206,8 +210,9 @@ export class PipelineInjector {
       if (isBadgesActive && selectedBadgePack) {
         state.addLog(`Compilando reglas de badges: "${selectedBadgePack.name}"...`, 'info');
 
-        const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst'];
-        const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'gst', 'gs', 'glang', 'gsub', 'size'];
+        const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+        const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+        const activeSet = new Set(activeIds);
 
         let badgeRulesJson = { imports: [] };
         if (selectedBadgePack.isCustom && selectedBadgePack.customJson) {
@@ -215,13 +220,15 @@ export class PipelineInjector {
           let rawGroups = cJson.groups || [];
           let rawFilters = cJson.filters || (Array.isArray(cJson) ? cJson : []);
 
-          let filteredGroups = rawGroups.filter(g => activeIds.includes(g.id));
+          let filteredGroups = rawGroups.filter(g => isSectionActive(g.id, activeSet));
           filteredGroups.sort((a, b) => {
-            const idxA = orderIds.indexOf(a.id);
-            const idxB = orderIds.indexOf(b.id);
+            const canonA = getCanonicalModuleId(a.id);
+            const canonB = getCanonicalModuleId(b.id);
+            const idxA = orderIds.indexOf(canonA);
+            const idxB = orderIds.indexOf(canonB);
             return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
           });
-          let filteredFilters = rawFilters.filter(f => !f.groupId || activeIds.includes(f.groupId));
+          let filteredFilters = rawFilters.filter(f => !f.groupId || isSectionActive(f.groupId, activeSet));
 
           badgeRulesJson.imports.push({
             sourceUrl: selectedBadgePack.rawV2 || 'custom://badges',
@@ -238,13 +245,15 @@ export class PipelineInjector {
               let rawFilters = fetchedData.filters || [];
 
               // Filtrar y ordenar grupos según la personalización del usuario
-              let filteredGroups = rawGroups.filter(g => activeIds.includes(g.id));
+              let filteredGroups = rawGroups.filter(g => isSectionActive(g.id, activeSet));
               filteredGroups.sort((a, b) => {
-                const idxA = orderIds.indexOf(a.id);
-                const idxB = orderIds.indexOf(b.id);
+                const canonA = getCanonicalModuleId(a.id);
+                const canonB = getCanonicalModuleId(b.id);
+                const idxA = orderIds.indexOf(canonA);
+                const idxB = orderIds.indexOf(canonB);
                 return (idxA >= 0 ? idxA : 999) - (idxB >= 0 ? idxB : 999);
               });
-              let filteredFilters = rawFilters.filter(f => !f.groupId || activeIds.includes(f.groupId));
+              let filteredFilters = rawFilters.filter(f => !f.groupId || isSectionActive(f.groupId, activeSet));
 
               badgeRulesJson.imports.push({
                 sourceUrl: badgePackUrl,
@@ -293,7 +302,7 @@ export class PipelineInjector {
         state.addLog(`✓ [Simulado] TMDB Enrichment ${isEnrichmentActive ? 'activado' : 'desactivado'} en TV, Mobile y Desktop (es-MX).`, isEnrichmentActive ? 'success' : 'info');
         state.addLog(`✓ [Simulado] Calificaciones de MDBList ${isRatingsActive ? 'activadas con tu clave' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
         if (isBadgesActive && selectedBadgePack) {
-          state.addLog(`✓ [Simulado] Fusion Badges configurados con estilo "${selectedBadgePack.name}" (${badgeVersion.toUpperCase()}) para TV, Mobile y Desktop.`, 'success');
+          state.addLog(`✓ [Simulado] Fusion Badges configurados con estilo "${selectedBadgePack.name}" para TV, Mobile y Desktop.`, 'success');
         }
       } else {
         for (const platform of ['tv', 'mobile', 'desktop']) {
@@ -310,7 +319,7 @@ export class PipelineInjector {
         state.addLog(`✓ TMDB Enrichment ${isEnrichmentActive ? 'activado exitosamente' : 'desactivado'} en es-MX (TV, Mobile y Desktop).`, isEnrichmentActive ? 'success' : 'info');
         state.addLog(`✓ Calificaciones de MDBList ${isRatingsActive ? 'activadas exitosamente' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
         if (isBadgesActive && selectedBadgePack) {
-          state.addLog(`✓ Fusion Badges configurados exitosamente con estilo "${selectedBadgePack.name}" (${badgeVersion.toUpperCase()}) para TV, Mobile y Desktop.`, 'success');
+          state.addLog(`✓ Fusion Badges configurados exitosamente con estilo "${selectedBadgePack.name}" para TV, Mobile y Desktop.`, 'success');
         }
       }
 

@@ -3021,21 +3021,25 @@ class AppController {
     }
 
     if (targetEl) targetEl.innerText = state.isManualMode ? 'Manual (Sin cuenta)' : (state.selectedProfileName || 'Perfil Principal');
-    if (countEl) countEl.innerText = `${activeFolders} carruseles seleccionados`;
-    if (catalogsEl) catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
+    if (countEl) {
+      countEl.innerText = `${activeFolders} carruseles seleccionados`;
+      countEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
+    }
+    if (catalogsEl) {
+      catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
+      catalogsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
+    }
 
     if (posterEngineEl) {
       const engine = state.preferences?.posterEngine || 'default';
       if (engine === 'betterposter') {
         posterEngineEl.innerText = 'BetterPoster (es-MX)';
-        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else if (engine === 'postersplus') {
         posterEngineEl.innerText = 'PostersPlus (Badges)';
-        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else {
         posterEngineEl.innerText = 'Nativo / Limpio';
-        posterEngineEl.className = 'text-white font-medium block truncate';
       }
+      posterEngineEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
     }
 
     if (enrichmentEl) {
@@ -3043,16 +3047,16 @@ class AppController {
       const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
       if (enr && rat) {
         enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
-        enrichmentEl.className = 'text-white font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else if (enr) {
         enrichmentEl.innerText = 'Solo TMDB (Activo)';
-        enrichmentEl.className = 'text-white font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else if (rat) {
         enrichmentEl.innerText = 'Solo MDBList (Activo)';
-        enrichmentEl.className = 'text-white font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else {
         enrichmentEl.innerText = 'Desactivados';
-        enrichmentEl.className = 'text-white/40 font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
       }
     }
 
@@ -3061,10 +3065,10 @@ class AppController {
       if (state.preferences && state.preferences.badgesEnabled) {
         const pack = getBadgePackById(state.preferences.selectedBadgePack);
         badgesEl.innerText = `${pack.name}`;
-        badgesEl.className = 'text-indigo-400 font-medium block truncate';
+        badgesEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else {
         badgesEl.innerText = 'Desactivado';
-        badgesEl.className = 'text-white/40 font-medium block truncate';
+        badgesEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
       }
     }
   }
