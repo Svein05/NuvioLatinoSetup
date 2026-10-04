@@ -144,6 +144,7 @@ NuvioLatinoSetup/
 │   ├── vendor/                 # Bibliotecas externas (SortableJS)
 │   ├── aiometadata-client.js   # Comunicación con la API de AIOMetadata
 │   ├── app.js                  # Controlador principal del asistente
+│   ├── badge-packs.js          # Catálogo de estilos Fusion Badges (kingsizew)
 │   ├── config.js               # Parámetros y constantes de versión
 │   ├── injector.js             # Pipeline de aprovisionamiento de perfiles
 │   ├── mini-nuvio.js           # Simulador visual interactivo
@@ -163,6 +164,7 @@ NuvioLatinoSetup/
 ## Créditos y Referencias
 
 - **Colección en Español Completa:** Reconocimiento a **DonPuercoTroll** por su curaduría de colecciones en español disponible en [Nuvio TV Community Collections](https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll).
+- **Fusion Badges & Stream Badges:** Paquetes visuales de distintivos de streams diseñados por [kingsizew](https://github.com/kingsizew/badges) (Tinted, Default Colored, Colored Outline, Solid, White, Mono White y Black) para Nuvio TV, Mobile y Desktop.
 - **AIOMetadata Addon:** Repositorio de código abierto desarrollado por [cedya77](https://github.com/cedya77/aiometadata).
 - **Canal de Soporte y Comunidad:** Canal oficial de discusión técnica y asistencia en [discord.gg/EubYtJVJEc](https://discord.gg/EubYtJVJEc).
 

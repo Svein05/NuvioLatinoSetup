@@ -15,7 +15,11 @@ class WizardState {
       tmdbEnrichment: true,
       mdblistRatings: true,
       posterEngine: 'default', // 'default' | 'betterposter' | 'postersplus'
-      customPosterUrl: ''
+      customPosterUrl: '',
+      badgesEnabled: false,
+      selectedBadgePack: 'tinted',
+      activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
+      badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms']
     };
 
     // Autenticación Nuvio (Supabase)

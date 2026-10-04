@@ -6,6 +6,13 @@ import { state } from './state.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { NuvioClient } from './nuvio-client.js';
 import { CONFIG } from './config.js';
+import { 
+  getBadgePackById, 
+  getBadgePackUrl,
+  isSectionActive,
+  getCanonicalModuleId,
+  compileUniversalBadgeRules
+} from './badge-packs.js';
 
 export class PipelineInjector {
   /**
@@ -183,7 +190,15 @@ export class PipelineInjector {
       const posterEngine = state.preferences?.posterEngine || 'default';
       const posterEngineLabel = posterEngine === 'betterposter' ? 'BetterPoster (btttr.cc)' : (posterEngine === 'postersplus' ? 'PostersPlus (stremio.ru)' : 'Default (Limpio)');
 
-      state.addLog(`Configurando perfil Nuvio: TMDB Enrichment = ${isEnrichmentActive ? 'ACTIVADO' : 'DESACTIVADO'}, Calificaciones MDBList = ${isRatingsActive ? 'ACTIVADO' : 'DESACTIVADO'} (Motor de Pósters: ${posterEngineLabel})...`, 'info');
+      const isBadgesActive = Boolean(state.preferences?.badgesEnabled);
+      let selectedBadgePack = null;
+      let badgePackUrl = '';
+      if (isBadgesActive) {
+        selectedBadgePack = getBadgePackById(state.preferences.selectedBadgePack);
+        badgePackUrl = getBadgePackUrl(state.preferences.selectedBadgePack);
+      }
+
+      state.addLog(`Configurando perfil Nuvio: TMDB Enrichment = ${isEnrichmentActive ? 'ACTIVADO' : 'DESACTIVADO'}, Calificaciones MDBList = ${isRatingsActive ? 'ACTIVADO' : 'DESACTIVADO'} (Pósters: ${posterEngineLabel}${isBadgesActive && selectedBadgePack ? `, Badges: ${selectedBadgePack.name}` : ''})...`, 'info');
 
       const profileSettingsPayload = {
         language: 'es-MX',
@@ -194,10 +209,59 @@ export class PipelineInjector {
         mdblist_api_key: isRatingsActive && hasMdblistKey ? state.apiKeys.mdblist.trim() : ''
       };
 
+      if (isBadgesActive && selectedBadgePack) {
+        state.addLog(`Compilando reglas universales e híbridas de badges: "${selectedBadgePack.name}"...`, 'info');
+
+        const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+        const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+
+        let compiled = { groups: [], filters: [] };
+        try {
+          compiled = await compileUniversalBadgeRules(selectedBadgePack, activeIds, orderIds);
+        } catch (compileErr) {
+          console.warn('[Injector] Error en compilación universal de badges:', compileErr);
+        }
+
+        const badgeRulesJson = {
+          imports: [
+            {
+              sourceUrl: 'custom://nuvio-badges-latino',
+              filters: compiled.filters,
+              groups: compiled.groups,
+              isActive: true
+            }
+          ]
+        };
+
+        const showFileSize = Boolean(activeIds.includes('size'));
+
+        profileSettingsPayload.stream_badge_settings = {
+          stream_badge_rules: {
+            type: 'string',
+            value: JSON.stringify(badgeRulesJson)
+          },
+          show_file_size_badges: {
+            type: 'boolean',
+            value: showFileSize
+          },
+          stream_badge_placement: {
+            type: 'string',
+            value: 'BOTTOM'
+          },
+          show_addon_logo: {
+            type: 'boolean',
+            value: false
+          }
+        };
+      }
+
       if (isSimulation) {
         await this.delay(400);
         state.addLog(`✓ [Simulado] TMDB Enrichment ${isEnrichmentActive ? 'activado' : 'desactivado'} en TV, Mobile y Desktop (es-MX).`, isEnrichmentActive ? 'success' : 'info');
         state.addLog(`✓ [Simulado] Calificaciones de MDBList ${isRatingsActive ? 'activadas con tu clave' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
+        if (isBadgesActive && selectedBadgePack) {
+          state.addLog(`✓ [Simulado] Fusion Badges configurados con estilo "${selectedBadgePack.name}" para TV, Mobile y Desktop.`, 'success');
+        }
       } else {
         for (const platform of ['tv', 'mobile', 'desktop']) {
           await NuvioClient.pushProfileSettings({
@@ -212,6 +276,9 @@ export class PipelineInjector {
         }
         state.addLog(`✓ TMDB Enrichment ${isEnrichmentActive ? 'activado exitosamente' : 'desactivado'} en es-MX (TV, Mobile y Desktop).`, isEnrichmentActive ? 'success' : 'info');
         state.addLog(`✓ Calificaciones de MDBList ${isRatingsActive ? 'activadas exitosamente' : 'desactivadas'} para TV, Mobile y Desktop.`, isRatingsActive ? 'success' : 'info');
+        if (isBadgesActive && selectedBadgePack) {
+          state.addLog(`✓ Fusion Badges configurados exitosamente con estilo "${selectedBadgePack.name}" para TV, Mobile y Desktop.`, 'success');
+        }
       }
 
       // ========================================================

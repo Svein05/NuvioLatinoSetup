@@ -1139,3 +1139,151 @@ header.lat-floating-nav nav {
   transform: translateY(8px) scale(0.96);
   opacity: 0;
 }
+
+/* ============================================================ */
+/* 14. TARJETAS DE PAQUETES DE BADGES (FUSION BADGES)          */
+/* ============================================================ */
+
+.badge-pack-card {
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.22s ease,
+              background-color 0.22s ease,
+              box-shadow 0.22s ease;
+  will-change: transform, box-shadow;
+}
+
+.badge-pack-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Animación Fluida para Contenedor de Badges (Accordion CSS Grid) */
+.badges-collapsible {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: 0 !important;
+  transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              margin-top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: grid-template-rows, opacity, margin-top;
+}
+
+.badges-collapsible:not(.is-open) {
+  margin-top: 0 !important;
+  pointer-events: none;
+}
+
+.badges-collapsible.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 1rem !important;
+}
+
+.badges-collapsible > .badges-collapsible-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Chips / Toggles de Módulos de Badges */
+.badge-module-pill:has(input:checked) {
+  border-color: rgba(255, 212, 121, 0.45) !important;
+  background-color: rgba(255, 212, 121, 0.08) !important;
+  color: #ffffff !important;
+}
+
+.badge-module-pill:has(input:checked) .check-indicator {
+  background-color: #ffd479 !important;
+  border-color: #ffd479 !important;
+}
+
+.badge-module-pill:has(input:checked) .check-indicator i {
+  opacity: 1 !important;
+}
+
+/* Chips y Controles de Reordenamiento de Secciones de Badges */
+.badge-order-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.badge-order-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 212, 121, 0.35);
+}
+
+.badge-order-btn {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.375rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.625rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.badge-order-btn:hover:not(:disabled) {
+  background: #ffd479;
+  color: #08090c;
+  transform: scale(1.08);
+}
+
+.badge-order-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* Cajas de secciones de badges auto-balanceadas */
+.badge-section-box {
+  flex: 1 1 200px;
+  min-width: 190px;
+  align-self: stretch;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Estilos y dimensiones garantizadas para chips e imágenes de badges */
+.badge-chip {
+  min-height: 24px;
+  min-width: 26px;
+  box-sizing: border-box;
+}
+
+.badge-chip img {
+  height: 14px;
+  max-height: 15px;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.badge-chip img.badge-flag-img {
+  width: 21px;
+  height: 14px;
+  aspect-ratio: 3 / 2;
+}
+
+.badge-chip img.badge-sub-img {
+  min-width: 28px;
+  height: 14px;
+  aspect-ratio: 2.1 / 1;
+}
+
+.badges-flow-container {
+  position: relative;
+  overflow: hidden;
+}
+

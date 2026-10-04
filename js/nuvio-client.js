@@ -672,6 +672,7 @@ export class NuvioClient {
       features: {
         tmdb_settings: tmdbFeatures,
         mdblist_settings: mdblistFeatures,
+        ...(settings.stream_badge_settings ? { stream_badge_settings: settings.stream_badge_settings } : {}),
         ...(settings.features || {})
       },
       // Preservar claves de nivel superior por retrocompatibilidad
