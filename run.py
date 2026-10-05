@@ -11,6 +11,10 @@ import time
 import os
 import sys
 
+import urllib.request
+import urllib.parse
+import urllib.error
+
 # Asegurar codificación UTF-8 en terminales Windows
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -24,12 +28,65 @@ os.chdir(BASE_DIR)
 DEFAULT_PORT = 8080
 
 class NoCacheHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-    """Manejador HTTP que deshabilita caché para desarrollo fluido"""
+    """Manejador HTTP que deshabilita caché y provee proxy local para llamadas externas con CORS"""
     def end_headers(self):
         self.send_header('Cache-Control', 'no-cache, no-store, must-revalidate')
         self.send_header('Pragma', 'no-cache')
         self.send_header('Expires', '0')
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
         super().end_headers()
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self.end_headers()
+
+    def do_POST(self):
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == '/api/proxy':
+            query = urllib.parse.parse_qs(parsed.query)
+            target_url = query.get('url', [''])[0]
+            if not target_url:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"error": "Falta el parametro ?url="}')
+                return
+
+            try:
+                length = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(length) if length > 0 else None
+                req = urllib.request.Request(
+                    target_url,
+                    data=body,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'User-Agent': 'NuvioSetup-LocalProxy/1.4'
+                    },
+                    method='POST'
+                )
+                with urllib.request.urlopen(req, timeout=12) as response:
+                    status = response.status
+                    resp_data = response.read()
+                    self.send_response(status)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(resp_data)
+            except urllib.error.HTTPError as e:
+                err_data = e.read()
+                self.send_response(e.code)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(err_data)
+            except Exception as e:
+                self.send_response(502)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(f'{{"error": "{str(e)}"}}'.encode('utf-8'))
+            return
+
+        super().do_POST()
 
 def open_browser(port):
     """Abre el navegador por defecto tras inicializar el servidor"""

@@ -327,24 +327,30 @@ export class PipelineInjector {
         for (const secAddon of secondaryAddons) {
           // Si es AIOStreams y aún no tiene manifest generado, aprovisionar en la instancia oficial
           if (secAddon.isAioStreams && !secAddon.manifest_url) {
-            state.addLog('Compilando y generando AIOStreams Latino con tus debrids y contraseña maestra...', 'info');
-            try {
-              let template = state.rawAioStreamsTemplate;
-              if (!template) {
-                const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
-                template = await fetchRes.json();
-                state.rawAioStreamsTemplate = template;
+            if (state.aiostreams.manifestUrl) {
+              secAddon.manifest_url = state.aiostreams.manifestUrl;
+              secAddon.url = state.aiostreams.manifestUrl;
+              state.addLog(`✓ Reutilizando manifiesto de AIOStreams generado previamente: ${secAddon.manifest_url}`, 'success');
+            } else {
+              state.addLog('Compilando y generando AIOStreams Latino con tus debrids y contraseña maestra...', 'info');
+              try {
+                let template = state.rawAioStreamsTemplate;
+                if (!template) {
+                  const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+                  template = await fetchRes.json();
+                  state.rawAioStreamsTemplate = template;
+                }
+                const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
+                const masterPassword = (state.aiometadata.password || '').trim() || 'NuvioSetupMaster2026';
+                const aioUserRes = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPassword);
+                secAddon.manifest_url = aioUserRes.manifestUrl;
+                secAddon.url = aioUserRes.manifestUrl;
+                state.aiostreams.manifestUrl = aioUserRes.manifestUrl;
+                state.addLog(`✓ AIOStreams Latino generado exitosamente: ${aioUserRes.manifestUrl}`, 'success');
+              } catch (aioErr) {
+                state.addLog(`❌ Error al generar AIOStreams en la instancia oficial: ${aioErr.message}`, 'error');
+                throw aioErr;
               }
-              const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
-              const masterPassword = (state.aiometadata.password || '').trim() || 'NuvioSetupMaster2026';
-              const aioUserRes = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPassword);
-              secAddon.manifest_url = aioUserRes.manifestUrl;
-              secAddon.url = aioUserRes.manifestUrl;
-              state.aiostreams.manifestUrl = aioUserRes.manifestUrl;
-              state.addLog(`✓ AIOStreams Latino generado exitosamente: ${aioUserRes.manifestUrl}`, 'success');
-            } catch (aioErr) {
-              state.addLog(`❌ Error al generar AIOStreams en la instancia oficial: ${aioErr.message}`, 'error');
-              throw aioErr;
             }
           }
 

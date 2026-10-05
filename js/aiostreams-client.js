@@ -272,50 +272,56 @@ export class AIOStreamsClient {
     let response = null;
     let lastError = null;
 
-    // Intento 1: Llamada directa a la instancia
-    try {
-      response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      });
-    } catch (directErr) {
-      console.warn('[AIOStreamsClient] Llamada directa falló (posible restricción CORS):', directErr.message);
-      lastError = directErr;
+    // Detectar si la aplicación corre localmente en localhost
+    const isLocalhost = typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    // Lista de rutas de conexión priorizadas para superar restricciones CORS del servidor AIOStreams
+    const candidateUrls = [];
+    if (isLocalhost) {
+      const port = window.location.port ? `:${window.location.port}` : '';
+      candidateUrls.push(`${window.location.protocol}//${window.location.hostname}${port}/api/proxy?url=${encodeURIComponent(endpoint)}`);
     }
+    candidateUrls.push(`https://cors.eu.org/${endpoint}`);
+    candidateUrls.push(endpoint);
 
-    // Intento 2: Fallback mediante proxy local o de reenvío si la llamada directa fue bloqueada por el navegador
-    if (!response || !response.ok) {
-      if (response && !response.ok) {
-        let errDetail = '';
-        try {
-          const errJson = await response.json();
-          errDetail = errJson.error?.message || errJson.detail || JSON.stringify(errJson);
-        } catch (_) {
-          errDetail = await response.text().catch(() => '');
+    for (const url of candidateUrls) {
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 9000);
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+
+        if (res && res.ok) {
+          response = res;
+          break;
+        } else if (res && !res.ok) {
+          // El servidor respondió con un error específico (ej. configuración rechazada)
+          let errDetail = '';
+          try {
+            const errJson = await res.json();
+            errDetail = errJson.error?.message || errJson.detail || JSON.stringify(errJson);
+          } catch (_) {
+            errDetail = await res.text().catch(() => '');
+          }
+          if (res.status === 400 || res.status === 422) {
+            throw new Error(`AIOStreams rechazó la configuración (HTTP ${res.status}): ${errDetail}`);
+          }
+          lastError = new Error(`HTTP ${res.status}: ${errDetail}`);
         }
-        throw new Error(`AIOStreams rechazó la configuración (HTTP ${response.status}): ${errDetail}`);
-      }
-
-      // Si fue error de red/CORS puro, intentar mediante proxy CORS de respaldo
-      const fallbackProxies = [
-        `https://corsproxy.io/?${encodeURIComponent(endpoint)}`,
-        `https://proxy.cors.sh/${endpoint}`
-      ];
-
-      for (const proxyUrl of fallbackProxies) {
-        try {
-          response = await fetch(proxyUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestBody)
-          });
-          if (response && response.ok) break;
-        } catch (_) {}
+      } catch (reqErr) {
+        if (reqErr.message && reqErr.message.includes('rechazó la configuración')) {
+          throw reqErr;
+        }
+        console.warn(`[AIOStreamsClient] Intento falló vía ${url.substring(0, 45)}:`, reqErr.message);
+        lastError = reqErr;
       }
     }
 
