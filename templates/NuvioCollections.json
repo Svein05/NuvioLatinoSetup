@@ -661,7 +661,7 @@
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_backdrop.jpg"
       }
     ],
-    "pinToTop": false,
+    "pinToTop": true,
     "viewMode": "TABBED_GRID",
     "showAllTab": false,
     "backdropImageUrl": null,
@@ -1759,7 +1759,7 @@
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_backdrop.jpg"
       }
     ],
-    "pinToTop": false,
+    "pinToTop": true,
     "viewMode": "FOLLOW_LAYOUT",
     "showAllTab": false,
     "backdropImageUrl": null,
@@ -3365,7 +3365,7 @@
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_conciertos_biopic_backdrop.jpg"
       }
     ],
-    "pinToTop": false,
+    "pinToTop": true,
     "viewMode": "FOLLOW_LAYOUT",
     "showAllTab": false,
     "backdropImageUrl": null,
@@ -3757,7 +3757,7 @@
         "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_backdrop.jpg"
       }
     ],
-    "pinToTop": false,
+    "pinToTop": true,
     "viewMode": "TABBED_GRID",
     "showAllTab": false,
     "backdropImageUrl": null,

@@ -8,18 +8,18 @@
   <link rel="apple-touch-icon" href="../assets/logo/logo.jpg" />
   
   <!-- Metadatos SEO -->
-  <meta name="description" content="Configura y organiza tu Nuvio automáticamente en solo 6 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
   <meta name="theme-color" content="#6366f1" />
   <meta name="author" content="Svein" />
 
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://svein05.github.io/NuvioLatinoSetup/documentation/" />
   <meta property="og:title" content="Nuvio Metadata Latino" />
-  <meta property="og:description" content="Configura y organiza tu Nuvio automáticamente en solo 6 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta property="og:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
   <meta property="og:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Nuvio Metadata Latino" />
-  <meta name="twitter:description" content="Configura y organiza tu Nuvio automáticamente en solo 6 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="twitter:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
   <meta name="twitter:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
   
   <!-- Fuentes LAT-ADD (Instrument Sans & Instrument Serif) -->
@@ -64,27 +64,72 @@
     <a href="../" class="lat-floating-pill px-2.5 sm:px-5 py-2 sm:py-2.5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
       <span class="text-sm sm:text-[15px] font-semibold tracking-wide text-white hidden md:inline">Metadata Latino</span>
-      <span class="app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hidden sm:inline">v1.4.0</span>
+      <span class="app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hidden sm:inline">v1.5.0</span>
     </a>
 
     <!-- Cápsula Central: Tabs de Navegación Segmentada (Solo íconos en móvil, texto en sm:) -->
-    <nav class="lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium">
+    <nav class="lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium">
       <a href="../" class="lat-nav-tab" aria-label="Inicio" title="Inicio">
-        <i class="fa-solid fa-house text-xs"></i>
+        <i class="fa-solid fa-house text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Inicio</span>
       </a>
       <a href="../configuration/" class="lat-nav-tab" aria-label="Asistente" title="Asistente">
-        <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+        <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Asistente</span>
       </a>
       <a href="./" class="lat-nav-tab is-active" aria-label="Documentación" title="Documentación">
-        <i class="fa-solid fa-book-open text-xs"></i>
+        <i class="fa-solid fa-book-open text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Documentación</span>
       </a>
     </nav>
 
-    <!-- Cápsula Derecha: Discord + GitHub -->
-    <div class="flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
+    <!-- Cápsula Derecha Móvil / Tablet Angosta (< 768px): Cápsula Circular con Dropdown Vertical -->
+    <div class="relative md:hidden pointer-events-auto shrink-0 lat-mobile-nav-cluster">
+      <button id="btnMobileHeaderMenu"
+              type="button"
+              class="lat-floating-pill px-3 py-2 sm:py-2.5 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
+              title="Enlaces Rápidos y Contador"
+              aria-label="Abrir enlaces rápidos">
+        <i class="fa-solid fa-layer-group text-sm"></i>
+      </button>
+
+      <!-- Dropdown Flotante Vertical hacia Abajo (Efecto Glass) -->
+      <div id="mobileHeaderDropdown" class="lat-mobile-dropdown">
+        <div class="lat-mobile-dropdown-item completions-counter-pill text-emerald-400 font-mono font-semibold" title="Setups Completados">
+          <i class="fa-solid fa-users text-emerald-400 text-xs"></i>
+          <span class="completions-count-compact text-xs">--</span>
+        </div>
+        <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer"
+           class="lat-mobile-dropdown-item text-[#a5b4fc] hover:text-white" title="Comunidad Discord LAT-ADD">
+          <i class="fa-brands fa-discord text-sm text-[#5865F2]"></i>
+        </a>
+        <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer"
+           class="lat-mobile-dropdown-item text-white/80 hover:text-white" title="Repositorio en GitHub">
+          <i class="fa-brands fa-github text-sm"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Cápsula Derecha para Tablet y Desktop (>= 768px): Contador + Discord + GitHub -->
+    <div class="hidden md:flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
+      <!-- Pastilla Dinámica: Contador de Setups Completados -->
+      <div id="completionsCounterPill"
+           class="lat-floating-pill completions-counter-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer group select-none text-emerald-400 shrink-0 hover:bg-white/[0.12] transition-all"
+           title="Setups Completados">
+        <i class="fa-solid fa-users text-sm sm:text-base text-emerald-400 group-hover:scale-105 transition-all duration-200 shrink-0"></i>
+        
+        <!-- Número Compacto en Reposo (ej: 150, 1.5k, 2M) -->
+        <span class="completions-count-compact font-mono font-semibold text-emerald-400 shrink-0">--</span>
+
+        <!-- Bloque Expandible en Hover (Solo en Desktop >= 1024px) -->
+        <div class="completions-expanded-wrap">
+          <span class="completions-count-full font-mono font-semibold text-emerald-400 shrink-0">--</span>
+          <span class="text-emerald-400/90 font-normal text-xs sm:text-sm tracking-tight whitespace-nowrap">
+            Setups Completados
+          </span>
+        </div>
+      </div>
+
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
          class="lat-floating-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
         <i class="fa-brands fa-discord text-sm sm:text-base text-[#5865F2]"></i>
@@ -165,7 +210,7 @@
 
       <!-- 3. Guía Paso a Paso -->
       <section id="guia-pasos" class="space-y-6 pt-6 border-t border-white/[0.08]">
-        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">3. Guía del Asistente en 6 Pasos</h2>
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">3. Guía del Asistente en 7 Pasos</h2>
         <div class="space-y-4">
           
           <!-- Paso 1 -->
@@ -186,7 +231,7 @@
               <h3 class="font-semibold text-white text-base">Paso 2: Selección o Creación de Perfil</h3>
             </div>
             <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
-              El asistente descargará tus perfiles de Nuvio. Recomendamos pulsar en <strong>"Nuevo Perfil"</strong> (ej. <em>"Latino"</em>) para no sobreescribir tus configuraciones previas, aunque también puedes elegir tu perfil Principal si deseas limpiarlo.
+              El asistente descargará tus perfiles de Nuvio. Puedes seleccionar un perfil existente o crear un <strong>"Nuevo Perfil"</strong> (ej. <em>"Latino"</em>). El asistente te mostrará avisos contextuales claros indicando si se actualizará AIOMetadata como #1 o si se instalará por primera vez, garantizando siempre la preservación intacta de tus addons de streaming preexistentes.
             </p>
           </div>
 
@@ -219,7 +264,7 @@
               <h3 class="font-semibold text-white text-base">Paso 5: Preferencias de Perfil y Sistema de Pósters</h3>
             </div>
             <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
-              Decide si activar TMDB Enrichment y calificaciones globales de MDBList en tus aplicaciones de Nuvio (si las desactivas, quedan estrictamente deshabilitadas en tu perfil). Además, elige el sistema de pósters que prefieras: <strong>AioMetadata</strong> (carátulas limpias directas de TMDB), <strong>BetterPoster</strong> (estilo minimalista con logos en es-MX) o <strong>Poster+</strong> (calificaciones mixtas Letterboxd/Trakt y bandas cinemáticas), con previsualización sincronizada y botones directos para personalizar en sus respectivas webs oficiales.
+              Decide si activar TMDB Enrichment y calificaciones globales de MDBList en tus aplicaciones de Nuvio (si las desactivas, quedan estrictamente deshabilitadas en tu perfil). Además, personaliza tus Fusion Badges de streams y elige el sistema de pósters que prefieras: <strong>AioMetadata</strong> (carátulas limpias directas de TMDB), <strong>BetterPoster</strong> (estilo minimalista con logos en es-MX) o <strong>Poster+</strong> (calificaciones mixtas Letterboxd/Trakt y bandas cinemáticas), con previsualización sincronizada.
             </p>
           </div>
 
@@ -227,10 +272,21 @@
           <div class="p-5 rounded-2xl lat-card space-y-2">
             <div class="flex items-center gap-3">
               <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">6</span>
-              <h3 class="font-semibold text-white text-base">Paso 6: Seguridad e Inyección Automatizada</h3>
+              <h3 class="font-semibold text-white text-base">Paso 6: Gestor de Addons del Perfil</h3>
             </div>
             <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
-              Define una contraseña para proteger tu addon de AIOMetadata (o genera una aleatoria). Haz clic en <strong>"Ejecutar Configuración Automática"</strong>. El sistema limpiará las colecciones previas del perfil, creará el manifiesto en AIOMetadata con la configuración elegida y registrará las colecciones 16:9 en Nuvio en cuestión de segundos.
+              Controla y reorganiza los addons de tu perfil en Nuvio. <strong>AIOMetadata</strong> queda anclado en la posición prioritaria #1 para gobernar las búsquedas y fichas latinas. Debajo, tus addons de streaming existentes (AIOStreams, ADD-LAT, Torbox, Torrentio, CineTorrent, etc.) se pueden subir (▲) o bajar (▼) de prioridad, eliminar o agregar mediante enlaces manifest URL.
+            </p>
+          </div>
+
+          <!-- Paso 7 -->
+          <div class="p-5 rounded-2xl lat-card space-y-2">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-full bg-white text-black font-bold text-xs flex items-center justify-center shadow-sm">7</span>
+              <h3 class="font-semibold text-white text-base">Paso 7: Seguridad e Inyección Automatizada</h3>
+            </div>
+            <p class="text-xs sm:text-sm text-white/70 leading-relaxed pl-10">
+              Define una contraseña para proteger tu addon de AIOMetadata (o genera una aleatoria). Haz clic en <strong>"Ejecutar Configuración Automática"</strong>. El sistema actualizará AIOMetadata en la posición #1, sincronizará el orden de tus addons de streaming respetando los existentes y registrará las colecciones 16:9 en Nuvio de forma inmediata.
             </p>
           </div>
 
@@ -438,6 +494,25 @@
             </div>
           </div>
 
+          <!-- Crédito a kingsizew por paquetes de badges -->
+          <div class="border-t border-white/[0.08] pt-4 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-indigo-400 flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-tags text-indigo-400"></i>
+            </div>
+            <div class="space-y-1">
+              <h4 class="font-semibold text-white text-base">Fusion Badges & Stream Badges (kingsizew)</h4>
+              <p class="text-xs text-white/70 leading-relaxed font-light">
+                Agradecimiento especial y créditos a <strong>kingsizew</strong> por el diseño de los paquetes visuales de distintivos de streams (Tinted, Default Colored, Colored Outline, Solid, White, Mono White y Black) integrados en el asistente para Nuvio TV, Mobile y Desktop.
+              </p>
+              <div class="pt-3">
+                <a href="https://github.com/kingsizew/badges" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn-solid text-xs !py-2 !px-4 inline-flex items-center gap-2">
+                  <i class="fa-brands fa-github text-xs"></i>
+                  <span>Ver Repositorio de Badges (kingsizew/badges)</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
           <div class="border-t border-white/[0.08] pt-4 flex items-center justify-between text-xs text-white/60">
             <span>Comunidad Discord Latino & Addon LAT-ADD</span>
             <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4">Unirse al Discord</a>
@@ -463,7 +538,7 @@
         </p>
         <div class="pt-2 text-[11px] text-white/40 space-y-1">
           <div>© 2025-2026 Nuvio Latino Setup</div>
-          <div>Versión <span class="font-mono text-white/80 font-medium">v1.3.0</span> • Licencia MIT</div>
+          <div>Versión <span class="font-mono text-white/80 font-medium">v1.5.0</span> • Licencia MIT</div>
           <div class="text-[10px] text-white/30">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
         </div>
       </div>
@@ -479,6 +554,12 @@
             <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-white/40 group-hover:text-white"></i>
               <span class="font-medium text-white/80 group-hover:text-white">Colección DonPuercoTroll</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/kingsizew/badges" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-tags text-[10px] text-indigo-400 group-hover:text-white"></i>
+              <span class="font-medium text-white/80 group-hover:text-white">Badges kingsizew</span>
             </a>
           </li>
           <li>
@@ -565,5 +646,10 @@
   <script type="module" src="../js/version.js"></script>
   <!-- Barra de navegación con indicador deslizante animado -->
   <script type="module" src="../js/nav-indicator.js"></script>
+  <!-- Inicializador del Contador Global de Configuraciones -->
+  <script type="module">
+    import { initCompletionsCounterUI } from '../js/counter.js';
+    initCompletionsCounterUI();
+  </script>
 </body>
 </html>

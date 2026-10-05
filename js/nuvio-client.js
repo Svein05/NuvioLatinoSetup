@@ -2,6 +2,8 @@
  * Cliente de Integración con el Backend Supabase de Nuvio (api.nuvio.tv)
  * Maneja Autenticación, Procedimientos Almacenados (RPC), Addons y Colecciones.
  */
+import { CONFIG } from './config.js';
+
 export class NuvioClient {
   /**
    * Ejecutor genérico de procedimientos almacenados RPC de Supabase
@@ -145,14 +147,20 @@ export class NuvioClient {
 
       const list = Array.isArray(data) ? data : (data?.profiles || []);
       if (list.length > 0) {
-        return list.map(p => {
-          const profileIndex = p.profile_index ?? p.id ?? 1;
+        return list.map((p, idx) => {
+          const profileIndex = Number(p.profile_index ?? p.profile_id ?? p.id ?? (idx + 1));
           const name = String(p.name || '').trim() || `Perfil ${profileIndex}`;
           return {
             id: profileIndex,
             profile_index: profileIndex,
+            profile_id: p.profile_id != null ? Number(p.profile_id) : profileIndex,
+            uuid: (typeof p.id === 'string' && p.id.includes('-')) ? p.id : (p.uuid || null),
             name: name,
-            avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`
+            avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
+            avatar_color_hex: p.avatar_color_hex || '#6366F1',
+            avatar_id: p.avatar_id ?? null,
+            uses_primary_addons: Boolean(p.uses_primary_addons),
+            uses_primary_plugins: Boolean(p.uses_primary_plugins)
           };
         });
       }
@@ -180,12 +188,22 @@ export class NuvioClient {
       }
 
       const profiles = await response.json();
-      return Array.isArray(profiles) ? profiles.map((p, idx) => ({
-        id: p.profile_index ?? p.id ?? (idx + 1),
-        profile_index: p.profile_index ?? (idx + 1),
-        name: p.name || `Perfil ${idx + 1}`,
-        avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(p.name || idx)}`
-      })) : [];
+      return Array.isArray(profiles) ? profiles.map((p, idx) => {
+        const profileIndex = Number(p.profile_index ?? p.profile_id ?? (idx + 1));
+        const name = String(p.name || '').trim() || `Perfil ${profileIndex}`;
+        return {
+          id: profileIndex,
+          profile_index: profileIndex,
+          profile_id: p.profile_id != null ? Number(p.profile_id) : profileIndex,
+          uuid: (typeof p.id === 'string' && p.id.includes('-')) ? p.id : (p.uuid || null),
+          name: name,
+          avatar_url: p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(p.name || idx)}`,
+          avatar_color_hex: p.avatar_color_hex || '#6366F1',
+          avatar_id: p.avatar_id ?? null,
+          uses_primary_addons: Boolean(p.uses_primary_addons),
+          uses_primary_plugins: Boolean(p.uses_primary_plugins)
+        };
+      }) : [];
     } catch (err) {
       console.error('[NuvioClient] Error obteniendo perfiles:', err);
       throw new Error(`Fallo al obtener perfiles de Nuvio: ${err.message}`);
@@ -246,7 +264,11 @@ export class NuvioClient {
         apikey,
         accessToken,
         path: 'sync_push_profiles',
-        body: { p_profiles: allProfiles }
+        body: {
+          p_profiles: allProfiles,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
       });
 
       // Limpiar addons por defecto (nuvio catalog addon y opensubtitles) para que el perfil inicie limpio
@@ -303,6 +325,158 @@ export class NuvioClient {
       console.error('[NuvioClient] Error creando perfil:', err);
       throw new Error(`Fallo al crear perfil en Nuvio: ${err.message}`);
     }
+  }
+
+  /**
+   * Elimina un perfil de la cuenta de Nuvio mediante pipeline multi-vector:
+   * 1. RPC sync_delete_profile_data (procedimiento oficial de Nuvio).
+   * 2. Limpieza de addons y colecciones asociadas.
+   * 3. DELETE directo en tabla PostgREST /rest/v1/profiles.
+   * 4. Sincronización de perfiles restantes vía sync_push_profiles.
+   * 5. Verificación fresca contra el backend de Nuvio.
+   */
+  static async deleteProfile({ apiUrl, apikey, accessToken, userId, profileId }) {
+    const targetId = Number(profileId);
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    // 1. Obtener lista actual de perfiles para identificar UUID y restantes
+    let existing = [];
+    try {
+      existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+    } catch (fetchErr) {
+      console.warn('[NuvioClient] Error obteniendo perfiles previos a eliminación:', fetchErr);
+    }
+
+    const targetProfile = existing.find(p => Number(p.profile_index ?? p.id) === targetId);
+    const targetUuid = targetProfile?.uuid || null;
+
+    const remainingProfiles = existing
+      .filter(p => Number(p.profile_index ?? p.id) !== targetId)
+      .map(p => ({
+        profile_index: Number(p.profile_index ?? p.id),
+        name: p.name,
+        avatar_color_hex: p.avatar_color_hex || '#6366F1',
+        uses_primary_addons: Boolean(p.uses_primary_addons),
+        uses_primary_plugins: Boolean(p.uses_primary_plugins),
+        avatar_id: p.avatar_id ?? null,
+        avatar_url: p.avatar_url
+      }));
+
+    // Resolver sync_owner de la cuenta
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    // Vector 1: RPC oficial sync_delete_profile_data de Nuvio
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_delete_profile_data',
+        body: {
+          p_profile_id: targetId,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+      console.log(`[NuvioClient] sync_delete_profile_data ejecutado exitosamente para perfil ${targetId}`);
+    } catch (rpcDelErr) {
+      console.warn('[NuvioClient] sync_delete_profile_data no disponible o falló:', rpcDelErr.message);
+    }
+
+    // Vector 2: Limpieza de addons huérfanos del perfil
+    try {
+      await this.cleanProfileAddons({ apiUrl, apikey, accessToken, userId, profileId: targetId });
+    } catch (addonErr) {
+      console.warn('[NuvioClient] cleanProfileAddons durante eliminación falló:', addonErr.message);
+    }
+
+    // Vector 3: Limpieza de colecciones asociadas al perfil en /rest/v1/collections
+    try {
+      const colFilters = [
+        `profile_id=eq.${encodeURIComponent(targetId)}`,
+        `user_id=eq.${encodeURIComponent(ownerId)}&profile_id=eq.${encodeURIComponent(targetId)}`
+      ];
+      for (const filter of colFilters) {
+        await fetch(`${cleanUrl}/rest/v1/collections?${filter}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }).catch(() => {});
+      }
+    } catch (_) {}
+
+    // Vector 4: Eliminación directa en la tabla PostgREST /rest/v1/profiles
+    const restDeleteAttempts = [];
+    if (targetUuid) {
+      restDeleteAttempts.push(`id=eq.${encodeURIComponent(targetUuid)}`);
+    }
+    restDeleteAttempts.push(`profile_index=eq.${encodeURIComponent(targetId)}`);
+    restDeleteAttempts.push(`profile_id=eq.${encodeURIComponent(targetId)}`);
+    if (ownerId) {
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(ownerId)}&profile_index=eq.${encodeURIComponent(targetId)}`);
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(ownerId)}&profile_id=eq.${encodeURIComponent(targetId)}`);
+    }
+    if (userId && userId !== ownerId) {
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(userId)}&profile_index=eq.${encodeURIComponent(targetId)}`);
+      restDeleteAttempts.push(`user_id=eq.${encodeURIComponent(userId)}&profile_id=eq.${encodeURIComponent(targetId)}`);
+    }
+
+    for (const filter of restDeleteAttempts) {
+      try {
+        await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+          method: 'DELETE',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Accept': 'application/json',
+            'Prefer': 'return=representation'
+          }
+        });
+      } catch (delErr) {
+        console.warn(`[NuvioClient] DELETE /rest/v1/profiles?${filter} falló:`, delErr.message);
+      }
+    }
+
+    // Vector 5: Sincronización oficial del array restante mediante sync_push_profiles
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profiles',
+        body: {
+          p_profiles: remainingProfiles,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+    } catch (pushErr) {
+      console.warn('[NuvioClient] sync_push_profiles falló tras eliminar perfil:', pushErr.message);
+    }
+
+    // Vector 6: Verificación fresca en el backend de Nuvio
+    let freshProfiles = remainingProfiles;
+    try {
+      freshProfiles = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+      const stillPresent = freshProfiles.some(p => Number(p.profile_index ?? p.id) === targetId);
+      if (stillPresent) {
+        throw new Error(`El perfil ${targetId} aún figura en Nuvio tras la eliminación. Verifica que no sea el perfil principal o único de la cuenta.`);
+      }
+    } catch (verifyErr) {
+      if (verifyErr.message?.includes('aún figura en Nuvio')) {
+        throw verifyErr;
+      }
+      console.warn('[NuvioClient] No se pudo verificar perfiles post-eliminación:', verifyErr.message);
+    }
+
+    return {
+      success: true,
+      remainingProfiles: freshProfiles
+    };
   }
 
   /**
@@ -382,9 +556,15 @@ export class NuvioClient {
           const errorText = await singleResponse.text();
           throw new Error(`Error instalando addon (${singleResponse.status}): ${errorText}`);
         }
+
+        const singleData = await singleResponse.json().catch(() => null);
+        const addonId = (Array.isArray(singleData) ? singleData[0]?.id : singleData?.id) || null;
+        return { success: true, addonId };
       }
 
-      return { success: true };
+      const resData = await response.json().catch(() => null);
+      const addonId = (Array.isArray(resData) ? resData[0]?.id : resData?.id) || null;
+      return { success: true, addonId };
     } catch (err) {
       console.error('[NuvioClient] Error registrando addon:', err);
       throw new Error(`Fallo al instalar addon en Nuvio: ${err.message}`);
@@ -471,6 +651,209 @@ export class NuvioClient {
       }
     } catch (_) {}
     return [];
+  }
+
+  /**
+   * Elimina un addon específico de un perfil por su ID
+   */
+  static async deleteAddon({ apiUrl, apikey, accessToken, addonId, profileId }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const profId = Number(profileId) || profileId;
+
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}&profile_id=eq.${encodeURIComponent(profId)}`;
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      return response.ok;
+    } catch (err) {
+      console.warn(`[NuvioClient] Error eliminando addon ${addonId}:`, err);
+      return false;
+    }
+  }
+
+  /**
+   * Actualiza el orden (sort_order) de un addon existente
+   */
+  static async updateAddonOrder({ apiUrl, apikey, accessToken, addonId, sortOrder }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}`;
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ sort_order: Number(sortOrder) })
+      });
+      return response.ok;
+    } catch (err) {
+      console.warn(`[NuvioClient] Error actualizando sort_order de addon ${addonId}:`, err);
+      return false;
+    }
+  }
+
+  /**
+   * Instala o actualiza el addon principal AIOMetadata en la posición #1,
+   * garantizando que cualquier duplicado previo en Nuvio sea eliminado para que
+   * nunca coexistan dos addons de metadatos en la cuenta.
+   */
+  static async installOrUpdateAioAddon({ apiUrl, apikey, accessToken, userId, profileId, manifestUrl, existingAioId }) {
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const profId = Number(profileId) || profileId;
+
+    // 1. Consultar lista viva de addons del perfil en Nuvio
+    let liveAddons = [];
+    try {
+      liveAddons = await this.listAddons({ apiUrl, apikey, accessToken, userId, profileId: profId });
+    } catch (listErr) {
+      console.warn('[NuvioClient] Error listando addons para sanear AIOMetadata:', listErr.message);
+    }
+
+    // 2. Detectar todos los addons de AIOMetadata existentes en el perfil de Nuvio
+    const aioMatches = liveAddons.filter(a => {
+      const name = String(a?.name || '').toLowerCase().trim();
+      const url = String(a?.url || a?.manifest_url || '').toLowerCase().trim();
+      if (name.includes('aiostreams') || url.includes('aiostreams')) return false;
+      if (name.includes('aiometadata') || name === 'aiometa') return true;
+      if (url.includes('aiometadata')) return true;
+      const instances = Array.isArray(CONFIG.AIOMETADATA_INSTANCES) ? CONFIG.AIOMETADATA_INSTANCES : [];
+      return instances.some(inst => {
+        const host = inst.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
+        return host && url.includes(host);
+      });
+    });
+
+    // 3. Determinar el ID a reutilizar y actualizar
+    let targetAioId = existingAioId;
+    if (!targetAioId && aioMatches.length > 0) {
+      targetAioId = aioMatches[0].id;
+    }
+
+    // 4. ELIMINAR terminantemente cualquier otro AIOMetadata duplicado en Nuvio
+    for (const match of aioMatches) {
+      if (match.id && String(match.id) !== String(targetAioId)) {
+        try {
+          await this.deleteAddon({ apiUrl, apikey, accessToken, addonId: match.id, profileId: profId });
+          console.log(`[NuvioClient] Addon AIOMetadata duplicado eliminado de Nuvio (ID: ${match.id})`);
+        } catch (_) {}
+      }
+    }
+
+    // 5. Si existe un AIOMetadata previo, actualizarlo con PATCH
+    if (targetAioId) {
+      try {
+        const patchEndpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(targetAioId)}`;
+        const patchRes = await fetch(patchEndpoint, {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({
+            url: manifestUrl,
+            manifest_url: manifestUrl,
+            transport_url: manifestUrl,
+            name: 'AIOMetadata',
+            sort_order: 1,
+            enabled: true
+          })
+        });
+
+        if (patchRes.ok) {
+          return { success: true, updated: true, addonId: targetAioId };
+        }
+      } catch (patchErr) {
+        console.warn('[NuvioClient] Falló PATCH de AIOMetadata existente, reinstalando limpio:', patchErr.message);
+        try {
+          await this.deleteAddon({ apiUrl, apikey, accessToken, addonId: targetAioId, profileId: profId });
+        } catch (_) {}
+      }
+    }
+
+    // 6. Si no existía ninguno (o el PATCH falló), registrar como nuevo en posición 1
+    const installed = await this.installAddon({
+      apiUrl,
+      apikey,
+      accessToken,
+      userId,
+      addonData: {
+        profile_id: profId,
+        manifest_url: manifestUrl,
+        url: manifestUrl,
+        name: 'AIOMetadata',
+        sort_order: 1
+      }
+    });
+
+    return { success: true, installed: true, addonId: installed?.addonId || null };
+  }
+
+  /**
+   * Sincroniza la lista completa de addons de un perfil en Nuvio
+   */
+  static async syncAddonsOrder({ apiUrl, apikey, accessToken, userId, profileId, addons }) {
+    const profId = Number(profileId) || profileId;
+    let ownerId = userId;
+    try {
+      ownerId = await this.getSyncOwner({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    // 1. Actualizar sort_order de cada addon existente en la tabla
+    const updatePromises = (addons || []).map(addon => {
+      if (addon.id) {
+        return this.updateAddonOrder({
+          apiUrl,
+          apikey,
+          accessToken,
+          addonId: addon.id,
+          sortOrder: addon.sort_order
+        });
+      }
+      return Promise.resolve(true);
+    });
+
+    await Promise.all(updatePromises);
+
+    // 2. Invocar RPC sync_push_addons si está disponible en Nuvio
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_addons',
+        body: {
+          p_profile_id: profId,
+          p_addons: addons.map(a => ({
+            id: a.id || undefined,
+            user_id: ownerId,
+            profile_id: profId,
+            name: a.name,
+            url: a.manifest_url || a.url,
+            manifest_url: a.manifest_url || a.url,
+            sort_order: a.sort_order,
+            enabled: a.enabled !== false
+          }))
+        }
+      });
+    } catch (_) {}
+
+    return { success: true };
   }
 
   /**
@@ -672,6 +1055,7 @@ export class NuvioClient {
       features: {
         tmdb_settings: tmdbFeatures,
         mdblist_settings: mdblistFeatures,
+        ...(settings.stream_badge_settings ? { stream_badge_settings: settings.stream_badge_settings } : {}),
         ...(settings.features || {})
       },
       // Preservar claves de nivel superior por retrocompatibilidad

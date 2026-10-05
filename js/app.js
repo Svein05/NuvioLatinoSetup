@@ -2,11 +2,26 @@
  * Controlador Principal de la Aplicación (UI y Eventos)
  * Nuvio & AIOMetadata Auto-Setup Wizard
  */
-import { state } from './state.js';
+import { state, isAioMetadataAddon } from './state.js';
 import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
+import { AIOStreamsClient } from './aiostreams-client.js';
+import { 
+  BADGE_PACKS, 
+  getBadgePackById, 
+  getBadgePackUrl, 
+  addCustomBadgePack,
+  BADGE_MODULE_DEFINITIONS,
+  getBadgeModuleLabel,
+  getPackSectionsOrdered,
+  normalizeBadgeColor,
+  getCanonicalModuleId,
+  isSectionActive,
+  compileUniversalBadgeRules
+} from './badge-packs.js';
+import { initCompletionsCounterUI, recordSuccessfulCompletion } from './counter.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 export const DEMO_POSTERS = [
@@ -265,6 +280,7 @@ class AppController {
     this.posterRotationTimer = null;
     this.posterDeck = [];
     this.isTransitioningPoster = false;
+    this.profilePendingDelete = null;
     this.nextDemoPoster = this.nextDemoPoster.bind(this);
     this.prevDemoPoster = this.prevDemoPoster.bind(this);
   }
@@ -275,6 +291,9 @@ class AppController {
     window.miniNuvioInstance = this.miniNuvio;
     window.appController = this;
 
+    // Inicializar contador global de configuraciones
+    initCompletionsCounterUI();
+
     await state.loadTemplates();
     this.miniNuvio.init();
 
@@ -284,7 +303,8 @@ class AppController {
     this.setupStep2Profiles();
     this.setupStep3ApiKeys();
     this.setupStep5Preferences();
-    this.setupStep6Injection();
+    this.setupStep6AddonsManager();
+    this.setupStep7Injection();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -651,7 +671,7 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 2, 3, 5 o 6, refrescar o sincronizar vistas
+    // Si estamos en el paso 2, 3, 5, 6 o 7, refrescar o sincronizar vistas
     if (currentStep === 2) {
       this.renderProfiles();
     } else if (currentStep === 3) {
@@ -661,6 +681,9 @@ class AppController {
       this.updatePreferencesUI();
       this.startPosterRotation();
     } else if (currentStep === 6) {
+      state.unlockStep(7);
+      this.renderAddonsManager();
+    } else if (currentStep === 7) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
       if (state.isManualMode) {
@@ -677,8 +700,8 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
-      this.refreshStep6Summary();
-      this.updateStep6ExecuteButton();
+      this.refreshStep7Summary();
+      this.updateStep7ExecuteButton();
     }
 
     // Rotación sincronizada de demostración activa exclusivamente en el Paso 5
@@ -707,6 +730,10 @@ class AppController {
   }
 
   updateStep6ExecuteButton() {
+    this.updateStep7ExecuteButton();
+  }
+
+  updateStep7ExecuteButton() {
     const btnExecute = document.getElementById('btnExecutePipeline');
     if (!btnExecute) return;
 
@@ -720,7 +747,7 @@ class AppController {
     btnExecute.classList.remove('hidden');
     btnExecute.style.display = 'flex';
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
     if (hasPassword) {
       btnExecute.disabled = false;
       btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
@@ -728,16 +755,55 @@ class AppController {
     } else {
       btnExecute.disabled = true;
       btnExecute.className = "lat-capsule-btn glass opacity-40 px-7 py-3 text-sm flex items-center gap-2 cursor-not-allowed shadow-none";
-      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
+      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 6 caracteres) para activar";
     }
   }
 
   updateManualModeButtons() {
     const btnCopyAio = document.getElementById('btnCopyAioConfig');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
+    const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
+    const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
+    const btnDownloadBadges = document.getElementById('btnDownloadBadges');
+    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
+    const isBadgesEnabled = Boolean(state.preferences && state.preferences.badgesEnabled);
+    const isAioStreamsInstalled = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
+
+    if (btnCopyBadge) {
+      if (isBadgesEnabled) {
+        btnCopyBadge.classList.remove('hidden');
+      } else {
+        btnCopyBadge.classList.add('hidden');
+      }
+    }
+
+    if (btnCopyBadgeCompiled) {
+      if (isBadgesEnabled) {
+        btnCopyBadgeCompiled.classList.remove('hidden');
+      } else {
+        btnCopyBadgeCompiled.classList.add('hidden');
+      }
+    }
+
+    if (btnDownloadBadges) {
+      if (isBadgesEnabled) {
+        btnDownloadBadges.classList.remove('hidden');
+      } else {
+        btnDownloadBadges.classList.add('hidden');
+      }
+    }
+
+    if (btnCopyAioStreams) {
+      if (isAioStreamsInstalled) {
+        btnCopyAioStreams.classList.remove('hidden');
+      } else {
+        btnCopyAioStreams.classList.add('hidden');
+      }
+    }
+
     if (!btnCopyAio) return;
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
 
     if (hasPassword) {
       btnCopyAio.disabled = false;
@@ -750,7 +816,7 @@ class AppController {
     } else {
       btnCopyAio.disabled = true;
       btnCopyAio.className = "lat-capsule-btn glass opacity-40 text-xs py-2 px-4 cursor-not-allowed flex items-center gap-2 shadow-none";
-      btnCopyAio.title = "Ingresa una contraseña para el addon (mínimo 4 caracteres) primero";
+      btnCopyAio.title = "Ingresa una contraseña para tus addons (mínimo 6 caracteres) primero";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = true;
         btnDownloadAio.className = "lat-capsule-btn glass opacity-40 px-4 py-3 text-xs flex items-center gap-2 cursor-not-allowed";
@@ -767,6 +833,11 @@ class AppController {
     if (!modal) return;
 
     if (isManual) {
+      // Registrar finalización exitosa en el contador global para modo manual
+      recordSuccessfulCompletion().catch(err => {
+        console.warn('[AppController] Error actualizando contador de configuraciones:', err);
+      });
+
       if (titleEl) titleEl.innerText = "¡Archivos JSON Listos!";
       if (msgEl) {
         msgEl.innerHTML = `
@@ -1163,6 +1234,98 @@ class AppController {
     }
   }
 
+  promptDeleteProfile(profileId, profileName) {
+    if (state.profiles && state.profiles.length <= 1) {
+      this.showToast('No puedes eliminar el único perfil de tu cuenta. Nuvio requiere al menos un perfil activo.', 'warning');
+      return;
+    }
+    this.profilePendingDelete = { id: profileId, name: profileName };
+    const modal = document.getElementById('modalDeleteProfile');
+    const nameEl = document.getElementById('deleteProfileTargetName');
+    if (nameEl) nameEl.textContent = `"${profileName}"`;
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeDeleteProfileModal() {
+    this.profilePendingDelete = null;
+    const modal = document.getElementById('modalDeleteProfile');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  async confirmDeleteProfile() {
+    if (!this.profilePendingDelete) return;
+
+    if (state.profiles && state.profiles.length <= 1) {
+      this.showToast('No puedes eliminar el único perfil de tu cuenta.', 'warning');
+      this.closeDeleteProfileModal();
+      return;
+    }
+
+    if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) {
+      this.showToast('Debes haber iniciado sesión con tu cuenta de Nuvio en el Paso 1.', 'error');
+      this.closeDeleteProfileModal();
+      return;
+    }
+
+    const { id: profileId, name: profileName } = this.profilePendingDelete;
+    const btnConfirm = document.getElementById('btnConfirmDeleteProfile');
+    const originalHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando...';
+    }
+
+    try {
+      const deleteResult = await NuvioClient.deleteProfile({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: state.nuvioAuth.accessToken,
+        userId: state.nuvioAuth.userId,
+        profileId: profileId
+      });
+
+      // Actualizar la lista en state con los perfiles reales verificados de Nuvio
+      if (Array.isArray(deleteResult?.remainingProfiles)) {
+        state.profiles = deleteResult.remainingProfiles;
+      } else {
+        state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
+      }
+
+      // Si el perfil eliminado era el seleccionado actualmente
+      if (String(state.selectedProfileId) === String(profileId)) {
+        if (state.profiles.length > 0) {
+          state.selectedProfileId = state.profiles[0].id;
+          state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
+          state.unlockStep(3);
+        } else {
+          state.selectedProfileId = null;
+          state.selectedProfileName = '';
+        }
+      }
+
+      this.closeDeleteProfileModal();
+      this.saveSession();
+      this.renderProfiles();
+      this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
+      this.updateUI();
+      this.showToast(`✓ Perfil "${profileName}" eliminado permanentemente de Nuvio.`, 'success');
+    } catch (err) {
+      console.error('[AppController] Error al eliminar perfil:', err);
+      this.showToast(`Error al eliminar perfil: ${err.message}`, 'error');
+    } finally {
+      if (btnConfirm) {
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = originalHtml;
+      }
+    }
+  }
+
   setupStep2Profiles() {
     this.renderProfiles();
 
@@ -1183,6 +1346,23 @@ class AppController {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) this.closeNewProfileModal();
       });
+    }
+
+    // Modal de Eliminar Perfil
+    const modalDelete = document.getElementById('modalDeleteProfile');
+    const btnCloseDeleteModal = document.getElementById('btnCloseDeleteProfileModal');
+    const btnCancelDeleteModal = document.getElementById('btnCancelDeleteProfile');
+    const btnConfirmDeleteModal = document.getElementById('btnConfirmDeleteProfile');
+
+    if (btnCloseDeleteModal) btnCloseDeleteModal.addEventListener('click', () => this.closeDeleteProfileModal());
+    if (btnCancelDeleteModal) btnCancelDeleteModal.addEventListener('click', () => this.closeDeleteProfileModal());
+    if (modalDelete) {
+      modalDelete.addEventListener('click', (e) => {
+        if (e.target === modalDelete) this.closeDeleteProfileModal();
+      });
+    }
+    if (btnConfirmDeleteModal) {
+      btnConfirmDeleteModal.addEventListener('click', () => this.confirmDeleteProfile());
     }
 
     if (btnConfirmModal && nameInput) {
@@ -1251,22 +1431,66 @@ class AppController {
     }
   }
 
-  updateProfileWarning(profileId, profileName) {
+  async updateProfileWarning(profileId, profileName) {
     const warningContainer = document.getElementById('profileOverwriteWarning');
-    const nameEl = document.getElementById('warningProfileName');
+    const warningTextEl = document.getElementById('profileWarningText');
+    const warningIcon = document.getElementById('profileWarningIcon');
     if (!warningContainer) return;
 
-    if (!profileId) {
+    if (!profileId || state.isManualMode) {
       warningContainer.classList.add('hidden');
       return;
     }
 
+    const displayName = profileName || 'seleccionado';
     const isNew = state.isProfileNew(profileId);
-    if (!isNew) {
-      if (nameEl) nameEl.innerText = `"${profileName || 'seleccionado'}"`;
+
+    if (isNew) {
+      if (warningTextEl) {
+        warningTextEl.innerHTML = `Perfil nuevo (<strong class="text-white">"${displayName}"</strong>): se aprovisionará de forma limpia con <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1) y podrás añadir tus addons de streaming en el Paso 6.`;
+      }
+      if (warningIcon) warningIcon.className = "fa-solid fa-sparkles text-[#ffd479] text-base shrink-0";
       warningContainer.classList.remove('hidden');
-    } else {
-      warningContainer.classList.add('hidden');
+      return;
+    }
+
+    // Comprobar si ya tiene AIOMetadata en segundo plano
+    if (warningTextEl) {
+      warningTextEl.innerHTML = `Analizando addons del perfil <strong class="text-white">"${displayName}"</strong>...`;
+    }
+    warningContainer.classList.remove('hidden');
+
+    try {
+      let hasAio = false;
+      if (state.hasLoadedAddonsForProfile === profileId && state.existingAioAddon) {
+        hasAio = true;
+      } else if (state.nuvioAuth?.accessToken) {
+        const addons = await NuvioClient.listAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: state.nuvioAuth.accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: profileId
+        });
+        hasAio = (addons || []).some(isAioMetadataAddon);
+        if (state.hasLoadedAddonsForProfile !== profileId) {
+          state.setProfileAddons(addons, profileId);
+        }
+      }
+
+      if (warningTextEl) {
+        if (hasAio) {
+          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se actualizará tu configuración de <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1). Todos tus addons de streaming y catálogos existentes se conservarán intactos y podrás gestionarlos en el Paso 6.`;
+          if (warningIcon) warningIcon.className = "fa-solid fa-rotate text-[#ffd479] text-base shrink-0";
+        } else {
+          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se instalará <strong class="text-[#ffd479]">AIOMetadata</strong> como tu addon principal de metadatos (#1). Tus addons actuales de streaming se mantendrán intactos y podrás organizarlos en el Paso 6.`;
+          if (warningIcon) warningIcon.className = "fa-solid fa-circle-info text-[#ffd479] text-base shrink-0";
+        }
+      }
+    } catch (_) {
+      if (warningTextEl) {
+        warningTextEl.innerHTML = `En el perfil <strong class="text-white">"${displayName}"</strong> se conservarán intactos tus addons de streaming y se priorizará <strong class="text-[#ffd479]">AIOMetadata</strong> en la posición principal (#1).`;
+      }
     }
   }
 
@@ -1303,6 +1527,15 @@ class AppController {
                 <i class="fa-solid fa-check text-white/40"></i>
               </div>
             `}
+            <!-- Botón de Eliminar Perfil (visible solo si hay más de 1 perfil) -->
+            ${state.profiles.length > 1 ? `
+            <button type="button" 
+                    onclick="event.stopPropagation(); window.appController.promptDeleteProfile('${p.id}', '${name.replace(/'/g, "\\'")}')"
+                    class="absolute top-2 left-2 w-6 h-6 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/15 flex items-center justify-center transition-all opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 z-10"
+                    title="Eliminar perfil '${name.replace(/'/g, "\\'")}'">
+              <i class="fa-solid fa-trash-can text-[10px]"></i>
+            </button>
+            ` : ''}
             <div class="relative">
               <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
                 isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
@@ -1863,8 +2096,707 @@ class AppController {
       }
     };
 
+    // Alternar Personalización de Fusion Badges
+    const toggleBadges = document.getElementById('toggleBadgesCustomization');
+    const labelBadges = document.getElementById('labelBadgesCustomization');
+    const galleryBadges = document.getElementById('badgesGalleryContainer');
+
+    this.renderBadgeModulesUI = () => {
+      const containerCheckboxes = document.getElementById('badgeModulesCheckboxes');
+      const containerOrderBar = document.getElementById('badgeModulesOrderBar');
+      const activeIds = state.preferences.activeBadgeModules || [];
+      const orderIds = state.preferences.badgeModulesOrder || [];
+      const activeSet = new Set(activeIds);
+      const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
+      const currentPack = getBadgePackById(selectedPackId);
+
+      // Combinar módulos base con cualquier módulo adicional presente en el pack actual
+      const allModulesMap = new Map();
+      BADGE_MODULE_DEFINITIONS.forEach(def => allModulesMap.set(def.id, def));
+      if (currentPack && currentPack.sections) {
+        currentPack.sections.forEach(sec => {
+          const canonId = getCanonicalModuleId(sec.id);
+          if (!allModulesMap.has(canonId) && !allModulesMap.has(sec.id)) {
+            allModulesMap.set(sec.id, {
+              id: sec.id,
+              labelEs: getBadgeModuleLabel(sec.id, sec.name),
+              defaultActive: true
+            });
+          }
+        });
+      }
+      const moduleDefs = Array.from(allModulesMap.values());
+
+      if (containerCheckboxes) {
+        containerCheckboxes.innerHTML = moduleDefs.map(def => {
+          const isChecked = isSectionActive(def.id, activeSet);
+          return `
+            <label class="badge-module-pill flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 cursor-pointer text-xs text-white/70 hover:text-white transition-all select-none">
+              <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="window.appController.toggleBadgeModule('${def.id}', this.checked)" class="sr-only">
+              <div class="w-4 h-4 rounded-md border border-white/30 flex items-center justify-center transition-all check-indicator">
+                <i class="fa-solid fa-check text-[10px] text-[#08090c] ${isChecked ? 'opacity-100' : 'opacity-0'} transition-opacity"></i>
+              </div>
+              <span class="font-medium">+ ${def.labelEs}</span>
+            </label>
+          `;
+        }).join('');
+      }
+
+      if (containerOrderBar) {
+        // Mostrar exclusivamente los módulos activos en el orden actual
+        const activeOrdered = orderIds.filter(id => isSectionActive(id, activeSet));
+        if (activeOrdered.length === 0) {
+          containerOrderBar.innerHTML = `<span class="text-[11px] text-white/40 italic">Ningún módulo activado. Marca categorías arriba para incluirlas y ordenarlas.</span>`;
+        } else {
+          containerOrderBar.innerHTML = activeOrdered.map((id, idx) => {
+            const isFirst = (idx === 0);
+            const isLast = (idx === activeOrdered.length - 1);
+            const label = getBadgeModuleLabel(id);
+            return `
+              <div class="badge-order-chip">
+                <span class="font-mono text-[10px] text-[#ffd479]">${idx + 1}.</span>
+                <span>${label}</span>
+                <div class="flex items-center gap-1 ml-1">
+                  <button type="button" ${isFirst ? 'disabled' : ''} onclick="window.appController.moveBadgeModule('${id}', -1)" class="badge-order-btn" title="Mover a la izquierda / antes">
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <button type="button" ${isLast ? 'disabled' : ''} onclick="window.appController.moveBadgeModule('${id}', 1)" class="badge-order-btn" title="Mover a la derecha / después">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    };
+
+    const updateBadgesCustomizationUI = () => {
+      const isBadgesActive = Boolean(state.preferences.badgesEnabled);
+      if (toggleBadges) {
+        toggleBadges.checked = isBadgesActive;
+      }
+      if (labelBadges) {
+        labelBadges.textContent = isBadgesActive ? 'Activado' : 'Desactivado';
+        labelBadges.className = isBadgesActive
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+      if (galleryBadges) {
+        if (isBadgesActive) {
+          galleryBadges.classList.add('is-open');
+          this.renderBadgeModulesUI();
+          this.renderBadgesGrid();
+          setTimeout(() => this.fitBadgesDynamically(), 350);
+        } else {
+          galleryBadges.classList.remove('is-open');
+        }
+      }
+      this.updateManualModeButtons();
+      this.refreshStep6Summary();
+    };
+
+    if (toggleBadges) {
+      toggleBadges.checked = Boolean(state.preferences.badgesEnabled);
+      toggleBadges.addEventListener('change', (e) => {
+        state.preferences.badgesEnabled = e.target.checked;
+        updateBadgesCustomizationUI();
+        this.updateNavigationButtons();
+      });
+    }
+    updateBadgesCustomizationUI();
+
+    this.toggleBadgeModule = (id, isChecked) => {
+      if (!state.preferences.activeBadgeModules) {
+        state.preferences.activeBadgeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+      }
+      const canon = getCanonicalModuleId(id);
+      if (isChecked) {
+        if (!state.preferences.activeBadgeModules.includes(id)) {
+          state.preferences.activeBadgeModules.push(id);
+        }
+        if (canon && canon !== id && !state.preferences.activeBadgeModules.includes(canon)) {
+          state.preferences.activeBadgeModules.push(canon);
+        }
+      } else {
+        state.preferences.activeBadgeModules = state.preferences.activeBadgeModules.filter(
+          x => x !== id && getCanonicalModuleId(x) !== canon
+        );
+      }
+      this.renderBadgeModulesUI();
+      this.renderBadgesGrid();
+      this.refreshStep6Summary();
+      const label = getBadgeModuleLabel(id);
+      this.showToast(isChecked ? `Módulo "${label}" activado` : `Módulo "${label}" desactivado`, 'info');
+    };
+
+    this.moveBadgeModule = (id, delta) => {
+      const activeIds = state.preferences.activeBadgeModules || [];
+      const order = [...(state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'])];
+      const activeSet = new Set(activeIds);
+      const activeOrdered = order.filter(x => isSectionActive(x, activeSet));
+      const curIdx = activeOrdered.indexOf(id);
+      const targetIdx = curIdx + delta;
+
+      if (curIdx < 0 || targetIdx < 0 || targetIdx >= activeOrdered.length) return;
+
+      const targetId = activeOrdered[targetIdx];
+      const globalCurIdx = order.indexOf(id);
+      const globalTargetIdx = order.indexOf(targetId);
+
+      if (globalCurIdx >= 0 && globalTargetIdx >= 0) {
+        order[globalCurIdx] = targetId;
+        order[globalTargetIdx] = id;
+        state.preferences.badgeModulesOrder = order;
+        this.renderBadgeModulesUI();
+        this.renderBadgesGrid();
+      }
+    };
+
+    this.selectBadgePack = (packId) => {
+      state.preferences.selectedBadgePack = packId;
+      const pack = getBadgePackById(packId);
+      if (pack && pack.sections) {
+        pack.sections.forEach(sec => {
+          const canon = getCanonicalModuleId(sec.id);
+          if (!state.preferences.badgeModulesOrder.includes(sec.id) && !state.preferences.badgeModulesOrder.includes(canon)) {
+            state.preferences.badgeModulesOrder.push(sec.id);
+          }
+        });
+      }
+      this.renderBadgeModulesUI();
+      this.renderBadgesGrid();
+      this.refreshStep6Summary();
+      this.updateNavigationButtons();
+    };
+
+    this.copyBadgeJsonUrl = async (packId) => {
+      const id = packId || state.preferences.selectedBadgePack || 'tinted';
+      const pack = getBadgePackById(id);
+
+      if (pack.isCustom && !pack.rawV2 && pack.customJson) {
+        try {
+          await navigator.clipboard.writeText(JSON.stringify(pack.customJson, null, 2));
+          this.showToast(`✓ Código JSON de "${pack.name}" copiado al portapapeles`, 'success');
+        } catch (_) {
+          this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+        }
+        return;
+      }
+
+      const url = getBadgePackUrl(id);
+      try {
+        await navigator.clipboard.writeText(url);
+        this.showToast(`✓ Enlace JSON de "${pack.name}" copiado al portapapeles`, 'success');
+      } catch (_) {
+        this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+      }
+    };
+
+    this.getCompiledBadgeRulesJson = async (packId) => {
+      const id = packId || state.preferences.selectedBadgePack || 'tinted';
+      const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+      const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+      const rules = await compileUniversalBadgeRules(id, activeIds, orderIds);
+      return JSON.stringify(rules, null, 2);
+    };
+
+    this.copyCompiledBadgeJson = async (packId) => {
+      try {
+        const id = packId || state.preferences.selectedBadgePack || 'tinted';
+        const pack = getBadgePackById(id);
+        const jsonStr = await this.getCompiledBadgeRulesJson(id);
+        await navigator.clipboard.writeText(jsonStr);
+        this.showToast(`✓ JSON de Badges ("${pack ? pack.name : id}") copiado con tu orden y módulos activos`, 'success');
+      } catch (err) {
+        console.error('[Badges] Error al copiar JSON compilado:', err);
+        this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+      }
+    };
+
+    this.downloadCompiledBadgeJson = async (packId) => {
+      try {
+        const id = packId || state.preferences.selectedBadgePack || 'tinted';
+        const pack = getBadgePackById(id);
+        const jsonStr = await this.getCompiledBadgeRulesJson(id);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const cleanName = (pack ? pack.name : id).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        a.download = `nuvio-badges-${cleanName}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        this.showToast(`✓ Archivo de badges ("${pack ? pack.name : id}") descargado con éxito`, 'success');
+      } catch (err) {
+        console.error('[Badges] Error al descargar JSON compilado:', err);
+        this.showToast('No se pudo descargar el archivo de badges.', 'error');
+      }
+    };
+
+    this.handleImportCustomBadge = async () => {
+      const sourceInput = document.getElementById('inputCustomBadgeSource');
+      const nameInput = document.getElementById('inputCustomBadgeName');
+      const errorBox = document.getElementById('customBadgeError');
+      const errorText = document.getElementById('customBadgeErrorText');
+
+      if (errorBox) errorBox.classList.add('hidden');
+
+      const source = (sourceInput?.value || '').trim();
+      const customName = (nameInput?.value || '').trim();
+
+      if (!source) {
+        if (errorBox && errorText) {
+          errorText.textContent = 'Por favor ingresa una URL válida o pega el código JSON de tu pack de badges.';
+          errorBox.classList.remove('hidden');
+        }
+        sourceInput?.focus();
+        return;
+      }
+
+      let parsedData = null;
+      let isUrl = false;
+      let rawUrl = '';
+
+      if (/^https?:\/\//i.test(source)) {
+        isUrl = true;
+        rawUrl = source;
+        let fetchUrl = source;
+
+        // Auto-corregir enlaces comunes para acceder directamente al RAW
+        if (fetchUrl.includes('github.com') && fetchUrl.includes('/blob/')) {
+          fetchUrl = fetchUrl.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
+        } else if (fetchUrl.includes('gist.github.com/') && !fetchUrl.includes('/raw')) {
+          fetchUrl = fetchUrl.replace('gist.github.com', 'gist.githubusercontent.com') + '/raw';
+        } else if (fetchUrl.includes('pastebin.com/') && !fetchUrl.includes('/raw/')) {
+          fetchUrl = fetchUrl.replace('pastebin.com/', 'pastebin.com/raw/');
+        }
+
+        // Función de auto-reparación para JSONs comunitarios con errores menores (comas faltantes o trailing commas)
+        const tryRepairJson = (jsonStr) => {
+          try {
+            return JSON.parse(jsonStr);
+          } catch (err) {
+            let repaired = jsonStr;
+            // 1. Eliminar comas finales antes de } o ]
+            repaired = repaired.replace(/,\s*([\]}])/g, '$1');
+            // 2. Insertar comas faltantes entre propiedades ("valor"\n"propiedad":)
+            repaired = repaired.replace(/(["\dtruefalsenull\]}])\s*\n\s*("[a-zA-Z0-9_$-]+"\s*:)/g, '$1,\n$2');
+            return JSON.parse(repaired);
+          }
+        };
+
+        try {
+          const res = await fetch(fetchUrl);
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          const rawText = await res.text();
+          parsedData = tryRepairJson(rawText);
+        } catch (fetchErr) {
+          console.warn('[Badges] Descarga directa falló, intentando con proxy CORS:', fetchErr.message);
+          try {
+            const proxyRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(fetchUrl)}`);
+            if (!proxyRes.ok) throw new Error(`Proxy HTTP ${proxyRes.status}`);
+            const rawText = await proxyRes.text();
+            parsedData = tryRepairJson(rawText);
+          } catch (proxyErr) {
+            console.error('[Badges] No se pudo descargar el JSON:', proxyErr.message);
+            if (errorBox && errorText) {
+              errorText.textContent = `No se pudo descargar el archivo JSON (${fetchErr.message}). Verifica que el enlace sea público o pega el código JSON directamente.`;
+              errorBox.classList.remove('hidden');
+            }
+            return;
+          }
+        }
+      } else {
+        const tryRepairJson = (jsonStr) => {
+          try {
+            return JSON.parse(jsonStr);
+          } catch (err) {
+            let repaired = jsonStr;
+            repaired = repaired.replace(/,\s*([\]}])/g, '$1');
+            repaired = repaired.replace(/(["\dtruefalsenull\]}])\s*\n\s*("[a-zA-Z0-9_$-]+"\s*:)/g, '$1,\n$2');
+            return JSON.parse(repaired);
+          }
+        };
+
+        try {
+          parsedData = tryRepairJson(source);
+        } catch (jsonErr) {
+          if (errorBox && errorText) {
+            errorText.textContent = 'El texto ingresado no es un JSON válido: ' + jsonErr.message;
+            errorBox.classList.remove('hidden');
+          }
+          return;
+        }
+      }
+
+      // Normalizador de identificadores de grupo para Badger y Nuvio
+      const normalizeGid = (rawGid) => {
+        const id = (rawGid || 'gr').trim();
+        return getCanonicalModuleId(id) || id;
+      };
+
+      // Convertir Badger groups / filters a sections para visualización fiel y completa
+      let sections = [];
+      const groups = parsedData.groups || [];
+      const filters = parsedData.filters || (Array.isArray(parsedData) ? parsedData : []);
+
+      if (groups.length > 0 || filters.length > 0) {
+        const groupMap = new Map();
+        groups.forEach(g => {
+          const gid = normalizeGid(g.id);
+          groupMap.set(gid, {
+            id: gid,
+            name: g.name || getBadgeModuleLabel(gid),
+            items: [],
+            total: 0
+          });
+        });
+
+        filters.forEach(f => {
+          if (f.isEnabled === false) return; // Omitir distintivos desactivados
+          const gid = normalizeGid(f.groupId);
+          let g = groupMap.get(gid);
+          if (!g) {
+            const groupName = f.groupName || getBadgeModuleLabel(gid, gid.toUpperCase());
+            g = { id: gid, name: groupName, items: [], total: 0 };
+            groupMap.set(gid, g);
+          }
+          g.total++;
+          // Permitir hasta 24 items para que fitBadgesDynamically() aproveche todo el ancho dinámico
+          if (g.items.length < 24) {
+            g.items.push({
+              name: f.name || 'Badge',
+              img: f.imageURL || null,
+              text: normalizeBadgeColor(f.textColor, '#ffffff'),
+              border: normalizeBadgeColor(f.borderColor, 'rgba(255,255,255,0.2)'),
+              bg: normalizeBadgeColor(f.tagColor, 'rgba(255,255,255,0.08)'),
+              style: f.tagStyle || 'filled'
+            });
+          }
+        });
+
+        sections = Array.from(groupMap.values()).map(g => ({
+          id: g.id,
+          name: g.name,
+          total: g.total,
+          hiddenCount: Math.max(0, g.total - g.items.length),
+          items: g.items
+        })).filter(g => g.items.length > 0);
+      }
+
+      if (sections.length === 0) {
+        sections = [
+          {
+            id: 'custom',
+            name: 'Personalizado',
+            total: 3,
+            hiddenCount: 0,
+            items: [
+              { name: '4K', text: '#FFD500', border: '#FFD500', bg: 'rgba(255,213,0,0.15)' },
+              { name: 'HDR', text: '#BBDEFB', border: '#BBDEFB', bg: 'rgba(187,222,251,0.15)' },
+              { name: 'Atmos', text: '#E040FB', border: '#E040FB', bg: 'rgba(224,64,251,0.15)' }
+            ]
+          }
+        ];
+      }
+
+      // Detección automática del autor desde metadatos o URL
+      let authorName = (parsedData.author || parsedData.creator || '').trim();
+      if (!authorName && isUrl) {
+        const ghMatch = rawUrl.match(/(?:githubusercontent\.com|github\.com)\/([^/]+)/i);
+        if (ghMatch && ghMatch[1] && !['raw', 'gist'].includes(ghMatch[1])) {
+          authorName = ghMatch[1];
+        }
+      }
+      if (!authorName) authorName = 'Personalizado';
+
+      let authorUrl = (parsedData.authorUrl || '').trim();
+      if (!authorUrl && authorName !== 'Personalizado') {
+        authorUrl = `https://github.com/${authorName}`;
+      } else if (!authorUrl && isUrl) {
+        authorUrl = rawUrl;
+      }
+
+      // Nombre del paquete
+      let finalName = (customName || parsedData.name || parsedData.title || '').trim();
+      if (!finalName && isUrl) {
+        const fileMatch = rawUrl.split('/').pop().replace(/\.json$/i, '').replace(/[-_]/g, ' ');
+        if (fileMatch) {
+          finalName = fileMatch.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+      }
+      if (!finalName) {
+        finalName = `Estilo Personalizado #${BADGE_PACKS.filter(p => p.isCustom).length + 1}`;
+      }
+
+      const customId = `custom-${Date.now()}`;
+
+      const newPack = {
+        id: customId,
+        name: finalName,
+        author: authorName,
+        authorUrl: authorUrl,
+        description: isUrl ? `Estilo importado desde URL: ${rawUrl}` : 'Estilo personalizado cargado mediante código JSON directo.',
+        rawV2: isUrl ? rawUrl : null,
+        rawV1: isUrl ? rawUrl : null,
+        customJson: isUrl ? null : parsedData,
+        isCustom: true,
+        tags: ['Personalizado', 'Importado'],
+        accentColor: '#10b981',
+        sections
+      };
+
+      addCustomBadgePack(newPack);
+
+      // Activar automáticamente todas las secciones que trae el pack en las preferencias
+      sections.forEach(sec => {
+        if (!state.preferences.activeBadgeModules.includes(sec.id)) {
+          state.preferences.activeBadgeModules.push(sec.id);
+        }
+        if (!state.preferences.badgeModulesOrder.includes(sec.id)) {
+          state.preferences.badgeModulesOrder.push(sec.id);
+        }
+      });
+
+      state.preferences.selectedBadgePack = customId;
+      this.renderBadgeModulesUI();
+      this.renderBadgesGrid();
+      this.refreshStep6Summary();
+
+      if (sourceInput) sourceInput.value = '';
+      if (nameInput) nameInput.value = '';
+      if (errorBox) errorBox.classList.remove('hidden'); // reset error display
+      if (errorBox) errorBox.classList.add('hidden');
+
+      this.showToast(`¡Estilo "${finalName}" importado y seleccionado con éxito!`, 'success');
+
+      // Scroll suave hacia la nueva tarjeta
+      const targetCard = document.querySelector(`[onclick*="${customId}"]`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
     this.updatePosterCardsUI();
     this.updateStep5PosterPreviews();
+  }
+
+  renderBadgesGrid() {
+    const container = document.getElementById('badgesGrid');
+    if (!container) return;
+
+    const selectedPackId = state.preferences.selectedBadgePack || 'tinted';
+    const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+    const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+
+    container.innerHTML = BADGE_PACKS.map(pack => {
+      const isSelected = (pack.id === selectedPackId);
+      const borderClass = isSelected
+        ? 'border-[#ffd479] bg-white/[0.07] shadow-[0_0_25px_rgba(255,212,121,0.22)]'
+        : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20';
+
+      const checkIcon = isSelected
+        ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
+        : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
+
+      // Secciones filtradas y ordenadas de acuerdo a la configuración activa del usuario
+      const visibleSections = getPackSectionsOrdered(pack, activeIds, orderIds);
+
+      // Renderizado de secciones con nombres traducidos al español
+      const sectionsHtml = visibleSections.map(sec => {
+        const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
+        const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
+        const badgesHtml = (sec.items || []).map(b => {
+          const isFlag = (sec.id === 'glang' || sec.id === 'gl' || sec.id === 'lang');
+          const isSub = (sec.id === 'gsub' || sec.id === 'sub');
+          const imgClass = isFlag
+            ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
+            : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
+          const widthAttr = isFlag ? 'width="21"' : '';
+          const heightAttr = 'height="14"';
+
+          return `
+            <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
+                  style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
+                  title="${b.name}">
+              ${b.img ? `<img src="${b.img}" alt="${b.name}" ${widthAttr} ${heightAttr} class="${imgClass}" loading="eager" decoding="async" onload="window.appController && window.appController.handleBadgeImgLoaded(this)" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; window.appController && window.appController.handleBadgeImgLoaded(this);"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
+            </span>
+          `;
+        }).join('');
+
+        return `
+          <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-start gap-1.5 flex-1 min-w-[190px] sm:min-w-[210px]">
+            <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold shrink-0">
+              <span class="truncate">${titleEs}</span>
+              <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
+            </div>
+            <div class="badges-flow-container relative flex flex-wrap items-center gap-1.5 content-start">
+              ${badgesHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const copyBtnLabel = (pack.isCustom && !pack.rawV2) ? 'Copiar Código JSON' : 'Copiar Enlace JSON';
+
+      return `
+        <div onclick="window.appController.selectBadgePack('${pack.id}')" class="badge-pack-card relative p-5 rounded-[24px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3.5 group shadow-[var(--shadow-lift)]">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="text-sm font-semibold text-white tracking-wide">${pack.name}</h4>
+                  ${isSelected ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] border border-[#ffd479]/30">Activo</span>' : ''}
+                  ${pack.isCustom ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Personalizado</span>' : ''}
+                </div>
+                <div class="flex items-center gap-1.5 text-[11px] text-white/50 pt-0.5">
+                  <i class="fa-brands fa-github text-[#ffd479]"></i>
+                  <span>Hecho por ${pack.authorUrl && pack.authorUrl !== '#' ? `<a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a>` : `<span class="text-[#ffd479] font-medium">${pack.author}</span>`}</span>
+                </div>
+              </div>
+              ${checkIcon}
+            </div>
+
+            <!-- Distribución flexible de secciones auto-equilibradas para aprovechar el 100% del ancho -->
+            <div class="flex flex-wrap gap-2 pt-0.5">
+              ${sectionsHtml}
+            </div>
+          </div>
+
+          <!-- Acciones del Pack: Descargar JSON, Copiar JSON Adaptado y Enlace URL -->
+          <div class="pt-3 border-t border-white/[0.06] flex items-center justify-end gap-2 flex-wrap">
+            ${pack.rawV2 ? `
+              <button type="button" onclick="event.stopPropagation(); window.appController.copyBadgeJsonUrl('${pack.id}')" class="py-1.5 px-2.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.06] text-white/50 hover:text-white/80 text-[11px] border border-white/[0.06] flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Copiar URL directa original">
+                <i class="fa-solid fa-link text-[10px]"></i>
+                <span>Enlace</span>
+              </button>
+            ` : ''}
+            <button type="button" onclick="event.stopPropagation(); window.appController.downloadCompiledBadgeJson('${pack.id}')" class="py-1.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center justify-center gap-1.5 transition-all cursor-pointer" title="Descargar archivo JSON optimizado con tu orden y módulos activos">
+              <i class="fa-solid fa-download text-[11px]"></i>
+              <span>Descargar</span>
+            </button>
+            <button type="button" onclick="event.stopPropagation(); window.appController.copyCompiledBadgeJson('${pack.id}')" class="py-1.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-white text-xs border border-white/[0.12] flex items-center justify-center gap-1.5 transition-all font-medium cursor-pointer" title="Copiar código JSON sanitizado con tu orden y módulos activos">
+              <i class="fa-solid fa-copy text-[11px]"></i>
+              <span>Copiar JSON</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Ajuste dinámico inteligente: llena el ancho de las filas y oculta desbordes
+    requestAnimationFrame(() => this.fitBadgesDynamically());
+    setTimeout(() => this.fitBadgesDynamically(), 100);
+    setTimeout(() => this.fitBadgesDynamically(), 300);
+
+    // Observer para recalcular ante cambios de tamaño de pantalla o contenedor
+    if (!this.badgesResizeObserver && window.ResizeObserver) {
+      this.badgesResizeObserver = new ResizeObserver(() => {
+        this.fitBadgesDynamically();
+      });
+      const grid = document.getElementById('badgesGrid');
+      if (grid) this.badgesResizeObserver.observe(grid);
+    }
+    if (!this._windowResizeListenerAdded) {
+      this._windowResizeListenerAdded = true;
+      window.addEventListener('resize', () => {
+        if (this._badgeResizeDebounce) clearTimeout(this._badgeResizeDebounce);
+        this._badgeResizeDebounce = setTimeout(() => this.fitBadgesDynamically(), 50);
+      });
+    }
+  }
+
+  /**
+   * Recálculo debounced cuando una imagen termina de cargar en el navegador
+   */
+  handleBadgeImgLoaded(img) {
+    if (this._badgeFitDebounce) clearTimeout(this._badgeFitDebounce);
+    this._badgeFitDebounce = setTimeout(() => {
+      this.fitBadgesDynamically();
+    }, 40);
+  }
+
+  /**
+   * Adapta dinámicamente los badges en cada caja para ocupar el espacio horizontal disponible:
+   * - Muestra todos los distintivos posibles que quepan en las primeras 2 líneas completas
+   * - Si un distintivo cae a una 3ª línea o desborda horizontalmente, se oculta limpiamente
+   * - Actualiza el contador dinámico "+N" reflejando la cantidad exacta que no pudo ser mostrada
+   */
+  fitBadgesDynamically() {
+    const boxes = document.querySelectorAll('.badge-section-box');
+    if (!boxes || boxes.length === 0) return;
+
+    boxes.forEach(box => {
+      const flow = box.querySelector('.badges-flow-container');
+      const counterEl = box.querySelector('.badge-hidden-counter');
+      if (!flow) return;
+
+      const chips = Array.from(flow.querySelectorAll('.badge-chip'));
+      if (chips.length === 0) return;
+
+      // 1. Mostrar temporalmente todos los chips para medir geometría real
+      chips.forEach(c => {
+        c.style.display = '';
+      });
+
+      const flowRect = flow.getBoundingClientRect();
+      if (!flowRect || flowRect.width <= 0) return;
+
+      // 2. Medir alturas de línea y límites horizontales (máximo 2 líneas completas)
+      const firstTop = chips[0].offsetTop;
+      let secondTop = null;
+      let reachedLimit = false;
+
+      for (let i = 0; i < chips.length; i++) {
+        const c = chips[i];
+        if (reachedLimit) {
+          c.style.display = 'none';
+          continue;
+        }
+
+        const top = c.offsetTop;
+        if (top > firstTop + 4 && secondTop === null) {
+          secondTop = top;
+        }
+
+        // Si salta a una 3ª línea (o posterior): alcanzamos el límite
+        if (secondTop !== null && top > secondTop + 4) {
+          reachedLimit = true;
+          c.style.display = 'none';
+          continue;
+        }
+
+        // Comprobación horizontal independiente de la columna usando coordenadas de la caja
+        const chipRect = c.getBoundingClientRect();
+        if (chipRect.right > flowRect.right + 2) {
+          reachedLimit = true;
+          c.style.display = 'none';
+          continue;
+        }
+      }
+
+      // 3. Calcular cantidad de chips ocultos por desborde
+      const hiddenInDom = chips.filter(c => c.style.display === 'none').length;
+      const visibleCount = chips.length - hiddenInDom;
+      const totalCount = counterEl ? (parseInt(counterEl.dataset.total, 10) || chips.length) : chips.length;
+
+      // REGLA FUNDAMENTAL: Solo mostrar "+N" si realmente se desbordaron elementos (hiddenInDom > 0).
+      // Si todos los elementos caben en las 2 líneas, no hay nada oculto y NUNCA se muestra un "+N" fantasma.
+      const hiddenCount = (hiddenInDom > 0) ? Math.max(hiddenInDom, totalCount - visibleCount) : 0;
+
+      if (counterEl) {
+        if (hiddenCount > 0) {
+          counterEl.innerText = `+${hiddenCount}`;
+          counterEl.style.display = '';
+        } else {
+          counterEl.innerText = '';
+          counterEl.style.display = 'none';
+        }
+      }
+    });
   }
 
   /**
@@ -2152,16 +3084,734 @@ class AppController {
           : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
       }
     }
+
+    const toggleBadges = document.getElementById('toggleBadgesCustomization');
+    const labelBadges = document.getElementById('labelBadgesCustomization');
+    const galleryBadges = document.getElementById('badgesGalleryContainer');
+    if (toggleBadges) {
+      const isBadgesEnabled = Boolean(state.preferences.badgesEnabled);
+      toggleBadges.checked = isBadgesEnabled;
+      if (labelBadges) {
+        labelBadges.textContent = isBadgesEnabled ? 'Activado' : 'Desactivado';
+        labelBadges.className = isBadgesEnabled
+          ? 'text-[10px] font-mono font-bold text-[#ffd479] uppercase tracking-wider'
+          : 'text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider';
+      }
+      if (galleryBadges) {
+        if (isBadgesEnabled) {
+          galleryBadges.classList.add('is-open');
+          this.renderBadgeModulesUI();
+          this.renderBadgesGrid();
+          setTimeout(() => this.fitBadgesDynamically(), 450);
+        } else {
+          galleryBadges.classList.remove('is-open');
+        }
+      }
+    }
+
     this.updatePosterCardsUI();
     this.updateStep5PosterPreviews();
   }
 
+  setupStep6AddonsManager() {
+    const btnOpenModal = document.getElementById('btnOpenAddAddonModal');
+    const modal = document.getElementById('modalAddAddon');
+    const btnCloseModal = document.getElementById('btnCloseAddAddonModal');
+    const btnCancelModal = document.getElementById('btnCancelAddAddon');
+    const btnConfirmModal = document.getElementById('btnConfirmAddAddon');
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+
+    if (btnOpenModal) {
+      btnOpenModal.addEventListener('click', () => this.openAddAddonModal());
+    }
+    if (btnCloseModal) {
+      btnCloseModal.addEventListener('click', () => this.closeAddAddonModal());
+    }
+    if (btnCancelModal) {
+      btnCancelModal.addEventListener('click', () => this.closeAddAddonModal());
+    }
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeAddAddonModal();
+      });
+    }
+    if (btnConfirmModal) {
+      btnConfirmModal.addEventListener('click', () => this.handleAddAddonConfirm());
+    }
+    if (urlInput) {
+      urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleAddAddonConfirm();
+        }
+      });
+    }
+
+    // --- Flujo de AIOStreams ---
+    const btnOpenAioModal = document.getElementById('btnOpenAddAioStreamsModal');
+    const modalAioReq = document.getElementById('modalAioStreamsRequirement');
+    const btnCancelAioReq = document.getElementById('btnCancelAioStreamsReq');
+    const btnAcceptAioReq = document.getElementById('btnAcceptAioStreamsReq');
+
+    const modalAioDebrids = document.getElementById('modalAioStreamsDebrids');
+    const btnCloseAioDebrids = document.getElementById('btnCloseAioStreamsDebridsModal');
+    const btnCancelAioDebrids = document.getElementById('btnCancelAioStreamsDebrids');
+    const btnValidateDebrids = document.getElementById('btnValidateDebridKeys');
+    const btnInstallAio = document.getElementById('btnInstallAioStreams');
+
+    if (btnOpenAioModal) {
+      btnOpenAioModal.addEventListener('click', () => this.openAioStreamsRequirementModal());
+    }
+    if (btnCancelAioReq) {
+      btnCancelAioReq.addEventListener('click', () => this.closeAioStreamsRequirementModal());
+    }
+    if (btnAcceptAioReq) {
+      btnAcceptAioReq.addEventListener('click', () => this.openAioStreamsDebridsModal());
+    }
+    if (modalAioReq) {
+      modalAioReq.addEventListener('click', (e) => {
+        if (e.target === modalAioReq) this.closeAioStreamsRequirementModal();
+      });
+    }
+
+    if (btnCloseAioDebrids) {
+      btnCloseAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
+    }
+    if (btnCancelAioDebrids) {
+      btnCancelAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
+    }
+    if (modalAioDebrids) {
+      modalAioDebrids.addEventListener('click', (e) => {
+        if (e.target === modalAioDebrids) this.closeAioStreamsDebridsModal();
+      });
+    }
+
+    if (btnValidateDebrids) {
+      btnValidateDebrids.addEventListener('click', () => this.validateDebridKeys());
+    }
+    if (btnInstallAio) {
+      btnInstallAio.addEventListener('click', () => this.installAioStreamsFromModal());
+    }
+
+    // Escuchar cambios en los inputs para invalidar validación previa y actualizar botón de instalar
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    debridIds.forEach(id => {
+      const input = document.getElementById(`inputDebrid${id}`);
+      if (input) {
+        input.addEventListener('input', () => {
+          const key = id.toLowerCase();
+          delete state.aiostreams.validatedKeys[key];
+          delete state.aiostreams.debrids[key];
+          const statusEl = document.getElementById(`statusDebrid${id}`);
+          if (statusEl && !statusEl.querySelector('a')) {
+            statusEl.innerHTML = '';
+          }
+          this.updateInstallAioStreamsBtnState();
+        });
+      }
+    });
+  }
+
+  /**
+   * Intenta obtener información del manifest de un addon (nombre y logo oficial)
+   */
+  async fetchManifestInfo(manifestUrl) {
+    if (!manifestUrl) return null;
+    if (!this.manifestCache) this.manifestCache = new Map();
+
+    let cleanUrl = String(manifestUrl).trim();
+    if (cleanUrl.startsWith('stremio://')) {
+      cleanUrl = 'https://' + cleanUrl.slice(10);
+    }
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+    if (!cleanUrl.includes('.json') && !cleanUrl.endsWith('manifest.json')) {
+      cleanUrl = cleanUrl.replace(/\/+$/, '') + '/manifest.json';
+    }
+
+    if (this.manifestCache.has(cleanUrl)) {
+      return this.manifestCache.get(cleanUrl);
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(cleanUrl, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const info = {
+        name: data.name || data.id || null,
+        logo: data.logo || data.icon || null,
+        description: data.description || null
+      };
+      this.manifestCache.set(cleanUrl, info);
+      return info;
+    } catch (_) {
+      // Fallback silencioso en caso de CORS o offline
+      return null;
+    }
+  }
+
+  /**
+   * Proveedor de logos conocidos para addons populares en caso de fallo de red/CORS
+   */
+  getAddonFallbackLogo(url = '', name = '') {
+    const lowerUrl = String(url || '').toLowerCase();
+    const lowerName = String(name || '').toLowerCase();
+
+    if (lowerUrl.includes('aiostreams') || lowerName.includes('aiostreams')) {
+      return 'https://aiostreams.am/logo.png';
+    }
+    if (lowerUrl.includes('lat-add') || lowerUrl.includes('latadd') || lowerName.includes('lat-add') || lowerName.includes('latadd')) {
+      return 'https://lat-add.midnightignite.me/logo.png';
+    }
+    if (lowerUrl.includes('torrentio') || lowerName.includes('torrentio')) {
+      return 'https://torrentio.strem.fun/images/logo.png';
+    }
+    if (lowerUrl.includes('torbox') || lowerName.includes('torbox')) {
+      return 'https://stremio.torbox.app/logo.png';
+    }
+    if (lowerUrl.includes('cinetorrent') || lowerName.includes('cinetorrent')) {
+      return 'https://cinetorrent.midnightignite.me/logo.png';
+    }
+    if (lowerUrl.includes('subtitles') || lowerName.includes('opensubtitles')) {
+      return 'https://www.opensubtitles.com/favicon.ico';
+    }
+    return null;
+  }
+
+  async renderAddonsManager() {
+    const container = document.getElementById('addonsManagerContainer');
+    if (!container) return;
+
+    if (!state.isManualMode && state.selectedProfileId && state.hasLoadedAddonsForProfile !== state.selectedProfileId) {
+      container.innerHTML = `
+        <div class="py-12 flex flex-col items-center justify-center text-center space-y-3">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-[#ffd479]"></i>
+          <p class="text-xs text-white/60">Cargando addons de tu cuenta de Nuvio...</p>
+        </div>
+      `;
+      try {
+        const addons = await NuvioClient.listAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: state.nuvioAuth.accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: state.selectedProfileId
+        });
+        state.setProfileAddons(addons, state.selectedProfileId);
+      } catch (err) {
+        console.warn('[AppController] Error cargando addons de perfil:', err);
+      }
+    }
+
+    this.renderAddonsList();
+    this.enrichProfileAddonsManifests();
+  }
+
+  /**
+   * Enriquecimiento en segundo plano de logos y nombres desde manifests oficiales
+   */
+  async enrichProfileAddonsManifests() {
+    const addonsToFetch = (state.profileAddons || []).filter(a => !a.logo && (a.manifest_url || a.url));
+    if (addonsToFetch.length === 0) return;
+
+    let updatedAny = false;
+    await Promise.allSettled(addonsToFetch.map(async (addon) => {
+      const url = addon.manifest_url || addon.url;
+      const fallbackLogo = this.getAddonFallbackLogo(url, addon.name);
+      if (fallbackLogo && !addon.logo) {
+        addon.logo = fallbackLogo;
+        updatedAny = true;
+      }
+
+      const info = await this.fetchManifestInfo(url);
+      if (info) {
+        if (info.logo && addon.logo !== info.logo) {
+          addon.logo = info.logo;
+          updatedAny = true;
+        }
+        if (info.name && (!addon.name || addon.name.startsWith('Addon '))) {
+          addon.name = info.name;
+          updatedAny = true;
+        }
+      }
+    }));
+
+    if (updatedAny) {
+      this.renderAddonsList();
+    }
+  }
+
+  renderAddonsList() {
+    const container = document.getElementById('addonsManagerContainer');
+    if (!container) return;
+
+    const addons = state.profileAddons || [];
+
+    const escapeText = (str) => {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+
+    // Tarjeta Anclada de AIOMetadata en posición #1
+    let html = `
+      <div class="p-3.5 sm:p-4 rounded-[20px] bg-white/[0.05] border-2 border-[#ffd479]/40 shadow-[0_0_20px_rgba(255,212,121,0.12)] flex items-center justify-between gap-3 select-none transition-all">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+          <!-- Posición #1 en grande a la extrema izquierda -->
+          <span class="text-2xl sm:text-3xl font-mono font-bold text-[#ffd479] min-w-[2.5rem] sm:min-w-[3rem] text-center select-none shrink-0 tracking-tight">#1</span>
+
+          <!-- Logo oficial de AIOMetadata -->
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+            <img src="https://raw.githubusercontent.com/cedya77/aiometadata/main/assets/logo.png" 
+                 alt="AIOMetadata" 
+                 class="w-full h-full object-cover" 
+                 onerror="this.onerror=null; this.src='https://aiometadatafortheweebs.midnightignite.me/logo.png';">
+          </div>
+
+          <!-- Título y descripción -->
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-sm sm:text-base text-white truncate tracking-wide">AIOMetadata Latino</h4>
+            <p class="text-[11px] sm:text-xs text-white/50 truncate mt-0.5">
+              Addon Principal de Metadatos: catálogos, sinopsis, calificaciones y pósters en español latino.
+            </p>
+          </div>
+        </div>
+
+        <div class="shrink-0 flex items-center">
+          <div class="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/10 text-white/40 flex items-center justify-center text-xs" title="AIOMetadata siempre permanece en la posición #1">
+            <i class="fa-solid fa-lock text-[11px]"></i>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tarjetas para cada uno de los addons secundarios
+    if (addons.length > 0) {
+      addons.forEach((addon, idx) => {
+        const pos = idx + 2;
+        const isFirstSecondary = idx === 0;
+        const isLastSecondary = idx === addons.length - 1;
+        const isAioStreams = Boolean(addon.isAioStreams);
+        const name = isAioStreams ? 'AIOStreams' : (addon.name || `Addon ${pos}`);
+        const url = addon.manifest_url || addon.url || '';
+        const logoUrl = isAioStreams
+          ? 'https://numb3rs.stream/assets/images/aiostreams.svg'
+          : (addon.logo || this.getAddonFallbackLogo(url, name));
+        const initials = isAioStreams ? 'AS' : ((name.replace(/[^a-zA-Z0-9]/g, '') || 'AD').slice(0, 2).toUpperCase());
+
+        const logoHtml = logoUrl
+          ? `<img src="${escapeText(logoUrl)}" alt="${escapeText(name)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]\\'>${escapeText(initials)}</div>';">`
+          : `<div class="w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]">${escapeText(initials)}</div>`;
+
+        let titleAndDescHtml = '';
+        if (isAioStreams) {
+          const debridsMap = addon.debrids || state.aiostreams.debrids || {};
+          const activeDebrids = Object.keys(debridsMap).filter(k => debridsMap[k]);
+          const debridsStr = activeDebrids.length > 0 ? activeDebrids.map(d => d.toUpperCase()).join(', ') : 'Sin debrids';
+          titleAndDescHtml = `
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <h4 class="font-semibold text-sm sm:text-base text-white truncate">AIOStreams Latino</h4>
+                <span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">Streams Latino</span>
+              </div>
+              <p class="text-[10px] sm:text-[11px] text-white/50 truncate mt-0.5">
+                <span class="text-emerald-400 font-medium">Debrids: ${escapeText(debridsStr)}</span> • El manifiesto se generará con tu clave maestra en el Paso 7
+              </p>
+            </div>
+          `;
+        } else {
+          titleAndDescHtml = `
+            <div class="min-w-0 flex-1">
+              <h4 class="font-semibold text-sm sm:text-base text-white truncate">${escapeText(name)}</h4>
+              <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeText(url)}">
+                ${escapeText(url || 'Sin URL de manifiesto')}
+              </p>
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150">
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <!-- Posición en grande a la extrema izquierda -->
+              <span class="text-2xl sm:text-3xl font-mono font-bold text-white/40 min-w-[2.5rem] sm:min-w-[3rem] text-center select-none shrink-0 tracking-tight">#${pos}</span>
+
+              <!-- Logo del Addon -->
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+                ${logoHtml}
+              </div>
+
+              <!-- Nombre y URL o información de Debrids -->
+              ${titleAndDescHtml}
+            </div>
+            
+            <div class="shrink-0 flex items-center gap-1.5">
+              ${isAioStreams ? `
+                <!-- Editar Debrids de AIOStreams (⚙️) -->
+                <button type="button" 
+                        onclick="window.appController.openAioStreamsDebridsModal()" 
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/60 hover:text-amber-300 hover:bg-white/[0.1] active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all" 
+                        title="Editar claves Debrid de AIOStreams">
+                  <i class="fa-solid fa-gear text-[11px]"></i>
+                </button>
+              ` : ''}
+
+              <!-- Subir orden (▲) -->
+              <button type="button" 
+                      onclick="window.appController.moveAddon(${idx}, -1)" 
+                      ${isFirstSecondary ? 'disabled' : ''} 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isFirstSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      title="${isFirstSecondary ? 'No puede subir por encima de AIOMetadata' : 'Subir prioridad'}">
+                <i class="fa-solid fa-chevron-up text-[10px]"></i>
+              </button>
+
+              <!-- Bajar orden (▼) -->
+              <button type="button" 
+                      onclick="window.appController.moveAddon(${idx}, 1)" 
+                      ${isLastSecondary ? 'disabled' : ''} 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isLastSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      title="${isLastSecondary ? 'Último elemento de la lista' : 'Bajar prioridad'}">
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              </button>
+
+              <!-- Eliminar Addon (🗑️) -->
+              <button type="button" 
+                      onclick="window.appController.removeAddon(${idx})" 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" 
+                      title="Eliminar addon de este perfil">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      html += `
+        <div class="py-8 px-4 rounded-[18px] bg-white/[0.02] border border-dashed border-white/10 text-center space-y-2 mt-2">
+          <i class="fa-solid fa-circle-nodes text-2xl text-white/20"></i>
+          <p class="text-xs text-white/60">No hay addons secundarios registrados en este perfil.</p>
+          <p class="text-[11px] text-white/40 max-w-md mx-auto">
+            Puedes agregar tus addons de streaming (AIOStreams, Torrentio, Torbox, etc.) pulsando el botón <strong class="text-white">"Agregar Addon"</strong>.
+          </p>
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+  }
+
+  moveAddon(index, direction) {
+    state.moveAddon(index, direction);
+    this.renderAddonsList();
+  }
+
+  removeAddon(index) {
+    const addon = state.profileAddons[index];
+    const name = addon?.name || 'este addon';
+    if (confirm(`¿Deseas remover el addon "${name}" de este perfil?`)) {
+      state.removeAddon(index);
+      this.renderAddonsList();
+      this.showToast(`Addon "${name}" removido de la lista.`, 'info');
+    }
+  }
+
+  openAddAddonModal(defaultUrl = '') {
+    const modal = document.getElementById('modalAddAddon');
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+
+    if (urlInput) {
+      urlInput.value = defaultUrl;
+    }
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (urlInput) urlInput.focus();
+    }
+  }
+
+  closeAddAddonModal() {
+    const modal = document.getElementById('modalAddAddon');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  async handleAddAddonConfirm() {
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+    const btnConfirm = document.getElementById('btnConfirmAddAddon');
+    let rawUrl = (urlInput ? urlInput.value : '').trim();
+
+    if (!rawUrl) {
+      this.showToast('Por favor ingresa la URL del manifest (.json).', 'warning');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    // Normalizar protocolo stremio:// a https://
+    if (rawUrl.startsWith('stremio://')) {
+      rawUrl = 'https://' + rawUrl.slice(10);
+    }
+    if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+      rawUrl = 'https://' + rawUrl;
+    }
+
+    // 1. Verificar si es AIOMetadata
+    if (isAioMetadataAddon({ url: rawUrl, name: '' })) {
+      this.showToast('AIOMetadata ya es tu addon principal (#1) y se encuentra anclado en la parte superior.', 'info');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    // 2. Verificar duplicados por enlace del manifiesto
+    if (state.hasAddonManifest(rawUrl)) {
+      this.showToast('Este enlace de manifiesto ya se encuentra agregado en tu perfil.', 'warning');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    const originalConfirmHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando manifest...';
+    }
+
+    let manifestInfo = null;
+    try {
+      manifestInfo = await this.fetchManifestInfo(rawUrl);
+    } catch (_) {}
+
+    let finalName = manifestInfo?.name || '';
+    let finalLogo = manifestInfo?.logo || this.getAddonFallbackLogo(rawUrl, finalName);
+
+    if (!finalName) {
+      try {
+        const u = new URL(rawUrl);
+        finalName = u.hostname.replace(/^(www\.|stremio\.)/, '').split('.')[0];
+        finalName = finalName.charAt(0).toUpperCase() + finalName.slice(1);
+      } catch (_) {
+        finalName = `Addon ${state.profileAddons.length + 2}`;
+      }
+    }
+
+    state.addCustomAddon(rawUrl, finalName, finalLogo);
+
+    if (btnConfirm) {
+      btnConfirm.disabled = false;
+      btnConfirm.innerHTML = originalConfirmHtml;
+    }
+
+    if (urlInput) {
+      urlInput.value = '';
+    }
+
+    this.closeAddAddonModal();
+    this.renderAddonsList();
+    this.showToast(`✓ Addon "${finalName}" agregado exitosamente a la lista.`, 'success');
+  }
+
+  openAioStreamsRequirementModal() {
+    if (state.aiostreams.installed || (state.profileAddons || []).some(a => a.isAioStreams)) {
+      this.openAioStreamsDebridsModal();
+      return;
+    }
+    const modal = document.getElementById('modalAioStreamsRequirement');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeAioStreamsRequirementModal() {
+    const modal = document.getElementById('modalAioStreamsRequirement');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  openAioStreamsDebridsModal() {
+    this.closeAioStreamsRequirementModal();
+    const modal = document.getElementById('modalAioStreamsDebrids');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      if (input) {
+        input.value = state.aiostreams.debrids[key] || '';
+      }
+      const statusEl = document.getElementById(`statusDebrid${id}`);
+      if (statusEl) {
+        if (state.aiostreams.validatedKeys[key]) {
+          statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>`;
+        } else {
+          const links = {
+            Torbox: 'https://torbox.app/settings',
+            Alldebrid: 'https://alldebrid.com/apikeys',
+            Realdebrid: 'https://real-debrid.com/apitoken',
+            Premiumize: 'https://www.premiumize.me/account',
+            Debridlink: 'https://debrid-link.com/webapp/apikey'
+          };
+          if (links[id]) {
+            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>`;
+          } else {
+            statusEl.innerHTML = '';
+          }
+        }
+      }
+    });
+
+    this.updateInstallAioStreamsBtnState();
+  }
+
+  closeAioStreamsDebridsModal() {
+    const modal = document.getElementById('modalAioStreamsDebrids');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  updateInstallAioStreamsBtnState() {
+    const btnInstall = document.getElementById('btnInstallAioStreams');
+    if (!btnInstall) return;
+
+    const hasValidatedKey = Object.values(state.aiostreams.validatedKeys || {}).some(v => v === true);
+    if (hasValidatedKey) {
+      btnInstall.disabled = false;
+      btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-100 cursor-pointer shadow-[var(--shadow-pill)]";
+      btnInstall.title = "Instalar AIOStreams con tus proveedores Debrid validados";
+    } else {
+      btnInstall.disabled = true;
+      btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed shadow-[var(--shadow-pill)]";
+      btnInstall.title = "Debes validar al menos una clave API Debrid para instalar";
+    }
+  }
+
+  async validateDebridKeys() {
+    const btnValidate = document.getElementById('btnValidateDebridKeys');
+    const btnText = document.getElementById('btnValidateDebridKeysText');
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+
+    const entriesToValidate = [];
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val) {
+        entriesToValidate.push({ id, key, val });
+      }
+    });
+
+    if (entriesToValidate.length === 0) {
+      this.showToast('Ingresa la clave API de al menos un proveedor Debrid para validar.', 'warning');
+      const firstInput = document.getElementById('inputDebridTorbox');
+      if (firstInput) firstInput.focus();
+      return;
+    }
+
+    if (btnValidate) btnValidate.disabled = true;
+    if (btnText) btnText.innerText = 'Validando en vivo...';
+
+    let validatedCount = 0;
+
+    for (const item of entriesToValidate) {
+      const statusEl = document.getElementById(`statusDebrid${item.id}`);
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Verificando...</span>`;
+      }
+
+      try {
+        const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
+        if (res.valid) {
+          validatedCount++;
+          state.aiostreams.validatedKeys[item.key] = true;
+          state.aiostreams.debrids[item.key] = item.val;
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
+          }
+        } else {
+          delete state.aiostreams.validatedKeys[item.key];
+          delete state.aiostreams.debrids[item.key];
+          if (statusEl) {
+            const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
+            statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
+          }
+        }
+      } catch (err) {
+        delete state.aiostreams.validatedKeys[item.key];
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message || 'Error'}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
+        }
+      }
+    }
+
+    if (btnValidate) btnValidate.disabled = false;
+    if (btnText) btnText.innerText = 'Validar Claves';
+
+    this.updateInstallAioStreamsBtnState();
+
+    if (validatedCount > 0) {
+      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "Instalar Addon".`, 'success');
+    } else {
+      this.showToast('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
+    }
+  }
+
+  installAioStreamsFromModal() {
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    const activeDebrids = {};
+
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val && state.aiostreams.validatedKeys[key]) {
+        activeDebrids[key] = val;
+      }
+    });
+
+    if (Object.keys(activeDebrids).length === 0) {
+      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de instalar.', 'warning');
+      return;
+    }
+
+    state.setAioStreamsConfig(activeDebrids, state.aiostreams.validatedKeys);
+    this.closeAioStreamsDebridsModal();
+    this.renderAddonsList();
+    this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
+  }
+
   setupStep6Injection() {
+    this.setupStep7Injection();
+  }
+
+  setupStep7Injection() {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
     const btnExecute = document.getElementById('btnExecutePipeline');
     const btnDownloadCol = document.getElementById('btnDownloadCollections');
     const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
+    const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
+    const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
+    const btnDownloadBadges = document.getElementById('btnDownloadBadges');
 
     // Forzar modo Real en producción
     state.execution.mode = 'real';
@@ -2192,6 +3842,26 @@ class AppController {
     const btnCopyCol = document.getElementById('btnCopyCollectionsJson');
     const btnCopyAio = document.getElementById('btnCopyAioConfig');
 
+    if (btnCopyBadge) {
+      btnCopyBadge.addEventListener('click', async () => {
+        try {
+          const packId = state.preferences.selectedBadgePack || 'tinted';
+          const badgeUrl = getBadgePackUrl(packId);
+          const pack = getBadgePackById(packId);
+          await navigator.clipboard.writeText(badgeUrl);
+          this.showToast(`✓ Enlace JSON de badges (${pack.name}) copiado al portapapeles`, 'success');
+        } catch (err) {
+          this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+        }
+      });
+    }
+
+    if (btnCopyBadgeCompiled) {
+      btnCopyBadgeCompiled.addEventListener('click', async () => {
+        await this.copyCompiledBadgeJson();
+      });
+    }
+
     if (btnCopyCol) {
       btnCopyCol.addEventListener('click', async () => {
         try {
@@ -2213,9 +3883,9 @@ class AppController {
 
     if (btnCopyAio) {
       btnCopyAio.addEventListener('click', async () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (!hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }
@@ -2237,6 +3907,48 @@ class AppController {
       });
     }
 
+    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
+    if (btnCopyAioStreams) {
+      btnCopyAioStreams.addEventListener('click', async () => {
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
+        if (!hasPassword) {
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
+          if (passwordInput) passwordInput.focus();
+          return;
+        }
+
+        const originalHtml = btnCopyAioStreams.innerHTML;
+        try {
+          btnCopyAioStreams.disabled = true;
+          btnCopyAioStreams.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-cyan-400"></i><span>Generando...</span>';
+
+          let manifestUrl = state.aiostreams.manifestUrl;
+          if (!manifestUrl) {
+            this.showToast('Generando manifest de AIOStreams en la instancia oficial...', 'info');
+            let template = state.rawAioStreamsTemplate;
+            if (!template) {
+              const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+              template = await fetchRes.json();
+              state.rawAioStreamsTemplate = template;
+            }
+            const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
+            const masterPass = state.aiometadata.password.trim();
+            const res = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
+            manifestUrl = res.manifestUrl;
+            state.aiostreams.manifestUrl = manifestUrl;
+          }
+
+          await navigator.clipboard.writeText(manifestUrl);
+          this.showToast('✓ Enlace del Manifiesto de AIOStreams copiado al portapapeles', 'success');
+        } catch (err) {
+          this.showToast(`Error al generar o copiar AIOStreams: ${err.message}`, 'error');
+        } finally {
+          btnCopyAioStreams.disabled = false;
+          btnCopyAioStreams.innerHTML = originalHtml;
+        }
+      });
+    }
+
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
         // Validar todos los pasos (1 a 6) antes de ejecutar
@@ -2244,8 +3956,8 @@ class AppController {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            if (i < 6) window.goToStep(i);
-            if (i === 6 && passwordInput) passwordInput.focus();
+            if (i < 7) window.goToStep(i);
+            if (i === 7 && passwordInput) passwordInput.focus();
             return;
           }
         }
@@ -2272,23 +3984,39 @@ class AppController {
     if (btnDownloadCol) {
       btnDownloadCol.addEventListener('click', () => {
         PipelineInjector.downloadCollectionsJson();
+        recordSuccessfulCompletion().catch(err => {
+          console.warn('[Counter] Error actualizando contador tras descargar colecciones:', err);
+        });
       });
     }
 
     if (btnDownloadAio) {
       btnDownloadAio.addEventListener('click', () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (state.isManualMode && !hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }
         PipelineInjector.downloadAioConfigJson();
+        recordSuccessfulCompletion().catch(err => {
+          console.warn('[Counter] Error actualizando contador tras descargar metadata:', err);
+        });
+      });
+    }
+
+    if (btnDownloadBadges) {
+      btnDownloadBadges.addEventListener('click', () => {
+        this.downloadCompiledBadgeJson();
       });
     }
   }
 
   refreshStep6Summary() {
+    this.refreshStep7Summary();
+  }
+
+  refreshStep7Summary() {
     const targetEl = document.getElementById('summaryProfileTarget');
     const countEl = document.getElementById('summaryCollectionsCount');
     const catalogsEl = document.getElementById('summaryCatalogsCount');
@@ -2313,21 +4041,25 @@ class AppController {
     }
 
     if (targetEl) targetEl.innerText = state.isManualMode ? 'Manual (Sin cuenta)' : (state.selectedProfileName || 'Perfil Principal');
-    if (countEl) countEl.innerText = `${activeFolders} carruseles seleccionados`;
-    if (catalogsEl) catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
+    if (countEl) {
+      countEl.innerText = `${activeFolders} carruseles seleccionados`;
+      countEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
+    }
+    if (catalogsEl) {
+      catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
+      catalogsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
+    }
 
     if (posterEngineEl) {
       const engine = state.preferences?.posterEngine || 'default';
       if (engine === 'betterposter') {
         posterEngineEl.innerText = 'BetterPoster (es-MX)';
-        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else if (engine === 'postersplus') {
         posterEngineEl.innerText = 'PostersPlus (Badges)';
-        posterEngineEl.className = 'text-[#ffd479] font-medium block truncate';
       } else {
         posterEngineEl.innerText = 'Nativo / Limpio';
-        posterEngineEl.className = 'text-white font-medium block truncate';
       }
+      posterEngineEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
     }
 
     if (enrichmentEl) {
@@ -2335,17 +4067,45 @@ class AppController {
       const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
       if (enr && rat) {
         enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
-        enrichmentEl.className = 'text-white font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else if (enr) {
         enrichmentEl.innerText = 'Solo TMDB (Activo)';
-        enrichmentEl.className = 'text-white font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else if (rat) {
         enrichmentEl.innerText = 'Solo MDBList (Activo)';
-        enrichmentEl.className = 'text-white font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
       } else {
         enrichmentEl.innerText = 'Desactivados';
-        enrichmentEl.className = 'text-white/40 font-medium block truncate';
+        enrichmentEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
       }
+    }
+
+    const badgesEl = document.getElementById('summaryBadgesStatus');
+    if (badgesEl) {
+      if (state.preferences && state.preferences.badgesEnabled) {
+        const pack = getBadgePackById(state.preferences.selectedBadgePack);
+        badgesEl.innerText = `${pack.name}`;
+        badgesEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
+      } else {
+        badgesEl.innerText = 'Desactivado';
+        badgesEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
+      }
+    }
+
+    const addonsEl = document.getElementById('summaryAddonsStatus');
+    if (addonsEl) {
+      const extraCount = state.profileAddons ? state.profileAddons.length : 0;
+      const hasAioStreams = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
+      if (hasAioStreams && extraCount === 1) {
+        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams`;
+      } else if (hasAioStreams) {
+        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams + ${extraCount - 1} más`;
+      } else if (extraCount > 0) {
+        addonsEl.innerText = `AIOMetadata (#1) + ${extraCount} addons`;
+      } else {
+        addonsEl.innerText = `AIOMetadata (#1 principal)`;
+      }
+      addonsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
     }
   }
 
