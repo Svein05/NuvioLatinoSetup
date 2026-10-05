@@ -37,24 +37,26 @@ La instalación estándar de catálogos masivos suele poblar la pantalla princip
 
 ## Capacidades del Sistema
 
-- **Flujo Secuencial en Seis Pasos:** Validación reactiva de credenciales y parámetros de configuración antes de permitir el avance a etapas posteriores.
+- **Flujo Secuencial en Siete Pasos:** Validación reactiva de credenciales y parámetros de configuración antes de permitir el avance a etapas posteriores.
 - **Soporte Dual de Aprovisionamiento:**
   - **Modo Nuvio Cloud:** Autenticación directa y configuración automatizada del perfil en la nube de Nuvio mediante Supabase Auth y llamadas PostgREST.
   - **Modo Manual:** Generación y descarga directa de los archivos `NuvioCollections.json` y `MetadataLatino.json` para usuarios que prefieren no ingresar credenciales.
 - **Gestión Avanzada de Perfiles:**
-  - Creación, selección e inspección de perfiles con advertencias visuales de sobreescritura.
-  - Control de cuota seguro limitado a un máximo de 6 perfiles por cuenta.
-  - Purga automática de complementos predeterminados obsoletos (*nuvio catalog addon* y *opensubtitles*).
+  - Creación, selección e inspección de perfiles con advertencias visuales contextuales claras.
+  - Control de cuota seguro limitado a un máximo de 6 perfiles por cuenta con modal para eliminar perfiles y liberar espacio.
+  - Anclaje automático de **AIOMetadata** en posición #1 y preservación intacta de complementos de streaming preexistentes.
 - **Sincronización de Proveedores y Metadatos:**
   - Integración obligatoria de **TMDB** para sinopsis, carátulas y reparto localizado en `es-MX`.
   - Integración de **MDBList** para calificaciones críticas globales (IMDb, Rotten Tomatoes, Metacritic y Trakt).
   - Compatibilidad opcional con claves de **RPDB**, **TheTVDB**, y motores de búsqueda semántica mediante **Google Gemini** u **OpenRouter**.
 - **Motores de Carátulas Cinematográficas:**
   - Selección entre **AioMetadata** (nativo TMDB), **BetterPoster** (minimalista con logotipos en español) y **Poster+** (calificaciones ponderadas y estética de cine), con previsualización sincronizada en proporción 2:3.
+- **Gestor Visual de Addons:**
+  - Reordenamiento visual (▲ / ▼), adición mediante enlaces manifest URL y eliminación selectiva de addons de streaming (AIOStreams, ADD-LAT, Torbox, Torrentio, CineTorrent) manteniendo AIOMetadata anclado en la cabecera.
 
 ---
 
-## Flujo de Configuración en Seis Pasos
+## Flujo de Configuración en Siete Pasos
 
 ```
 [ Paso 1: Autenticación Nuvio / Modo Manual ]
@@ -72,15 +74,19 @@ La instalación estándar de catálogos masivos suele poblar la pantalla princip
 [ Paso 5: Preferencias de Perfil y Motor de Pósters ]
                       │
                       ▼
-[ Paso 6: Clave Maestra e Inyección Automatizada ]
+[ Paso 6: Gestor de Addons del Perfil ]
+                      │
+                      ▼
+[ Paso 7: Clave Maestra e Inyección Automatizada ]
 ```
 
 1. **Autenticación Nuvio:** Conexión con credenciales existentes, registro de nuevas cuentas o selección del modo sin cuenta.
-2. **Selección de Perfil:** Selección del perfil objetivo o creación de uno nuevo para aislar la configuración.
+2. **Selección de Perfil:** Selección del perfil objetivo o creación de uno nuevo, con avisos informativos sobre la actualización o instalación de AIOMetadata.
 3. **Organización en Mini Nuvio:** Reordenamiento de colecciones, activación de plataformas y categorías, y ajuste de catálogos mediante cápsulas interactivas.
 4. **Validación de API Keys:** Comprobación en vivo de conectividad y validez de las claves de TMDB y MDBList antes de desbloquear el aprovisionamiento.
-5. **Preferencias y Pósters:** Configuración de enriquecimiento de sinopsis, calificaciones en pantalla y selección del motor de carátulas preferido.
-6. **Inyección Automatizada:** Asignación de contraseña de seguridad para AIOMetadata y ejecución del pipeline de inyección en la cuenta de Nuvio (o exportación de archivos JSON en modo manual).
+5. **Preferencias y Pósters:** Configuración de enriquecimiento de sinopsis, calificaciones en pantalla, personalización de Fusion Badges y motor de carátulas preferido.
+6. **Gestor de Addons:** Organización de la prioridad de los addons del perfil, anclando AIOMetadata en #1 y permitiendo ordenar, agregar o eliminar addons de streaming.
+7. **Inyección Automatizada:** Asignación de contraseña de seguridad para AIOMetadata y ejecución del pipeline de inyección respetuosa en la cuenta de Nuvio (o exportación de archivos JSON en modo manual).
 
 ---
 
@@ -130,7 +136,7 @@ Para ejecutar el proyecto en un entorno local:
 NuvioLatinoSetup/
 ├── index.html                  # Portada y presentación general
 ├── configuration/
-│   └── index.html              # Asistente de configuración en 6 pasos
+│   └── index.html              # Asistente de configuración en 7 pasos
 ├── documentation/
 │   └── index.html              # Documentación técnica y guías de uso
 ├── assets/

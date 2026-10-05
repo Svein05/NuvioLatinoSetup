@@ -202,7 +202,7 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
-          <span class="text-xs text-white/60 font-mono tracking-wider" id="stepCounter">Paso 1 de 6</span>
+          <span class="text-xs text-white/60 font-mono tracking-wider" id="stepCounter">Paso 1 de 7</span>
           <button id="btnNext" onclick="changeStep(1)" class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-4 shadow-[var(--shadow-lift)]" title="Paso siguiente">
             <span class="hidden sm:inline">Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
           </button>
@@ -319,11 +319,11 @@
           <!-- Renderizado dinámicamente por js/app.js (incluye tarjeta interactiva Nuevo Perfil si < 6) -->
         </div>
 
-        <!-- Alerta de Sobreescritura al Seleccionar Perfil Existente (Centrada) -->
-        <div id="profileOverwriteWarning" class="mt-5 p-4 bg-amber-500/10 border border-amber-500/25 rounded-[18px] flex items-center justify-center text-center gap-3 max-w-2xl mx-auto hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
-          <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm shrink-0"></i>
-          <div class="text-xs text-amber-200/90 leading-relaxed">
-            Al aplicar este setup en el perfil existente seleccionado (<span id="warningProfileName" class="font-bold text-white"></span>), se reemplazarán las colecciones y addons actuales por la nueva configuración.
+        <!-- Alerta Contextual Informativa al Seleccionar Perfil (Centrada) -->
+        <div id="profileOverwriteWarning" class="mt-5 p-4 bg-white/[0.04] border border-white/[0.12] rounded-[18px] flex items-center justify-center text-center gap-3 max-w-2xl mx-auto hidden transition-all duration-200 shadow-[var(--brillo-vidrio)]">
+          <i id="profileWarningIcon" class="fa-solid fa-circle-info text-[#ffd479] text-base shrink-0"></i>
+          <div id="profileWarningText" class="text-xs text-white/80 leading-relaxed">
+            <!-- Contenido dinámico renderizado por app.js -->
           </div>
         </div>
       </div>
@@ -791,15 +791,57 @@
       </div>
 
       <!-- ========================================== -->
-      <!-- PASO 6: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
+      <!-- PASO 6: GESTOR DE ADDONS DEL PERFIL        -->
       <!-- ========================================== -->
       <div id="step-6" class="step-content">
+        <div class="mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-cubes text-[#ffd479] text-lg"></i>
+                <span>Gestor de Addons del Perfil</span>
+              </h2>
+              <p class="text-sm text-white/60 mt-1">
+                Organiza la prioridad de los addons en tu perfil de Nuvio.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button id="btnOpenAddAioStreamsModal" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 flex items-center gap-2 border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] text-emerald-300 hover:text-white transition-all shadow-[var(--shadow-lift)]">
+                <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-4 h-4 object-contain" alt="AIOStreams Logo">
+                <span>Agregar AIOStreams</span>
+              </button>
+              <button id="btnOpenAddAddonModal" type="button" class="lat-capsule-btn solid text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-[var(--shadow-lift)]">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Agregar Addon</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenedor Principal de la Lista de Addons -->
+        <div id="addonsManagerContainer" class="space-y-3 max-w-4xl mx-auto py-2">
+          <!-- Renderizado dinámicamente por js/app.js -->
+        </div>
+
+        <!-- Alerta Informativa de Prioridad -->
+        <div class="mt-6 p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] flex items-start gap-3 max-w-4xl mx-auto text-xs text-white/60 leading-relaxed shadow-[var(--brillo-vidrio)]">
+          <i class="fa-solid fa-circle-info text-[#ffd479] text-sm shrink-0 mt-0.5"></i>
+          <div>
+            Nuvio consulta los catálogos y resolutores de metadatos en orden descendente. Al colocar <strong>AIOMetadata Latino</strong> en #1, aseguras que las carátulas, calificaciones y sinopsis en español latino prevalezcan sin interferir con tus fuentes de streaming debajo.
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PASO 7: SEGURIDAD E INYECCIÓN AUTOMATIZADA -->
+      <!-- ========================================== -->
+      <div id="step-7" class="step-content">
         <div class="mb-6">
           <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
             <i class="fa-solid fa-rocket text-[#ffd479] text-lg"></i>
             <span>Seguridad del Addon e Inyección Automatizada</span>
           </h2>
-          <p class="text-sm text-white/60 mt-1">Configura la clave maestra para tu addon de metadatos, revisa el resumen de configuración y ejecuta el aprovisionamiento en Nuvio.</p>
+          <p class="text-sm text-white/60 mt-1">Configura la clave maestra para tu addon de metadatos y/o aiostream, revisa el resumen de configuración y ejecuta el aprovisionamiento en Nuvio.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -817,8 +859,8 @@
                   <i class="fa-solid fa-dice"></i> <span>Generar aleatoria</span>
                 </button>
               </div>
-              <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 4 caracteres)" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-              <p class="text-[11px] text-white/50 leading-relaxed font-light">Esta contraseña protegerá tu addon y te permitirá editarlo en el futuro desde la interfaz de AIOMetadata si lo requieres.</p>
+              <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 6 caracteres)" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+              <p class="text-[11px] text-white/50 leading-relaxed font-light">Esta contraseña protegerá tus addons y te permitirá editarlos en el futuro</p>
             </div>
 
             <!-- Contenedor de Estado de Inyección en Producción -->
@@ -850,7 +892,7 @@
                   <i class="fa-solid fa-copy"></i>
                   <span>Copiar JSON de Colecciones</span>
                 </button>
-                <button id="btnCopyAioConfig" type="button" disabled class="lat-capsule-btn glass text-xs py-2 px-4 opacity-40 cursor-not-allowed flex items-center gap-2" title="Ingresa una contraseña para el addon (mínimo 4 caracteres) primero">
+                <button id="btnCopyAioConfig" type="button" disabled class="lat-capsule-btn glass text-xs py-2 px-4 opacity-40 cursor-not-allowed flex items-center gap-2" title="Ingresa una contraseña para tus addons (mínimo 6 caracteres) primero">
                   <i class="fa-solid fa-copy"></i>
                   <span>Copiar JSON de Metadata</span>
                 </button>
@@ -861,6 +903,10 @@
                 <button id="btnCopyBadgeCompiledJson" type="button" class="hidden lat-capsule-btn glass text-xs py-2 px-4 flex items-center gap-2" title="Copiar JSON de badges compilado y sanitizado con tu orden personalizado">
                   <i class="fa-solid fa-tags text-white"></i>
                   <span>Copiar JSON de Badges</span>
+                </button>
+                <button id="btnCopyAioStreamsManifest" type="button" class="hidden lat-capsule-btn glass text-xs py-2 px-4 flex items-center gap-2 text-cyan-300 border-cyan-500/30 hover:border-cyan-500/50" title="Generar y copiar URL del manifiesto de AIOStreams con tus claves Debrid">
+                  <i class="fa-solid fa-play text-cyan-400"></i>
+                  <span>Copiar Manifiesto AIOStreams</span>
                 </button>
               </div>
             </div>
@@ -969,6 +1015,17 @@
                     <span id="summaryBadgesStatus" class="text-xs sm:text-sm text-white/50 font-medium block truncate">Desactivado</span>
                   </div>
                 </div>
+
+                <!-- Item 7: Addons del Perfil -->
+                <div class="flex items-start gap-3.5">
+                  <div class="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0 text-white/80 text-xs shadow-[var(--brillo-vidrio)]">
+                    <i class="fa-solid fa-cubes text-[#ffd479]"></i>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <span class="text-[10px] text-white/40 uppercase tracking-widest font-semibold block">Addons del Perfil</span>
+                    <span id="summaryAddonsStatus" class="text-xs sm:text-sm text-white/80 font-medium block truncate">AIOMetadata (#1)</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1044,6 +1101,15 @@
           <button onclick="goToStep(6)" id="drawer-step-6" class="drawer-step-item locked">
             <span class="drawer-badge">6</span>
             <div class="flex-1 text-left">
+              <div class="font-medium text-xs">Gestor de Addons</div>
+              <div class="text-[10px] text-white/50">Orden, manifests y streaming</div>
+            </div>
+            <i class="fa-solid fa-lock text-[10px] text-white/30 drawer-status-icon"></i>
+          </button>
+
+          <button onclick="goToStep(7)" id="drawer-step-7" class="drawer-step-item locked">
+            <span class="drawer-badge">7</span>
+            <div class="flex-1 text-left">
               <div class="font-medium text-xs">Inyección</div>
               <div class="text-[10px] text-white/50">Seguridad y sincronización</div>
             </div>
@@ -1053,7 +1119,7 @@
 
         <!-- Pie del Drawer -->
         <div class="p-4 border-t border-white/[0.08] text-[11px] text-white/40 flex items-center justify-between">
-          <span id="drawerStepCounter">Paso 1 de 6</span>
+          <span id="drawerStepCounter">Paso 1 de 7</span>
           <span class="text-[10px] text-white/50 font-mono">Nuvio Latino</span>
         </div>
       </aside>
@@ -1116,7 +1182,213 @@
         </div>
       </div>
 
+      <!-- Modal de Agregar Addon mediante Manifest URL -->
+      <div id="modalAddAddon" class="absolute inset-0 bg-black/45 backdrop-blur-md z-40 hidden items-center justify-center p-4 rounded-[28px] transition-all duration-300">
+        <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[26px] max-w-md w-full p-6 shadow-[var(--shadow-lift)] space-y-4 text-white transform transition-all relative overflow-hidden" style="transform: translateZ(0);">
+          <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-white/[0.08] border border-white/20 text-[#ffd479] flex items-center justify-center text-[10px]">
+                <i class="fa-solid fa-puzzle-piece"></i>
+              </div>
+              <span>Agregar Addon al Perfil</span>
+            </h3>
+            <button id="btnCloseAddAddonModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <label class="lat-label block mb-1.5">URL del Manifest (.json)</label>
+              <input id="inputAddonManifestUrl" type="url" placeholder="https://.../manifest.json" class="w-full px-4 py-2.5 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs sm:text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)]">
+              <p class="text-[11px] text-white/40 mt-1">Pega el enlace de instalación o manifiesto de Stremio / Nuvio.</p>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2.5 pt-2">
+            <button id="btnCancelAddAddon" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+            <button id="btnConfirmAddAddon" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 shadow-[var(--shadow-pill)]">Agregar a la Lista</button>
+          </div>
+        </div>
+      </div>
+
     </main>
+  </div>
+
+  <!-- Modal 1: Requisito de Debrid para AIOStreams (Montado en body) -->
+  <div id="modalAioStreamsRequirement" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
+    <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] relative text-white space-y-4 my-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/[0.12] border border-emerald-500/30 flex items-center justify-center shrink-0">
+          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain" alt="AIOStreams">
+        </div>
+        <div>
+          <h3 class="font-bold text-sm sm:text-base text-white">¿Instalar AIOStreams Latino?</h3>
+          <p class="text-[11px] sm:text-xs text-white/50">Addon unificado de streaming y fuentes</p>
+        </div>
+      </div>
+      <div class="p-3.5 sm:p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] text-xs text-white/70 leading-relaxed space-y-2 shadow-[var(--brillo-vidrio)]">
+        <p>
+          Para utilizar <strong>AIOStreams</strong>, requerirás una clave de API de al menos un servicio <strong>Debrid</strong> (como TorBox, AllDebrid, Real-Debrid, Premiumize, etc.).
+        </p>
+        <p class="text-[11px] text-white/50">
+          AIOStreams unifica indexadores como Torrentio, Comet, SeaDex y MediaFusion priorizando audio e idioma español latino en tu perfil. ¿Aceptas continuar?
+        </p>
+      </div>
+      <div class="flex justify-end gap-2.5 pt-1">
+        <button id="btnCancelAioStreamsReq" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+        <button id="btnAcceptAioStreamsReq" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-[var(--shadow-pill)]">
+          Aceptar y Configurar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Formulario de API Keys Debrid para AIOStreams (Montado en body con límites y scroll adaptativo) -->
+  <div id="modalAioStreamsDebrids" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5 transition-all duration-200 overflow-y-auto">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[24px] sm:rounded-[26px] max-w-xl w-full p-4 sm:p-5 shadow-[var(--shadow-lift)] relative text-white flex flex-col max-h-[88vh] my-auto overflow-hidden">
+      
+      <!-- Cabecera Anclada con Botones de Acción Superiores -->
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0 gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain shrink-0" alt="AIOStreams">
+          <div class="min-w-0">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2 truncate">
+              <span class="truncate">Proveedores Debrid</span>
+            </h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button id="btnValidateDebridKeys" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-2.5 sm:px-3 flex items-center gap-1.5 border-amber-500/40 text-amber-300 hover:text-white bg-amber-500/[0.08] hover:bg-amber-500/[0.15] transition-all">
+            <i class="fa-solid fa-key text-[10px]"></i>
+            <span id="btnValidateDebridKeysText">Validar Claves</span>
+          </button>
+          <button id="btnInstallAioStreams" type="button" disabled class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all shadow-[var(--shadow-pill)]">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>Instalar Addon</span>
+          </button>
+          <button id="btnCloseAioStreamsDebridsModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors ml-0.5 shrink-0" title="Cerrar ventana">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenido Scrolleable de Debrids Adaptativo (flex-1 min-h-0) -->
+      <div class="flex-1 min-h-0 overflow-y-auto py-3 space-y-2.5 sm:space-y-3 pr-1 text-xs">
+        <p class="text-white/60 leading-snug text-[11px] pb-0.5">
+          Ingresa la clave API de al menos un proveedor Debrid. Pulsa <strong class="text-white font-medium">"Validar Claves"</strong> arriba para verificarla en vivo y luego <strong class="text-white font-medium">"Instalar Addon"</strong>.
+        </p>
+
+        <!-- 1. TorBox (Prioridad #1 Recomendada) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-emerald-500/30 hover:border-emerald-500/50 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] flex items-center justify-center font-bold">1</span>
+              <span>TorBox</span>
+              <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20 font-mono">Recomendado</span>
+            </label>
+            <div id="statusDebridTorbox" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://torbox.app/settings" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridTorbox" type="password" placeholder="Ingresa tu TorBox API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 2. AllDebrid (Prioridad #2) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">2</span>
+              <span>AllDebrid</span>
+            </label>
+            <div id="statusDebridAlldebrid" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://alldebrid.com/apikeys" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridAlldebrid" type="password" placeholder="Ingresa tu AllDebrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 3. Real-Debrid (Prioridad #3) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">3</span>
+              <span>Real-Debrid</span>
+            </label>
+            <div id="statusDebridRealdebrid" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridRealdebrid" type="password" placeholder="Ingresa tu Real-Debrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 4. Premiumize (Prioridad #4) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">4</span>
+              <span>Premiumize</span>
+            </label>
+            <div id="statusDebridPremiumize" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://www.premiumize.me/account" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridPremiumize" type="password" placeholder="Ingresa tu Premiumize API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 5. Debrid-Link (Prioridad #5) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">5</span>
+              <span>Debrid-Link</span>
+            </label>
+            <div id="statusDebridDebridlink" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://debrid-link.com/webapp/apikey" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridDebridlink" type="password" placeholder="Ingresa tu Debrid-Link API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- Acordeón Desplegable: Otros Proveedores Debrid Opcionales -->
+        <details class="group p-2.5 sm:p-3 rounded-[14px] bg-white/[0.02] border border-white/[0.06] text-xs">
+          <summary class="font-medium text-white/70 cursor-pointer list-none flex items-center justify-between select-none hover:text-white">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-[11px] text-white/40"></i>
+              <span>Otros proveedores Debrid (Opcionales)</span>
+            </span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-2.5 space-y-2.5">
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">EasyDebrid API Key</label>
+              <input id="inputDebridEasydebrid" type="password" placeholder="EasyDebrid API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">Debrider API Key</label>
+              <input id="inputDebridDebrider" type="password" placeholder="Debrider API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">Torrin API Key</label>
+              <input id="inputDebridTorrin" type="password" placeholder="tr_..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">Offcloud API Key</label>
+              <input id="inputDebridOffcloud" type="password" placeholder="Offcloud API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+            </div>
+          </div>
+        </details>
+
+      </div>
+
+      <!-- Pie del Modal Anclado Inferior -->
+      <div class="border-t border-white/[0.08] pt-2.5 sm:pt-3 shrink-0 flex items-center justify-between text-[11px] text-white/50 gap-2">
+        <span class="flex items-center gap-1.5 truncate">
+          <i class="fa-solid fa-shield-halved text-emerald-400 shrink-0"></i>
+          <span class="truncate">El manifiesto se generará con tu Clave Maestra en el Paso 7.</span>
+        </span>
+        <button id="btnCancelAioStreamsDebrids" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-3 shrink-0">Cerrar</button>
+      </div>
+
+    </div>
   </div>
 
   <!-- Modal Emergente de Finalización y Comunidad -->

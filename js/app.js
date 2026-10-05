@@ -2,11 +2,12 @@
  * Controlador Principal de la Aplicación (UI y Eventos)
  * Nuvio & AIOMetadata Auto-Setup Wizard
  */
-import { state } from './state.js';
+import { state, isAioMetadataAddon } from './state.js';
 import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
+import { AIOStreamsClient } from './aiostreams-client.js';
 import { 
   BADGE_PACKS, 
   getBadgePackById, 
@@ -302,7 +303,8 @@ class AppController {
     this.setupStep2Profiles();
     this.setupStep3ApiKeys();
     this.setupStep5Preferences();
-    this.setupStep6Injection();
+    this.setupStep6AddonsManager();
+    this.setupStep7Injection();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -669,7 +671,7 @@ class AppController {
     if (stepCounter) stepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
     if (drawerStepCounter) drawerStepCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
-    // Si estamos en el paso 2, 3, 5 o 6, refrescar o sincronizar vistas
+    // Si estamos en el paso 2, 3, 5, 6 o 7, refrescar o sincronizar vistas
     if (currentStep === 2) {
       this.renderProfiles();
     } else if (currentStep === 3) {
@@ -679,6 +681,9 @@ class AppController {
       this.updatePreferencesUI();
       this.startPosterRotation();
     } else if (currentStep === 6) {
+      state.unlockStep(7);
+      this.renderAddonsManager();
+    } else if (currentStep === 7) {
       const manualContainer = document.getElementById('manualModeContainer');
       const btnExec = document.getElementById('btnExecutePipeline');
       if (state.isManualMode) {
@@ -695,8 +700,8 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
-      this.refreshStep6Summary();
-      this.updateStep6ExecuteButton();
+      this.refreshStep7Summary();
+      this.updateStep7ExecuteButton();
     }
 
     // Rotación sincronizada de demostración activa exclusivamente en el Paso 5
@@ -725,6 +730,10 @@ class AppController {
   }
 
   updateStep6ExecuteButton() {
+    this.updateStep7ExecuteButton();
+  }
+
+  updateStep7ExecuteButton() {
     const btnExecute = document.getElementById('btnExecutePipeline');
     if (!btnExecute) return;
 
@@ -738,7 +747,7 @@ class AppController {
     btnExecute.classList.remove('hidden');
     btnExecute.style.display = 'flex';
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
     if (hasPassword) {
       btnExecute.disabled = false;
       btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
@@ -746,7 +755,7 @@ class AppController {
     } else {
       btnExecute.disabled = true;
       btnExecute.className = "lat-capsule-btn glass opacity-40 px-7 py-3 text-sm flex items-center gap-2 cursor-not-allowed shadow-none";
-      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
+      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 6 caracteres) para activar";
     }
   }
 
@@ -756,7 +765,9 @@ class AppController {
     const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
     const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
     const btnDownloadBadges = document.getElementById('btnDownloadBadges');
+    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
     const isBadgesEnabled = Boolean(state.preferences && state.preferences.badgesEnabled);
+    const isAioStreamsInstalled = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
 
     if (btnCopyBadge) {
       if (isBadgesEnabled) {
@@ -782,9 +793,17 @@ class AppController {
       }
     }
 
+    if (btnCopyAioStreams) {
+      if (isAioStreamsInstalled) {
+        btnCopyAioStreams.classList.remove('hidden');
+      } else {
+        btnCopyAioStreams.classList.add('hidden');
+      }
+    }
+
     if (!btnCopyAio) return;
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
 
     if (hasPassword) {
       btnCopyAio.disabled = false;
@@ -797,7 +816,7 @@ class AppController {
     } else {
       btnCopyAio.disabled = true;
       btnCopyAio.className = "lat-capsule-btn glass opacity-40 text-xs py-2 px-4 cursor-not-allowed flex items-center gap-2 shadow-none";
-      btnCopyAio.title = "Ingresa una contraseña para el addon (mínimo 4 caracteres) primero";
+      btnCopyAio.title = "Ingresa una contraseña para tus addons (mínimo 6 caracteres) primero";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = true;
         btnDownloadAio.className = "lat-capsule-btn glass opacity-40 px-4 py-3 text-xs flex items-center gap-2 cursor-not-allowed";
@@ -1412,22 +1431,66 @@ class AppController {
     }
   }
 
-  updateProfileWarning(profileId, profileName) {
+  async updateProfileWarning(profileId, profileName) {
     const warningContainer = document.getElementById('profileOverwriteWarning');
-    const nameEl = document.getElementById('warningProfileName');
+    const warningTextEl = document.getElementById('profileWarningText');
+    const warningIcon = document.getElementById('profileWarningIcon');
     if (!warningContainer) return;
 
-    if (!profileId) {
+    if (!profileId || state.isManualMode) {
       warningContainer.classList.add('hidden');
       return;
     }
 
+    const displayName = profileName || 'seleccionado';
     const isNew = state.isProfileNew(profileId);
-    if (!isNew) {
-      if (nameEl) nameEl.innerText = `"${profileName || 'seleccionado'}"`;
+
+    if (isNew) {
+      if (warningTextEl) {
+        warningTextEl.innerHTML = `Perfil nuevo (<strong class="text-white">"${displayName}"</strong>): se aprovisionará de forma limpia con <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1) y podrás añadir tus addons de streaming en el Paso 6.`;
+      }
+      if (warningIcon) warningIcon.className = "fa-solid fa-sparkles text-[#ffd479] text-base shrink-0";
       warningContainer.classList.remove('hidden');
-    } else {
-      warningContainer.classList.add('hidden');
+      return;
+    }
+
+    // Comprobar si ya tiene AIOMetadata en segundo plano
+    if (warningTextEl) {
+      warningTextEl.innerHTML = `Analizando addons del perfil <strong class="text-white">"${displayName}"</strong>...`;
+    }
+    warningContainer.classList.remove('hidden');
+
+    try {
+      let hasAio = false;
+      if (state.hasLoadedAddonsForProfile === profileId && state.existingAioAddon) {
+        hasAio = true;
+      } else if (state.nuvioAuth?.accessToken) {
+        const addons = await NuvioClient.listAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: state.nuvioAuth.accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: profileId
+        });
+        hasAio = (addons || []).some(isAioMetadataAddon);
+        if (state.hasLoadedAddonsForProfile !== profileId) {
+          state.setProfileAddons(addons, profileId);
+        }
+      }
+
+      if (warningTextEl) {
+        if (hasAio) {
+          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se actualizará tu configuración de <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1). Todos tus addons de streaming y catálogos existentes se conservarán intactos y podrás gestionarlos en el Paso 6.`;
+          if (warningIcon) warningIcon.className = "fa-solid fa-rotate text-[#ffd479] text-base shrink-0";
+        } else {
+          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se instalará <strong class="text-[#ffd479]">AIOMetadata</strong> como tu addon principal de metadatos (#1). Tus addons actuales de streaming se mantendrán intactos y podrás organizarlos en el Paso 6.`;
+          if (warningIcon) warningIcon.className = "fa-solid fa-circle-info text-[#ffd479] text-base shrink-0";
+        }
+      }
+    } catch (_) {
+      if (warningTextEl) {
+        warningTextEl.innerHTML = `En el perfil <strong class="text-white">"${displayName}"</strong> se conservarán intactos tus addons de streaming y se priorizará <strong class="text-[#ffd479]">AIOMetadata</strong> en la posición principal (#1).`;
+      }
     }
   }
 
@@ -3050,7 +3113,697 @@ class AppController {
     this.updateStep5PosterPreviews();
   }
 
+  setupStep6AddonsManager() {
+    const btnOpenModal = document.getElementById('btnOpenAddAddonModal');
+    const modal = document.getElementById('modalAddAddon');
+    const btnCloseModal = document.getElementById('btnCloseAddAddonModal');
+    const btnCancelModal = document.getElementById('btnCancelAddAddon');
+    const btnConfirmModal = document.getElementById('btnConfirmAddAddon');
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+
+    if (btnOpenModal) {
+      btnOpenModal.addEventListener('click', () => this.openAddAddonModal());
+    }
+    if (btnCloseModal) {
+      btnCloseModal.addEventListener('click', () => this.closeAddAddonModal());
+    }
+    if (btnCancelModal) {
+      btnCancelModal.addEventListener('click', () => this.closeAddAddonModal());
+    }
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeAddAddonModal();
+      });
+    }
+    if (btnConfirmModal) {
+      btnConfirmModal.addEventListener('click', () => this.handleAddAddonConfirm());
+    }
+    if (urlInput) {
+      urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleAddAddonConfirm();
+        }
+      });
+    }
+
+    // --- Flujo de AIOStreams ---
+    const btnOpenAioModal = document.getElementById('btnOpenAddAioStreamsModal');
+    const modalAioReq = document.getElementById('modalAioStreamsRequirement');
+    const btnCancelAioReq = document.getElementById('btnCancelAioStreamsReq');
+    const btnAcceptAioReq = document.getElementById('btnAcceptAioStreamsReq');
+
+    const modalAioDebrids = document.getElementById('modalAioStreamsDebrids');
+    const btnCloseAioDebrids = document.getElementById('btnCloseAioStreamsDebridsModal');
+    const btnCancelAioDebrids = document.getElementById('btnCancelAioStreamsDebrids');
+    const btnValidateDebrids = document.getElementById('btnValidateDebridKeys');
+    const btnInstallAio = document.getElementById('btnInstallAioStreams');
+
+    if (btnOpenAioModal) {
+      btnOpenAioModal.addEventListener('click', () => this.openAioStreamsRequirementModal());
+    }
+    if (btnCancelAioReq) {
+      btnCancelAioReq.addEventListener('click', () => this.closeAioStreamsRequirementModal());
+    }
+    if (btnAcceptAioReq) {
+      btnAcceptAioReq.addEventListener('click', () => this.openAioStreamsDebridsModal());
+    }
+    if (modalAioReq) {
+      modalAioReq.addEventListener('click', (e) => {
+        if (e.target === modalAioReq) this.closeAioStreamsRequirementModal();
+      });
+    }
+
+    if (btnCloseAioDebrids) {
+      btnCloseAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
+    }
+    if (btnCancelAioDebrids) {
+      btnCancelAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
+    }
+    if (modalAioDebrids) {
+      modalAioDebrids.addEventListener('click', (e) => {
+        if (e.target === modalAioDebrids) this.closeAioStreamsDebridsModal();
+      });
+    }
+
+    if (btnValidateDebrids) {
+      btnValidateDebrids.addEventListener('click', () => this.validateDebridKeys());
+    }
+    if (btnInstallAio) {
+      btnInstallAio.addEventListener('click', () => this.installAioStreamsFromModal());
+    }
+
+    // Escuchar cambios en los inputs para invalidar validación previa y actualizar botón de instalar
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    debridIds.forEach(id => {
+      const input = document.getElementById(`inputDebrid${id}`);
+      if (input) {
+        input.addEventListener('input', () => {
+          const key = id.toLowerCase();
+          delete state.aiostreams.validatedKeys[key];
+          delete state.aiostreams.debrids[key];
+          const statusEl = document.getElementById(`statusDebrid${id}`);
+          if (statusEl && !statusEl.querySelector('a')) {
+            statusEl.innerHTML = '';
+          }
+          this.updateInstallAioStreamsBtnState();
+        });
+      }
+    });
+  }
+
+  /**
+   * Intenta obtener información del manifest de un addon (nombre y logo oficial)
+   */
+  async fetchManifestInfo(manifestUrl) {
+    if (!manifestUrl) return null;
+    if (!this.manifestCache) this.manifestCache = new Map();
+
+    let cleanUrl = String(manifestUrl).trim();
+    if (cleanUrl.startsWith('stremio://')) {
+      cleanUrl = 'https://' + cleanUrl.slice(10);
+    }
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
+    if (!cleanUrl.includes('.json') && !cleanUrl.endsWith('manifest.json')) {
+      cleanUrl = cleanUrl.replace(/\/+$/, '') + '/manifest.json';
+    }
+
+    if (this.manifestCache.has(cleanUrl)) {
+      return this.manifestCache.get(cleanUrl);
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(cleanUrl, {
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const info = {
+        name: data.name || data.id || null,
+        logo: data.logo || data.icon || null,
+        description: data.description || null
+      };
+      this.manifestCache.set(cleanUrl, info);
+      return info;
+    } catch (_) {
+      // Fallback silencioso en caso de CORS o offline
+      return null;
+    }
+  }
+
+  /**
+   * Proveedor de logos conocidos para addons populares en caso de fallo de red/CORS
+   */
+  getAddonFallbackLogo(url = '', name = '') {
+    const lowerUrl = String(url || '').toLowerCase();
+    const lowerName = String(name || '').toLowerCase();
+
+    if (lowerUrl.includes('aiostreams') || lowerName.includes('aiostreams')) {
+      return 'https://aiostreams.am/logo.png';
+    }
+    if (lowerUrl.includes('lat-add') || lowerUrl.includes('latadd') || lowerName.includes('lat-add') || lowerName.includes('latadd')) {
+      return 'https://lat-add.midnightignite.me/logo.png';
+    }
+    if (lowerUrl.includes('torrentio') || lowerName.includes('torrentio')) {
+      return 'https://torrentio.strem.fun/images/logo.png';
+    }
+    if (lowerUrl.includes('torbox') || lowerName.includes('torbox')) {
+      return 'https://stremio.torbox.app/logo.png';
+    }
+    if (lowerUrl.includes('cinetorrent') || lowerName.includes('cinetorrent')) {
+      return 'https://cinetorrent.midnightignite.me/logo.png';
+    }
+    if (lowerUrl.includes('subtitles') || lowerName.includes('opensubtitles')) {
+      return 'https://www.opensubtitles.com/favicon.ico';
+    }
+    return null;
+  }
+
+  async renderAddonsManager() {
+    const container = document.getElementById('addonsManagerContainer');
+    if (!container) return;
+
+    if (!state.isManualMode && state.selectedProfileId && state.hasLoadedAddonsForProfile !== state.selectedProfileId) {
+      container.innerHTML = `
+        <div class="py-12 flex flex-col items-center justify-center text-center space-y-3">
+          <i class="fa-solid fa-spinner fa-spin text-2xl text-[#ffd479]"></i>
+          <p class="text-xs text-white/60">Cargando addons de tu cuenta de Nuvio...</p>
+        </div>
+      `;
+      try {
+        const addons = await NuvioClient.listAddons({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: state.nuvioAuth.accessToken,
+          userId: state.nuvioAuth.userId,
+          profileId: state.selectedProfileId
+        });
+        state.setProfileAddons(addons, state.selectedProfileId);
+      } catch (err) {
+        console.warn('[AppController] Error cargando addons de perfil:', err);
+      }
+    }
+
+    this.renderAddonsList();
+    this.enrichProfileAddonsManifests();
+  }
+
+  /**
+   * Enriquecimiento en segundo plano de logos y nombres desde manifests oficiales
+   */
+  async enrichProfileAddonsManifests() {
+    const addonsToFetch = (state.profileAddons || []).filter(a => !a.logo && (a.manifest_url || a.url));
+    if (addonsToFetch.length === 0) return;
+
+    let updatedAny = false;
+    await Promise.allSettled(addonsToFetch.map(async (addon) => {
+      const url = addon.manifest_url || addon.url;
+      const fallbackLogo = this.getAddonFallbackLogo(url, addon.name);
+      if (fallbackLogo && !addon.logo) {
+        addon.logo = fallbackLogo;
+        updatedAny = true;
+      }
+
+      const info = await this.fetchManifestInfo(url);
+      if (info) {
+        if (info.logo && addon.logo !== info.logo) {
+          addon.logo = info.logo;
+          updatedAny = true;
+        }
+        if (info.name && (!addon.name || addon.name.startsWith('Addon '))) {
+          addon.name = info.name;
+          updatedAny = true;
+        }
+      }
+    }));
+
+    if (updatedAny) {
+      this.renderAddonsList();
+    }
+  }
+
+  renderAddonsList() {
+    const container = document.getElementById('addonsManagerContainer');
+    if (!container) return;
+
+    const addons = state.profileAddons || [];
+
+    const escapeText = (str) => {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    };
+
+    // Tarjeta Anclada de AIOMetadata en posición #1
+    let html = `
+      <div class="p-3.5 sm:p-4 rounded-[20px] bg-white/[0.05] border-2 border-[#ffd479]/40 shadow-[0_0_20px_rgba(255,212,121,0.12)] flex items-center justify-between gap-3 select-none transition-all">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+          <!-- Posición #1 en grande a la extrema izquierda -->
+          <span class="text-2xl sm:text-3xl font-mono font-bold text-[#ffd479] min-w-[2.5rem] sm:min-w-[3rem] text-center select-none shrink-0 tracking-tight">#1</span>
+
+          <!-- Logo oficial de AIOMetadata -->
+          <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+            <img src="https://raw.githubusercontent.com/cedya77/aiometadata/main/assets/logo.png" 
+                 alt="AIOMetadata" 
+                 class="w-full h-full object-cover" 
+                 onerror="this.onerror=null; this.src='https://aiometadatafortheweebs.midnightignite.me/logo.png';">
+          </div>
+
+          <!-- Título y descripción -->
+          <div class="min-w-0 flex-1">
+            <h4 class="font-bold text-sm sm:text-base text-white truncate tracking-wide">AIOMetadata Latino</h4>
+            <p class="text-[11px] sm:text-xs text-white/50 truncate mt-0.5">
+              Addon Principal de Metadatos: catálogos, sinopsis, calificaciones y pósters en español latino.
+            </p>
+          </div>
+        </div>
+
+        <div class="shrink-0 flex items-center">
+          <div class="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/10 text-white/40 flex items-center justify-center text-xs" title="AIOMetadata siempre permanece en la posición #1">
+            <i class="fa-solid fa-lock text-[11px]"></i>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Tarjetas para cada uno de los addons secundarios
+    if (addons.length > 0) {
+      addons.forEach((addon, idx) => {
+        const pos = idx + 2;
+        const isFirstSecondary = idx === 0;
+        const isLastSecondary = idx === addons.length - 1;
+        const isAioStreams = Boolean(addon.isAioStreams);
+        const name = isAioStreams ? 'AIOStreams' : (addon.name || `Addon ${pos}`);
+        const url = addon.manifest_url || addon.url || '';
+        const logoUrl = isAioStreams
+          ? 'https://numb3rs.stream/assets/images/aiostreams.svg'
+          : (addon.logo || this.getAddonFallbackLogo(url, name));
+        const initials = isAioStreams ? 'AS' : ((name.replace(/[^a-zA-Z0-9]/g, '') || 'AD').slice(0, 2).toUpperCase());
+
+        const logoHtml = logoUrl
+          ? `<img src="${escapeText(logoUrl)}" alt="${escapeText(name)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]\\'>${escapeText(initials)}</div>';">`
+          : `<div class="w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]">${escapeText(initials)}</div>`;
+
+        let titleAndDescHtml = '';
+        if (isAioStreams) {
+          const debridsMap = addon.debrids || state.aiostreams.debrids || {};
+          const activeDebrids = Object.keys(debridsMap).filter(k => debridsMap[k]);
+          const debridsStr = activeDebrids.length > 0 ? activeDebrids.map(d => d.toUpperCase()).join(', ') : 'Sin debrids';
+          titleAndDescHtml = `
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <h4 class="font-semibold text-sm sm:text-base text-white truncate">AIOStreams Latino</h4>
+                <span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">Streams Latino</span>
+              </div>
+              <p class="text-[10px] sm:text-[11px] text-white/50 truncate mt-0.5">
+                <span class="text-emerald-400 font-medium">Debrids: ${escapeText(debridsStr)}</span> • El manifiesto se generará con tu clave maestra en el Paso 7
+              </p>
+            </div>
+          `;
+        } else {
+          titleAndDescHtml = `
+            <div class="min-w-0 flex-1">
+              <h4 class="font-semibold text-sm sm:text-base text-white truncate">${escapeText(name)}</h4>
+              <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeText(url)}">
+                ${escapeText(url || 'Sin URL de manifiesto')}
+              </p>
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150">
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+              <!-- Posición en grande a la extrema izquierda -->
+              <span class="text-2xl sm:text-3xl font-mono font-bold text-white/40 min-w-[2.5rem] sm:min-w-[3rem] text-center select-none shrink-0 tracking-tight">#${pos}</span>
+
+              <!-- Logo del Addon -->
+              <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
+                ${logoHtml}
+              </div>
+
+              <!-- Nombre y URL o información de Debrids -->
+              ${titleAndDescHtml}
+            </div>
+            
+            <div class="shrink-0 flex items-center gap-1.5">
+              ${isAioStreams ? `
+                <!-- Editar Debrids de AIOStreams (⚙️) -->
+                <button type="button" 
+                        onclick="window.appController.openAioStreamsDebridsModal()" 
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/60 hover:text-amber-300 hover:bg-white/[0.1] active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all" 
+                        title="Editar claves Debrid de AIOStreams">
+                  <i class="fa-solid fa-gear text-[11px]"></i>
+                </button>
+              ` : ''}
+
+              <!-- Subir orden (▲) -->
+              <button type="button" 
+                      onclick="window.appController.moveAddon(${idx}, -1)" 
+                      ${isFirstSecondary ? 'disabled' : ''} 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isFirstSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      title="${isFirstSecondary ? 'No puede subir por encima de AIOMetadata' : 'Subir prioridad'}">
+                <i class="fa-solid fa-chevron-up text-[10px]"></i>
+              </button>
+
+              <!-- Bajar orden (▼) -->
+              <button type="button" 
+                      onclick="window.appController.moveAddon(${idx}, 1)" 
+                      ${isLastSecondary ? 'disabled' : ''} 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isLastSecondary ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" 
+                      title="${isLastSecondary ? 'Último elemento de la lista' : 'Bajar prioridad'}">
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              </button>
+
+              <!-- Eliminar Addon (🗑️) -->
+              <button type="button" 
+                      onclick="window.appController.removeAddon(${idx})" 
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" 
+                      title="Eliminar addon de este perfil">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      html += `
+        <div class="py-8 px-4 rounded-[18px] bg-white/[0.02] border border-dashed border-white/10 text-center space-y-2 mt-2">
+          <i class="fa-solid fa-circle-nodes text-2xl text-white/20"></i>
+          <p class="text-xs text-white/60">No hay addons secundarios registrados en este perfil.</p>
+          <p class="text-[11px] text-white/40 max-w-md mx-auto">
+            Puedes agregar tus addons de streaming (AIOStreams, Torrentio, Torbox, etc.) pulsando el botón <strong class="text-white">"Agregar Addon"</strong>.
+          </p>
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+  }
+
+  moveAddon(index, direction) {
+    state.moveAddon(index, direction);
+    this.renderAddonsList();
+  }
+
+  removeAddon(index) {
+    const addon = state.profileAddons[index];
+    const name = addon?.name || 'este addon';
+    if (confirm(`¿Deseas remover el addon "${name}" de este perfil?`)) {
+      state.removeAddon(index);
+      this.renderAddonsList();
+      this.showToast(`Addon "${name}" removido de la lista.`, 'info');
+    }
+  }
+
+  openAddAddonModal(defaultUrl = '') {
+    const modal = document.getElementById('modalAddAddon');
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+
+    if (urlInput) {
+      urlInput.value = defaultUrl;
+    }
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (urlInput) urlInput.focus();
+    }
+  }
+
+  closeAddAddonModal() {
+    const modal = document.getElementById('modalAddAddon');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  async handleAddAddonConfirm() {
+    const urlInput = document.getElementById('inputAddonManifestUrl');
+    const btnConfirm = document.getElementById('btnConfirmAddAddon');
+    let rawUrl = (urlInput ? urlInput.value : '').trim();
+
+    if (!rawUrl) {
+      this.showToast('Por favor ingresa la URL del manifest (.json).', 'warning');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    // Normalizar protocolo stremio:// a https://
+    if (rawUrl.startsWith('stremio://')) {
+      rawUrl = 'https://' + rawUrl.slice(10);
+    }
+    if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+      rawUrl = 'https://' + rawUrl;
+    }
+
+    // 1. Verificar si es AIOMetadata
+    if (isAioMetadataAddon({ url: rawUrl, name: '' })) {
+      this.showToast('AIOMetadata ya es tu addon principal (#1) y se encuentra anclado en la parte superior.', 'info');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    // 2. Verificar duplicados por enlace del manifiesto
+    if (state.hasAddonManifest(rawUrl)) {
+      this.showToast('Este enlace de manifiesto ya se encuentra agregado en tu perfil.', 'warning');
+      if (urlInput) urlInput.focus();
+      return;
+    }
+
+    const originalConfirmHtml = btnConfirm ? btnConfirm.innerHTML : '';
+    if (btnConfirm) {
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando manifest...';
+    }
+
+    let manifestInfo = null;
+    try {
+      manifestInfo = await this.fetchManifestInfo(rawUrl);
+    } catch (_) {}
+
+    let finalName = manifestInfo?.name || '';
+    let finalLogo = manifestInfo?.logo || this.getAddonFallbackLogo(rawUrl, finalName);
+
+    if (!finalName) {
+      try {
+        const u = new URL(rawUrl);
+        finalName = u.hostname.replace(/^(www\.|stremio\.)/, '').split('.')[0];
+        finalName = finalName.charAt(0).toUpperCase() + finalName.slice(1);
+      } catch (_) {
+        finalName = `Addon ${state.profileAddons.length + 2}`;
+      }
+    }
+
+    state.addCustomAddon(rawUrl, finalName, finalLogo);
+
+    if (btnConfirm) {
+      btnConfirm.disabled = false;
+      btnConfirm.innerHTML = originalConfirmHtml;
+    }
+
+    if (urlInput) {
+      urlInput.value = '';
+    }
+
+    this.closeAddAddonModal();
+    this.renderAddonsList();
+    this.showToast(`✓ Addon "${finalName}" agregado exitosamente a la lista.`, 'success');
+  }
+
+  openAioStreamsRequirementModal() {
+    if (state.aiostreams.installed || (state.profileAddons || []).some(a => a.isAioStreams)) {
+      this.openAioStreamsDebridsModal();
+      return;
+    }
+    const modal = document.getElementById('modalAioStreamsRequirement');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeAioStreamsRequirementModal() {
+    const modal = document.getElementById('modalAioStreamsRequirement');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  openAioStreamsDebridsModal() {
+    this.closeAioStreamsRequirementModal();
+    const modal = document.getElementById('modalAioStreamsDebrids');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      if (input) {
+        input.value = state.aiostreams.debrids[key] || '';
+      }
+      const statusEl = document.getElementById(`statusDebrid${id}`);
+      if (statusEl) {
+        if (state.aiostreams.validatedKeys[key]) {
+          statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>`;
+        } else {
+          const links = {
+            Torbox: 'https://torbox.app/settings',
+            Alldebrid: 'https://alldebrid.com/apikeys',
+            Realdebrid: 'https://real-debrid.com/apitoken',
+            Premiumize: 'https://www.premiumize.me/account',
+            Debridlink: 'https://debrid-link.com/webapp/apikey'
+          };
+          if (links[id]) {
+            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>`;
+          } else {
+            statusEl.innerHTML = '';
+          }
+        }
+      }
+    });
+
+    this.updateInstallAioStreamsBtnState();
+  }
+
+  closeAioStreamsDebridsModal() {
+    const modal = document.getElementById('modalAioStreamsDebrids');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  updateInstallAioStreamsBtnState() {
+    const btnInstall = document.getElementById('btnInstallAioStreams');
+    if (!btnInstall) return;
+
+    const hasValidatedKey = Object.values(state.aiostreams.validatedKeys || {}).some(v => v === true);
+    if (hasValidatedKey) {
+      btnInstall.disabled = false;
+      btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-100 cursor-pointer shadow-[var(--shadow-pill)]";
+      btnInstall.title = "Instalar AIOStreams con tus proveedores Debrid validados";
+    } else {
+      btnInstall.disabled = true;
+      btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed shadow-[var(--shadow-pill)]";
+      btnInstall.title = "Debes validar al menos una clave API Debrid para instalar";
+    }
+  }
+
+  async validateDebridKeys() {
+    const btnValidate = document.getElementById('btnValidateDebridKeys');
+    const btnText = document.getElementById('btnValidateDebridKeysText');
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+
+    const entriesToValidate = [];
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val) {
+        entriesToValidate.push({ id, key, val });
+      }
+    });
+
+    if (entriesToValidate.length === 0) {
+      this.showToast('Ingresa la clave API de al menos un proveedor Debrid para validar.', 'warning');
+      const firstInput = document.getElementById('inputDebridTorbox');
+      if (firstInput) firstInput.focus();
+      return;
+    }
+
+    if (btnValidate) btnValidate.disabled = true;
+    if (btnText) btnText.innerText = 'Validando en vivo...';
+
+    let validatedCount = 0;
+
+    for (const item of entriesToValidate) {
+      const statusEl = document.getElementById(`statusDebrid${item.id}`);
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Verificando...</span>`;
+      }
+
+      try {
+        const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
+        if (res.valid) {
+          validatedCount++;
+          state.aiostreams.validatedKeys[item.key] = true;
+          state.aiostreams.debrids[item.key] = item.val;
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
+          }
+        } else {
+          delete state.aiostreams.validatedKeys[item.key];
+          delete state.aiostreams.debrids[item.key];
+          if (statusEl) {
+            const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
+            statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
+          }
+        }
+      } catch (err) {
+        delete state.aiostreams.validatedKeys[item.key];
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message || 'Error'}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
+        }
+      }
+    }
+
+    if (btnValidate) btnValidate.disabled = false;
+    if (btnText) btnText.innerText = 'Validar Claves';
+
+    this.updateInstallAioStreamsBtnState();
+
+    if (validatedCount > 0) {
+      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "Instalar Addon".`, 'success');
+    } else {
+      this.showToast('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
+    }
+  }
+
+  installAioStreamsFromModal() {
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    const activeDebrids = {};
+
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val && state.aiostreams.validatedKeys[key]) {
+        activeDebrids[key] = val;
+      }
+    });
+
+    if (Object.keys(activeDebrids).length === 0) {
+      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de instalar.', 'warning');
+      return;
+    }
+
+    state.setAioStreamsConfig(activeDebrids, state.aiostreams.validatedKeys);
+    this.closeAioStreamsDebridsModal();
+    this.renderAddonsList();
+    this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
+  }
+
   setupStep6Injection() {
+    this.setupStep7Injection();
+  }
+
+  setupStep7Injection() {
     const passwordInput = document.getElementById('aioPassword');
     const btnGenPass = document.getElementById('btnGeneratePassword');
     const btnExecute = document.getElementById('btnExecutePipeline');
@@ -3130,9 +3883,9 @@ class AppController {
 
     if (btnCopyAio) {
       btnCopyAio.addEventListener('click', async () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (!hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }
@@ -3154,6 +3907,48 @@ class AppController {
       });
     }
 
+    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
+    if (btnCopyAioStreams) {
+      btnCopyAioStreams.addEventListener('click', async () => {
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
+        if (!hasPassword) {
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
+          if (passwordInput) passwordInput.focus();
+          return;
+        }
+
+        const originalHtml = btnCopyAioStreams.innerHTML;
+        try {
+          btnCopyAioStreams.disabled = true;
+          btnCopyAioStreams.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-cyan-400"></i><span>Generando...</span>';
+
+          let manifestUrl = state.aiostreams.manifestUrl;
+          if (!manifestUrl) {
+            this.showToast('Generando manifest de AIOStreams en la instancia oficial...', 'info');
+            let template = state.rawAioStreamsTemplate;
+            if (!template) {
+              const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+              template = await fetchRes.json();
+              state.rawAioStreamsTemplate = template;
+            }
+            const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
+            const masterPass = state.aiometadata.password.trim();
+            const res = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
+            manifestUrl = res.manifestUrl;
+            state.aiostreams.manifestUrl = manifestUrl;
+          }
+
+          await navigator.clipboard.writeText(manifestUrl);
+          this.showToast('✓ Enlace del Manifiesto de AIOStreams copiado al portapapeles', 'success');
+        } catch (err) {
+          this.showToast(`Error al generar o copiar AIOStreams: ${err.message}`, 'error');
+        } finally {
+          btnCopyAioStreams.disabled = false;
+          btnCopyAioStreams.innerHTML = originalHtml;
+        }
+      });
+    }
+
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
         // Validar todos los pasos (1 a 6) antes de ejecutar
@@ -3161,8 +3956,8 @@ class AppController {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            if (i < 6) window.goToStep(i);
-            if (i === 6 && passwordInput) passwordInput.focus();
+            if (i < 7) window.goToStep(i);
+            if (i === 7 && passwordInput) passwordInput.focus();
             return;
           }
         }
@@ -3197,9 +3992,9 @@ class AppController {
 
     if (btnDownloadAio) {
       btnDownloadAio.addEventListener('click', () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (state.isManualMode && !hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }
@@ -3218,6 +4013,10 @@ class AppController {
   }
 
   refreshStep6Summary() {
+    this.refreshStep7Summary();
+  }
+
+  refreshStep7Summary() {
     const targetEl = document.getElementById('summaryProfileTarget');
     const countEl = document.getElementById('summaryCollectionsCount');
     const catalogsEl = document.getElementById('summaryCatalogsCount');
@@ -3291,6 +4090,22 @@ class AppController {
         badgesEl.innerText = 'Desactivado';
         badgesEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
       }
+    }
+
+    const addonsEl = document.getElementById('summaryAddonsStatus');
+    if (addonsEl) {
+      const extraCount = state.profileAddons ? state.profileAddons.length : 0;
+      const hasAioStreams = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
+      if (hasAioStreams && extraCount === 1) {
+        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams`;
+      } else if (hasAioStreams) {
+        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams + ${extraCount - 1} más`;
+      } else if (extraCount > 0) {
+        addonsEl.innerText = `AIOMetadata (#1) + ${extraCount} addons`;
+      } else {
+        addonsEl.innerText = `AIOMetadata (#1 principal)`;
+      }
+      addonsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
     }
   }
 

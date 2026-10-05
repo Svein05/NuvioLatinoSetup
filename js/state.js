@@ -4,10 +4,46 @@
  */
 import { CONFIG } from './config.js';
 
+/**
+ * Determina rigurosamente si un addon u objeto representa AIOMetadata.
+ * Excluye AIOStreams y otros addons de streams o catálogos.
+ */
+export function isAioMetadataAddon(addon) {
+  if (!addon) return false;
+  const name = String(addon.name || '').toLowerCase().trim();
+  const url = String(addon.url || addon.manifest_url || '').toLowerCase().trim();
+
+  // Excluir terminantemente AIOStreams
+  if (name.includes('aiostreams') || url.includes('aiostreams')) {
+    return false;
+  }
+
+  // Identificar por nombre
+  if (name.includes('aiometadata') || name === 'aiometa') {
+    return true;
+  }
+
+  // Identificar por URL
+  if (url.includes('aiometadata')) {
+    return true;
+  }
+
+  // Comprobar contra instancias oficiales o conocidas de AIOMetadata
+  const instances = Array.isArray(CONFIG.AIOMETADATA_INSTANCES) ? CONFIG.AIOMETADATA_INSTANCES : [];
+  for (const inst of instances) {
+    const host = inst.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
+    if (host && url.includes(host)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 class WizardState {
   constructor() {
     this.currentStep = 1;
-    this.totalSteps = 6;
+    this.totalSteps = 7;
     this.maxUnlockedStep = 1; // Control restrictivo de avance de pasos
 
     // Preferencias de Perfil y Motor de Pósters (Paso 5)
@@ -21,6 +57,13 @@ class WizardState {
       activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
       badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms']
     };
+
+    // Gestor de Addons de Perfil (Paso 6)
+    this.profileAddons = []; // Lista de addons secundarios (streaming, catálogos, debrids)
+    this.deletedAddonIds = new Set(); // IDs de addons a remover de Nuvio
+    this.existingAioAddon = null; // Addon de AIOMetadata previo detectado en la cuenta
+    this.hasLoadedAddonsForProfile = null; // ID del perfil para el que se descargaron los addons
+    this.isLoadingAddons = false;
 
     // Autenticación Nuvio (Supabase)
     this.nuvioAuth = {
@@ -66,6 +109,15 @@ class WizardState {
       instanceUrl: CONFIG.DEFAULT_AIOMETADATA_URL,
       password: ''
     };
+
+    // Configuración AIOStreams
+    this.aiostreams = {
+      installed: false,
+      debrids: {},
+      validatedKeys: {},
+      manifestUrl: null
+    };
+    this.rawAioStreamsTemplate = null;
 
     // Configuración de Ejecución (Siempre Real en producción)
     this.execution = {
@@ -180,10 +232,14 @@ class WizardState {
         return { valid: true, error: null };
 
       case 6:
-        if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {
+        // Gestor de Addons de Perfil: siempre válido, AIOMetadata queda anclado en #1
+        return { valid: true, error: null };
+
+      case 7:
+        if (!this.aiometadata.password || this.aiometadata.password.trim().length < 6) {
           return {
             valid: false,
-            error: 'Debes definir una contraseña de al menos 4 caracteres para tu addon de AIOMetadata (o pulsar "Generar aleatoria").'
+            error: 'Debes definir una contraseña de al menos 6 caracteres para tus addons de AIOMetadata y AIOStreams (o pulsar "Generar aleatoria").'
           };
         }
         return { valid: true, error: null };
@@ -191,6 +247,203 @@ class WizardState {
       default:
         return { valid: true, error: null };
     }
+  }
+
+  /**
+   * Carga y normaliza los addons recuperados de un perfil de Nuvio.
+   * Filtra exhaustivamente TODOS los addons de AIOMetadata para que nunca
+   * aparezcan duplicados en la lista de addons secundarios (#2, #3, etc.).
+   */
+  setProfileAddons(addons, profileId) {
+    this.hasLoadedAddonsForProfile = profileId;
+    this.deletedAddonIds.clear();
+
+    const rawList = Array.isArray(addons) ? [...addons] : [];
+    
+    const aioMatches = [];
+    const secondaryList = [];
+
+    // Separar estrictamente AIOMetadata de los addons secundarios
+    for (const item of rawList) {
+      if (isAioMetadataAddon(item)) {
+        aioMatches.push(item);
+      } else {
+        secondaryList.push(item);
+      }
+    }
+
+    if (aioMatches.length > 0) {
+      // El primer AIOMetadata se asocia como el addon principal preexistente a actualizar
+      this.existingAioAddon = aioMatches[0];
+      // Si el perfil contenía múltiples AIOMetadata duplicados en Nuvio, marcar los demás para eliminarlos
+      for (let i = 1; i < aioMatches.length; i++) {
+        const extra = aioMatches[i];
+        if (extra && extra.id) {
+          this.deletedAddonIds.add(extra.id);
+        }
+      }
+    } else {
+      this.existingAioAddon = null;
+    }
+
+    // Los addons restantes (únicamente secundarios legítimos) se ordenan comenzando en sort_order: 2
+    this.profileAddons = secondaryList.map((a, idx) => ({
+      id: a.id || null,
+      name: a.name || `Addon ${idx + 2}`,
+      url: a.url || a.manifest_url || '',
+      manifest_url: a.manifest_url || a.url || '',
+      logo: a.logo || a.icon || (a.raw && (a.raw.logo || a.raw.icon)) || null,
+      enabled: a.enabled !== false,
+      sort_order: idx + 2,
+      isAioStreams: Boolean(a.isAioStreams || String(a.name || '').toLowerCase().includes('aiostreams') || String(a.url || '').toLowerCase().includes('aiostreams')),
+      raw: a
+    }));
+
+    this.notify('ADDONS_UPDATED');
+  }
+
+  /**
+   * Comprueba si una URL de manifiesto ya se encuentra en la lista de addons
+   */
+  hasAddonManifest(manifestUrl) {
+    if (!manifestUrl) return false;
+    const clean = String(manifestUrl).trim().toLowerCase().replace(/\/+$/, '');
+    return this.profileAddons.some(a => {
+      const u = String(a.manifest_url || a.url || '').trim().toLowerCase().replace(/\/+$/, '');
+      return u === clean;
+    });
+  }
+
+  /**
+   * Mueve un addon relativo (▲ -1 para subir prioridad, ▼ +1 para bajar)
+   */
+  moveAddon(index, direction) {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= this.profileAddons.length) return false;
+
+    const [moved] = this.profileAddons.splice(index, 1);
+    this.profileAddons.splice(targetIndex, 0, moved);
+
+    // Reindexar sort_order (AIOMetadata siempre ocupa la posición 1)
+    this.profileAddons.forEach((a, idx) => {
+      a.sort_order = idx + 2;
+    });
+
+    this.notify('ADDONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Remueve un addon de la lista y lo marca para eliminación en Nuvio
+   */
+  removeAddon(index) {
+    if (index < 0 || index >= this.profileAddons.length) return false;
+
+    const [removed] = this.profileAddons.splice(index, 1);
+    if (removed && removed.id) {
+      this.deletedAddonIds.add(removed.id);
+    }
+    if (removed && removed.isAioStreams) {
+      this.aiostreams.installed = false;
+      this.aiostreams.debrids = {};
+      this.aiostreams.validatedKeys = {};
+      this.aiostreams.manifestUrl = null;
+    }
+
+    // Reindexar restantes
+    this.profileAddons.forEach((a, idx) => {
+      a.sort_order = idx + 2;
+    });
+
+    this.notify('ADDONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Configura o actualiza AIOStreams en la lista de addons del perfil
+   */
+  setAioStreamsConfig(debridsMap = {}, validatedKeysMap = {}) {
+    this.aiostreams.installed = true;
+    this.aiostreams.debrids = { ...debridsMap };
+    this.aiostreams.validatedKeys = { ...validatedKeysMap };
+
+    // Buscar si ya existe en profileAddons
+    const existingIndex = this.profileAddons.findIndex(a => a.isAioStreams);
+    if (existingIndex !== -1) {
+      this.profileAddons[existingIndex].debrids = { ...debridsMap };
+    } else {
+      // Agregar al final de los addons secundarios
+      const aioStreamsAddon = {
+        id: null,
+        name: 'AIOStreams',
+        url: null,
+        manifest_url: null,
+        logo: 'https://numb3rs.stream/assets/images/aiostreams.svg',
+        enabled: true,
+        sort_order: this.profileAddons.length + 2,
+        isAioStreams: true,
+        isPendingManifest: true,
+        debrids: { ...debridsMap },
+        description: 'Addon de streaming unificado con priorización full latino (Debrids configurados).'
+      };
+      this.profileAddons.push(aioStreamsAddon);
+    }
+
+    this.notify('ADDONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Elimina AIOStreams del perfil y del estado
+   */
+  removeAioStreams() {
+    this.aiostreams.installed = false;
+    this.aiostreams.debrids = {};
+    this.aiostreams.validatedKeys = {};
+    this.aiostreams.manifestUrl = null;
+
+    const idx = this.profileAddons.findIndex(a => a.isAioStreams);
+    if (idx !== -1) {
+      this.removeAddon(idx);
+    } else {
+      this.notify('ADDONS_UPDATED');
+    }
+  }
+
+  getAioStreamsDebrids() {
+    return this.aiostreams.debrids || {};
+  }
+
+  /**
+   * Agrega un nuevo addon mediante manifest URL
+   */
+  addCustomAddon(manifestUrl, name = '', logo = '') {
+    const cleanUrl = String(manifestUrl || '').trim();
+    if (!cleanUrl) return false;
+
+    // AIOMetadata es exclusivo de la posición #1 anclada y nunca puede agregarse como secundario
+    if (isAioMetadataAddon({ url: cleanUrl, name })) {
+      return false;
+    }
+
+    if (this.hasAddonManifest(cleanUrl)) {
+      return false;
+    }
+
+    const newAddon = {
+      id: null,
+      name: (name || '').trim() || 'Nuevo Addon',
+      url: cleanUrl,
+      manifest_url: cleanUrl,
+      logo: (logo || '').trim() || null,
+      enabled: true,
+      sort_order: this.profileAddons.length + 2,
+      isCustomAdded: true
+    };
+
+    this.profileAddons.push(newAddon);
+    this.notify('ADDONS_UPDATED');
+    return true;
   }
 
   unlockStep(stepNumber) {
@@ -206,9 +459,10 @@ class WizardState {
   async loadTemplates() {
     try {
       const cacheBuster = `?v=${Date.now()}`;
-      const [metaRes, colRes] = await Promise.all([
+      const [metaRes, colRes, aioRes] = await Promise.all([
         fetch(`${CONFIG.TEMPLATES.METADATA_LATINO}${cacheBuster}`, { cache: 'no-store' }),
-        fetch(`${CONFIG.TEMPLATES.NUVIO_COLLECTIONS}${cacheBuster}`, { cache: 'no-store' })
+        fetch(`${CONFIG.TEMPLATES.NUVIO_COLLECTIONS}${cacheBuster}`, { cache: 'no-store' }),
+        fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}${cacheBuster}`, { cache: 'no-store' }).catch(() => null)
       ]);
 
       if (!metaRes.ok || !colRes.ok) {
@@ -216,6 +470,9 @@ class WizardState {
       }
 
       this.rawMetadataTemplate = await metaRes.json();
+      if (aioRes && aioRes.ok) {
+        this.rawAioStreamsTemplate = await aioRes.json().catch(() => null);
+      }
       const collectionsData = await colRes.json();
 
       // Clonar para permitir reset
@@ -224,6 +481,7 @@ class WizardState {
       // Inicializar cada carpeta con propiedad `enabled: true` si no viene definida
       this.collections = collectionsData.map(section => ({
         ...section,
+        pinToTop: section.pinToTop !== undefined ? section.pinToTop : true,
         enabled: section.enabled !== false,
         folders: (section.folders || []).map(folder => ({
           ...folder,
@@ -247,6 +505,7 @@ class WizardState {
     if (!this.originalCollectionsTemplate) return;
     this.collections = JSON.parse(JSON.stringify(this.originalCollectionsTemplate)).map(section => ({
       ...section,
+      pinToTop: section.pinToTop !== undefined ? section.pinToTop : true,
       enabled: true,
       folders: (section.folders || []).map(f => ({ ...f, enabled: true }))
     }));
@@ -736,6 +995,7 @@ class WizardState {
       .filter(sec => sec.enabled !== false && (sec.folders || []).some(f => f.enabled !== false))
       .map(sec => ({
         ...sec,
+        pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
         folders: sec.folders.filter(f => f.enabled !== false)
       }));
   }
