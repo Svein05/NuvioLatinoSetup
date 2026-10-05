@@ -3197,12 +3197,21 @@ class AppController {
       btnInstallAio.addEventListener('click', () => this.installAioStreamsFromModal());
     }
 
-    // Escuchar cambios en los inputs para habilitar botón de validar/instalar
+    // Escuchar cambios en los inputs para invalidar validación previa y actualizar botón de instalar
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
     debridIds.forEach(id => {
       const input = document.getElementById(`inputDebrid${id}`);
       if (input) {
-        input.addEventListener('input', () => this.updateInstallAioStreamsBtnState());
+        input.addEventListener('input', () => {
+          const key = id.toLowerCase();
+          delete state.aiostreams.validatedKeys[key];
+          delete state.aiostreams.debrids[key];
+          const statusEl = document.getElementById(`statusDebrid${id}`);
+          if (statusEl && !statusEl.querySelector('a')) {
+            statusEl.innerHTML = '';
+          }
+          this.updateInstallAioStreamsBtnState();
+        });
       }
     });
   }
@@ -3747,13 +3756,14 @@ class AppController {
           delete state.aiostreams.validatedKeys[item.key];
           delete state.aiostreams.debrids[item.key];
           if (statusEl) {
-            statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> Clave inválida</span>`;
+            const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
+            statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
           }
         }
       } catch (err) {
         delete state.aiostreams.validatedKeys[item.key];
         if (statusEl) {
-          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
+          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message || 'Error'}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
         }
       }
     }
@@ -3764,7 +3774,7 @@ class AppController {
     this.updateInstallAioStreamsBtnState();
 
     if (validatedCount > 0) {
-      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito en vivo. Ahora puedes instalar.`, 'success');
+      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "Instalar Addon".`, 'success');
     } else {
       this.showToast('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
     }
