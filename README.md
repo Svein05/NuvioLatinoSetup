@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.4.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.4.0" /></a>
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.5.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.5.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -149,9 +149,11 @@ NuvioLatinoSetup/
 ├── js/
 │   ├── vendor/                 # Bibliotecas externas (SortableJS)
 │   ├── aiometadata-client.js   # Comunicación con la API de AIOMetadata
+│   ├── aiostreams-client.js    # Cifrado y generación de manifiestos AIOStreams
 │   ├── app.js                  # Controlador principal del asistente
 │   ├── badge-packs.js          # Catálogo de estilos Fusion Badges (kingsizew)
 │   ├── config.js               # Parámetros y constantes de versión
+│   ├── counter.js              # Odómetro visual y telemetría de configuraciones
 │   ├── injector.js             # Pipeline de aprovisionamiento de perfiles
 │   ├── mini-nuvio.js           # Simulador visual interactivo
 │   ├── nav-indicator.js        # Indicador deslizante de barra flotante
@@ -159,6 +161,7 @@ NuvioLatinoSetup/
 │   ├── state.js                # Gestión reactiva del estado de la aplicación
 │   └── version.js              # Sincronización de badges de versión
 ├── templates/
+│   ├── Aiostream.json          # Plantilla curada de AIOStreams con prioridad Latina
 │   ├── MetadataLatino.json     # Plantilla base de catálogos AIOMetadata
 │   └── NuvioCollections.json   # Definición de colecciones nativas de Nuvio
 ├── version.json                # Registro central de versión semántica
