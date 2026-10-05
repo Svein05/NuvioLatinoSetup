@@ -262,7 +262,15 @@ export class AIOStreamsClient {
   static async createUser(instanceUrl, config, password) {
     const cleanUrl = instanceUrl.replace(/\/+$/, '');
     const endpoint = `${cleanUrl}/api/v1/user`;
-    const masterPassword = (password || 'NuvioSetupMaster2026').trim();
+    
+    // AIOStreams exige estrictamente una contraseña de al menos 6 caracteres
+    let masterPassword = String(password || '').trim();
+    if (!masterPassword || masterPassword.length < 6) {
+      masterPassword = masterPassword ? `${masterPassword}_Nuvio2026` : 'NuvioSetupMaster2026';
+      if (masterPassword.length < 6) {
+        masterPassword = 'NuvioSetupMaster2026';
+      }
+    }
 
     const requestBody = {
       config,

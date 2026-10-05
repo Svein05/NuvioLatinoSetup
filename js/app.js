@@ -747,7 +747,7 @@ class AppController {
     btnExecute.classList.remove('hidden');
     btnExecute.style.display = 'flex';
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
     if (hasPassword) {
       btnExecute.disabled = false;
       btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
@@ -755,7 +755,7 @@ class AppController {
     } else {
       btnExecute.disabled = true;
       btnExecute.className = "lat-capsule-btn glass opacity-40 px-7 py-3 text-sm flex items-center gap-2 cursor-not-allowed shadow-none";
-      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 4 caracteres) para activar";
+      btnExecute.title = "Ingresa o genera una contraseña maestra (mínimo 6 caracteres) para activar";
     }
   }
 
@@ -803,7 +803,7 @@ class AppController {
 
     if (!btnCopyAio) return;
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
 
     if (hasPassword) {
       btnCopyAio.disabled = false;
@@ -816,7 +816,7 @@ class AppController {
     } else {
       btnCopyAio.disabled = true;
       btnCopyAio.className = "lat-capsule-btn glass opacity-40 text-xs py-2 px-4 cursor-not-allowed flex items-center gap-2 shadow-none";
-      btnCopyAio.title = "Ingresa una contraseña para el addon (mínimo 4 caracteres) primero";
+      btnCopyAio.title = "Ingresa una contraseña para tus addons (mínimo 6 caracteres) primero";
       if (btnDownloadAio) {
         btnDownloadAio.disabled = true;
         btnDownloadAio.className = "lat-capsule-btn glass opacity-40 px-4 py-3 text-xs flex items-center gap-2 cursor-not-allowed";
@@ -3888,9 +3888,9 @@ class AppController {
 
     if (btnCopyAio) {
       btnCopyAio.addEventListener('click', async () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (!hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }
@@ -3915,9 +3915,9 @@ class AppController {
     const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
     if (btnCopyAioStreams) {
       btnCopyAioStreams.addEventListener('click', async () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (!hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }
@@ -3997,9 +3997,9 @@ class AppController {
 
     if (btnDownloadAio) {
       btnDownloadAio.addEventListener('click', () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
         if (state.isManualMode && !hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
           if (passwordInput) passwordInput.focus();
           return;
         }

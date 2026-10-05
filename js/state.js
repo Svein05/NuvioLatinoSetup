@@ -200,10 +200,10 @@ class WizardState {
         return { valid: true, error: null };
 
       case 7:
-        if (!this.aiometadata.password || this.aiometadata.password.trim().length < 4) {
+        if (!this.aiometadata.password || this.aiometadata.password.trim().length < 6) {
           return {
             valid: false,
-            error: 'Debes definir una contraseña de al menos 4 caracteres para tu addon de AIOMetadata (o pulsar "Generar aleatoria").'
+            error: 'Debes definir una contraseña de al menos 6 caracteres para tus addons de AIOMetadata y AIOStreams (o pulsar "Generar aleatoria").'
           };
         }
         return { valid: true, error: null };
