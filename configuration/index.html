@@ -1210,186 +1210,186 @@
         </div>
       </div>
 
-      <!-- Modal 1: Requisito de Debrid para AIOStreams -->
-      <div id="modalAioStreamsRequirement" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200">
-        <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[24px] max-w-md w-full p-6 shadow-[var(--shadow-lift)] relative overflow-hidden text-white space-y-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500/[0.12] border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain" alt="AIOStreams">
+    </main>
+  </div>
+
+  <!-- Modal 1: Requisito de Debrid para AIOStreams (Montado en body) -->
+  <div id="modalAioStreamsRequirement" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
+    <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] relative text-white space-y-4 my-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/[0.12] border border-emerald-500/30 flex items-center justify-center shrink-0">
+          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain" alt="AIOStreams">
+        </div>
+        <div>
+          <h3 class="font-bold text-sm sm:text-base text-white">¿Instalar AIOStreams Latino?</h3>
+          <p class="text-[11px] sm:text-xs text-white/50">Addon unificado de streaming y fuentes</p>
+        </div>
+      </div>
+      <div class="p-3.5 sm:p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] text-xs text-white/70 leading-relaxed space-y-2 shadow-[var(--brillo-vidrio)]">
+        <p>
+          Para utilizar <strong>AIOStreams</strong>, requerirás una clave de API de al menos un servicio <strong>Debrid</strong> (como TorBox, AllDebrid, Real-Debrid, Premiumize, etc.).
+        </p>
+        <p class="text-[11px] text-white/50">
+          AIOStreams unifica indexadores como Torrentio, Comet, SeaDex y MediaFusion priorizando audio e idioma español latino en tu perfil. ¿Aceptas continuar?
+        </p>
+      </div>
+      <div class="flex justify-end gap-2.5 pt-1">
+        <button id="btnCancelAioStreamsReq" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+        <button id="btnAcceptAioStreamsReq" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-[var(--shadow-pill)]">
+          Aceptar y Configurar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Formulario de API Keys Debrid para AIOStreams (Montado en body con límites y scroll adaptativo) -->
+  <div id="modalAioStreamsDebrids" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5 transition-all duration-200 overflow-y-auto">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[24px] sm:rounded-[26px] max-w-xl w-full p-4 sm:p-5 shadow-[var(--shadow-lift)] relative text-white flex flex-col max-h-[88vh] my-auto overflow-hidden">
+      
+      <!-- Cabecera Anclada con Botones de Acción Superiores -->
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0 gap-2">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain shrink-0" alt="AIOStreams">
+          <div class="min-w-0">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2 truncate">
+              <span class="truncate">Proveedores Debrid</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0 hidden sm:inline-block">Plantilla Latino</span>
+            </h3>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button id="btnValidateDebridKeys" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-2.5 sm:px-3 flex items-center gap-1.5 border-amber-500/40 text-amber-300 hover:text-white bg-amber-500/[0.08] hover:bg-amber-500/[0.15] transition-all">
+            <i class="fa-solid fa-key text-[10px]"></i>
+            <span id="btnValidateDebridKeysText">Validar Claves</span>
+          </button>
+          <button id="btnInstallAioStreams" type="button" disabled class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all shadow-[var(--shadow-pill)]">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span>Instalar Addon</span>
+          </button>
+          <button id="btnCloseAioStreamsDebridsModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors ml-0.5 shrink-0" title="Cerrar ventana">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenido Scrolleable de Debrids Adaptativo (flex-1 min-h-0) -->
+      <div class="flex-1 min-h-0 overflow-y-auto py-3 space-y-2.5 sm:space-y-3 pr-1 text-xs">
+        <p class="text-white/60 leading-snug text-[11px] pb-0.5">
+          Ingresa la clave API de al menos un proveedor Debrid. Pulsa <strong class="text-white font-medium">"Validar Claves"</strong> arriba para verificarla en vivo y luego <strong class="text-white font-medium">"Instalar Addon"</strong>.
+        </p>
+
+        <!-- 1. TorBox (Prioridad #1 Recomendada) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-emerald-500/30 hover:border-emerald-500/50 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] flex items-center justify-center font-bold">1</span>
+              <span>TorBox</span>
+              <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20 font-mono">Recomendado</span>
+            </label>
+            <div id="statusDebridTorbox" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://torbox.app/settings" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridTorbox" type="password" placeholder="Ingresa tu TorBox API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 2. AllDebrid (Prioridad #2) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">2</span>
+              <span>AllDebrid</span>
+            </label>
+            <div id="statusDebridAlldebrid" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://alldebrid.com/apikeys" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridAlldebrid" type="password" placeholder="Ingresa tu AllDebrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 3. Real-Debrid (Prioridad #3) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">3</span>
+              <span>Real-Debrid</span>
+            </label>
+            <div id="statusDebridRealdebrid" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridRealdebrid" type="password" placeholder="Ingresa tu Real-Debrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 4. Premiumize (Prioridad #4) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">4</span>
+              <span>Premiumize</span>
+            </label>
+            <div id="statusDebridPremiumize" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://www.premiumize.me/account" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridPremiumize" type="password" placeholder="Ingresa tu Premiumize API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- 5. Debrid-Link (Prioridad #5) -->
+        <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="font-medium text-white flex items-center gap-1.5 text-xs">
+              <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">5</span>
+              <span>Debrid-Link</span>
+            </label>
+            <div id="statusDebridDebridlink" class="text-[11px] text-white/40 flex items-center gap-1">
+              <a href="https://debrid-link.com/webapp/apikey" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+            </div>
+          </div>
+          <input id="inputDebridDebridlink" type="password" placeholder="Ingresa tu Debrid-Link API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+        </div>
+
+        <!-- Acordeón Desplegable: Otros Proveedores Debrid Opcionales -->
+        <details class="group p-2.5 sm:p-3 rounded-[14px] bg-white/[0.02] border border-white/[0.06] text-xs">
+          <summary class="font-medium text-white/70 cursor-pointer list-none flex items-center justify-between select-none hover:text-white">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-layer-group text-[11px] text-white/40"></i>
+              <span>Otros proveedores Debrid (Opcionales)</span>
+            </span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-2.5 space-y-2.5">
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">EasyDebrid API Key</label>
+              <input id="inputDebridEasydebrid" type="password" placeholder="EasyDebrid API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
             </div>
             <div>
-              <h3 class="font-bold text-base text-white">¿Instalar AIOStreams Latino?</h3>
-              <p class="text-xs text-white/50">Addon unificado de streaming y fuentes</p>
+              <label class="block text-[11px] text-white/60 mb-1">Debrider API Key</label>
+              <input id="inputDebridDebrider" type="password" placeholder="Debrider API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">Torrin API Key</label>
+              <input id="inputDebridTorrin" type="password" placeholder="tr_..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-[11px] text-white/60 mb-1">Offcloud API Key</label>
+              <input id="inputDebridOffcloud" type="password" placeholder="Offcloud API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
             </div>
           </div>
-          <div class="p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] text-xs text-white/70 leading-relaxed space-y-2 shadow-[var(--brillo-vidrio)]">
-            <p>
-              Para utilizar <strong>AIOStreams</strong>, requerirás una clave de API de al menos un servicio <strong>Debrid</strong> (como TorBox, AllDebrid, Real-Debrid, Premiumize, etc.).
-            </p>
-            <p class="text-[11px] text-white/50">
-              AIOStreams unifica indexadores como Torrentio, Comet, SeaDex y MediaFusion priorizando audio e idioma español latino en tu perfil. ¿Aceptas continuar?
-            </p>
-          </div>
-          <div class="flex justify-end gap-2.5 pt-2">
-            <button id="btnCancelAioStreamsReq" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
-            <button id="btnAcceptAioStreamsReq" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-[var(--shadow-pill)]">
-              Aceptar y Configurar
-            </button>
-          </div>
-        </div>
+        </details>
+
       </div>
 
-      <!-- Modal 2: Formulario de API Keys Debrid para AIOStreams -->
-      <div id="modalAioStreamsDebrids" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200">
-        <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-xl w-full p-6 shadow-[var(--shadow-lift)] relative overflow-hidden text-white flex flex-col max-h-[90vh]">
-          
-          <!-- Cabecera con Botones de Acción Superiores -->
-          <div class="flex items-center justify-between border-b border-white/[0.08] pb-4 shrink-0">
-            <div class="flex items-center gap-2.5">
-              <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain" alt="AIOStreams">
-              <div>
-                <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                  <span>Proveedores Debrid</span>
-                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Plantilla Latino</span>
-                </h3>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button id="btnValidateDebridKeys" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-3 flex items-center gap-1.5 border-amber-500/40 text-amber-300 hover:text-white bg-amber-500/[0.08] hover:bg-amber-500/[0.15] transition-all">
-                <i class="fa-solid fa-key text-[10px]"></i>
-                <span id="btnValidateDebridKeysText">Validar Claves</span>
-              </button>
-              <button id="btnInstallAioStreams" type="button" disabled class="lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all shadow-[var(--shadow-pill)]">
-                <i class="fa-solid fa-plus text-[10px]"></i>
-                <span>Instalar Addon</span>
-              </button>
-              <button id="btnCloseAioStreamsDebridsModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors ml-1">
-                <i class="fa-solid fa-xmark text-sm"></i>
-              </button>
-            </div>
-          </div>
-
-          <!-- Contenido Scrolleable de Debrids -->
-          <div class="overflow-y-auto py-4 space-y-4 pr-1 text-xs">
-            <p class="text-white/60 leading-relaxed text-[11px]">
-              Ingresa la clave API de al menos un proveedor Debrid. Pulsa <strong>"Validar Claves"</strong> arriba para verificarla en vivo y luego pulsa <strong>"Instalar Addon"</strong>.
-            </p>
-
-            <!-- 1. TorBox (Prioridad #1 Recomendada) -->
-            <div class="p-3.5 rounded-[18px] bg-white/[0.03] border border-emerald-500/30 hover:border-emerald-500/50 transition-all space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="font-medium text-white flex items-center gap-1.5">
-                  <span class="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] flex items-center justify-center font-bold">1</span>
-                  <span>TorBox</span>
-                  <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-mono">Recomendado</span>
-                </label>
-                <div id="statusDebridTorbox" class="text-[11px] text-white/40 flex items-center gap-1">
-                  <a href="https://torbox.app/settings" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
-                </div>
-              </div>
-              <input id="inputDebridTorbox" type="password" placeholder="Ingresa tu TorBox API Key..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/20 text-xs text-white placeholder:text-white/30 font-mono">
-            </div>
-
-            <!-- 2. AllDebrid (Prioridad #2) -->
-            <div class="p-3.5 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="font-medium text-white flex items-center gap-1.5">
-                  <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">2</span>
-                  <span>AllDebrid</span>
-                </label>
-                <div id="statusDebridAlldebrid" class="text-[11px] text-white/40 flex items-center gap-1">
-                  <a href="https://alldebrid.com/apikeys" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
-                </div>
-              </div>
-              <input id="inputDebridAlldebrid" type="password" placeholder="Ingresa tu AllDebrid API Key..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono">
-            </div>
-
-            <!-- 3. Real-Debrid (Prioridad #3) -->
-            <div class="p-3.5 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="font-medium text-white flex items-center gap-1.5">
-                  <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">3</span>
-                  <span>Real-Debrid</span>
-                </label>
-                <div id="statusDebridRealdebrid" class="text-[11px] text-white/40 flex items-center gap-1">
-                  <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
-                </div>
-              </div>
-              <input id="inputDebridRealdebrid" type="password" placeholder="Ingresa tu Real-Debrid API Key..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono">
-            </div>
-
-            <!-- 4. Premiumize (Prioridad #4) -->
-            <div class="p-3.5 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="font-medium text-white flex items-center gap-1.5">
-                  <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">4</span>
-                  <span>Premiumize</span>
-                </label>
-                <div id="statusDebridPremiumize" class="text-[11px] text-white/40 flex items-center gap-1">
-                  <a href="https://www.premiumize.me/account" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
-                </div>
-              </div>
-              <input id="inputDebridPremiumize" type="password" placeholder="Ingresa tu Premiumize API Key..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono">
-            </div>
-
-            <!-- 5. Debrid-Link (Prioridad #5) -->
-            <div class="p-3.5 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="font-medium text-white flex items-center gap-1.5">
-                  <span class="w-4 h-4 rounded-full bg-white/10 text-white font-mono text-[10px] flex items-center justify-center font-bold">5</span>
-                  <span>Debrid-Link</span>
-                </label>
-                <div id="statusDebridDebridlink" class="text-[11px] text-white/40 flex items-center gap-1">
-                  <a href="https://debrid-link.com/webapp/apikey" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
-                </div>
-              </div>
-              <input id="inputDebridDebridlink" type="password" placeholder="Ingresa tu Debrid-Link API Key..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono">
-            </div>
-
-            <!-- Acordeón Desplegable: Otros Proveedores Debrid Opcionales -->
-            <details class="group p-3 rounded-[16px] bg-white/[0.02] border border-white/[0.06] text-xs">
-              <summary class="font-medium text-white/70 cursor-pointer list-none flex items-center justify-between select-none hover:text-white">
-                <span class="flex items-center gap-2">
-                  <i class="fa-solid fa-layer-group text-[11px] text-white/40"></i>
-                  <span>Otros proveedores Debrid (Opcionales)</span>
-                </span>
-                <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-open:rotate-180"></i>
-              </summary>
-              <div class="pt-3 space-y-3">
-                <div>
-                  <label class="block text-[11px] text-white/60 mb-1">EasyDebrid API Key</label>
-                  <input id="inputDebridEasydebrid" type="password" placeholder="EasyDebrid API Key..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-white/60 mb-1">Debrider API Key</label>
-                  <input id="inputDebridDebrider" type="password" placeholder="Debrider API Key..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-white/60 mb-1">Torrin API Key</label>
-                  <input id="inputDebridTorrin" type="password" placeholder="tr_..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
-                </div>
-                <div>
-                  <label class="block text-[11px] text-white/60 mb-1">Offcloud API Key</label>
-                  <input id="inputDebridOffcloud" type="password" placeholder="Offcloud API Key..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
-                </div>
-              </div>
-            </details>
-
-          </div>
-
-          <!-- Pie del Modal -->
-          <div class="border-t border-white/[0.08] pt-3 shrink-0 flex items-center justify-between text-[11px] text-white/50">
-            <span class="flex items-center gap-1.5">
-              <i class="fa-solid fa-shield-halved text-emerald-400"></i>
-              <span>El manifiesto se generará con tu Clave Maestra en el Paso 7.</span>
-            </span>
-            <button id="btnCancelAioStreamsDebrids" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-3">Cerrar</button>
-          </div>
-
-        </div>
+      <!-- Pie del Modal Anclado Inferior -->
+      <div class="border-t border-white/[0.08] pt-2.5 sm:pt-3 shrink-0 flex items-center justify-between text-[11px] text-white/50 gap-2">
+        <span class="flex items-center gap-1.5 truncate">
+          <i class="fa-solid fa-shield-halved text-emerald-400 shrink-0"></i>
+          <span class="truncate">El manifiesto se generará con tu Clave Maestra en el Paso 7.</span>
+        </span>
+        <button id="btnCancelAioStreamsDebrids" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-3 shrink-0">Cerrar</button>
       </div>
 
-    </main>
+    </div>
   </div>
 
   <!-- Modal Emergente de Finalización y Comunidad -->
