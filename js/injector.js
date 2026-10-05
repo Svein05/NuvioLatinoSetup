@@ -2,7 +2,7 @@
  * Orquestador del Pipeline de Inyección y Sincronización
  * Coordina AIOMetadataClient, NuvioClient y WizardState con logs en tiempo real.
  */
-import { state } from './state.js';
+import { state, isAioMetadataAddon } from './state.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { NuvioClient } from './nuvio-client.js';
 import { AIOStreamsClient } from './aiostreams-client.js';
@@ -311,7 +311,7 @@ export class PipelineInjector {
       } else {
         // 1. Instalar o actualizar AIOMetadata en posición #1
         const existingAioId = state.existingAioAddon?.id || null;
-        await NuvioClient.installOrUpdateAioAddon({
+        const aioResult = await NuvioClient.installOrUpdateAioAddon({
           apiUrl: CONFIG.NUVIO_API_URL,
           apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
           accessToken,
@@ -320,10 +320,12 @@ export class PipelineInjector {
           manifestUrl,
           existingAioId
         });
+        const finalAioId = aioResult?.addonId || existingAioId || null;
         state.addLog('✓ AIOMetadata registrado como addon principal de metadatos (#1).', 'success');
 
         // 2. Registrar nuevos addons añadidos manualmente en el Paso 6
-        const secondaryAddons = state.profileAddons || [];
+        // Garantizar que NINGÚN AIOMetadata figure entre los addons secundarios
+        const secondaryAddons = (state.profileAddons || []).filter(a => !isAioMetadataAddon(a));
         for (const secAddon of secondaryAddons) {
           // Si es AIOStreams y aún no tiene manifest generado, aprovisionar en la instancia oficial
           if (secAddon.isAioStreams && !secAddon.manifest_url) {
@@ -356,7 +358,7 @@ export class PipelineInjector {
 
           if (!secAddon.id && secAddon.manifest_url) {
             try {
-              await NuvioClient.installAddon({
+              const installedSec = await NuvioClient.installAddon({
                 apiUrl: CONFIG.NUVIO_API_URL,
                 apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
                 accessToken,
@@ -369,16 +371,22 @@ export class PipelineInjector {
                   sort_order: secAddon.sort_order
                 }
               });
+              if (installedSec?.addonId) {
+                secAddon.id = installedSec.addonId;
+              }
             } catch (instErr) {
               console.warn(`[Pipeline] Falló registro de addon adicional ${secAddon.name}:`, instErr.message);
             }
           }
         }
 
-        // 3. Sincronizar el orden completo en Nuvio
+        // 3. Sincronizar el orden completo en Nuvio garantizando AIOMetadata en #1 exclusivo
         const allFinalAddons = [
-          { id: existingAioId, name: 'AIOMetadata', url: manifestUrl, sort_order: 1 },
-          ...secondaryAddons
+          { id: finalAioId, name: 'AIOMetadata', url: manifestUrl, manifest_url: manifestUrl, sort_order: 1 },
+          ...secondaryAddons.map((sec, idx) => ({
+            ...sec,
+            sort_order: idx + 2
+          }))
         ];
         try {
           await NuvioClient.syncAddonsOrder({

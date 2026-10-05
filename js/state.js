@@ -4,6 +4,42 @@
  */
 import { CONFIG } from './config.js';
 
+/**
+ * Determina rigurosamente si un addon u objeto representa AIOMetadata.
+ * Excluye AIOStreams y otros addons de streams o catálogos.
+ */
+export function isAioMetadataAddon(addon) {
+  if (!addon) return false;
+  const name = String(addon.name || '').toLowerCase().trim();
+  const url = String(addon.url || addon.manifest_url || '').toLowerCase().trim();
+
+  // Excluir terminantemente AIOStreams
+  if (name.includes('aiostreams') || url.includes('aiostreams')) {
+    return false;
+  }
+
+  // Identificar por nombre
+  if (name.includes('aiometadata') || name === 'aiometa') {
+    return true;
+  }
+
+  // Identificar por URL
+  if (url.includes('aiometadata')) {
+    return true;
+  }
+
+  // Comprobar contra instancias oficiales o conocidas de AIOMetadata
+  const instances = Array.isArray(CONFIG.AIOMETADATA_INSTANCES) ? CONFIG.AIOMETADATA_INSTANCES : [];
+  for (const inst of instances) {
+    const host = inst.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
+    if (host && url.includes(host)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 class WizardState {
   constructor() {
     this.currentStep = 1;
@@ -214,7 +250,9 @@ class WizardState {
   }
 
   /**
-   * Carga y normaliza los addons recuperados de un perfil de Nuvio
+   * Carga y normaliza los addons recuperados de un perfil de Nuvio.
+   * Filtra exhaustivamente TODOS los addons de AIOMetadata para que nunca
+   * aparezcan duplicados en la lista de addons secundarios (#2, #3, etc.).
    */
   setProfileAddons(addons, profileId) {
     this.hasLoadedAddonsForProfile = profileId;
@@ -222,22 +260,34 @@ class WizardState {
 
     const rawList = Array.isArray(addons) ? [...addons] : [];
     
-    // Identificar si existe un addon previo de AIOMetadata
-    const aioIndex = rawList.findIndex(a => {
-      const name = String(a.name || '').toLowerCase();
-      const url = String(a.url || a.manifest_url || '').toLowerCase();
-      return name.includes('aiometadata') || (url.includes('/stremio/') && url.includes('manifest.json')) || url.includes('aiometadata');
-    });
+    const aioMatches = [];
+    const secondaryList = [];
 
-    if (aioIndex !== -1) {
-      this.existingAioAddon = rawList[aioIndex];
-      rawList.splice(aioIndex, 1);
+    // Separar estrictamente AIOMetadata de los addons secundarios
+    for (const item of rawList) {
+      if (isAioMetadataAddon(item)) {
+        aioMatches.push(item);
+      } else {
+        secondaryList.push(item);
+      }
+    }
+
+    if (aioMatches.length > 0) {
+      // El primer AIOMetadata se asocia como el addon principal preexistente a actualizar
+      this.existingAioAddon = aioMatches[0];
+      // Si el perfil contenía múltiples AIOMetadata duplicados en Nuvio, marcar los demás para eliminarlos
+      for (let i = 1; i < aioMatches.length; i++) {
+        const extra = aioMatches[i];
+        if (extra && extra.id) {
+          this.deletedAddonIds.add(extra.id);
+        }
+      }
     } else {
       this.existingAioAddon = null;
     }
 
-    // Los addons restantes se ordenan y normalizan comenzando en sort_order: 2
-    this.profileAddons = rawList.map((a, idx) => ({
+    // Los addons restantes (únicamente secundarios legítimos) se ordenan comenzando en sort_order: 2
+    this.profileAddons = secondaryList.map((a, idx) => ({
       id: a.id || null,
       name: a.name || `Addon ${idx + 2}`,
       url: a.url || a.manifest_url || '',
@@ -245,6 +295,7 @@ class WizardState {
       logo: a.logo || a.icon || (a.raw && (a.raw.logo || a.raw.icon)) || null,
       enabled: a.enabled !== false,
       sort_order: idx + 2,
+      isAioStreams: Boolean(a.isAioStreams || String(a.name || '').toLowerCase().includes('aiostreams') || String(a.url || '').toLowerCase().includes('aiostreams')),
       raw: a
     }));
 
@@ -369,6 +420,11 @@ class WizardState {
   addCustomAddon(manifestUrl, name = '', logo = '') {
     const cleanUrl = String(manifestUrl || '').trim();
     if (!cleanUrl) return false;
+
+    // AIOMetadata es exclusivo de la posición #1 anclada y nunca puede agregarse como secundario
+    if (isAioMetadataAddon({ url: cleanUrl, name })) {
+      return false;
+    }
 
     if (this.hasAddonManifest(cleanUrl)) {
       return false;

@@ -2,6 +2,8 @@
  * Cliente de Integración con el Backend Supabase de Nuvio (api.nuvio.tv)
  * Maneja Autenticación, Procedimientos Almacenados (RPC), Addons y Colecciones.
  */
+import { CONFIG } from './config.js';
+
 export class NuvioClient {
   /**
    * Ejecutor genérico de procedimientos almacenados RPC de Supabase
@@ -554,9 +556,15 @@ export class NuvioClient {
           const errorText = await singleResponse.text();
           throw new Error(`Error instalando addon (${singleResponse.status}): ${errorText}`);
         }
+
+        const singleData = await singleResponse.json().catch(() => null);
+        const addonId = (Array.isArray(singleData) ? singleData[0]?.id : singleData?.id) || null;
+        return { success: true, addonId };
       }
 
-      return { success: true };
+      const resData = await response.json().catch(() => null);
+      const addonId = (Array.isArray(resData) ? resData[0]?.id : resData?.id) || null;
+      return { success: true, addonId };
     } catch (err) {
       console.error('[NuvioClient] Error registrando addon:', err);
       throw new Error(`Fallo al instalar addon en Nuvio: ${err.message}`);
@@ -694,7 +702,9 @@ export class NuvioClient {
   }
 
   /**
-   * Instala o actualiza el addon principal AIOMetadata en la posición #1
+   * Instala o actualiza el addon principal AIOMetadata en la posición #1,
+   * garantizando que cualquier duplicado previo en Nuvio sea eliminado para que
+   * nunca coexistan dos addons de metadatos en la cuenta.
    */
   static async installOrUpdateAioAddon({ apiUrl, apikey, accessToken, userId, profileId, manifestUrl, existingAioId }) {
     let ownerId = userId;
@@ -705,10 +715,48 @@ export class NuvioClient {
     const cleanUrl = apiUrl.replace(/\/+$/, '');
     const profId = Number(profileId) || profileId;
 
-    // Si ya existe un AIOMetadata previo, actualizarlo
-    if (existingAioId) {
+    // 1. Consultar lista viva de addons del perfil en Nuvio
+    let liveAddons = [];
+    try {
+      liveAddons = await this.listAddons({ apiUrl, apikey, accessToken, userId, profileId: profId });
+    } catch (listErr) {
+      console.warn('[NuvioClient] Error listando addons para sanear AIOMetadata:', listErr.message);
+    }
+
+    // 2. Detectar todos los addons de AIOMetadata existentes en el perfil de Nuvio
+    const aioMatches = liveAddons.filter(a => {
+      const name = String(a?.name || '').toLowerCase().trim();
+      const url = String(a?.url || a?.manifest_url || '').toLowerCase().trim();
+      if (name.includes('aiostreams') || url.includes('aiostreams')) return false;
+      if (name.includes('aiometadata') || name === 'aiometa') return true;
+      if (url.includes('aiometadata')) return true;
+      const instances = Array.isArray(CONFIG.AIOMETADATA_INSTANCES) ? CONFIG.AIOMETADATA_INSTANCES : [];
+      return instances.some(inst => {
+        const host = inst.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
+        return host && url.includes(host);
+      });
+    });
+
+    // 3. Determinar el ID a reutilizar y actualizar
+    let targetAioId = existingAioId;
+    if (!targetAioId && aioMatches.length > 0) {
+      targetAioId = aioMatches[0].id;
+    }
+
+    // 4. ELIMINAR terminantemente cualquier otro AIOMetadata duplicado en Nuvio
+    for (const match of aioMatches) {
+      if (match.id && String(match.id) !== String(targetAioId)) {
+        try {
+          await this.deleteAddon({ apiUrl, apikey, accessToken, addonId: match.id, profileId: profId });
+          console.log(`[NuvioClient] Addon AIOMetadata duplicado eliminado de Nuvio (ID: ${match.id})`);
+        } catch (_) {}
+      }
+    }
+
+    // 5. Si existe un AIOMetadata previo, actualizarlo con PATCH
+    if (targetAioId) {
       try {
-        const patchEndpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(existingAioId)}`;
+        const patchEndpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(targetAioId)}`;
         const patchRes = await fetch(patchEndpoint, {
           method: 'PATCH',
           headers: {
@@ -728,15 +776,18 @@ export class NuvioClient {
         });
 
         if (patchRes.ok) {
-          return { success: true, updated: true, addonId: existingAioId };
+          return { success: true, updated: true, addonId: targetAioId };
         }
       } catch (patchErr) {
-        console.warn('[NuvioClient] Falló PATCH de AIOMetadata existente, instalando nuevo:', patchErr.message);
+        console.warn('[NuvioClient] Falló PATCH de AIOMetadata existente, reinstalando limpio:', patchErr.message);
+        try {
+          await this.deleteAddon({ apiUrl, apikey, accessToken, addonId: targetAioId, profileId: profId });
+        } catch (_) {}
       }
     }
 
-    // Instalar como nuevo en posición 1
-    return await this.installAddon({
+    // 6. Si no existía ninguno (o el PATCH falló), registrar como nuevo en posición 1
+    const installed = await this.installAddon({
       apiUrl,
       apikey,
       accessToken,
@@ -749,6 +800,8 @@ export class NuvioClient {
         sort_order: 1
       }
     });
+
+    return { success: true, installed: true, addonId: installed?.addonId || null };
   }
 
   /**

@@ -2,7 +2,7 @@
  * Controlador Principal de la Aplicación (UI y Eventos)
  * Nuvio & AIOMetadata Auto-Setup Wizard
  */
-import { state } from './state.js';
+import { state, isAioMetadataAddon } from './state.js';
 import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
@@ -1472,11 +1472,7 @@ class AppController {
           userId: state.nuvioAuth.userId,
           profileId: profileId
         });
-        hasAio = (addons || []).some(a => {
-          const name = String(a.name || '').toLowerCase();
-          const url = String(a.url || a.manifest_url || '').toLowerCase();
-          return name.includes('aiometadata') || url.includes('aiometadata') || (url.includes('/stremio/') && url.includes('manifest.json'));
-        });
+        hasAio = (addons || []).some(isAioMetadataAddon);
         if (state.hasLoadedAddonsForProfile !== profileId) {
           state.setProfileAddons(addons, profileId);
         }
@@ -3573,8 +3569,7 @@ class AppController {
     }
 
     // 1. Verificar si es AIOMetadata
-    const lower = rawUrl.toLowerCase();
-    if (lower.includes('aiometadata')) {
+    if (isAioMetadataAddon({ url: rawUrl, name: '' })) {
       this.showToast('AIOMetadata ya es tu addon principal (#1) y se encuentra anclado en la parte superior.', 'info');
       if (urlInput) urlInput.focus();
       return;
