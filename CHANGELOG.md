@@ -7,6 +7,28 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.5.0] - 2026-10-04
+
+### ✨ Añadido
+- **Flujo Secuencial en 7 Pasos y Gestor de Addons de Perfil (Paso 6):**
+  - Incorporación del Paso 6 dedicado a la inspección, ordenamiento, adición y remoción de complementos instalados en el perfil de Nuvio.
+  - Anclaje inmutable de **AIOMetadata** en la posición #1 para garantizar la prioridad absoluta de las colecciones y metadatos en español latino.
+  - Soporte de reordenamiento visual de complementos mediante controles directos (▲ / ▼) y compatibilidad para agregar complementos externos mediante su URL de manifiesto.
+  - Reemplazo atómico de versiones previas de AIOMetadata en el perfil, evitando duplicaciones al reconfigurar.
+- **Integración Asistida de AIOStreams con Plantilla Latina y Servicios Debrid:**
+  - Asistente guiado para la integración de **AIOStreams** con plantilla curada (`templates/Aiostream.json`) y streams latinos priorizados.
+  - Modal interactivo de configuración de API Keys para proveedores Debrid priorizando Torbox, AllDebrid, Real-Debrid, Premiumize y Debrid-Link.
+  - Generación automatizada y cifrada del manifiesto final en el Paso 7 utilizando la misma Clave Maestra del usuario (`js/aiostreams-client.js`).
+- **Anclaje Rápido de Colecciones (Pin to Top) en Mini Nuvio:**
+  - Botón de fijado instantáneo en las tarjetas de colecciones del Paso 3, permitiendo elevar cualquier catálogo al inicio de su sección con un solo clic.
+- **Odómetro Digital y Contador en Vivo de Setups Completados:**
+  - Pastilla interactiva en la barra superior con animación de rodillo numérico para visualizar en tiempo real la cantidad de configuraciones completadas (`js/counter.js`).
+  - Menú flotante compacto en dispositivos móviles con acceso a métricas y enlaces comunitarios.
+- **Integración Completa de Paquetes Fusion Badges (kingsizew):**
+  - Módulo de personalización de distintivos de streaming con previsualización inmediata de carátulas y créditos oficiales.
+
+---
+
 ## [1.4.0] - 2026-10-02
 
 ### ✨ Añadido
