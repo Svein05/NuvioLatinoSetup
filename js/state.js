@@ -74,6 +74,15 @@ class WizardState {
       password: ''
     };
 
+    // Configuración AIOStreams
+    this.aiostreams = {
+      installed: false,
+      debrids: {},
+      validatedKeys: {},
+      manifestUrl: null
+    };
+    this.rawAioStreamsTemplate = null;
+
     // Configuración de Ejecución (Siempre Real en producción)
     this.execution = {
       mode: 'real',
@@ -283,6 +292,12 @@ class WizardState {
     if (removed && removed.id) {
       this.deletedAddonIds.add(removed.id);
     }
+    if (removed && removed.isAioStreams) {
+      this.aiostreams.installed = false;
+      this.aiostreams.debrids = {};
+      this.aiostreams.validatedKeys = {};
+      this.aiostreams.manifestUrl = null;
+    }
 
     // Reindexar restantes
     this.profileAddons.forEach((a, idx) => {
@@ -291,6 +306,61 @@ class WizardState {
 
     this.notify('ADDONS_UPDATED');
     return true;
+  }
+
+  /**
+   * Configura o actualiza AIOStreams en la lista de addons del perfil
+   */
+  setAioStreamsConfig(debridsMap = {}, validatedKeysMap = {}) {
+    this.aiostreams.installed = true;
+    this.aiostreams.debrids = { ...debridsMap };
+    this.aiostreams.validatedKeys = { ...validatedKeysMap };
+
+    // Buscar si ya existe en profileAddons
+    const existingIndex = this.profileAddons.findIndex(a => a.isAioStreams);
+    if (existingIndex !== -1) {
+      this.profileAddons[existingIndex].debrids = { ...debridsMap };
+    } else {
+      // Agregar al final de los addons secundarios
+      const aioStreamsAddon = {
+        id: null,
+        name: 'AIOStreams',
+        url: null,
+        manifest_url: null,
+        logo: 'https://numb3rs.stream/assets/images/aiostreams.svg',
+        enabled: true,
+        sort_order: this.profileAddons.length + 2,
+        isAioStreams: true,
+        isPendingManifest: true,
+        debrids: { ...debridsMap },
+        description: 'Addon de streaming unificado con priorización full latino (Debrids configurados).'
+      };
+      this.profileAddons.push(aioStreamsAddon);
+    }
+
+    this.notify('ADDONS_UPDATED');
+    return true;
+  }
+
+  /**
+   * Elimina AIOStreams del perfil y del estado
+   */
+  removeAioStreams() {
+    this.aiostreams.installed = false;
+    this.aiostreams.debrids = {};
+    this.aiostreams.validatedKeys = {};
+    this.aiostreams.manifestUrl = null;
+
+    const idx = this.profileAddons.findIndex(a => a.isAioStreams);
+    if (idx !== -1) {
+      this.removeAddon(idx);
+    } else {
+      this.notify('ADDONS_UPDATED');
+    }
+  }
+
+  getAioStreamsDebrids() {
+    return this.aiostreams.debrids || {};
   }
 
   /**
@@ -333,9 +403,10 @@ class WizardState {
   async loadTemplates() {
     try {
       const cacheBuster = `?v=${Date.now()}`;
-      const [metaRes, colRes] = await Promise.all([
+      const [metaRes, colRes, aioRes] = await Promise.all([
         fetch(`${CONFIG.TEMPLATES.METADATA_LATINO}${cacheBuster}`, { cache: 'no-store' }),
-        fetch(`${CONFIG.TEMPLATES.NUVIO_COLLECTIONS}${cacheBuster}`, { cache: 'no-store' })
+        fetch(`${CONFIG.TEMPLATES.NUVIO_COLLECTIONS}${cacheBuster}`, { cache: 'no-store' }),
+        fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}${cacheBuster}`, { cache: 'no-store' }).catch(() => null)
       ]);
 
       if (!metaRes.ok || !colRes.ok) {
@@ -343,6 +414,9 @@ class WizardState {
       }
 
       this.rawMetadataTemplate = await metaRes.json();
+      if (aioRes && aioRes.ok) {
+        this.rawAioStreamsTemplate = await aioRes.json().catch(() => null);
+      }
       const collectionsData = await colRes.json();
 
       // Clonar para permitir reset

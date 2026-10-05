@@ -7,6 +7,7 @@ import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
+import { AIOStreamsClient } from './aiostreams-client.js';
 import { 
   BADGE_PACKS, 
   getBadgePackById, 
@@ -764,7 +765,9 @@ class AppController {
     const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
     const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
     const btnDownloadBadges = document.getElementById('btnDownloadBadges');
+    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
     const isBadgesEnabled = Boolean(state.preferences && state.preferences.badgesEnabled);
+    const isAioStreamsInstalled = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
 
     if (btnCopyBadge) {
       if (isBadgesEnabled) {
@@ -787,6 +790,14 @@ class AppController {
         btnDownloadBadges.classList.remove('hidden');
       } else {
         btnDownloadBadges.classList.add('hidden');
+      }
+    }
+
+    if (btnCopyAioStreams) {
+      if (isAioStreamsInstalled) {
+        btnCopyAioStreams.classList.remove('hidden');
+      } else {
+        btnCopyAioStreams.classList.add('hidden');
       }
     }
 
@@ -3139,6 +3150,61 @@ class AppController {
         }
       });
     }
+
+    // --- Flujo de AIOStreams ---
+    const btnOpenAioModal = document.getElementById('btnOpenAddAioStreamsModal');
+    const modalAioReq = document.getElementById('modalAioStreamsRequirement');
+    const btnCancelAioReq = document.getElementById('btnCancelAioStreamsReq');
+    const btnAcceptAioReq = document.getElementById('btnAcceptAioStreamsReq');
+
+    const modalAioDebrids = document.getElementById('modalAioStreamsDebrids');
+    const btnCloseAioDebrids = document.getElementById('btnCloseAioStreamsDebridsModal');
+    const btnCancelAioDebrids = document.getElementById('btnCancelAioStreamsDebrids');
+    const btnValidateDebrids = document.getElementById('btnValidateDebridKeys');
+    const btnInstallAio = document.getElementById('btnInstallAioStreams');
+
+    if (btnOpenAioModal) {
+      btnOpenAioModal.addEventListener('click', () => this.openAioStreamsRequirementModal());
+    }
+    if (btnCancelAioReq) {
+      btnCancelAioReq.addEventListener('click', () => this.closeAioStreamsRequirementModal());
+    }
+    if (btnAcceptAioReq) {
+      btnAcceptAioReq.addEventListener('click', () => this.openAioStreamsDebridsModal());
+    }
+    if (modalAioReq) {
+      modalAioReq.addEventListener('click', (e) => {
+        if (e.target === modalAioReq) this.closeAioStreamsRequirementModal();
+      });
+    }
+
+    if (btnCloseAioDebrids) {
+      btnCloseAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
+    }
+    if (btnCancelAioDebrids) {
+      btnCancelAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
+    }
+    if (modalAioDebrids) {
+      modalAioDebrids.addEventListener('click', (e) => {
+        if (e.target === modalAioDebrids) this.closeAioStreamsDebridsModal();
+      });
+    }
+
+    if (btnValidateDebrids) {
+      btnValidateDebrids.addEventListener('click', () => this.validateDebridKeys());
+    }
+    if (btnInstallAio) {
+      btnInstallAio.addEventListener('click', () => this.installAioStreamsFromModal());
+    }
+
+    // Escuchar cambios en los inputs para habilitar botón de validar/instalar
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    debridIds.forEach(id => {
+      const input = document.getElementById(`inputDebrid${id}`);
+      if (input) {
+        input.addEventListener('input', () => this.updateInstallAioStreamsBtnState());
+      }
+    });
   }
 
   /**
@@ -3331,14 +3397,44 @@ class AppController {
         const pos = idx + 2;
         const isFirstSecondary = idx === 0;
         const isLastSecondary = idx === addons.length - 1;
-        const name = addon.name || `Addon ${pos}`;
+        const isAioStreams = Boolean(addon.isAioStreams);
+        const name = isAioStreams ? 'AIOStreams' : (addon.name || `Addon ${pos}`);
         const url = addon.manifest_url || addon.url || '';
-        const logoUrl = addon.logo || this.getAddonFallbackLogo(url, name);
-        const initials = (name.replace(/[^a-zA-Z0-9]/g, '') || 'AD').slice(0, 2).toUpperCase();
+        const logoUrl = isAioStreams
+          ? 'https://numb3rs.stream/assets/images/aiostreams.svg'
+          : (addon.logo || this.getAddonFallbackLogo(url, name));
+        const initials = isAioStreams ? 'AS' : ((name.replace(/[^a-zA-Z0-9]/g, '') || 'AD').slice(0, 2).toUpperCase());
 
         const logoHtml = logoUrl
           ? `<img src="${escapeText(logoUrl)}" alt="${escapeText(name)}" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]\\'>${escapeText(initials)}</div>';">`
           : `<div class="w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]">${escapeText(initials)}</div>`;
+
+        let titleAndDescHtml = '';
+        if (isAioStreams) {
+          const debridsMap = addon.debrids || state.aiostreams.debrids || {};
+          const activeDebrids = Object.keys(debridsMap).filter(k => debridsMap[k]);
+          const debridsStr = activeDebrids.length > 0 ? activeDebrids.map(d => d.toUpperCase()).join(', ') : 'Sin debrids';
+          titleAndDescHtml = `
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <h4 class="font-semibold text-sm sm:text-base text-white truncate">AIOStreams Latino</h4>
+                <span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">Streams Latino</span>
+              </div>
+              <p class="text-[10px] sm:text-[11px] text-white/50 truncate mt-0.5">
+                <span class="text-emerald-400 font-medium">Debrids: ${escapeText(debridsStr)}</span> • El manifiesto se generará con tu clave maestra en el Paso 7
+              </p>
+            </div>
+          `;
+        } else {
+          titleAndDescHtml = `
+            <div class="min-w-0 flex-1">
+              <h4 class="font-semibold text-sm sm:text-base text-white truncate">${escapeText(name)}</h4>
+              <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeText(url)}">
+                ${escapeText(url || 'Sin URL de manifiesto')}
+              </p>
+            </div>
+          `;
+        }
 
         html += `
           <div class="p-3.5 sm:p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150">
@@ -3351,16 +3447,21 @@ class AppController {
                 ${logoHtml}
               </div>
 
-              <!-- Nombre y URL -->
-              <div class="min-w-0 flex-1">
-                <h4 class="font-semibold text-sm sm:text-base text-white truncate">${escapeText(name)}</h4>
-                <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeText(url)}">
-                  ${escapeText(url || 'Sin URL de manifiesto')}
-                </p>
-              </div>
+              <!-- Nombre y URL o información de Debrids -->
+              ${titleAndDescHtml}
             </div>
             
             <div class="shrink-0 flex items-center gap-1.5">
+              ${isAioStreams ? `
+                <!-- Editar Debrids de AIOStreams (⚙️) -->
+                <button type="button" 
+                        onclick="window.appController.openAioStreamsDebridsModal()" 
+                        class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/60 hover:text-amber-300 hover:bg-white/[0.1] active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all" 
+                        title="Editar claves Debrid de AIOStreams">
+                  <i class="fa-solid fa-gear text-[11px]"></i>
+                </button>
+              ` : ''}
+
               <!-- Subir orden (▲) -->
               <button type="button" 
                       onclick="window.appController.moveAddon(${idx}, -1)" 
@@ -3464,7 +3565,7 @@ class AppController {
 
     // 1. Verificar si es AIOMetadata
     const lower = rawUrl.toLowerCase();
-    if (lower.includes('aiometadata') || (lower.includes('/stremio/') && lower.includes('manifest.json'))) {
+    if (lower.includes('aiometadata')) {
       this.showToast('AIOMetadata ya es tu addon principal (#1) y se encuentra anclado en la parte superior.', 'info');
       if (urlInput) urlInput.focus();
       return;
@@ -3515,6 +3616,182 @@ class AppController {
     this.closeAddAddonModal();
     this.renderAddonsList();
     this.showToast(`✓ Addon "${finalName}" agregado exitosamente a la lista.`, 'success');
+  }
+
+  openAioStreamsRequirementModal() {
+    if (state.aiostreams.installed || (state.profileAddons || []).some(a => a.isAioStreams)) {
+      this.openAioStreamsDebridsModal();
+      return;
+    }
+    const modal = document.getElementById('modalAioStreamsRequirement');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeAioStreamsRequirementModal() {
+    const modal = document.getElementById('modalAioStreamsRequirement');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  openAioStreamsDebridsModal() {
+    this.closeAioStreamsRequirementModal();
+    const modal = document.getElementById('modalAioStreamsDebrids');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      if (input) {
+        input.value = state.aiostreams.debrids[key] || '';
+      }
+      const statusEl = document.getElementById(`statusDebrid${id}`);
+      if (statusEl) {
+        if (state.aiostreams.validatedKeys[key]) {
+          statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>`;
+        } else {
+          const links = {
+            Torbox: 'https://torbox.app/settings',
+            Alldebrid: 'https://alldebrid.com/apikeys',
+            Realdebrid: 'https://real-debrid.com/apitoken',
+            Premiumize: 'https://www.premiumize.me/account',
+            Debridlink: 'https://debrid-link.com/webapp/apikey'
+          };
+          if (links[id]) {
+            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>`;
+          } else {
+            statusEl.innerHTML = '';
+          }
+        }
+      }
+    });
+
+    this.updateInstallAioStreamsBtnState();
+  }
+
+  closeAioStreamsDebridsModal() {
+    const modal = document.getElementById('modalAioStreamsDebrids');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  updateInstallAioStreamsBtnState() {
+    const btnInstall = document.getElementById('btnInstallAioStreams');
+    if (!btnInstall) return;
+
+    const hasValidatedKey = Object.values(state.aiostreams.validatedKeys || {}).some(v => v === true);
+    if (hasValidatedKey) {
+      btnInstall.disabled = false;
+      btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-100 cursor-pointer shadow-[var(--shadow-pill)]";
+      btnInstall.title = "Instalar AIOStreams con tus proveedores Debrid validados";
+    } else {
+      btnInstall.disabled = true;
+      btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed shadow-[var(--shadow-pill)]";
+      btnInstall.title = "Debes validar al menos una clave API Debrid para instalar";
+    }
+  }
+
+  async validateDebridKeys() {
+    const btnValidate = document.getElementById('btnValidateDebridKeys');
+    const btnText = document.getElementById('btnValidateDebridKeysText');
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+
+    const entriesToValidate = [];
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val) {
+        entriesToValidate.push({ id, key, val });
+      }
+    });
+
+    if (entriesToValidate.length === 0) {
+      this.showToast('Ingresa la clave API de al menos un proveedor Debrid para validar.', 'warning');
+      const firstInput = document.getElementById('inputDebridTorbox');
+      if (firstInput) firstInput.focus();
+      return;
+    }
+
+    if (btnValidate) btnValidate.disabled = true;
+    if (btnText) btnText.innerText = 'Validando en vivo...';
+
+    let validatedCount = 0;
+
+    for (const item of entriesToValidate) {
+      const statusEl = document.getElementById(`statusDebrid${item.id}`);
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Verificando...</span>`;
+      }
+
+      try {
+        const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
+        if (res.valid) {
+          validatedCount++;
+          state.aiostreams.validatedKeys[item.key] = true;
+          state.aiostreams.debrids[item.key] = item.val;
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
+          }
+        } else {
+          delete state.aiostreams.validatedKeys[item.key];
+          delete state.aiostreams.debrids[item.key];
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> Clave inválida</span>`;
+          }
+        }
+      } catch (err) {
+        delete state.aiostreams.validatedKeys[item.key];
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
+        }
+      }
+    }
+
+    if (btnValidate) btnValidate.disabled = false;
+    if (btnText) btnText.innerText = 'Validar Claves';
+
+    this.updateInstallAioStreamsBtnState();
+
+    if (validatedCount > 0) {
+      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito en vivo. Ahora puedes instalar.`, 'success');
+    } else {
+      this.showToast('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
+    }
+  }
+
+  installAioStreamsFromModal() {
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    const activeDebrids = {};
+
+    debridIds.forEach(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val && state.aiostreams.validatedKeys[key]) {
+        activeDebrids[key] = val;
+      }
+    });
+
+    if (Object.keys(activeDebrids).length === 0) {
+      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de instalar.', 'warning');
+      return;
+    }
+
+    state.setAioStreamsConfig(activeDebrids, state.aiostreams.validatedKeys);
+    this.closeAioStreamsDebridsModal();
+    this.renderAddonsList();
+    this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
   }
 
   setupStep6Injection() {
@@ -3621,6 +3898,48 @@ class AppController {
           }
         } catch (err) {
           this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
+        }
+      });
+    }
+
+    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
+    if (btnCopyAioStreams) {
+      btnCopyAioStreams.addEventListener('click', async () => {
+        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 4);
+        if (!hasPassword) {
+          this.showToast('Debes ingresar o generar una contraseña para el addon (mínimo 4 caracteres) primero.', 'warning');
+          if (passwordInput) passwordInput.focus();
+          return;
+        }
+
+        const originalHtml = btnCopyAioStreams.innerHTML;
+        try {
+          btnCopyAioStreams.disabled = true;
+          btnCopyAioStreams.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-cyan-400"></i><span>Generando...</span>';
+
+          let manifestUrl = state.aiostreams.manifestUrl;
+          if (!manifestUrl) {
+            this.showToast('Generando manifest de AIOStreams en la instancia oficial...', 'info');
+            let template = state.rawAioStreamsTemplate;
+            if (!template) {
+              const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+              template = await fetchRes.json();
+              state.rawAioStreamsTemplate = template;
+            }
+            const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
+            const masterPass = state.aiometadata.password.trim();
+            const res = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
+            manifestUrl = res.manifestUrl;
+            state.aiostreams.manifestUrl = manifestUrl;
+          }
+
+          await navigator.clipboard.writeText(manifestUrl);
+          this.showToast('✓ Enlace del Manifiesto de AIOStreams copiado al portapapeles', 'success');
+        } catch (err) {
+          this.showToast(`Error al generar o copiar AIOStreams: ${err.message}`, 'error');
+        } finally {
+          btnCopyAioStreams.disabled = false;
+          btnCopyAioStreams.innerHTML = originalHtml;
         }
       });
     }
@@ -3771,7 +4090,12 @@ class AppController {
     const addonsEl = document.getElementById('summaryAddonsStatus');
     if (addonsEl) {
       const extraCount = state.profileAddons ? state.profileAddons.length : 0;
-      if (extraCount > 0) {
+      const hasAioStreams = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
+      if (hasAioStreams && extraCount === 1) {
+        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams`;
+      } else if (hasAioStreams) {
+        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams + ${extraCount - 1} más`;
+      } else if (extraCount > 0) {
         addonsEl.innerText = `AIOMetadata (#1) + ${extraCount} addons`;
       } else {
         addonsEl.innerText = `AIOMetadata (#1 principal)`;

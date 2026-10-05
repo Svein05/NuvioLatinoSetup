@@ -5,6 +5,7 @@
 import { state } from './state.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { NuvioClient } from './nuvio-client.js';
+import { AIOStreamsClient } from './aiostreams-client.js';
 import { CONFIG } from './config.js';
 import { 
   getBadgePackById, 
@@ -298,6 +299,14 @@ export class PipelineInjector {
 
       if (isSimulation) {
         await this.delay(600);
+        for (const secAddon of (state.profileAddons || [])) {
+          if (secAddon.isAioStreams && !secAddon.manifest_url) {
+            secAddon.manifest_url = `${CONFIG.AIOSTREAMS_INSTANCE}/stremio/mock-aiostreams-uuid/mock-enc-pass/manifest.json`;
+            secAddon.url = secAddon.manifest_url;
+            state.aiostreams.manifestUrl = secAddon.manifest_url;
+            state.addLog(`✓ [Simulado] AIOStreams Latino generado: ${secAddon.manifest_url}`, 'success');
+          }
+        }
         state.addLog('✓ [Simulado] AIOMetadata anclado en #1 y addons secundarios organizados.', 'success');
       } else {
         // 1. Instalar o actualizar AIOMetadata en posición #1
@@ -316,6 +325,29 @@ export class PipelineInjector {
         // 2. Registrar nuevos addons añadidos manualmente en el Paso 6
         const secondaryAddons = state.profileAddons || [];
         for (const secAddon of secondaryAddons) {
+          // Si es AIOStreams y aún no tiene manifest generado, aprovisionar en la instancia oficial
+          if (secAddon.isAioStreams && !secAddon.manifest_url) {
+            state.addLog('Compilando y generando AIOStreams Latino con tus debrids y contraseña maestra...', 'info');
+            try {
+              let template = state.rawAioStreamsTemplate;
+              if (!template) {
+                const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+                template = await fetchRes.json();
+                state.rawAioStreamsTemplate = template;
+              }
+              const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
+              const masterPassword = (state.aiometadata.password || '').trim() || 'NuvioSetupMaster2026';
+              const aioUserRes = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPassword);
+              secAddon.manifest_url = aioUserRes.manifestUrl;
+              secAddon.url = aioUserRes.manifestUrl;
+              state.aiostreams.manifestUrl = aioUserRes.manifestUrl;
+              state.addLog(`✓ AIOStreams Latino generado exitosamente: ${aioUserRes.manifestUrl}`, 'success');
+            } catch (aioErr) {
+              state.addLog(`❌ Error al generar AIOStreams en la instancia oficial: ${aioErr.message}`, 'error');
+              throw aioErr;
+            }
+          }
+
           if (!secAddon.id && secAddon.manifest_url) {
             try {
               await NuvioClient.installAddon({

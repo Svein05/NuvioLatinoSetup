@@ -27,6 +27,9 @@ export const CONFIG = {
   ],
   DEFAULT_AIOMETADATA_URL: "https://aiometadatafortheweebs.midnightignite.me",
 
+  // Instancia fija oficial de AIOStreams solicitada
+  AIOSTREAMS_INSTANCE: "https://aiostreamsfortheweebsstable.midnightignite.me",
+
   // URLs de plantillas locales (resolución dinámica de ruta según página)
   TEMPLATES: {
     get METADATA_LATINO() {
@@ -34,6 +37,9 @@ export const CONFIG = {
     },
     get NUVIO_COLLECTIONS() {
       return `${getBasePath()}templates/NuvioCollections.json`;
+    },
+    get AIOSTREAMS() {
+      return `${getBasePath()}templates/Aiostream.json`;
     }
   },
 
