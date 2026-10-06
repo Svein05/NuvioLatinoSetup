@@ -2,7 +2,7 @@
  * Controlador Principal de la Aplicación (UI y Eventos)
  * Nuvio & AIOMetadata Auto-Setup Wizard
  */
-import { state, isAioMetadataAddon } from './state.js';
+import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
 import { CONFIG } from './config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
@@ -3147,21 +3147,51 @@ class AppController {
       });
     }
 
-    // --- Flujo de AIOStreams ---
+    // --- Modal de Confirmación de Borrado de Addon ---
+    const modalConfirmRemove = document.getElementById('modalConfirmRemoveAddon');
+    const btnCloseConfirmRemove = document.getElementById('btnCloseConfirmRemoveAddonModal');
+    const btnCancelConfirmRemove = document.getElementById('btnCancelConfirmRemoveAddon');
+    const btnAcceptConfirmRemove = document.getElementById('btnAcceptConfirmRemoveAddon');
+
+    if (btnCloseConfirmRemove) {
+      btnCloseConfirmRemove.addEventListener('click', () => this.closeConfirmRemoveAddonModal());
+    }
+    if (btnCancelConfirmRemove) {
+      btnCancelConfirmRemove.addEventListener('click', () => this.closeConfirmRemoveAddonModal());
+    }
+    if (btnAcceptConfirmRemove) {
+      btnAcceptConfirmRemove.addEventListener('click', () => this.executeConfirmRemoveAddon());
+    }
+    if (modalConfirmRemove) {
+      modalConfirmRemove.addEventListener('click', (e) => {
+        if (e.target === modalConfirmRemove) this.closeConfirmRemoveAddonModal();
+      });
+    }
+
+    // --- Flujo de AIOStreams y Modal de Conflicto ---
     const btnOpenAioModal = document.getElementById('btnOpenAddAioStreamsModal');
+    const modalAioConflict = document.getElementById('modalAioStreamsConflict');
+    const btnCancelAioConflict = document.getElementById('btnCancelAioStreamsConflict');
+    const btnConfirmAioConflict = document.getElementById('btnConfirmAioStreamsConflict');
+
+    if (btnOpenAioModal) {
+      btnOpenAioModal.addEventListener('click', () => this.handleOpenAddAioStreamsClick());
+    }
+    if (btnCancelAioConflict) {
+      btnCancelAioConflict.addEventListener('click', () => this.closeAioStreamsConflictModal());
+    }
+    if (btnConfirmAioConflict) {
+      btnConfirmAioConflict.addEventListener('click', () => this.confirmAioStreamsReplacement());
+    }
+    if (modalAioConflict) {
+      modalAioConflict.addEventListener('click', (e) => {
+        if (e.target === modalAioConflict) this.closeAioStreamsConflictModal();
+      });
+    }
+
     const modalAioReq = document.getElementById('modalAioStreamsRequirement');
     const btnCancelAioReq = document.getElementById('btnCancelAioStreamsReq');
     const btnAcceptAioReq = document.getElementById('btnAcceptAioStreamsReq');
-
-    const modalAioDebrids = document.getElementById('modalAioStreamsDebrids');
-    const btnCloseAioDebrids = document.getElementById('btnCloseAioStreamsDebridsModal');
-    const btnCancelAioDebrids = document.getElementById('btnCancelAioStreamsDebrids');
-    const btnValidateDebrids = document.getElementById('btnValidateDebridKeys');
-    const btnInstallAio = document.getElementById('btnInstallAioStreams');
-
-    if (btnOpenAioModal) {
-      btnOpenAioModal.addEventListener('click', () => this.openAioStreamsRequirementModal());
-    }
     if (btnCancelAioReq) {
       btnCancelAioReq.addEventListener('click', () => this.closeAioStreamsRequirementModal());
     }
@@ -3423,7 +3453,6 @@ class AppController {
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
                 <h4 class="font-semibold text-sm sm:text-base text-white truncate">AIOStreams Latino</h4>
-                <span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 shrink-0">Streams Latino</span>
               </div>
               <p class="text-[10px] sm:text-[11px] text-white/50 truncate mt-0.5">
                 <span class="text-emerald-400 font-medium">Debrids: ${escapeText(debridsStr)}</span> • El manifiesto se generará con tu clave maestra en el Paso 7
@@ -3518,12 +3547,37 @@ class AppController {
 
   removeAddon(index) {
     const addon = state.profileAddons[index];
-    const name = addon?.name || 'este addon';
-    if (confirm(`¿Deseas remover el addon "${name}" de este perfil?`)) {
-      state.removeAddon(index);
-      this.renderAddonsList();
-      this.showToast(`Addon "${name}" removido de la lista.`, 'info');
+    if (!addon) return;
+    this.pendingDeleteAddonIndex = index;
+    const nameEl = document.getElementById('deleteAddonTargetName');
+    if (nameEl) {
+      nameEl.textContent = `"${addon.name || 'Addon ' + (index + 2)}"`;
     }
+    const modal = document.getElementById('modalConfirmRemoveAddon');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeConfirmRemoveAddonModal() {
+    this.pendingDeleteAddonIndex = null;
+    const modal = document.getElementById('modalConfirmRemoveAddon');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  executeConfirmRemoveAddon() {
+    if (this.pendingDeleteAddonIndex === null || this.pendingDeleteAddonIndex === undefined) return;
+    const idx = this.pendingDeleteAddonIndex;
+    const addon = state.profileAddons[idx];
+    const name = addon?.name || 'este addon';
+    state.removeAddon(idx);
+    this.closeConfirmRemoveAddonModal();
+    this.renderAddonsList();
+    this.showToast(`✓ Addon "${name}" removido de la lista.`, 'info');
   }
 
   openAddAddonModal(defaultUrl = '') {
@@ -3622,11 +3676,44 @@ class AppController {
     this.showToast(`✓ Addon "${finalName}" agregado exitosamente a la lista.`, 'success');
   }
 
-  openAioStreamsRequirementModal() {
-    if (state.aiostreams.installed || (state.profileAddons || []).some(a => a.isAioStreams)) {
-      this.openAioStreamsDebridsModal();
-      return;
+  handleOpenAddAioStreamsClick() {
+    if (state.hasAioStreamsInstance()) {
+      this.openAioStreamsConflictModal();
+    } else {
+      this.openAioStreamsRequirementModal();
     }
+  }
+
+  openAioStreamsConflictModal() {
+    const modal = document.getElementById('modalAioStreamsConflict');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+  }
+
+  closeAioStreamsConflictModal() {
+    const modal = document.getElementById('modalAioStreamsConflict');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  confirmAioStreamsReplacement() {
+    const idx = state.getAioStreamsIndex();
+    if (idx !== -1) {
+      const removed = state.profileAddons[idx];
+      const name = removed?.name || 'AIOStreams';
+      state.removeAddon(idx);
+      this.renderAddonsList();
+      this.showToast(`Instancia previa de "${name}" desinstalada. Configura la nueva versión.`, 'info');
+    }
+    this.closeAioStreamsConflictModal();
+    this.openAioStreamsRequirementModal();
+  }
+
+  openAioStreamsRequirementModal() {
     const modal = document.getElementById('modalAioStreamsRequirement');
     if (modal) {
       modal.classList.remove('hidden');
