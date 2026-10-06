@@ -432,6 +432,40 @@ option, optgroup {
 }
 
 /* ============================================================ */
+/* ADAPTABILIDAD RESPONSIVA Y CONTROL DE OVERFLOW DE CABECERA   */
+/* ============================================================ */
+
+/* Estado compacto por defecto (móviles, tablets y pantallas < 1080px o con desborde forzado) */
+.lat-floating-nav .lat-brand-text,
+.lat-floating-nav .lat-brand-badge {
+  display: none !important;
+}
+
+.lat-floating-nav .lat-desktop-nav-cluster {
+  display: none !important;
+}
+
+.lat-floating-nav .lat-mobile-nav-cluster {
+  display: block !important;
+}
+
+/* Estado de escritorio (pantallas >= 1080px sin desborde) */
+@media (min-width: 1080px) {
+  .lat-floating-nav:not(.force-compact) .lat-brand-text {
+    display: inline !important;
+  }
+  .lat-floating-nav:not(.force-compact) .lat-brand-badge {
+    display: inline !important;
+  }
+  .lat-floating-nav:not(.force-compact) .lat-desktop-nav-cluster {
+    display: flex !important;
+  }
+  .lat-floating-nav:not(.force-compact) .lat-mobile-nav-cluster {
+    display: none !important;
+  }
+}
+
+/* ============================================================ */
 /* MENÚ DESPLEGABLE VERTICAL FLOTANTE (MÓVIL & TABLET ANGOSTA)  */
 /* ============================================================ */
 
