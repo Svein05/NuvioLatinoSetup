@@ -1,0 +1,3 @@
+# Dependencias de Python para el pipeline de assets visuales de la web
+# (scripts/generate_web_assets.py)
+pillow>=10.0.0
