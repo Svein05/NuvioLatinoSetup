@@ -60,11 +60,11 @@
 
   <!-- Barra de Navegación Flotante LAT-ADD -->
   <header class="lat-floating-nav">
-    <!-- Cápsula Izquierda: Marca -->
-    <a href="../" class="lat-floating-pill px-2.5 sm:px-5 py-2 sm:py-2.5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
+    <!-- Cápsula Izquierda: Marca (Compacta en móvil/tablet < 1080px, extendida en desktop >= 1080px) -->
+    <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 py-2 sm:py-2.5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
-      <span class="text-sm sm:text-[15px] font-semibold tracking-wide text-white hidden md:inline">Metadata Latino</span>
-      <span class="app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono hidden sm:inline">v1.5.0</span>
+      <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
+      <span class="lat-brand-badge app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">v1.5.0</span>
     </a>
 
     <!-- Cápsula Central: Tabs de Navegación Segmentada (Solo íconos en móvil, texto en sm:) -->
@@ -83,8 +83,8 @@
       </a>
     </nav>
 
-    <!-- Cápsula Derecha Móvil / Tablet Angosta (< 768px): Cápsula Circular con Dropdown Vertical -->
-    <div class="relative md:hidden pointer-events-auto shrink-0 lat-mobile-nav-cluster">
+    <!-- Cápsula Derecha Móvil / Tablet (< 1080px o desborde): Cápsula Circular con Dropdown Vertical -->
+    <div class="relative pointer-events-auto shrink-0 lat-mobile-nav-cluster">
       <button id="btnMobileHeaderMenu"
               type="button"
               class="lat-floating-pill px-3 py-2 sm:py-2.5 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
@@ -110,8 +110,8 @@
       </div>
     </div>
 
-    <!-- Cápsula Derecha para Tablet y Desktop (>= 768px): Contador + Discord + GitHub -->
-    <div class="hidden md:flex items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
+    <!-- Cápsula Derecha Desktop (>= 1080px): Contador + Discord + GitHub -->
+    <div class="lat-desktop-nav-cluster items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
       <!-- Pastilla Dinámica: Contador de Setups Completados -->
       <div id="completionsCounterPill"
            class="lat-floating-pill completions-counter-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer group select-none text-emerald-400 shrink-0 hover:bg-white/[0.12] transition-all"

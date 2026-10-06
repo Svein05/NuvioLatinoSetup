@@ -458,20 +458,84 @@ export function initMobileHeaderMenu() {
 }
 
 /**
- * Inicializa la pastilla en la cabecera al cargar la página
+ * Monitor reactivo de desborde de la barra de navegación flotante:
+ * Si al redimensionar la ventana o renderizar fuentes algún elemento del clúster derecho
+ * toca o sobrepasa el borde visible de la pantalla, conmuta de inmediato a modo compacto (.force-compact).
+ * Cuando la ventana vuelve a ampliarse a un ancho seguro, restaura el modo escritorio automáticamente.
+ */
+export function initNavOverflowMonitor() {
+  const nav = document.querySelector('header.lat-floating-nav');
+  if (!nav || nav._hasOverflowMonitor) return;
+  nav._hasOverflowMonitor = true;
+
+  const evaluateOverflow = () => {
+    const desktopCluster = nav.querySelector('.lat-desktop-nav-cluster');
+    const safetyMargin = 16; // Margen de respiro respecto al borde derecho
+
+    // 1. Si el clúster de escritorio está visible actualmente en el DOM
+    if (desktopCluster && getComputedStyle(desktopCluster).display !== 'none') {
+      const rightEdge = desktopCluster.getBoundingClientRect().right;
+      // Si el borde derecho sobrepasa la pantalla o queda apretado al borde
+      if (rightEdge > window.innerWidth - safetyMargin) {
+        nav.classList.add('force-compact');
+        nav.__overflowBreakWidth = Math.max(nav.__overflowBreakWidth || 0, window.innerWidth + 12);
+        return;
+      }
+    }
+
+    // 2. Si estaba en modo compacto por desborde previo, comprobar si creció la pantalla
+    if (nav.classList.contains('force-compact')) {
+      const minRestoreWidth = (nav.__overflowBreakWidth || 1080);
+      if (window.innerWidth >= minRestoreWidth) {
+        nav.classList.remove('force-compact');
+        // Validar en el siguiente cuadro si en el nuevo ancho todavía desborda
+        requestAnimationFrame(() => {
+          if (desktopCluster) {
+            const rect = desktopCluster.getBoundingClientRect();
+            if (rect.right > window.innerWidth - safetyMargin) {
+              nav.classList.add('force-compact');
+              nav.__overflowBreakWidth = window.innerWidth + 12;
+            }
+          }
+        });
+      }
+    }
+  };
+
+  // Evaluar inmediatamente
+  evaluateOverflow();
+
+  // Re-evaluar cuando las fuentes personalizadas terminen de cargar
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(evaluateOverflow);
+  }
+
+  // Escuchar redimensionamiento en tiempo real con ResizeObserver y window resize
+  window.addEventListener('resize', evaluateOverflow, { passive: true });
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(evaluateOverflow);
+    ro.observe(nav);
+  }
+}
+
+/**
+ * Inicializa la pastilla del contador en la cabecera al cargar la página
  */
 export async function initCompletionsCounterUI() {
-  // 1. Inicializar menú móvil
+  // 1. Inicializar menú móvil y tablet
   initMobileHeaderMenu();
 
-  // 2. Mostrar inmediatamente el valor en caché para evitar saltos o parpadeos (0 ms)
+  // 2. Inicializar monitor reactivo de desborde de cabecera
+  initNavOverflowMonitor();
+
+  // 3. Mostrar inmediatamente el valor en caché para evitar saltos o parpadeos (0 ms)
   const cached = getLocalCache();
   updateCounterPillUI(cached, false);
 
-  // 3. Iniciar polling en vivo (25 segundos)
+  // 4. Iniciar polling en vivo de bajo consumo (25 segundos)
   startLiveSyncPolling(25000);
 
-  // 4. Consultar en segundo plano el valor actualizado inicial
+  // 5. Consultar en segundo plano el valor actualizado inicial
   try {
     const liveCount = await fetchCompletionsCount();
     if (liveCount && liveCount !== cached) {
@@ -481,3 +545,4 @@ export async function initCompletionsCounterUI() {
     console.warn('[Counter] Usando valor de caché:', err);
   }
 }
+
