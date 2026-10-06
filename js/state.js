@@ -40,6 +40,17 @@ export function isAioMetadataAddon(addon) {
   return false;
 }
 
+/**
+ * Determina rigurosamente si un addon u objeto representa alguna instancia de AIOStreams
+ * (sea oficial, de la comunidad o generada externamente).
+ */
+export function isAioStreamsAddon(addon) {
+  if (!addon) return false;
+  const name = String(addon.name || '').toLowerCase().trim();
+  const url = String(addon.url || addon.manifest_url || '').toLowerCase().trim();
+  return name.includes('aiostreams') || url.includes('aiostreams');
+}
+
 class WizardState {
   constructor() {
     this.currentStep = 1;
@@ -286,7 +297,8 @@ class WizardState {
       this.existingAioAddon = null;
     }
 
-    // Los addons restantes (únicamente secundarios legítimos) se ordenan comenzando en sort_order: 2
+    // Los addons restantes (únicamente secundarios legítimos) se ordenan comenzando en sort_order: 2.
+    // Los addons preexistentes se tratan como externos estándar (sin debrids ni privilegios de nuestro template).
     this.profileAddons = secondaryList.map((a, idx) => ({
       id: a.id || null,
       name: a.name || `Addon ${idx + 2}`,
@@ -295,11 +307,27 @@ class WizardState {
       logo: a.logo || a.icon || (a.raw && (a.raw.logo || a.raw.icon)) || null,
       enabled: a.enabled !== false,
       sort_order: idx + 2,
-      isAioStreams: Boolean(a.isAioStreams || String(a.name || '').toLowerCase().includes('aiostreams') || String(a.url || '').toLowerCase().includes('aiostreams')),
+      isAioStreams: false,
+      isPreexistingAioStreams: isAioStreamsAddon(a),
       raw: a
     }));
 
     this.notify('ADDONS_UPDATED');
+  }
+
+  /**
+   * Comprueba si el perfil actual ya cuenta con alguna instancia de AIOStreams
+   * (sea preexistente externa o agregada en la sesión actual).
+   */
+  hasAioStreamsInstance() {
+    return this.profileAddons.some(a => Boolean(a.isAioStreams || a.isPreexistingAioStreams || isAioStreamsAddon(a)));
+  }
+
+  /**
+   * Retorna el índice de la instancia de AIOStreams si existe en profileAddons (-1 si no existe)
+   */
+  getAioStreamsIndex() {
+    return this.profileAddons.findIndex(a => Boolean(a.isAioStreams || a.isPreexistingAioStreams || isAioStreamsAddon(a)));
   }
 
   /**

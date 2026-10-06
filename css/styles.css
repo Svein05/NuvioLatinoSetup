@@ -334,6 +334,7 @@ option, optgroup {
     0 0 18px 0 rgba(16, 185, 129, 0.18);
 }
 
+/* Modo compacto por defecto (móviles, tablets y dispositivos táctiles) */
 .completions-counter-pill .completions-count-compact {
   max-width: 80px;
   opacity: 1;
@@ -357,8 +358,8 @@ option, optgroup {
   transition: max-width 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease-out;
 }
 
-/* Solo en pantallas de escritorio (>= 1024px) se permite la expansión horizontal */
-@media (min-width: 1024px) {
+/* Expansión elegante en hover ÚNICAMENTE en monitores de escritorio amplios (xl: >= 1280px) con puntero fino */
+@media (min-width: 1280px) and (hover: hover) and (pointer: fine) {
   .completions-counter-pill:hover .completions-count-compact,
   .completions-counter-pill.is-celebrating .completions-count-compact {
     max-width: 0;
@@ -372,38 +373,14 @@ option, optgroup {
     max-width: 280px;
     opacity: 1;
   }
-
-  .completions-counter-pill.is-celebrating {
-    border-color: rgba(16, 185, 129, 0.6);
-    box-shadow:
-      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.42),
-      0 0 24px rgba(16, 185, 129, 0.38);
-    animation: pill-celebration-pulse 1.8s ease-in-out infinite alternate;
-  }
 }
 
-/* En tablets y móviles (< 1024px) la expansión horizontal NO EXISTE para evitar desbordes */
-@media (max-width: 1023px) {
-  .completions-counter-pill:hover .completions-count-compact,
-  .completions-counter-pill.is-celebrating .completions-count-compact {
-    max-width: 80px !important;
-    opacity: 1 !important;
-    display: inline-flex !important;
-  }
-
-  .completions-counter-pill:hover .completions-expanded-wrap,
-  .completions-counter-pill.is-celebrating .completions-expanded-wrap {
-    max-width: 0 !important;
-    opacity: 0 !important;
-    display: none !important;
-  }
-
-  .completions-counter-pill.is-celebrating {
-    border-color: rgba(16, 185, 129, 0.6) !important;
-    box-shadow:
-      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.42),
-      0 0 20px rgba(16, 185, 129, 0.35) !important;
-  }
+.completions-counter-pill.is-celebrating {
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow:
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.42),
+    0 0 24px rgba(16, 185, 129, 0.38) !important;
+  animation: pill-celebration-pulse 1.8s ease-in-out infinite alternate;
 }
 
 @keyframes pill-celebration-pulse {
@@ -452,6 +429,40 @@ option, optgroup {
   display: inline-block;
   line-height: 1.15em;
   vertical-align: middle;
+}
+
+/* ============================================================ */
+/* ADAPTABILIDAD RESPONSIVA Y CONTROL DE OVERFLOW DE CABECERA   */
+/* ============================================================ */
+
+/* Estado compacto por defecto (móviles, tablets y pantallas < 1080px o con desborde forzado) */
+.lat-floating-nav .lat-brand-text,
+.lat-floating-nav .lat-brand-badge {
+  display: none !important;
+}
+
+.lat-floating-nav .lat-desktop-nav-cluster {
+  display: none !important;
+}
+
+.lat-floating-nav .lat-mobile-nav-cluster {
+  display: block !important;
+}
+
+/* Estado de escritorio (pantallas >= 1080px sin desborde) */
+@media (min-width: 1080px) {
+  .lat-floating-nav:not(.force-compact) .lat-brand-text {
+    display: inline !important;
+  }
+  .lat-floating-nav:not(.force-compact) .lat-brand-badge {
+    display: inline !important;
+  }
+  .lat-floating-nav:not(.force-compact) .lat-desktop-nav-cluster {
+    display: flex !important;
+  }
+  .lat-floating-nav:not(.force-compact) .lat-mobile-nav-cluster {
+    display: none !important;
+  }
 }
 
 /* ============================================================ */
