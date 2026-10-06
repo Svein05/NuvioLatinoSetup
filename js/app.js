@@ -3269,8 +3269,10 @@ class AppController {
       if (input) {
         input.addEventListener('input', () => {
           const key = id.toLowerCase();
-          delete state.aiostreams.validatedKeys[key];
-          delete state.aiostreams.debrids[key];
+          if (this._aioStreamsDraft) {
+            delete this._aioStreamsDraft.validatedKeys[key];
+            delete this._aioStreamsDraft.debrids[key];
+          }
           const statusEl = document.getElementById(`statusDebrid${id}`);
           if (statusEl) {
             if (debridLinks[id]) {
@@ -3780,16 +3782,36 @@ class AppController {
       modal.classList.add('flex');
     }
 
+    // Inicializar copia de trabajo aislada (Draft) sin mutar state.aiostreams directamente
+    this._aioStreamsDraft = {
+      debrids: { ...(state.aiostreams.debrids || {}) },
+      validatedKeys: { ...(state.aiostreams.validatedKeys || {}) }
+    };
+
+    // Detectar si el addon ya existe en la lista para alternar entre "Actualizar" e "Instalar"
+    const isEditing = state.hasAioStreamsInstance();
+    const iconEl = document.getElementById('iconInstallAioStreams');
+    const textEl = document.getElementById('textInstallAioStreams');
+    if (iconEl && textEl) {
+      if (isEditing) {
+        iconEl.className = 'fa-solid fa-arrows-rotate text-[10px]';
+        textEl.innerText = 'Actualizar Addon';
+      } else {
+        iconEl.className = 'fa-solid fa-plus text-[10px]';
+        textEl.innerText = 'Instalar Addon';
+      }
+    }
+
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
     debridIds.forEach(id => {
       const key = id.toLowerCase();
       const input = document.getElementById(`inputDebrid${id}`);
       if (input) {
-        input.value = state.aiostreams.debrids[key] || '';
+        input.value = this._aioStreamsDraft.debrids[key] || '';
       }
       const statusEl = document.getElementById(`statusDebrid${id}`);
       if (statusEl) {
-        if (state.aiostreams.validatedKeys[key]) {
+        if (this._aioStreamsDraft.validatedKeys[key]) {
           statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>`;
         } else {
           const links = {
@@ -3817,21 +3839,47 @@ class AppController {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    // Descartar borrador de trabajo sin alterar la configuración previa guardada en state.aiostreams
+    this._aioStreamsDraft = null;
   }
 
   updateInstallAioStreamsBtnState() {
     const btnInstall = document.getElementById('btnInstallAioStreams');
     if (!btnInstall) return;
 
-    const hasValidatedKey = Object.values(state.aiostreams.validatedKeys || {}).some(v => v === true);
-    if (hasValidatedKey) {
+    const draft = this._aioStreamsDraft || { debrids: {}, validatedKeys: {} };
+    const isEditing = state.hasAioStreamsInstance();
+
+    // 1. Debe haber al menos una clave API validada con éxito
+    const hasValidatedKey = Object.values(draft.validatedKeys || {}).some(v => v === true);
+
+    // 2. Comprobar si hay algún input con texto que aún no esté validado
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    let hasUnvalidatedNonEmptyKey = false;
+    for (const id of debridIds) {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val && !draft.validatedKeys[key]) {
+        hasUnvalidatedNonEmptyKey = true;
+        break;
+      }
+    }
+
+    if (hasValidatedKey && !hasUnvalidatedNonEmptyKey) {
       btnInstall.disabled = false;
       btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-100 cursor-pointer shadow-[var(--shadow-pill)]";
-      btnInstall.title = "Instalar AIOStreams con tus proveedores Debrid validados";
+      btnInstall.title = isEditing 
+        ? "Actualizar AIOStreams con tus proveedores Debrid validados" 
+        : "Instalar AIOStreams con tus proveedores Debrid validados";
     } else {
       btnInstall.disabled = true;
       btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed shadow-[var(--shadow-pill)]";
-      btnInstall.title = "Debes validar al menos una clave API Debrid para instalar";
+      if (!hasValidatedKey) {
+        btnInstall.title = "Debes validar al menos una clave API Debrid para continuar";
+      } else {
+        btnInstall.title = "Hay claves modificadas o incorrectas sin validar. Pulsa 'Validar Claves' o borra el campo.";
+      }
     }
   }
 
@@ -3839,6 +3887,13 @@ class AppController {
     const btnValidate = document.getElementById('btnValidateDebridKeys');
     const btnText = document.getElementById('btnValidateDebridKeysText');
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+
+    if (!this._aioStreamsDraft) {
+      this._aioStreamsDraft = {
+        debrids: { ...(state.aiostreams.debrids || {}) },
+        validatedKeys: { ...(state.aiostreams.validatedKeys || {}) }
+      };
+    }
 
     const entriesToValidate = [];
     debridIds.forEach(id => {
@@ -3861,6 +3916,7 @@ class AppController {
     if (btnText) btnText.innerText = 'Validando en vivo...';
 
     let validatedCount = 0;
+    let failedCount = 0;
 
     for (const item of entriesToValidate) {
       const statusEl = document.getElementById(`statusDebrid${item.id}`);
@@ -3872,21 +3928,24 @@ class AppController {
         const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
         if (res.valid) {
           validatedCount++;
-          state.aiostreams.validatedKeys[item.key] = true;
-          state.aiostreams.debrids[item.key] = item.val;
+          this._aioStreamsDraft.validatedKeys[item.key] = true;
+          this._aioStreamsDraft.debrids[item.key] = item.val;
           if (statusEl) {
             statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
           }
         } else {
-          delete state.aiostreams.validatedKeys[item.key];
-          delete state.aiostreams.debrids[item.key];
+          failedCount++;
+          delete this._aioStreamsDraft.validatedKeys[item.key];
+          delete this._aioStreamsDraft.debrids[item.key];
           if (statusEl) {
             const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
             statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
           }
         }
       } catch (err) {
-        delete state.aiostreams.validatedKeys[item.key];
+        failedCount++;
+        delete this._aioStreamsDraft.validatedKeys[item.key];
+        delete this._aioStreamsDraft.debrids[item.key];
         if (statusEl) {
           statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message || 'Error'}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
         }
@@ -3898,14 +3957,19 @@ class AppController {
 
     this.updateInstallAioStreamsBtnState();
 
-    if (validatedCount > 0) {
-      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "Instalar Addon".`, 'success');
+    if (validatedCount > 0 && failedCount === 0) {
+      const isEditing = state.hasAioStreamsInstance();
+      const actionWord = isEditing ? 'Actualizar Addon' : 'Instalar Addon';
+      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "${actionWord}".`, 'success');
+    } else if (validatedCount > 0 && failedCount > 0) {
+      this.showToast(`Se verificaron ${validatedCount} clave(s), pero ${failedCount} falló. Corrige o borra la clave errónea para poder guardar.`, 'warning');
     } else {
       this.showToast('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
     }
   }
 
   installAioStreamsFromModal() {
+    const draft = this._aioStreamsDraft || { debrids: {}, validatedKeys: {} };
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
     const activeDebrids = {};
 
@@ -3913,20 +3977,38 @@ class AppController {
       const key = id.toLowerCase();
       const input = document.getElementById(`inputDebrid${id}`);
       const val = (input ? input.value : '').trim();
-      if (val && state.aiostreams.validatedKeys[key]) {
+      if (val && draft.validatedKeys[key]) {
         activeDebrids[key] = val;
       }
     });
 
-    if (Object.keys(activeDebrids).length === 0) {
-      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de instalar.', 'warning');
+    // Validar que no haya campos con texto sin validar
+    const hasUnvalidatedNonEmptyKey = debridIds.some(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      return val && !draft.validatedKeys[key];
+    });
+
+    if (hasUnvalidatedNonEmptyKey) {
+      this.showToast('Tienes claves modificadas o incorrectas sin validar. Corrige o borra las claves erróneas.', 'error');
       return;
     }
 
-    state.setAioStreamsConfig(activeDebrids, state.aiostreams.validatedKeys);
+    if (Object.keys(activeDebrids).length === 0) {
+      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de guardar.', 'warning');
+      return;
+    }
+
+    const isEditing = state.hasAioStreamsInstance();
+    state.setAioStreamsConfig(activeDebrids, draft.validatedKeys);
     this.closeAioStreamsDebridsModal();
     this.renderAddonsList();
-    this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
+    if (isEditing) {
+      this.showToast('✓ Configuración de AIOStreams actualizada con éxito.', 'success');
+    } else {
+      this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
+    }
   }
 
   setupStep6Injection() {
