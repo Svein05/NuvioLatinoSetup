@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Etiqueta o versión para el lanzamiento (ej: v1.4.0)'
+        description: 'Etiqueta o versión para el lanzamiento (ej: v1.5.0)'
         required: false
         default: ''
 
@@ -24,44 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Regenerate Web Visual Assets and Update Main
-        env:
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY || secrets.TMBD_API_KEY }}
-        run: |
-          if [ -n "$TMDB_API_KEY" ]; then
-            echo "Ejecutando generación automática de assets para la web con TMDB API..."
-            python scripts/generate_web_assets.py --limit 30 --quality 90
-            
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            if [ -n "$(git status --porcelain assets/preview/hero-posters-backdrop.webp assets/preview/incrustacion.png)" ]; then
-              echo "Nuevos assets de la web detectados. Guardando commit..."
-              git add assets/preview/hero-posters-backdrop.webp assets/preview/incrustacion.png
-              git commit -m "chore(assets): actualizar backdrop e incrustacion web [skip ci]"
-              git push origin HEAD:main || echo "Push no crítico a main omitido."
-            else
-              echo "Assets de la web sin cambios pendientes."
-            fi
-          else
-            echo "Aviso: TMDB_API_KEY no configurado en los secretos de GitHub. Se utilizarán los assets existentes en el repositorio."
-          fi
-
       - name: Extract Changelog Entry
         id: changelog
         shell: bash
         run: |
           TARGET_VER="${GITHUB_REF_NAME:-${{ inputs.version }}}"
-          [ -z "$TARGET_VER" ] && TARGET_VER="v1.4.0"
+          [ -z "$TARGET_VER" ] && TARGET_VER="v1.5.0"
           CLEAN_VER="${TARGET_VER#v}"
           echo "Extracting release notes for version ${CLEAN_VER}..."
           
@@ -86,6 +54,4 @@ jobs:
           RELEASE_TAG="${{ steps.changelog.outputs.target_tag }}"
           gh release create "$RELEASE_TAG" \
             --title "Nuvio Metadata Latino $RELEASE_TAG" \
-            --notes-file release_notes.md \
-            assets/preview/github-social-preview.png \
-            assets/preview/incrustacion.png
+            --notes-file release_notes.md
