@@ -1210,7 +1210,74 @@
         </div>
       </div>
 
+      <!-- Modal de Eliminar Addon (Acotado exclusivamente dentro del bloque wizardView) -->
+      <div id="modalConfirmRemoveAddon" class="absolute inset-0 bg-black/45 backdrop-blur-md z-40 hidden items-center justify-center p-4 rounded-[28px] transition-all duration-300">
+        <div class="bg-[#0b0d12]/95 border border-red-500/20 rounded-[26px] max-w-sm w-full p-6 shadow-[var(--shadow-lift)] space-y-4 text-white transform transition-all relative overflow-hidden" style="transform: translateZ(0);">
+          <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center text-[10px]">
+                <i class="fa-solid fa-trash-can"></i>
+              </div>
+              <span>Eliminar Addon</span>
+            </h3>
+            <button id="btnCloseConfirmRemoveAddonModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors" title="Cerrar">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+          <div class="space-y-2">
+            <p class="text-xs text-white/70 leading-relaxed">
+              ¿Deseas remover el addon <strong id="deleteAddonTargetName" class="text-white font-semibold"></strong> de este perfil?
+            </p>
+            <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-[14px] text-[11px] text-red-300/90 flex items-center gap-2">
+              <i class="fa-solid fa-circle-exclamation text-red-400 shrink-0"></i>
+              <span>El addon dejará de estar disponible en este perfil al sincronizar.</span>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2.5 pt-2">
+            <button id="btnCancelConfirmRemoveAddon" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+            <button id="btnAcceptConfirmRemoveAddon" type="button" class="lat-capsule-btn bg-red-600 hover:bg-red-500 text-white font-medium text-xs py-2 px-4 shadow-lg shadow-red-600/30 flex items-center gap-1.5">
+              <i class="fa-solid fa-trash-can text-[10px]"></i>
+              <span>Eliminar Addon</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </main>
+  </div>
+
+  <!-- Modal: Conflicto / Sustitución de AIOStreams (Montado en body) -->
+  <div id="modalAioStreamsConflict" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
+    <div class="bg-[#0b0d12]/95 border border-amber-500/25 rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] relative text-white space-y-4 my-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/[0.12] border border-amber-500/30 flex items-center justify-center shrink-0 text-amber-400 text-lg">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-sm sm:text-base text-white">Instancia de AIOStreams Detectada</h3>
+          <p class="text-[11px] sm:text-xs text-white/50">Conflicto de instancias duplicadas</p>
+        </div>
+      </div>
+      <div class="p-3.5 sm:p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] text-xs text-white/70 leading-relaxed space-y-2.5 shadow-[var(--brillo-vidrio)]">
+        <p>
+          Este perfil ya contiene una instancia de <strong>AIOStreams</strong> instalada.
+        </p>
+        <div class="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-[12px] text-[11px] text-amber-300 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-amber-400 shrink-0"></i>
+          <span>Mientras contengas una instancia ya instalada, no puedes instalar otra ya que no pueden coexistir dos iguales.</span>
+        </div>
+        <p class="text-[11px] text-white/50">
+          ¿Deseas desinstalar la instancia actual de AIOStreams para continuar y configurar nuestra versión optimizada en español latino?
+        </p>
+      </div>
+      <div class="flex justify-end gap-2.5 pt-1">
+        <button id="btnCancelAioStreamsConflict" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+        <button id="btnConfirmAioStreamsConflict" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 bg-amber-500 hover:bg-amber-400 text-black font-semibold shadow-[var(--shadow-pill)] flex items-center gap-1.5">
+          <i class="fa-solid fa-trash-can text-[10px]"></i>
+          <span>Desinstalar y Continuar</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal 1: Requisito de Debrid para AIOStreams (Montado en body) -->
