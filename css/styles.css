@@ -357,53 +357,45 @@ option, optgroup {
   transition: max-width 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease-out;
 }
 
-/* Solo en pantallas de escritorio (>= 1024px) se permite la expansión horizontal */
-@media (min-width: 1024px) {
-  .completions-counter-pill:hover .completions-count-compact,
-  .completions-counter-pill.is-celebrating .completions-count-compact {
+/* Expansión dinámica condicional: solo en pantallas amplias con ratón y espacio verificado (.can-expand) */
+@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
+  .completions-counter-pill.can-expand:hover .completions-count-compact,
+  .completions-counter-pill.can-expand.is-celebrating .completions-count-compact {
     max-width: 0;
     opacity: 0;
     margin: 0;
     padding: 0;
   }
 
-  .completions-counter-pill:hover .completions-expanded-wrap,
-  .completions-counter-pill.is-celebrating .completions-expanded-wrap {
+  .completions-counter-pill.can-expand:hover .completions-expanded-wrap,
+  .completions-counter-pill.can-expand.is-celebrating .completions-expanded-wrap {
     max-width: 280px;
     opacity: 1;
   }
-
-  .completions-counter-pill.is-celebrating {
-    border-color: rgba(16, 185, 129, 0.6);
-    box-shadow:
-      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.42),
-      0 0 24px rgba(16, 185, 129, 0.38);
-    animation: pill-celebration-pulse 1.8s ease-in-out infinite alternate;
-  }
 }
 
-/* En tablets y móviles (< 1024px) la expansión horizontal NO EXISTE para evitar desbordes */
-@media (max-width: 1023px) {
-  .completions-counter-pill:hover .completions-count-compact,
-  .completions-counter-pill.is-celebrating .completions-count-compact {
-    max-width: 80px !important;
-    opacity: 1 !important;
-    display: inline-flex !important;
-  }
+/* En tablets, pantallas táctiles o cuando el espacio no es suficiente (.no-expansion o sin .can-expand),
+   la pastilla se mantiene estrictamente compacta sin empujar botones ni desbordar la barra */
+.completions-counter-pill.no-expansion .completions-expanded-wrap,
+.completions-counter-pill:not(.can-expand) .completions-expanded-wrap {
+  max-width: 0 !important;
+  opacity: 0 !important;
+  display: none !important;
+}
 
-  .completions-counter-pill:hover .completions-expanded-wrap,
-  .completions-counter-pill.is-celebrating .completions-expanded-wrap {
-    max-width: 0 !important;
-    opacity: 0 !important;
-    display: none !important;
-  }
+.completions-counter-pill.no-expansion .completions-count-compact,
+.completions-counter-pill:not(.can-expand) .completions-count-compact {
+  max-width: 80px !important;
+  opacity: 1 !important;
+  display: inline-flex !important;
+}
 
-  .completions-counter-pill.is-celebrating {
-    border-color: rgba(16, 185, 129, 0.6) !important;
-    box-shadow:
-      inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.42),
-      0 0 20px rgba(16, 185, 129, 0.35) !important;
-  }
+.completions-counter-pill.is-celebrating {
+  border-color: rgba(16, 185, 129, 0.6) !important;
+  box-shadow:
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.42),
+    0 0 24px rgba(16, 185, 129, 0.38) !important;
+  animation: pill-celebration-pulse 1.8s ease-in-out infinite alternate;
 }
 
 @keyframes pill-celebration-pulse {

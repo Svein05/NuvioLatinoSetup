@@ -458,6 +458,49 @@ export function initMobileHeaderMenu() {
 }
 
 /**
+ * Evalúa dinámicamente si la cabecera cuenta con espacio suficiente para soportar
+ * la auto-expansión horizontal de la pastilla sin empujar ni desbordar elementos (ej. GitHub).
+ */
+export function evaluateCounterExpansionCapacity() {
+  const counterPills = document.querySelectorAll('.completions-counter-pill, #completionsCounterPill');
+  const nav = document.querySelector('header.lat-floating-nav');
+  if (!counterPills.length || !nav) return;
+
+  const leftPill = nav.querySelector('a.lat-floating-pill');
+  const centerPill = nav.querySelector('nav.lat-floating-pill');
+  const rightCluster = nav.querySelector('.lat-floating-nav > div.hidden.md\\:flex, .lat-floating-nav > div:last-child');
+
+  if (!leftPill || !centerPill || !rightCluster) return;
+
+  // Ancho interior disponible de la cabecera
+  const navWidth = nav.clientWidth;
+
+  // Anchos base actuales de cada cápsula
+  const leftWidth = leftPill.getBoundingClientRect().width;
+  const centerWidth = centerPill.getBoundingClientRect().width;
+  const rightWidth = rightCluster.getBoundingClientRect().width;
+
+  // Incremento estimado de ancho que la pastilla agrega al expandirse (~180px a 200px)
+  // más un margen de respiro para que ningún elemento quede apretado al borde
+  const expansionDelta = 190;
+  const safetyBuffer = 35;
+  const totalRequiredWidth = leftWidth + centerWidth + rightWidth + expansionDelta + safetyBuffer;
+
+  // Requiere que quepa holgadamente y que la pantalla sea de escritorio amplio (>= 1200px)
+  const hasCapacity = (navWidth >= totalRequiredWidth) && (window.innerWidth >= 1200);
+
+  counterPills.forEach(pill => {
+    if (hasCapacity) {
+      pill.classList.add('can-expand');
+      pill.classList.remove('no-expansion');
+    } else {
+      pill.classList.remove('can-expand');
+      pill.classList.add('no-expansion');
+    }
+  });
+}
+
+/**
  * Inicializa la pastilla en la cabecera al cargar la página
  */
 export async function initCompletionsCounterUI() {
@@ -468,10 +511,24 @@ export async function initCompletionsCounterUI() {
   const cached = getLocalCache();
   updateCounterPillUI(cached, false);
 
-  // 3. Iniciar polling en vivo (25 segundos)
+  // 3. Evaluar capacidad de expansión inicial y registrar listener responsive
+  evaluateCounterExpansionCapacity();
+  if (!window._counterResizeListenerAdded) {
+    window._counterResizeListenerAdded = true;
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(evaluateCounterExpansionCapacity, 100);
+    });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => evaluateCounterExpansionCapacity());
+    }
+  }
+
+  // 4. Iniciar polling en vivo (25 segundos)
   startLiveSyncPolling(25000);
 
-  // 4. Consultar en segundo plano el valor actualizado inicial
+  // 5. Consultar en segundo plano el valor actualizado inicial
   try {
     const liveCount = await fetchCompletionsCount();
     if (liveCount && liveCount !== cached) {
