@@ -1611,6 +1611,17 @@ class AppController {
     const overallBadge = document.getElementById('apiKeyOverallBadge');
     const statusMsg = document.getElementById('apiKeyStatusMessage');
 
+    const setGetButtonVisibility = (key, visible) => {
+      const btnGet = document.getElementById(`btn-get-${key}`);
+      if (btnGet) {
+        if (visible) {
+          btnGet.classList.remove('hidden');
+        } else {
+          btnGet.classList.add('hidden');
+        }
+      }
+    };
+
     const invalidateValidation = (modifiedKey) => {
       if (state.apiKeysValidated) {
         state.invalidateApiKeysValidation();
@@ -1625,6 +1636,7 @@ class AppController {
         badge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
         badge.innerText = '';
       }
+      setGetButtonVisibility(modifiedKey, true);
       this.updateNavigationButtons();
     };
 
@@ -1974,6 +1986,12 @@ class AppController {
           this.showToast('Revisa las claves marcadas en rojo para continuar', 'error');
         }
 
+        // Actualizar visibilidad de los botones "Obtener" según validación individual
+        setGetButtonVisibility('tmdb', !validationMap.tmdb);
+        setGetButtonVisibility('mdblist', !validationMap.mdblist);
+        setGetButtonVisibility('rpdb', !validationMap.rpdb);
+        setGetButtonVisibility('tvdb', !validationMap.tvdb);
+
         btnValidate.disabled = false;
         btnValidate.innerHTML = '<i class="fa-solid fa-vial-circle-check"></i><span>Probar Claves API</span>';
         this.updateUI();
@@ -2002,6 +2020,13 @@ class AppController {
           }
         }
       });
+    });
+
+    // 5. Ocultar botones de obtención si las claves ya estaban previamente validadas
+    ['tmdb', 'mdblist', 'rpdb', 'tvdb'].forEach((key) => {
+      if (state.apiKeysValidationStatus && state.apiKeysValidationStatus[key]) {
+        setGetButtonVisibility(key, false);
+      }
     });
   }
 
@@ -3204,6 +3229,13 @@ class AppController {
       });
     }
 
+    // --- Modal de Formulario de API Keys Debrid para AIOStreams ---
+    const modalAioDebrids = document.getElementById('modalAioStreamsDebrids');
+    const btnCloseAioDebrids = document.getElementById('btnCloseAioStreamsDebridsModal');
+    const btnCancelAioDebrids = document.getElementById('btnCancelAioStreamsDebrids');
+    const btnValidateDebrids = document.getElementById('btnValidateDebridKeys');
+    const btnInstallAio = document.getElementById('btnInstallAioStreams');
+
     if (btnCloseAioDebrids) {
       btnCloseAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
     }
@@ -3223,8 +3255,15 @@ class AppController {
       btnInstallAio.addEventListener('click', () => this.installAioStreamsFromModal());
     }
 
-    // Escuchar cambios en los inputs para invalidar validación previa y actualizar botón de instalar
+    // Escuchar cambios en los inputs para invalidar validación previa, restaurar enlace y actualizar botón de instalar
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    const debridLinks = {
+      Torbox: 'https://torbox.app/settings',
+      Alldebrid: 'https://alldebrid.com/apikeys',
+      Realdebrid: 'https://real-debrid.com/apitoken',
+      Premiumize: 'https://www.premiumize.me/account',
+      Debridlink: 'https://debrid-link.com/webapp/apikey'
+    };
     debridIds.forEach(id => {
       const input = document.getElementById(`inputDebrid${id}`);
       if (input) {
@@ -3233,8 +3272,12 @@ class AppController {
           delete state.aiostreams.validatedKeys[key];
           delete state.aiostreams.debrids[key];
           const statusEl = document.getElementById(`statusDebrid${id}`);
-          if (statusEl && !statusEl.querySelector('a')) {
-            statusEl.innerHTML = '';
+          if (statusEl) {
+            if (debridLinks[id]) {
+              statusEl.innerHTML = `<a href="${debridLinks[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+            } else {
+              statusEl.innerHTML = '';
+            }
           }
           this.updateInstallAioStreamsBtnState();
         });
@@ -3757,7 +3800,7 @@ class AppController {
             Debridlink: 'https://debrid-link.com/webapp/apikey'
           };
           if (links[id]) {
-            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>`;
+            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
           } else {
             statusEl.innerHTML = '';
           }
