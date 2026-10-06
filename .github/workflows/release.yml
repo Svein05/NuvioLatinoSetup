@@ -35,26 +35,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install pillow
 
-      - name: Regenerate Web Visual Assets
-        if: ${{ secrets.TMDB_API_KEY != '' || secrets.TMBD_API_KEY != '' }}
+      - name: Regenerate Web Visual Assets and Update Main
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY || secrets.TMBD_API_KEY }}
         run: |
-          echo "Ejecutando generación automática de assets para la web..."
-          python scripts/generate_web_assets.py --limit 30 --quality 90
-
-      - name: Commit and Push Updated Web Assets to Main
-        if: ${{ secrets.TMDB_API_KEY != '' || secrets.TMBD_API_KEY != '' }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain assets/preview/hero-posters-backdrop.webp assets/preview/incrustacion.png)" ]; then
-            echo "Nuevos assets de la web detectados. Guardando commit..."
-            git add assets/preview/hero-posters-backdrop.webp assets/preview/incrustacion.png
-            git commit -m "chore(assets): actualizar backdrop e incrustacion web [skip ci]"
-            git push origin HEAD:main || echo "Push no crítico a main omitido."
+          if [ -n "$TMDB_API_KEY" ]; then
+            echo "Ejecutando generación automática de assets para la web con TMDB API..."
+            python scripts/generate_web_assets.py --limit 30 --quality 90
+            
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            if [ -n "$(git status --porcelain assets/preview/hero-posters-backdrop.webp assets/preview/incrustacion.png)" ]; then
+              echo "Nuevos assets de la web detectados. Guardando commit..."
+              git add assets/preview/hero-posters-backdrop.webp assets/preview/incrustacion.png
+              git commit -m "chore(assets): actualizar backdrop e incrustacion web [skip ci]"
+              git push origin HEAD:main || echo "Push no crítico a main omitido."
+            else
+              echo "Assets de la web sin cambios pendientes."
+            fi
           else
-            echo "Assets de la web sin cambios pendientes."
+            echo "Aviso: TMDB_API_KEY no configurado en los secretos de GitHub. Se utilizarán los assets existentes en el repositorio."
           fi
 
       - name: Extract Changelog Entry
