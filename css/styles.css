@@ -334,6 +334,7 @@ option, optgroup {
     0 0 18px 0 rgba(16, 185, 129, 0.18);
 }
 
+/* Modo compacto por defecto (móviles, tablets y dispositivos táctiles) */
 .completions-counter-pill .completions-count-compact {
   max-width: 80px;
   opacity: 1;
@@ -357,37 +358,21 @@ option, optgroup {
   transition: max-width 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease-out;
 }
 
-/* Expansión dinámica condicional: solo en pantallas amplias con ratón y espacio verificado (.can-expand) */
-@media (min-width: 1200px) and (hover: hover) and (pointer: fine) {
-  .completions-counter-pill.can-expand:hover .completions-count-compact,
-  .completions-counter-pill.can-expand.is-celebrating .completions-count-compact {
+/* Expansión elegante en hover ÚNICAMENTE en monitores de escritorio amplios (xl: >= 1280px) con puntero fino */
+@media (min-width: 1280px) and (hover: hover) and (pointer: fine) {
+  .completions-counter-pill:hover .completions-count-compact,
+  .completions-counter-pill.is-celebrating .completions-count-compact {
     max-width: 0;
     opacity: 0;
     margin: 0;
     padding: 0;
   }
 
-  .completions-counter-pill.can-expand:hover .completions-expanded-wrap,
-  .completions-counter-pill.can-expand.is-celebrating .completions-expanded-wrap {
+  .completions-counter-pill:hover .completions-expanded-wrap,
+  .completions-counter-pill.is-celebrating .completions-expanded-wrap {
     max-width: 280px;
     opacity: 1;
   }
-}
-
-/* En tablets, pantallas táctiles o cuando el espacio no es suficiente (.no-expansion o sin .can-expand),
-   la pastilla se mantiene estrictamente compacta sin empujar botones ni desbordar la barra */
-.completions-counter-pill.no-expansion .completions-expanded-wrap,
-.completions-counter-pill:not(.can-expand) .completions-expanded-wrap {
-  max-width: 0 !important;
-  opacity: 0 !important;
-  display: none !important;
-}
-
-.completions-counter-pill.no-expansion .completions-count-compact,
-.completions-counter-pill:not(.can-expand) .completions-count-compact {
-  max-width: 80px !important;
-  opacity: 1 !important;
-  display: inline-flex !important;
 }
 
 .completions-counter-pill.is-celebrating {
