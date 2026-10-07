@@ -103,8 +103,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_recomendados_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_recomendados_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_recomendados_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_recomendados_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -150,7 +150,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_recomendados_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_recomendados_backdrop.jpg"
       },
       {
         "id": "folder-831fbd54",
@@ -237,8 +237,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_estreno_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_estreno_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_estreno_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_estreno_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -277,7 +277,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_estreno_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_estreno_backdrop.jpg"
       },
       {
         "id": "folder-3c82a7c2",
@@ -349,8 +349,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_tendencia_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_tendencia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -382,7 +382,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_tendencia_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_tendencia_backdrop.jpg"
       },
       {
         "id": "folder-d6ff21a4",
@@ -499,8 +499,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_ranking_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_ranking_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_ranking_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_ranking_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -553,7 +553,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_ranking_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_ranking_backdrop.jpg"
       },
       {
         "id": "folder-b51b3ca9",
@@ -625,8 +625,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_popular_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_popular_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -658,7 +658,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/ahora_en_nuvio_popular_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/ahora_en_nuvio_popular_backdrop.jpg"
       }
     ],
     "pinToTop": true,
@@ -771,8 +771,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_netflix_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_netflix_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_netflix_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_netflix_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -818,7 +818,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_netflix_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_netflix_backdrop.jpg"
       },
       {
         "id": "folder-b26b5ce8",
@@ -920,8 +920,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_hbo_max_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_hbo_max_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_hbo_max_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_hbo_max_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -967,7 +967,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_hbo_max_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_hbo_max_backdrop.jpg"
       },
       {
         "id": "folder-00fb2e4e",
@@ -1099,8 +1099,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_disney_plus_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_disney_plus_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_disney_plus_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_disney_plus_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1160,7 +1160,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_disney_plus_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_disney_plus_backdrop.jpg"
       },
       {
         "id": "folder-e813e067",
@@ -1262,8 +1262,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_prime_video_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_prime_video_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_prime_video_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_prime_video_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1309,7 +1309,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_prime_video_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_prime_video_backdrop.jpg"
       },
       {
         "id": "folder-f1637f34",
@@ -1411,8 +1411,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_paramount_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_paramount_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_paramount_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_paramount_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1458,7 +1458,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_paramount_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_paramount_backdrop.jpg"
       },
       {
         "id": "folder-dbbb084a",
@@ -1560,8 +1560,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_apple_tv_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_apple_tv_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_apple_tv_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_apple_tv_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1607,7 +1607,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_apple_tv_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_apple_tv_backdrop.jpg"
       },
       {
         "id": "folder-c5ff6f91",
@@ -1709,8 +1709,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_crunchyroll_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_crunchyroll_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1756,7 +1756,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/plataformas_de_streaming_crunchyroll_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/plataformas_de_streaming_crunchyroll_backdrop.jpg"
       }
     ],
     "pinToTop": true,
@@ -1884,8 +1884,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_accion_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_accion_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_accion_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_accion_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -1938,7 +1938,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_accion_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_accion_backdrop.jpg"
       },
       {
         "id": "folder-f20ecfce",
@@ -2055,8 +2055,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_comedia_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_comedia_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_comedia_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_comedia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2109,7 +2109,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_comedia_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_comedia_backdrop.jpg"
       },
       {
         "id": "folder-eb65e806",
@@ -2211,8 +2211,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_drama_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_drama_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_drama_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_drama_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2258,7 +2258,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_drama_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_drama_backdrop.jpg"
       },
       {
         "id": "folder-abda4cc0",
@@ -2375,8 +2375,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_animacion_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_animacion_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_animacion_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_animacion_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2429,7 +2429,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_animacion_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_animacion_backdrop.jpg"
       },
       {
         "id": "folder-27daa96d",
@@ -2516,8 +2516,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_terror_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_terror_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_terror_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_terror_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2556,7 +2556,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_terror_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_terror_backdrop.jpg"
       },
       {
         "id": "folder-f593859d",
@@ -2628,8 +2628,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_suspenso_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_suspenso_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_suspenso_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_suspenso_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2661,7 +2661,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_suspenso_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_suspenso_backdrop.jpg"
       },
       {
         "id": "folder-7b07b4c0",
@@ -2763,8 +2763,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_romance_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_romance_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_romance_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_romance_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2810,7 +2810,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_romance_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_romance_backdrop.jpg"
       },
       {
         "id": "folder-0de37c42",
@@ -2927,8 +2927,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_fantasia_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_fantasia_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_fantasia_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_fantasia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -2981,7 +2981,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_fantasia_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_fantasia_backdrop.jpg"
       },
       {
         "id": "folder-eba616bd",
@@ -3113,8 +3113,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_documentales_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_documentales_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_documentales_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_documentales_cover.jpg",
         "catalogSources": [
           {
             "type": "all",
@@ -3174,7 +3174,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_documentales_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_documentales_backdrop.jpg"
       },
       {
         "id": "folder-d9628957",
@@ -3231,8 +3231,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_mafia_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_mafia_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_mafia_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_mafia_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3257,7 +3257,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_mafia_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_mafia_backdrop.jpg"
       },
       {
         "id": "folder-84df6ac2",
@@ -3329,8 +3329,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_conciertos_biopic_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_conciertos_biopic_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_conciertos_biopic_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_conciertos_biopic_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3362,7 +3362,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/generos_conciertos_biopic_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/generos_conciertos_biopic_backdrop.jpg"
       }
     ],
     "pinToTop": true,
@@ -3430,8 +3430,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_novedades_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_novedades_cover.jpg",
         "catalogSources": [
           {
             "type": "series",
@@ -3456,7 +3456,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_novedades_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_novedades_backdrop.jpg"
       },
       {
         "id": "folder-anime-descubre",
@@ -3543,8 +3543,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_descubre_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_descubre_cover.jpg",
         "catalogSources": [
           {
             "type": "series",
@@ -3583,7 +3583,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_descubre_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_descubre_backdrop.jpg"
       },
       {
         "id": "folder-anime-estudios",
@@ -3700,8 +3700,8 @@
         "coverEmoji": null,
         "focusGifUrl": null,
         "heroVideoUrl": null,
-        "titleLogoUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_logo.png",
-        "coverImageUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_cover.jpg",
+        "titleLogoUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_estudios_logo.png",
+        "coverImageUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_estudios_cover.jpg",
         "catalogSources": [
           {
             "type": "movie",
@@ -3754,7 +3754,7 @@
           }
         ],
         "focusGifEnabled": false,
-        "heroBackdropUrl": "https://svein05.github.io/NuvioLatinoSetup/assets/collections/anime_estudios_backdrop.jpg"
+        "heroBackdropUrl": "https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/collections/anime_estudios_backdrop.jpg"
       }
     ],
     "pinToTop": true,

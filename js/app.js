@@ -978,7 +978,15 @@ class AppController {
         if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
         if (hintText) hintText.classList.add('hidden');
         if (confirmGroup) confirmGroup.classList.add('hidden');
-        if (confirmInput) confirmInput.value = '';
+        if (confirmInput) {
+          confirmInput.value = '';
+          confirmInput.type = 'password';
+        }
+        if (passInput) passInput.type = 'password';
+        const pIcon = document.getElementById('btnToggleNuvioPassword')?.querySelector('i');
+        if (pIcon) pIcon.className = 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        const cIcon = document.getElementById('btnToggleNuvioPasswordConfirm')?.querySelector('i');
+        if (cIcon) cIcon.className = 'fa-solid fa-eye-slash text-xs pointer-events-none';
         if (matchBadge) matchBadge.classList.add('hidden');
         if (btnConnect) btnConnect.style.display = 'flex';
         if (btnSignup) btnSignup.style.display = 'none';
@@ -1039,6 +1047,37 @@ class AppController {
       confirmInput.addEventListener('input', () => {
         validatePasswordMatch();
       });
+    }
+
+    // Alternar visibilidad de contraseña en Paso 1 (Nuvio Cuenta)
+    const btnToggleNuvioPass = document.getElementById('btnToggleNuvioPassword');
+    if (btnToggleNuvioPass && passInput) {
+      btnToggleNuvioPass.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const willShow = passInput.type === 'password';
+        passInput.type = willShow ? 'text' : 'password';
+        const icon = btnToggleNuvioPass.querySelector('i');
+        if (icon) {
+          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        }
+        btnToggleNuvioPass.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      };
+    }
+
+    const btnToggleNuvioConfirm = document.getElementById('btnToggleNuvioPasswordConfirm');
+    if (btnToggleNuvioConfirm && confirmInput) {
+      btnToggleNuvioConfirm.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const willShow = confirmInput.type === 'password';
+        confirmInput.type = willShow ? 'text' : 'password';
+        const icon = btnToggleNuvioConfirm.querySelector('i');
+        if (icon) {
+          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        }
+        btnToggleNuvioConfirm.title = willShow ? 'Ocultar confirmación' : 'Mostrar confirmación';
+      };
     }
 
     // Acción Continuar sin Cuenta (Modo Manual)
