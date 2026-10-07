@@ -107,7 +107,7 @@ La instalación estándar de catálogos masivos suele poblar la pantalla princip
 
 ### Acceso Web Directo
 La aplicación se encuentra desplegada como sitio estático sin requerimientos de instalación local:
-- Enlace oficial: [https://svein05.github.io/NuvioLatinoSetup/](https://svein05.github.io/NuvioLatinoSetup/)
+- Enlace oficial: [https://guia.lat-add.com/](https://guia.lat-add.com/)
 
 ### Ejecución Local
 Para ejecutar el proyecto en un entorno local:
