@@ -305,6 +305,7 @@ class AppController {
     this.setupStep5Preferences();
     this.setupStep6AddonsManager();
     this.setupStep7Injection();
+    this.setupPasswordToggles();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -460,6 +461,32 @@ class AppController {
     }, duration);
   }
 
+  /**
+   * Inicializa manejadores universales para alternar visibilidad de contraseñas (ojito)
+   */
+  setupPasswordToggles() {
+    document.querySelectorAll('.btn-toggle-key').forEach(btn => {
+      if (btn.dataset.toggleInitialized) return;
+      btn.dataset.toggleInitialized = 'true';
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const targetId = btn.dataset.target;
+        if (!targetId) return;
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        const icon = btn.querySelector('i');
+        const willShow = input.type === 'password';
+        input.type = willShow ? 'text' : 'password';
+        if (icon) {
+          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        }
+        btn.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      });
+    });
+  }
+
   saveSession() {
     try {
       if (typeof sessionStorage === 'undefined') return;
@@ -471,7 +498,8 @@ class AppController {
           selectedProfileName: state.selectedProfileName,
           newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
           currentStep: state.currentStep,
-          maxUnlockedStep: state.maxUnlockedStep
+          maxUnlockedStep: state.maxUnlockedStep,
+          aioPassword: (state.aiometadata?.password || '').trim()
         }));
       }
     } catch (_) {}
@@ -490,6 +518,9 @@ class AppController {
         state.selectedProfileName = data.selectedProfileName || '';
         if (Array.isArray(data.newlyCreatedProfileIds)) {
           state.newlyCreatedProfileIds = new Set(data.newlyCreatedProfileIds.map(String));
+        }
+        if (data.aioPassword) {
+          state.aiometadata.password = data.aioPassword;
         }
         state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
         state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
@@ -700,8 +731,18 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
+      const aioPassEl = document.getElementById('aioPassword');
+      if (aioPassEl) {
+        if (!aioPassEl.value && state.aiometadata?.password) {
+          aioPassEl.value = state.aiometadata.password;
+        } else if (aioPassEl.value && !state.aiometadata?.password) {
+          state.aiometadata.password = aioPassEl.value.trim();
+        }
+      }
+
       this.refreshStep7Summary();
       this.updateStep7ExecuteButton();
+      this.setupPasswordToggles();
     }
 
     // Rotación sincronizada de demostración activa exclusivamente en el Paso 5
@@ -747,7 +788,15 @@ class AppController {
     btnExecute.classList.remove('hidden');
     btnExecute.style.display = 'flex';
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
+    const passwordInput = document.getElementById('aioPassword');
+    const rawVal = ((passwordInput ? passwordInput.value : '') || state.aiometadata?.password || '').trim();
+
+    // Sincronizar reactivamente si el DOM contiene un valor pero el estado aún no
+    if (rawVal && state.aiometadata.password !== rawVal) {
+      state.aiometadata.password = rawVal;
+    }
+
+    const hasPassword = Boolean(rawVal && rawVal.length >= 6);
     if (hasPassword) {
       btnExecute.disabled = false;
       btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
@@ -1611,6 +1660,17 @@ class AppController {
     const overallBadge = document.getElementById('apiKeyOverallBadge');
     const statusMsg = document.getElementById('apiKeyStatusMessage');
 
+    const setGetButtonVisibility = (key, visible) => {
+      const btnGet = document.getElementById(`btn-get-${key}`);
+      if (btnGet) {
+        if (visible) {
+          btnGet.classList.remove('hidden');
+        } else {
+          btnGet.classList.add('hidden');
+        }
+      }
+    };
+
     const invalidateValidation = (modifiedKey) => {
       if (state.apiKeysValidated) {
         state.invalidateApiKeysValidation();
@@ -1625,6 +1685,7 @@ class AppController {
         badge.className = 'text-[10px] px-2 py-0.5 rounded font-mono hidden';
         badge.innerText = '';
       }
+      setGetButtonVisibility(modifiedKey, true);
       this.updateNavigationButtons();
     };
 
@@ -1974,6 +2035,12 @@ class AppController {
           this.showToast('Revisa las claves marcadas en rojo para continuar', 'error');
         }
 
+        // Actualizar visibilidad de los botones "Obtener" según validación individual
+        setGetButtonVisibility('tmdb', !validationMap.tmdb);
+        setGetButtonVisibility('mdblist', !validationMap.mdblist);
+        setGetButtonVisibility('rpdb', !validationMap.rpdb);
+        setGetButtonVisibility('tvdb', !validationMap.tvdb);
+
         btnValidate.disabled = false;
         btnValidate.innerHTML = '<i class="fa-solid fa-vial-circle-check"></i><span>Probar Claves API</span>';
         this.updateUI();
@@ -2002,6 +2069,13 @@ class AppController {
           }
         }
       });
+    });
+
+    // 5. Ocultar botones de obtención si las claves ya estaban previamente validadas
+    ['tmdb', 'mdblist', 'rpdb', 'tvdb'].forEach((key) => {
+      if (state.apiKeysValidationStatus && state.apiKeysValidationStatus[key]) {
+        setGetButtonVisibility(key, false);
+      }
     });
   }
 
@@ -3204,6 +3278,13 @@ class AppController {
       });
     }
 
+    // --- Modal de Formulario de API Keys Debrid para AIOStreams ---
+    const modalAioDebrids = document.getElementById('modalAioStreamsDebrids');
+    const btnCloseAioDebrids = document.getElementById('btnCloseAioStreamsDebridsModal');
+    const btnCancelAioDebrids = document.getElementById('btnCancelAioStreamsDebrids');
+    const btnValidateDebrids = document.getElementById('btnValidateDebridKeys');
+    const btnInstallAio = document.getElementById('btnInstallAioStreams');
+
     if (btnCloseAioDebrids) {
       btnCloseAioDebrids.addEventListener('click', () => this.closeAioStreamsDebridsModal());
     }
@@ -3223,18 +3304,31 @@ class AppController {
       btnInstallAio.addEventListener('click', () => this.installAioStreamsFromModal());
     }
 
-    // Escuchar cambios en los inputs para invalidar validación previa y actualizar botón de instalar
+    // Escuchar cambios en los inputs para invalidar validación previa, restaurar enlace y actualizar botón de instalar
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    const debridLinks = {
+      Torbox: 'https://torbox.app/settings',
+      Alldebrid: 'https://alldebrid.com/apikeys',
+      Realdebrid: 'https://real-debrid.com/apitoken',
+      Premiumize: 'https://www.premiumize.me/account',
+      Debridlink: 'https://debrid-link.com/webapp/apikey'
+    };
     debridIds.forEach(id => {
       const input = document.getElementById(`inputDebrid${id}`);
       if (input) {
         input.addEventListener('input', () => {
           const key = id.toLowerCase();
-          delete state.aiostreams.validatedKeys[key];
-          delete state.aiostreams.debrids[key];
+          if (this._aioStreamsDraft) {
+            delete this._aioStreamsDraft.validatedKeys[key];
+            delete this._aioStreamsDraft.debrids[key];
+          }
           const statusEl = document.getElementById(`statusDebrid${id}`);
-          if (statusEl && !statusEl.querySelector('a')) {
-            statusEl.innerHTML = '';
+          if (statusEl) {
+            if (debridLinks[id]) {
+              statusEl.innerHTML = `<a href="${debridLinks[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+            } else {
+              statusEl.innerHTML = '';
+            }
           }
           this.updateInstallAioStreamsBtnState();
         });
@@ -3737,16 +3831,36 @@ class AppController {
       modal.classList.add('flex');
     }
 
+    // Inicializar copia de trabajo aislada (Draft) sin mutar state.aiostreams directamente
+    this._aioStreamsDraft = {
+      debrids: { ...(state.aiostreams.debrids || {}) },
+      validatedKeys: { ...(state.aiostreams.validatedKeys || {}) }
+    };
+
+    // Detectar si el addon ya existe en la lista para alternar entre "Actualizar" e "Instalar"
+    const isEditing = state.hasAioStreamsInstance();
+    const iconEl = document.getElementById('iconInstallAioStreams');
+    const textEl = document.getElementById('textInstallAioStreams');
+    if (iconEl && textEl) {
+      if (isEditing) {
+        iconEl.className = 'fa-solid fa-arrows-rotate text-[10px]';
+        textEl.innerText = 'Actualizar Addon';
+      } else {
+        iconEl.className = 'fa-solid fa-plus text-[10px]';
+        textEl.innerText = 'Instalar Addon';
+      }
+    }
+
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
     debridIds.forEach(id => {
       const key = id.toLowerCase();
       const input = document.getElementById(`inputDebrid${id}`);
       if (input) {
-        input.value = state.aiostreams.debrids[key] || '';
+        input.value = this._aioStreamsDraft.debrids[key] || '';
       }
       const statusEl = document.getElementById(`statusDebrid${id}`);
       if (statusEl) {
-        if (state.aiostreams.validatedKeys[key]) {
+        if (this._aioStreamsDraft.validatedKeys[key]) {
           statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>`;
         } else {
           const links = {
@@ -3757,7 +3871,7 @@ class AppController {
             Debridlink: 'https://debrid-link.com/webapp/apikey'
           };
           if (links[id]) {
-            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>`;
+            statusEl.innerHTML = `<a href="${links[id]}" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
           } else {
             statusEl.innerHTML = '';
           }
@@ -3774,21 +3888,47 @@ class AppController {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    // Descartar borrador de trabajo sin alterar la configuración previa guardada en state.aiostreams
+    this._aioStreamsDraft = null;
   }
 
   updateInstallAioStreamsBtnState() {
     const btnInstall = document.getElementById('btnInstallAioStreams');
     if (!btnInstall) return;
 
-    const hasValidatedKey = Object.values(state.aiostreams.validatedKeys || {}).some(v => v === true);
-    if (hasValidatedKey) {
+    const draft = this._aioStreamsDraft || { debrids: {}, validatedKeys: {} };
+    const isEditing = state.hasAioStreamsInstance();
+
+    // 1. Debe haber al menos una clave API validada con éxito
+    const hasValidatedKey = Object.values(draft.validatedKeys || {}).some(v => v === true);
+
+    // 2. Comprobar si hay algún input con texto que aún no esté validado
+    const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+    let hasUnvalidatedNonEmptyKey = false;
+    for (const id of debridIds) {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      if (val && !draft.validatedKeys[key]) {
+        hasUnvalidatedNonEmptyKey = true;
+        break;
+      }
+    }
+
+    if (hasValidatedKey && !hasUnvalidatedNonEmptyKey) {
       btnInstall.disabled = false;
       btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-100 cursor-pointer shadow-[var(--shadow-pill)]";
-      btnInstall.title = "Instalar AIOStreams con tus proveedores Debrid validados";
+      btnInstall.title = isEditing 
+        ? "Actualizar AIOStreams con tus proveedores Debrid validados" 
+        : "Instalar AIOStreams con tus proveedores Debrid validados";
     } else {
       btnInstall.disabled = true;
       btnInstall.className = "lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed shadow-[var(--shadow-pill)]";
-      btnInstall.title = "Debes validar al menos una clave API Debrid para instalar";
+      if (!hasValidatedKey) {
+        btnInstall.title = "Debes validar al menos una clave API Debrid para continuar";
+      } else {
+        btnInstall.title = "Hay claves modificadas o incorrectas sin validar. Pulsa 'Validar Claves' o borra el campo.";
+      }
     }
   }
 
@@ -3796,6 +3936,13 @@ class AppController {
     const btnValidate = document.getElementById('btnValidateDebridKeys');
     const btnText = document.getElementById('btnValidateDebridKeysText');
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+
+    if (!this._aioStreamsDraft) {
+      this._aioStreamsDraft = {
+        debrids: { ...(state.aiostreams.debrids || {}) },
+        validatedKeys: { ...(state.aiostreams.validatedKeys || {}) }
+      };
+    }
 
     const entriesToValidate = [];
     debridIds.forEach(id => {
@@ -3818,6 +3965,7 @@ class AppController {
     if (btnText) btnText.innerText = 'Validando en vivo...';
 
     let validatedCount = 0;
+    let failedCount = 0;
 
     for (const item of entriesToValidate) {
       const statusEl = document.getElementById(`statusDebrid${item.id}`);
@@ -3829,21 +3977,24 @@ class AppController {
         const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
         if (res.valid) {
           validatedCount++;
-          state.aiostreams.validatedKeys[item.key] = true;
-          state.aiostreams.debrids[item.key] = item.val;
+          this._aioStreamsDraft.validatedKeys[item.key] = true;
+          this._aioStreamsDraft.debrids[item.key] = item.val;
           if (statusEl) {
             statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
           }
         } else {
-          delete state.aiostreams.validatedKeys[item.key];
-          delete state.aiostreams.debrids[item.key];
+          failedCount++;
+          delete this._aioStreamsDraft.validatedKeys[item.key];
+          delete this._aioStreamsDraft.debrids[item.key];
           if (statusEl) {
             const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
             statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
           }
         }
       } catch (err) {
-        delete state.aiostreams.validatedKeys[item.key];
+        failedCount++;
+        delete this._aioStreamsDraft.validatedKeys[item.key];
+        delete this._aioStreamsDraft.debrids[item.key];
         if (statusEl) {
           statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message || 'Error'}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
         }
@@ -3855,14 +4006,19 @@ class AppController {
 
     this.updateInstallAioStreamsBtnState();
 
-    if (validatedCount > 0) {
-      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "Instalar Addon".`, 'success');
+    if (validatedCount > 0 && failedCount === 0) {
+      const isEditing = state.hasAioStreamsInstance();
+      const actionWord = isEditing ? 'Actualizar Addon' : 'Instalar Addon';
+      this.showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Ya puedes pulsar "${actionWord}".`, 'success');
+    } else if (validatedCount > 0 && failedCount > 0) {
+      this.showToast(`Se verificaron ${validatedCount} clave(s), pero ${failedCount} falló. Corrige o borra la clave errónea para poder guardar.`, 'warning');
     } else {
       this.showToast('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
     }
   }
 
   installAioStreamsFromModal() {
+    const draft = this._aioStreamsDraft || { debrids: {}, validatedKeys: {} };
     const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
     const activeDebrids = {};
 
@@ -3870,20 +4026,38 @@ class AppController {
       const key = id.toLowerCase();
       const input = document.getElementById(`inputDebrid${id}`);
       const val = (input ? input.value : '').trim();
-      if (val && state.aiostreams.validatedKeys[key]) {
+      if (val && draft.validatedKeys[key]) {
         activeDebrids[key] = val;
       }
     });
 
-    if (Object.keys(activeDebrids).length === 0) {
-      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de instalar.', 'warning');
+    // Validar que no haya campos con texto sin validar
+    const hasUnvalidatedNonEmptyKey = debridIds.some(id => {
+      const key = id.toLowerCase();
+      const input = document.getElementById(`inputDebrid${id}`);
+      const val = (input ? input.value : '').trim();
+      return val && !draft.validatedKeys[key];
+    });
+
+    if (hasUnvalidatedNonEmptyKey) {
+      this.showToast('Tienes claves modificadas o incorrectas sin validar. Corrige o borra las claves erróneas.', 'error');
       return;
     }
 
-    state.setAioStreamsConfig(activeDebrids, state.aiostreams.validatedKeys);
+    if (Object.keys(activeDebrids).length === 0) {
+      this.showToast('Debes validar en vivo al menos una clave API Debrid antes de guardar.', 'warning');
+      return;
+    }
+
+    const isEditing = state.hasAioStreamsInstance();
+    state.setAioStreamsConfig(activeDebrids, draft.validatedKeys);
     this.closeAioStreamsDebridsModal();
     this.renderAddonsList();
-    this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
+    if (isEditing) {
+      this.showToast('✓ Configuración de AIOStreams actualizada con éxito.', 'success');
+    } else {
+      this.showToast('✓ AIOStreams Latino configurado y agregado a tus addons.', 'success');
+    }
   }
 
   setupStep6Injection() {
@@ -3904,13 +4078,44 @@ class AppController {
     state.execution.mode = 'real';
 
     if (passwordInput) {
-      passwordInput.value = state.aiometadata.password || '';
-      passwordInput.addEventListener('input', (e) => {
-        state.aiometadata.password = e.target.value;
+      if (state.aiometadata?.password) {
+        passwordInput.value = state.aiometadata.password;
+      } else if (passwordInput.value) {
+        state.aiometadata.password = passwordInput.value.trim();
+      }
+
+      const syncPassword = () => {
+        const val = passwordInput.value.trim();
+        state.aiometadata.password = val;
+        this.saveSession();
         this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
+      };
+
+      passwordInput.addEventListener('input', syncPassword);
+      passwordInput.addEventListener('change', syncPassword);
+      passwordInput.addEventListener('keyup', syncPassword);
+      passwordInput.addEventListener('focus', syncPassword);
+      passwordInput.addEventListener('blur', syncPassword);
+      passwordInput.addEventListener('paste', () => {
+        setTimeout(syncPassword, 10);
       });
+    }
+
+    const btnToggleAio = document.getElementById('btnToggleAioPassword');
+    if (btnToggleAio && passwordInput) {
+      btnToggleAio.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const willShow = passwordInput.type === 'password';
+        passwordInput.type = willShow ? 'text' : 'password';
+        const icon = btnToggleAio.querySelector('i');
+        if (icon) {
+          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        }
+        btnToggleAio.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      };
     }
 
     if (btnGenPass && passwordInput) {
@@ -3918,6 +4123,7 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
+        this.saveSession();
         this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
@@ -4038,8 +4244,14 @@ class AppController {
 
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
-        // Validar todos los pasos (1 a 6) antes de ejecutar
-        for (let i = 1; i <= 6; i++) {
+        // Sincronizar inmediatamente la contraseña si el input tiene valor
+        if (passwordInput && passwordInput.value && (!state.aiometadata?.password || state.aiometadata.password !== passwordInput.value.trim())) {
+          state.aiometadata.password = passwordInput.value.trim();
+          this.saveSession();
+        }
+
+        // Validar todos los pasos (1 a 7) antes de ejecutar
+        for (let i = 1; i <= 7; i++) {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');

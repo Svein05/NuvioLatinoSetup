@@ -3,6 +3,8 @@
  * Soporta compilación de plantilla latino, validación en vivo de APIs Debrid
  * y registro seguro de usuario en la instancia oficial de MidnightIgnite.
  */
+import { CONFIG } from './config.js';
+
 export class AIOStreamsClient {
   /**
    * Valida en vivo una clave API contra el proveedor Debrid correspondiente
@@ -284,13 +286,23 @@ export class AIOStreamsClient {
     const isLocalhost = typeof window !== 'undefined' && 
       (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-    // Lista de rutas de conexión priorizadas para superar restricciones CORS del servidor AIOStreams
+    // Lista de rutas de conexión priorizadas (3 niveles de defensa ante CORS de AIOStreams)
     const candidateUrls = [];
     if (isLocalhost) {
       const port = window.location.port ? `:${window.location.port}` : '';
       candidateUrls.push(`${window.location.protocol}//${window.location.hostname}${port}/api/proxy?url=${encodeURIComponent(endpoint)}`);
     }
+
+    // TIER 1: Worker Propio en Cloudflare
+    const workerBase = (CONFIG.AIOSTREAMS_PROXY_URL || 'https://nuvio-proxy.elias-manriquez-2005.workers.dev/').replace(/\/+$/, '');
+    candidateUrls.push(`${workerBase}/?url=${encodeURIComponent(endpoint)}`);
+    candidateUrls.push(`${workerBase}/${endpoint}`);
+
+    // TIER 2: Proxies Públicos de Respaldo
+    candidateUrls.push(`https://corsproxy.io/?url=${encodeURIComponent(endpoint)}`);
     candidateUrls.push(`https://cors.eu.org/${endpoint}`);
+
+    // TIER 3: Conexión Directa
     candidateUrls.push(endpoint);
 
     for (const url of candidateUrls) {
