@@ -72,7 +72,7 @@
   </script>
 
   <!-- Controlador Modular ES6 -->
-  <script type="module" src="../js/app.js?v=1.6.0"></script>
+  <script type="module" src="../js/app.js?v=1.6.2"></script>
   <script type="module" src="../js/nav-indicator.js"></script>
 </head>
 <body class="bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
@@ -244,8 +244,8 @@
                 <label class="lat-label block mb-2">Contraseña</label>
                 <div class="relative">
                   <input id="nuvioPassword" type="password" placeholder="••••••••" autocomplete="current-password" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors" data-target="nuvioPassword" title="Mostrar/Ocultar contraseña">
-                    <i class="fa-solid fa-eye text-xs"></i>
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="nuvioPassword" title="Mostrar contraseña">
+                    <i class="fa-solid fa-eye-slash text-xs pointer-events-none"></i>
                   </button>
                 </div>
                 <p id="authHintText" class="text-[11px] text-white/50 mt-1.5 hidden flex items-center gap-1">
@@ -259,8 +259,8 @@
                 <label class="lat-label block mb-1">Confirmar Contraseña</label>
                 <div class="relative">
                   <input id="nuvioPasswordConfirm" type="password" placeholder="Repite tu contraseña" autocomplete="new-password" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors" data-target="nuvioPasswordConfirm" title="Mostrar/Ocultar contraseña">
-                    <i class="fa-solid fa-eye text-xs"></i>
+                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="nuvioPasswordConfirm" title="Mostrar contraseña">
+                    <i class="fa-solid fa-eye-slash text-xs pointer-events-none"></i>
                   </button>
                 </div>
                 <p id="passwordMatchBadge" class="text-[11px] text-white/50 mt-1 hidden flex items-center gap-1 font-medium"></p>
@@ -369,8 +369,8 @@
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-tmdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
-                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                <a id="btn-get-tmdb" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" title="Obtener TMDB API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+                  <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -388,8 +388,8 @@
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-mdblist" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
-                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                <a id="btn-get-mdblist" href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" title="Obtener MDBList API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
+                  <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -407,8 +407,8 @@
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-rpdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
-                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                <a id="btn-get-rpdb" href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" title="Obtener RPDB API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                  <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -426,8 +426,8 @@
               </label>
               <div class="flex items-center gap-2 shrink-0">
                 <span id="badge-tvdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
-                  <span>Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                <a id="btn-get-tvdb" href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" title="Obtener TheTVDB API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
+                  <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               </div>
             </div>
@@ -859,7 +859,12 @@
                   <i class="fa-solid fa-dice"></i> <span>Generar aleatoria</span>
                 </button>
               </div>
-              <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 6 caracteres)" class="w-full px-4 py-3 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+              <div class="relative">
+                <input id="aioPassword" type="password" placeholder="Define una contraseña segura (mínimo 6 caracteres)" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
+                <button id="btnToggleAioPassword" type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="aioPassword" title="Mostrar contraseña">
+                  <i class="fa-solid fa-eye-slash text-xs pointer-events-none"></i>
+                </button>
+              </div>
               <p class="text-[11px] text-white/50 leading-relaxed font-light">Esta contraseña protegerá tus addons y te permitirá editarlos en el futuro</p>
             </div>
 
@@ -1329,8 +1334,8 @@
             <span id="btnValidateDebridKeysText">Validar Claves</span>
           </button>
           <button id="btnInstallAioStreams" type="button" disabled class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all shadow-[var(--shadow-pill)]">
-            <i class="fa-solid fa-plus text-[10px]"></i>
-            <span>Instalar Addon</span>
+            <i id="iconInstallAioStreams" class="fa-solid fa-plus text-[10px]"></i>
+            <span id="textInstallAioStreams">Instalar Addon</span>
           </button>
           <button id="btnCloseAioStreamsDebridsModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors ml-0.5 shrink-0" title="Cerrar ventana">
             <i class="fa-solid fa-xmark text-sm"></i>
@@ -1353,7 +1358,9 @@
               <span class="text-[9px] text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded border border-emerald-500/20 font-mono">Recomendado</span>
             </label>
             <div id="statusDebridTorbox" class="text-[11px] text-white/40 flex items-center gap-1">
-              <a href="https://torbox.app/settings" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+              <a href="https://torbox.app/settings" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave">
+                <span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              </a>
             </div>
           </div>
           <input id="inputDebridTorbox" type="password" placeholder="Ingresa tu TorBox API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
@@ -1367,7 +1374,9 @@
               <span>AllDebrid</span>
             </label>
             <div id="statusDebridAlldebrid" class="text-[11px] text-white/40 flex items-center gap-1">
-              <a href="https://alldebrid.com/apikeys" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+              <a href="https://alldebrid.com/apikeys" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave">
+                <span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              </a>
             </div>
           </div>
           <input id="inputDebridAlldebrid" type="password" placeholder="Ingresa tu AllDebrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
@@ -1381,7 +1390,9 @@
               <span>Real-Debrid</span>
             </label>
             <div id="statusDebridRealdebrid" class="text-[11px] text-white/40 flex items-center gap-1">
-              <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+              <a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave">
+                <span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              </a>
             </div>
           </div>
           <input id="inputDebridRealdebrid" type="password" placeholder="Ingresa tu Real-Debrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
@@ -1395,7 +1406,9 @@
               <span>Premiumize</span>
             </label>
             <div id="statusDebridPremiumize" class="text-[11px] text-white/40 flex items-center gap-1">
-              <a href="https://www.premiumize.me/account" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+              <a href="https://www.premiumize.me/account" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave">
+                <span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              </a>
             </div>
           </div>
           <input id="inputDebridPremiumize" type="password" placeholder="Ingresa tu Premiumize API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
@@ -1409,7 +1422,9 @@
               <span>Debrid-Link</span>
             </label>
             <div id="statusDebridDebridlink" class="text-[11px] text-white/40 flex items-center gap-1">
-              <a href="https://debrid-link.com/webapp/apikey" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline">Obtener clave</a>
+              <a href="https://debrid-link.com/webapp/apikey" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1" title="Obtener clave">
+                <span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+              </a>
             </div>
           </div>
           <input id="inputDebridDebridlink" type="password" placeholder="Ingresa tu Debrid-Link API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
