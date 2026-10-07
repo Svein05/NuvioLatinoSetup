@@ -305,6 +305,7 @@ class AppController {
     this.setupStep5Preferences();
     this.setupStep6AddonsManager();
     this.setupStep7Injection();
+    this.setupPasswordToggles();
 
     // 2.1 Restaurar sesión si existe
     this.restoreSession();
@@ -460,6 +461,30 @@ class AppController {
     }, duration);
   }
 
+  /**
+   * Inicializa manejadores universales para alternar visibilidad de contraseñas (ojito)
+   */
+  setupPasswordToggles() {
+    document.querySelectorAll('.btn-toggle-key').forEach(btn => {
+      if (btn.dataset.toggleInitialized) return;
+      btn.dataset.toggleInitialized = 'true';
+
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        if (!targetId) return;
+        const input = document.getElementById(targetId);
+        if (!input) return;
+        const icon = btn.querySelector('i');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        if (icon) {
+          icon.className = isPassword ? 'fa-solid fa-eye-slash text-xs' : 'fa-solid fa-eye text-xs';
+        }
+        btn.title = isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      });
+    });
+  }
+
   saveSession() {
     try {
       if (typeof sessionStorage === 'undefined') return;
@@ -471,7 +496,8 @@ class AppController {
           selectedProfileName: state.selectedProfileName,
           newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
           currentStep: state.currentStep,
-          maxUnlockedStep: state.maxUnlockedStep
+          maxUnlockedStep: state.maxUnlockedStep,
+          aioPassword: (state.aiometadata?.password || '').trim()
         }));
       }
     } catch (_) {}
@@ -490,6 +516,9 @@ class AppController {
         state.selectedProfileName = data.selectedProfileName || '';
         if (Array.isArray(data.newlyCreatedProfileIds)) {
           state.newlyCreatedProfileIds = new Set(data.newlyCreatedProfileIds.map(String));
+        }
+        if (data.aioPassword) {
+          state.aiometadata.password = data.aioPassword;
         }
         state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
         state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
@@ -700,8 +729,18 @@ class AppController {
           btnExec.style.display = 'flex';
         }
       }
+      const aioPassEl = document.getElementById('aioPassword');
+      if (aioPassEl) {
+        if (!aioPassEl.value && state.aiometadata?.password) {
+          aioPassEl.value = state.aiometadata.password;
+        } else if (aioPassEl.value && !state.aiometadata?.password) {
+          state.aiometadata.password = aioPassEl.value.trim();
+        }
+      }
+
       this.refreshStep7Summary();
       this.updateStep7ExecuteButton();
+      this.setupPasswordToggles();
     }
 
     // Rotación sincronizada de demostración activa exclusivamente en el Paso 5
@@ -747,7 +786,15 @@ class AppController {
     btnExecute.classList.remove('hidden');
     btnExecute.style.display = 'flex';
 
-    const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
+    const passwordInput = document.getElementById('aioPassword');
+    const rawVal = ((passwordInput ? passwordInput.value : '') || state.aiometadata?.password || '').trim();
+
+    // Sincronizar reactivamente si el DOM contiene un valor pero el estado aún no
+    if (rawVal && state.aiometadata.password !== rawVal) {
+      state.aiometadata.password = rawVal;
+    }
+
+    const hasPassword = Boolean(rawVal && rawVal.length >= 6);
     if (hasPassword) {
       btnExecute.disabled = false;
       btnExecute.className = "lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer";
@@ -4029,12 +4076,28 @@ class AppController {
     state.execution.mode = 'real';
 
     if (passwordInput) {
-      passwordInput.value = state.aiometadata.password || '';
-      passwordInput.addEventListener('input', (e) => {
-        state.aiometadata.password = e.target.value;
+      if (state.aiometadata?.password) {
+        passwordInput.value = state.aiometadata.password;
+      } else if (passwordInput.value) {
+        state.aiometadata.password = passwordInput.value.trim();
+      }
+
+      const syncPassword = () => {
+        const val = passwordInput.value.trim();
+        state.aiometadata.password = val;
+        this.saveSession();
         this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
+      };
+
+      passwordInput.addEventListener('input', syncPassword);
+      passwordInput.addEventListener('change', syncPassword);
+      passwordInput.addEventListener('keyup', syncPassword);
+      passwordInput.addEventListener('focus', syncPassword);
+      passwordInput.addEventListener('blur', syncPassword);
+      passwordInput.addEventListener('paste', () => {
+        setTimeout(syncPassword, 10);
       });
     }
 
@@ -4043,6 +4106,7 @@ class AppController {
         const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
         passwordInput.value = randomPass;
         state.aiometadata.password = randomPass;
+        this.saveSession();
         this.updateStep6ExecuteButton();
         this.updateManualModeButtons();
         this.updateNavigationButtons();
@@ -4163,8 +4227,14 @@ class AppController {
 
     if (btnExecute) {
       btnExecute.addEventListener('click', () => {
-        // Validar todos los pasos (1 a 6) antes de ejecutar
-        for (let i = 1; i <= 6; i++) {
+        // Sincronizar inmediatamente la contraseña si el input tiene valor
+        if (passwordInput && passwordInput.value && (!state.aiometadata?.password || state.aiometadata.password !== passwordInput.value.trim())) {
+          state.aiometadata.password = passwordInput.value.trim();
+          this.saveSession();
+        }
+
+        // Validar todos los pasos (1 a 7) antes de ejecutar
+        for (let i = 1; i <= 7; i++) {
           const val = state.validateStep(i);
           if (!val.valid) {
             this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');

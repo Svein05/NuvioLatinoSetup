@@ -350,8 +350,8 @@ export class PipelineInjector {
                 state.aiostreams.manifestUrl = aioUserRes.manifestUrl;
                 state.addLog(`✓ AIOStreams Latino generado exitosamente: ${aioUserRes.manifestUrl}`, 'success');
               } catch (aioErr) {
-                state.addLog(`❌ Error al generar AIOStreams en la instancia oficial: ${aioErr.message}`, 'error');
-                throw aioErr;
+                console.warn('[PipelineInjector] AIOStreams no se pudo aprovisionar:', aioErr);
+                state.addLog(`⚠️ Advertencia: No se pudo generar AIOStreams automáticamente (${aioErr.message}). Tu configuración de AIOMetadata y Colecciones continuará con normalidad.`, 'warning');
               }
             }
           }
@@ -381,9 +381,10 @@ export class PipelineInjector {
         }
 
         // 3. Sincronizar el orden completo en Nuvio garantizando AIOMetadata en #1 exclusivo
+        const installedSecondary = secondaryAddons.filter(a => a.id || a.manifest_url);
         const allFinalAddons = [
           { id: finalAioId, name: 'AIOMetadata', url: manifestUrl, manifest_url: manifestUrl, sort_order: 1 },
-          ...secondaryAddons.map((sec, idx) => ({
+          ...installedSecondary.map((sec, idx) => ({
             ...sec,
             sort_order: idx + 2
           }))
