@@ -18,14 +18,14 @@
   <meta http-equiv="Expires" content="0" />
 
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://svein05.github.io/NuvioLatinoSetup/configuration/" />
+  <meta property="og:url" content="https://guia.lat-add.com/configuration/" />
   <meta property="og:title" content="Nuvio Metadata Latino" />
   <meta property="og:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
-  <meta property="og:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
+  <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Nuvio Metadata Latino" />
   <meta name="twitter:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
-  <meta name="twitter:image" content="https://svein05.github.io/NuvioLatinoSetup/assets/preview/incrustacion.png" />
+  <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
   
   <!-- Preload de Fuentes Instrument Sans & Serif -->
   <link rel="preload" href="../assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -72,7 +72,7 @@
   </script>
 
   <!-- Controlador Modular ES6 -->
-  <script type="module" src="../js/app.js?v=1.6.2"></script>
+  <script type="module" src="../js/app.js?v=1.6.3"></script>
   <script type="module" src="../js/nav-indicator.js"></script>
 </head>
 <body class="bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
@@ -83,7 +83,7 @@
       <div class="flex items-center gap-2">
         <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm shrink-0"></i>
         <span>
-          <strong>Aviso de Ejecución Local:</strong> Has abierto este archivo con <code>file://</code>. Los navegadores modernos bloquean JavaScript ES6 por CORS bajo este protocolo. Para que funcione localmente, abre la consola en la carpeta del proyecto y ejecuta <code class="bg-black/60 px-2 py-0.5 rounded text-amber-300 font-mono">python run.py</code>, o visita la <a href="https://svein05.github.io/NuvioLatinoSetup/configuration/" class="underline font-bold text-white hover:text-amber-200">versión oficial en GitHub Pages</a>.
+          <strong>Aviso de Ejecución Local:</strong> Has abierto este archivo con <code>file://</code>. Los navegadores modernos bloquean JavaScript ES6 por CORS bajo este protocolo. Para que funcione localmente, abre la consola en la carpeta del proyecto y ejecuta <code class="bg-black/60 px-2 py-0.5 rounded text-amber-300 font-mono">python run.py</code>, o visita la <a href="https://guia.lat-add.com/configuration/" class="underline font-bold text-white hover:text-amber-200">versión oficial en la web</a>.
         </span>
       </div>
       <button onclick="document.getElementById('fileProtocolAlert').remove()" class="text-amber-400 hover:text-white p-1" title="Descartar aviso">
@@ -244,7 +244,7 @@
                 <label class="lat-label block mb-2">Contraseña</label>
                 <div class="relative">
                   <input id="nuvioPassword" type="password" placeholder="••••••••" autocomplete="current-password" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="nuvioPassword" title="Mostrar contraseña">
+                  <button id="btnToggleNuvioPassword" type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="nuvioPassword" title="Mostrar contraseña">
                     <i class="fa-solid fa-eye-slash text-xs pointer-events-none"></i>
                   </button>
                 </div>
@@ -259,7 +259,7 @@
                 <label class="lat-label block mb-1">Confirmar Contraseña</label>
                 <div class="relative">
                   <input id="nuvioPasswordConfirm" type="password" placeholder="Repite tu contraseña" autocomplete="new-password" class="w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-                  <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="nuvioPasswordConfirm" title="Mostrar contraseña">
+                  <button id="btnToggleNuvioPasswordConfirm" type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="nuvioPasswordConfirm" title="Mostrar contraseña">
                     <i class="fa-solid fa-eye-slash text-xs pointer-events-none"></i>
                   </button>
                 </div>
@@ -1011,7 +1011,7 @@
                 </div>
 
                 <!-- Item 6: Badges de Streams -->
-                <div class="flex items-start gap-3.5">
+                <div class="flex items-start gap-3.5 pb-3.5 border-b border-white/[0.04]">
                   <div class="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0 text-white/80 text-xs shadow-[var(--brillo-vidrio)]">
                     <i class="fa-solid fa-tags"></i>
                   </div>
@@ -1024,7 +1024,7 @@
                 <!-- Item 7: Addons del Perfil -->
                 <div class="flex items-start gap-3.5">
                   <div class="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center shrink-0 text-white/80 text-xs shadow-[var(--brillo-vidrio)]">
-                    <i class="fa-solid fa-cubes text-[#ffd479]"></i>
+                    <i class="fa-solid fa-cubes"></i>
                   </div>
                   <div class="flex-1 min-w-0">
                     <span class="text-[10px] text-white/40 uppercase tracking-widest font-semibold block">Addons del Perfil</span>
