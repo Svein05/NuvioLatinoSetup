@@ -469,18 +469,20 @@ class AppController {
       if (btn.dataset.toggleInitialized) return;
       btn.dataset.toggleInitialized = 'true';
 
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         const targetId = btn.dataset.target;
         if (!targetId) return;
         const input = document.getElementById(targetId);
         if (!input) return;
         const icon = btn.querySelector('i');
-        const isPassword = input.type === 'password';
-        input.type = isPassword ? 'text' : 'password';
+        const willShow = input.type === 'password';
+        input.type = willShow ? 'text' : 'password';
         if (icon) {
-          icon.className = isPassword ? 'fa-solid fa-eye-slash text-xs' : 'fa-solid fa-eye text-xs';
+          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
         }
-        btn.title = isPassword ? 'Ocultar contraseña' : 'Mostrar contraseña';
+        btn.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
       });
     });
   }
@@ -4099,6 +4101,21 @@ class AppController {
       passwordInput.addEventListener('paste', () => {
         setTimeout(syncPassword, 10);
       });
+    }
+
+    const btnToggleAio = document.getElementById('btnToggleAioPassword');
+    if (btnToggleAio && passwordInput) {
+      btnToggleAio.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const willShow = passwordInput.type === 'password';
+        passwordInput.type = willShow ? 'text' : 'password';
+        const icon = btnToggleAio.querySelector('i');
+        if (icon) {
+          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        }
+        btnToggleAio.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
+      };
     }
 
     if (btnGenPass && passwordInput) {
