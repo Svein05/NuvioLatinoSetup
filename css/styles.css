@@ -358,8 +358,8 @@ option, optgroup {
   transition: max-width 0.36s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s ease-out;
 }
 
-/* Expansión elegante en hover ÚNICAMENTE en monitores de escritorio amplios (xl: >= 1280px) con puntero fino */
-@media (min-width: 1280px) and (hover: hover) and (pointer: fine) {
+/* Expansión elegante en hover ÚNICAMENTE en monitores de escritorio con puntero fino */
+@media (min-width: 1080px) and (hover: hover) and (pointer: fine) {
   .completions-counter-pill:hover .completions-count-compact,
   .completions-counter-pill.is-celebrating .completions-count-compact {
     max-width: 0;
@@ -1263,6 +1263,9 @@ option, optgroup {
 /* Pestañas de la barra de navegación flotante LAT-ADD */
 header.lat-floating-nav nav {
   position: relative;
+  transition: padding 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+              gap 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease;
 }
 
 .lat-nav-tab {
@@ -1278,9 +1281,12 @@ header.lat-floating-nav nav {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7) !important;
   text-decoration: none;
-  transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1),
+              padding 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+              gap 0.36s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
   background: transparent !important;
+  white-space: nowrap;
 }
 
 @media (min-width: 640px) {
@@ -1295,9 +1301,29 @@ header.lat-floating-nav nav {
   transition: color 0.2s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.lat-nav-tab i,
-.lat-nav-tab span {
+.lat-nav-tab i {
   color: rgba(255, 255, 255, 0.7);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lat-nav-tab span {
+  display: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 140px;
+  opacity: 1;
+  color: rgba(255, 255, 255, 0.7);
+  transition: max-width 0.36s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+              margin 0.36s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .lat-nav-tab span {
+    display: inline-block !important;
+  }
 }
 
 /* Estado activo o señalado (cuando la pastilla blanca está debajo) */
@@ -1312,6 +1338,36 @@ header.lat-floating-nav nav {
 .lat-nav-tab.is-hovered i,
 .lat-nav-tab.is-hovered span {
   color: #08090c !important;
+}
+
+/* ============================================================ */
+/* COMPENSACIÓN REACTIVA: EXPANDIR CONTADOR -> SOLO ÍCONOS EN NAV */
+/* ============================================================ */
+
+@media (min-width: 1080px) and (hover: hover) and (pointer: fine) {
+  /* Cuando el contador se expande por hover o celebración en desktop: comprimir suavemente las pestañas centrales */
+  .lat-floating-nav:has(.completions-counter-pill:hover) .lat-nav-tab,
+  .lat-floating-nav:has(.completions-counter-pill.is-celebrating) .lat-nav-tab,
+  .lat-floating-nav.is-counter-expanded .lat-nav-tab {
+    padding-left: 0.8rem !important;
+    padding-right: 0.8rem !important;
+    gap: 0 !important;
+  }
+
+  .lat-floating-nav:has(.completions-counter-pill:hover) .lat-nav-tab span,
+  .lat-floating-nav:has(.completions-counter-pill.is-celebrating) .lat-nav-tab span,
+  .lat-floating-nav.is-counter-expanded .lat-nav-tab span {
+    max-width: 0 !important;
+    opacity: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .lat-floating-nav:has(.completions-counter-pill:hover) .lat-nav-tab i,
+  .lat-floating-nav:has(.completions-counter-pill.is-celebrating) .lat-nav-tab i,
+  .lat-floating-nav.is-counter-expanded .lat-nav-tab i {
+    transform: scale(1.12);
+  }
 }
 
 /* Transición cinemática para el fondo al hacer scroll */

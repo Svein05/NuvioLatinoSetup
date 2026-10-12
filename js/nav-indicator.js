@@ -90,6 +90,86 @@ export function initNavIndicator() {
   if (document.fonts) {
     document.fonts.ready.then(() => updateIndicator(activeLink, false));
   }
+
+  // Soporte dinámico para la compensación reactiva al expandir el contador
+  const header = document.querySelector('header.lat-floating-nav');
+  const counterPills = header ? header.querySelectorAll('.completions-counter-pill') : [];
+
+  let trackingId = null;
+  function trackIndicatorTransition(duration = 420) {
+    if (trackingId) {
+      cancelAnimationFrame(trackingId);
+      trackingId = null;
+    }
+    const start = performance.now();
+
+    function step(now) {
+      const elapsed = now - start;
+      const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
+      if (target) {
+        updateIndicator(target, false);
+      }
+      if (elapsed < duration) {
+        trackingId = requestAnimationFrame(step);
+      } else {
+        trackingId = null;
+        const finalTarget = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
+        if (finalTarget) updateIndicator(finalTarget, false);
+      }
+    }
+    trackingId = requestAnimationFrame(step);
+  }
+
+  // Coordinar expansión del contador con compresión de las pestañas
+  counterPills.forEach(pill => {
+    pill.addEventListener('mouseenter', () => {
+      if (header) header.classList.add('is-counter-expanded');
+      trackIndicatorTransition(420);
+    });
+
+    pill.addEventListener('mouseleave', () => {
+      if (header) header.classList.remove('is-counter-expanded');
+      trackIndicatorTransition(420);
+    });
+  });
+
+  // Observar si el contador entra en estado de celebración (.is-celebrating)
+  counterPills.forEach(pill => {
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(mutations => {
+        for (const m of mutations) {
+          if (m.type === 'attributes' && m.attributeName === 'class') {
+            if (pill.classList.contains('is-celebrating')) {
+              if (header) header.classList.add('is-counter-expanded');
+            } else if (!pill.matches(':hover')) {
+              if (header) header.classList.remove('is-counter-expanded');
+            }
+            trackIndicatorTransition(420);
+          }
+        }
+      });
+      observer.observe(pill, { attributes: true });
+    }
+  });
+
+  // Escuchar fin de transiciones de las pestañas
+  nav.addEventListener('transitionend', (e) => {
+    if (e.propertyName === 'max-width' || e.propertyName === 'padding') {
+      const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
+      if (target) updateIndicator(target, false);
+    }
+  });
+
+  // ResizeObserver para recalibrar ante cualquier cambio dinámico de tamaño
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => {
+      const currentTarget = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
+      if (currentTarget && !trackingId) {
+        updateIndicator(currentTarget, false);
+      }
+    });
+    ro.observe(nav);
+  }
 }
 
 // Inicializar automáticamente si el documento ya cargó
