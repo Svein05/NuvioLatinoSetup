@@ -657,7 +657,25 @@ export class NuvioClient {
         }
       });
       if (response.ok) {
-        return await response.json();
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0) return rows;
+      }
+    } catch (_) {}
+
+    // 3. Fallback adicional a /rest/v1/profile_collections
+    try {
+      const endpoint2 = `${cleanUrl}/rest/v1/profile_collections?profile_id=eq.${encodeURIComponent(profId)}&select=*`;
+      const response2 = await fetch(endpoint2, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response2.ok) {
+        const rows2 = await response2.json();
+        if (Array.isArray(rows2) && rows2.length > 0) return rows2;
       }
     } catch (_) {}
 

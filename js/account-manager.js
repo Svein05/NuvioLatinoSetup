@@ -373,19 +373,100 @@ export async function loadAioConfigByUuid(uuid, password = null) {
 
 export function normalizeUserCollections(raw) {
   if (!raw) return [];
-  const list = Array.isArray(raw) ? raw : (Array.isArray(raw?.collections) ? raw.collections : []);
-  if (list.length === 0) return [];
+
+  let data = raw;
+
+  // 1. Si es un string, deserializar JSON
+  if (typeof data === 'string') {
+    try { data = JSON.parse(data); } catch (_) { return []; }
+  }
+
+  // 2. Si viene envuelto en un objeto contenedor (RPC o wrapper)
+  if (data && typeof data === 'object' && !Array.isArray(data)) {
+    if (Array.isArray(data.folders)) {
+      data = [data]; // Es una sección sola con folders
+    } else {
+      const extracted = data.collections_json ?? 
+                        data.p_collections_json ?? 
+                        data.collections ?? 
+                        data.data ?? 
+                        data.p_collections ?? 
+                        data.content ?? 
+                        data.items;
+      if (extracted !== undefined) {
+        data = extracted;
+        if (typeof data === 'string') {
+          try { data = JSON.parse(data); } catch (_) { data = []; }
+        }
+      }
+    }
+  }
+
+  // 3. Si es un array, buscar si los elementos son filas de la tabla collections de Supabase (PostgREST)
+  // Cada fila de la tabla collections tiene { id, profile_id, collections_json, ... }
+  if (Array.isArray(data)) {
+    const rowWithCollections = data.find(item => item && typeof item === 'object' && (
+      item.collections_json !== undefined ||
+      item.p_collections_json !== undefined ||
+      (item.collections !== undefined && Array.isArray(item.collections)) ||
+      (item.data !== undefined && (Array.isArray(item.data) || typeof item.data === 'string'))
+    ));
+
+    if (rowWithCollections) {
+      let inner = rowWithCollections.collections_json ??
+                  rowWithCollections.p_collections_json ??
+                  rowWithCollections.collections ??
+                  rowWithCollections.data;
+      if (typeof inner === 'string') {
+        try { inner = JSON.parse(inner); } catch (_) { inner = []; }
+      }
+      if (Array.isArray(inner) && inner.length > 0) {
+        data = inner;
+      }
+    }
+  }
+
+  if (!Array.isArray(data) || data.length === 0) return [];
 
   // Formato 1: Árbol de secciones nativo (usado por Nuvio TV y el RPC sync_push_collections)
-  if (list.some(item => Array.isArray(item.folders))) {
-    return list.map((sec, sIdx) => ({
-      id: String(sec.id || `section-${sIdx + 1}`),
-      title: sec.title || sec.name || `Sección ${sIdx + 1}`,
-      name: sec.name || sec.title || `Sección ${sIdx + 1}`,
-      icon: sec.icon || 'fa-solid fa-layer-group',
-      pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
-      enabled: sec.enabled !== false,
-      folders: (sec.folders || []).map((f, fIdx) => ({
+  // Cada sección contiene un array de 'folders'
+  if (data.some(item => item && Array.isArray(item.folders))) {
+    return data
+      .filter(sec => sec && (Array.isArray(sec.folders) || sec.title || sec.name))
+      .map((sec, sIdx) => ({
+        id: String(sec.id || `section-${sIdx + 1}`),
+        title: sec.title || sec.name || `Sección ${sIdx + 1}`,
+        name: sec.name || sec.title || `Sección ${sIdx + 1}`,
+        icon: sec.icon || 'fa-solid fa-layer-group',
+        pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
+        enabled: sec.enabled !== false,
+        folders: (sec.folders || []).map((f, fIdx) => ({
+          id: String(f.id || `folder-${fIdx + 1}`),
+          title: f.title || f.name || `Colección ${fIdx + 1}`,
+          name: f.name || f.title || `Colección ${fIdx + 1}`,
+          type: f.type || 'movie',
+          enabled: f.enabled !== false,
+          coverEmoji: f.coverEmoji || '🎬',
+          tileShape: f.tileShape || 'LANDSCAPE',
+          heroBackdropUrl: f.heroBackdropUrl || f.coverImageUrl || '',
+          coverImageUrl: f.coverImageUrl || f.heroBackdropUrl || '',
+          titleLogoUrl: f.titleLogoUrl || '',
+          sources: Array.isArray(f.sources) ? f.sources : [],
+          catalogSources: Array.isArray(f.catalogSources) ? f.catalogSources : (Array.isArray(f.sources) ? f.sources : [])
+        }))
+      }));
+  }
+
+  // Formato 2: Lista de carpetas sueltas (folders con sources pero sin sección contenedora)
+  if (data.some(item => item && (Array.isArray(item.sources) || Array.isArray(item.catalogSources) || item.coverImageUrl))) {
+    return [{
+      id: 'user-collections',
+      title: 'Mis Colecciones de Nuvio',
+      name: 'Mis Colecciones de Nuvio',
+      icon: 'fa-solid fa-layer-group',
+      pinToTop: true,
+      enabled: true,
+      folders: data.map((f, fIdx) => ({
         id: String(f.id || `folder-${fIdx + 1}`),
         title: f.title || f.name || `Colección ${fIdx + 1}`,
         name: f.name || f.title || `Colección ${fIdx + 1}`,
@@ -394,52 +475,58 @@ export function normalizeUserCollections(raw) {
         coverEmoji: f.coverEmoji || '🎬',
         tileShape: f.tileShape || 'LANDSCAPE',
         heroBackdropUrl: f.heroBackdropUrl || f.coverImageUrl || '',
-        coverImageUrl: f.coverImageUrl || '',
+        coverImageUrl: f.coverImageUrl || f.heroBackdropUrl || '',
         titleLogoUrl: f.titleLogoUrl || '',
         sources: Array.isArray(f.sources) ? f.sources : [],
         catalogSources: Array.isArray(f.catalogSources) ? f.catalogSources : (Array.isArray(f.sources) ? f.sources : [])
       }))
-    }));
+    }];
   }
 
-  // Formato 2: Lista plana de catálogos (/rest/v1/collections)
-  return [{
-    id: 'user-collections',
-    title: 'Mis Colecciones de Nuvio',
-    name: 'Mis Colecciones de Nuvio',
-    icon: 'fa-solid fa-layer-group',
-    pinToTop: true,
-    enabled: true,
-    folders: list.map((row, idx) => {
-      const catId = row.catalog_id || row.id || `row-${idx + 1}`;
-      const title = row.name || row.title || `Catálogo ${idx + 1}`;
-      const type = row.catalog_type || row.type || 'movie';
-      return {
-        id: String(catId),
-        title: title,
-        name: title,
-        type: type,
-        enabled: row.enabled !== false,
-        coverEmoji: '🎬',
-        tileShape: 'LANDSCAPE',
-        heroBackdropUrl: row.backdrop_url || '',
-        coverImageUrl: row.cover_url || '',
-        titleLogoUrl: '',
-        sources: [{
-          catalogId: catId,
+  // Formato 3: Lista plana de catálogos individuales válidos (con catalog_id o name legítimo que NO sea 'Catálogo 1')
+  const validCatalogs = data.filter(r => r && (r.catalog_id || (r.name && !/^catálogo\s*\d+$/i.test(r.name)) || (r.title && !/^catálogo\s*\d+$/i.test(r.title))));
+  if (validCatalogs.length > 0) {
+    return [{
+      id: 'user-collections',
+      title: 'Mis Colecciones de Nuvio',
+      name: 'Mis Colecciones de Nuvio',
+      icon: 'fa-solid fa-layer-group',
+      pinToTop: true,
+      enabled: true,
+      folders: validCatalogs.map((row, idx) => {
+        const catId = row.catalog_id || row.id || `row-${idx + 1}`;
+        const title = row.name || row.title || `Colección ${idx + 1}`;
+        const type = row.catalog_type || row.type || 'movie';
+        return {
+          id: String(catId),
           title: title,
+          name: title,
           type: type,
-          addonId: row.addon_id || 'aio-metadata'
-        }],
-        catalogSources: [{
-          catalogId: catId,
-          title: title,
-          type: type,
-          addonId: row.addon_id || 'aio-metadata'
-        }]
-      };
-    })
-  }];
+          enabled: row.enabled !== false && row.is_active !== false,
+          coverEmoji: '🎬',
+          tileShape: row.tile_shape || 'LANDSCAPE',
+          heroBackdropUrl: row.backdrop_url || row.heroBackdropUrl || row.cover_url || '',
+          coverImageUrl: row.cover_url || row.coverImageUrl || row.backdrop_url || '',
+          titleLogoUrl: row.title_logo_url || row.titleLogoUrl || '',
+          sources: Array.isArray(row.sources) ? row.sources : [{
+            catalogId: catId,
+            title: title,
+            type: type,
+            addonId: row.addon_id || 'aio-metadata'
+          }],
+          catalogSources: Array.isArray(row.catalogSources) ? row.catalogSources : [{
+            catalogId: catId,
+            title: title,
+            type: type,
+            addonId: row.addon_id || 'aio-metadata'
+          }]
+        };
+      })
+    }];
+  }
+
+  // Si no contiene colecciones válidas, retornar vacío para que active el Empty State
+  return [];
 }
 
 function renderCollectionsEmptyState() {
@@ -496,6 +583,8 @@ function renderCollectionsEmptyState() {
   }
 }
 
+let isInternalUpdating = false;
+
 async function loadProfileCollections() {
   const profId = accountState.selectedProfileId;
   if (!profId || !accountState.session) return;
@@ -504,6 +593,7 @@ async function loadProfileCollections() {
   const miniContainer = document.getElementById('miniNuvioContainer');
 
   try {
+    isInternalUpdating = true;
     // 1. Obtener colecciones sincronizadas reales directamente de Nuvio (sin forzar plantilla estática)
     const rawCollections = await NuvioClient.pullCollections({
       apiUrl: CONFIG.NUVIO_API_URL,
@@ -539,6 +629,8 @@ async function loadProfileCollections() {
   } catch (err) {
     console.warn('[AccountManager] Error cargando colecciones reales del perfil:', err);
     renderCollectionsEmptyState();
+  } finally {
+    isInternalUpdating = false;
   }
 }
 
@@ -550,6 +642,7 @@ export function renderMiniNuvio() {
     window.miniNuvioInstance = new MiniNuvio('miniNuvioContainer');
     window.miniNuvioInstance.init();
   } else {
+    window.miniNuvioInstance.focusedFolder = null;
     window.miniNuvioInstance.render();
   }
 }
@@ -1505,9 +1598,9 @@ export async function initAccountPage() {
   // Inicializar toggles de contraseña en el DOM estático
   setupPasswordToggles();
 
-  // Suscribirse a cambios en colecciones para marcar dirty
+  // Suscribirse a cambios en colecciones para marcar dirty (solo cuando el usuario realiza cambios interactivos)
   state.subscribe((s, eventType) => {
-    if (eventType === 'COLLECTIONS_UPDATED') {
+    if (eventType === 'COLLECTIONS_UPDATED' && !isInternalUpdating) {
       markDirty('collections', true);
     }
   });
