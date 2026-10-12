@@ -177,52 +177,52 @@
       </div>
     </div>
 
-    <!-- Vista 2: Dashboard Integral con Sidebar Glass (Si hay sesión activa) -->
-    <div id="accountDashboardView" class="hidden w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-6 items-start">
+    <!-- Vista 2: Dashboard Integral con Sub-Barra Horizontal Deslizable (Si hay sesión activa) -->
+    <div id="accountDashboardView" class="hidden w-full max-w-[1440px] mx-auto flex flex-col gap-6 items-stretch">
       
-      <!-- Sidebar Lateral Glass -->
-      <aside class="account-sidebar w-full lg:w-72 shrink-0 p-5 flex flex-col justify-between gap-6">
-        <div class="space-y-6">
-          <!-- Tarjeta de Perfil Activo en la Sidebar -->
-          <div class="p-3.5 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-3">
-            <img id="sidebarActiveAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio" alt="Avatar" class="w-11 h-11 rounded-full border border-white/20 bg-black/40 object-cover shadow-sm">
-            <div class="flex-1 min-w-0">
-              <h3 id="sidebarActiveName" class="text-sm font-semibold text-white truncate">Cargando...</h3>
-            </div>
-          </div>
+      <!-- Sub-Barra Horizontal Flotante con Pestañas Deslizables -->
+      <header class="account-subnav-bar w-full flex items-center justify-between gap-2.5 sm:gap-4 select-none">
+        
+        <!-- Límite Izquierdo Fijo: Perfil Activo -->
+        <div class="lat-floating-pill px-3 py-1.5 sm:py-2 flex items-center gap-2.5 shrink-0 bg-white/[0.05] border border-white/10" title="Perfil seleccionado">
+          <img id="sidebarActiveAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio" alt="Avatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-black/40 object-cover shadow-sm shrink-0">
+          <span id="sidebarActiveName" class="text-xs sm:text-sm font-semibold text-white truncate max-w-[110px] sm:max-w-[160px] md:max-w-[200px]">Cargando...</span>
+        </div>
 
-          <!-- Navegación de Secciones -->
-          <nav class="space-y-1.5">
-            <button type="button" class="account-nav-btn is-active" data-section="profiles">
-              <i class="fa-solid fa-users-gear text-sm w-4 text-center"></i>
+        <!-- Zona Central Deslizable: Cápsula de Pestañas con Scroll/Drag Horizontal -->
+        <div class="account-tabs-slider-wrap flex-1 min-w-0 flex items-center justify-center">
+          <nav class="account-tabs-pill lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium">
+            <button type="button" class="account-nav-btn is-active shrink-0" data-section="profiles" title="Mis Perfiles">
+              <i class="fa-solid fa-users-gear text-xs sm:text-sm"></i>
               <span>Mis Perfiles</span>
             </button>
-            <button type="button" class="account-nav-btn" data-section="collections">
-              <i class="fa-solid fa-layer-group text-sm w-4 text-center"></i>
+            <button type="button" class="account-nav-btn shrink-0" data-section="collections" title="Colecciones">
+              <i class="fa-solid fa-layer-group text-xs sm:text-sm"></i>
               <span>Colecciones</span>
             </button>
-            <button type="button" class="account-nav-btn" data-section="aiometadata">
-              <i class="fa-solid fa-wand-magic-sparkles text-sm w-4 text-center"></i>
+            <button type="button" class="account-nav-btn shrink-0" data-section="aiometadata" title="AIOMetadata Addon">
+              <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
               <span>AIOMetadata Addon</span>
             </button>
-            <button type="button" class="account-nav-btn" data-section="settings">
-              <i class="fa-solid fa-sliders text-sm w-4 text-center"></i>
+            <button type="button" class="account-nav-btn shrink-0" data-section="settings" title="Ajustes & Badges">
+              <i class="fa-solid fa-sliders text-xs sm:text-sm"></i>
               <span>Ajustes & Badges</span>
             </button>
           </nav>
         </div>
 
-        <!-- Botón Inferior: Cerrar Sesión -->
-        <div class="pt-4 border-t border-white/10">
-          <button type="button" id="btnAccountLogout" class="account-nav-btn text-rose-400/80 hover:text-rose-300 hover:bg-rose-500/10 hover:border-rose-500/20">
-            <i class="fa-solid fa-arrow-right-from-bracket text-sm w-4 text-center"></i>
-            <span>Cerrar Sesión</span>
+        <!-- Límite Derecho Fijo: Cerrar Sesión -->
+        <div class="shrink-0">
+          <button type="button" id="btnAccountLogout" class="lat-floating-pill px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-rose-400/90 hover:text-rose-300 hover:bg-rose-500/10 hover:border-rose-500/30 transition-all flex items-center gap-1.5 sm:gap-2 shrink-0 cursor-pointer" title="Cerrar Sesión">
+            <i class="fa-solid fa-arrow-right-from-bracket text-xs sm:text-sm"></i>
+            <span class="hidden md:inline">Cerrar Sesión</span>
           </button>
         </div>
-      </aside>
 
-      <!-- Panel de Contenido Principal -->
-      <section class="account-content-card flex-1 w-full p-6 sm:p-8 flex flex-col gap-6">
+      </header>
+
+      <!-- Panel de Contenido Principal (100% de Ancho Disponible) -->
+      <section class="account-content-card w-full p-5 sm:p-7 md:p-8 flex flex-col gap-6">
         
         <!-- Barra Superior de Acciones del Panel -->
         <div class="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/10">

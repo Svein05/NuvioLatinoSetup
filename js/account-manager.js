@@ -1558,17 +1558,78 @@ export async function saveAllChanges() {
   }
 }
 
+export function setupScrollableTabs() {
+  const container = document.querySelector('.account-tabs-pill');
+  if (!container || container.dataset.scrollBound === 'true') return;
+  container.dataset.scrollBound = 'true';
+
+  // 1. Desplazamiento horizontal con la rueda del ratón
+  container.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0) {
+      e.preventDefault();
+      container.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
+  // 2. Arrastre fluido con clic del ratón (drag-to-scroll)
+  let isDown = false;
+  let startX = 0;
+  let scrollLeft = 0;
+  let hasMoved = false;
+
+  container.addEventListener('mousedown', (e) => {
+    isDown = true;
+    hasMoved = false;
+    startX = e.pageX - container.offsetLeft;
+    scrollLeft = container.scrollLeft;
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDown = false;
+  });
+
+  container.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX);
+    if (Math.abs(walk) > 4) {
+      hasMoved = true;
+      e.preventDefault();
+      container.scrollLeft = scrollLeft - walk;
+    }
+  });
+
+  // Prevenir clics accidentales si el usuario estaba arrastrando la barra
+  container.querySelectorAll('.account-nav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (hasMoved) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        hasMoved = false;
+      }
+    }, true);
+  });
+}
+
 // ============================================================
-// NAVEGACIÓN DE SECCIONES EN LA SIDEBAR
+// NAVEGACIÓN DE SECCIONES EN LA SUB-BARRA HORIZONTAL
 // ============================================================
 
 export function switchSection(sectionId) {
   accountState.activeSection = sectionId;
 
-  // Actualizar botones de la sidebar
+  // Actualizar botones de navegación
+  let targetBtn = null;
   document.querySelectorAll('.account-nav-btn').forEach(btn => {
-    btn.classList.toggle('is-active', btn.dataset.section === sectionId);
+    const isAct = btn.dataset.section === sectionId;
+    btn.classList.toggle('is-active', isAct);
+    if (isAct) targetBtn = btn;
   });
+
+  // Centrar suavemente el botón activo dentro de la cápsula deslizable si desborda
+  if (targetBtn && typeof targetBtn.scrollIntoView === 'function') {
+    targetBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
 
   // Mostrar panel correspondiente
   document.querySelectorAll('.account-section-pane').forEach(pane => {
@@ -1595,8 +1656,9 @@ export async function initAccountPage() {
   const btnLogout = document.getElementById('btnAccountLogout');
   const btnSave = document.getElementById('btnAccountSave');
 
-  // Inicializar toggles de contraseña en el DOM estático
+  // Inicializar toggles de contraseña y pestañas deslizables
   setupPasswordToggles();
+  setupScrollableTabs();
 
   // Suscribirse a cambios en colecciones para marcar dirty (solo cuando el usuario realiza cambios interactivos)
   state.subscribe((s, eventType) => {
