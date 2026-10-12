@@ -1276,4 +1276,237 @@ export class NuvioClient {
 
     return { success: true, method: 'attempted' };
   }
+
+  /**
+   * Actualiza el nombre de un perfil existente en la cuenta de Nuvio
+   */
+  static async updateProfile({ apiUrl, apikey, accessToken, userId, profileId, name }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const cleanName = String(name || '').trim();
+
+    if (!cleanName) {
+      throw new Error('El nombre del perfil no puede estar vacío.');
+    }
+
+    // 1. Obtener lista viva de perfiles
+    let existing = [];
+    try {
+      existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const target = existing.find(p => Number(p.profile_index ?? p.id) === Number(profId));
+    const targetUuid = target?.uuid || null;
+
+    // Actualizar nombre en la lista para sync_push_profiles
+    const updatedList = existing.map(p => {
+      if (Number(p.profile_index ?? p.id) === Number(profId)) {
+        return {
+          profile_index: Number(p.profile_index ?? p.id),
+          name: cleanName,
+          avatar_color_hex: p.avatar_color_hex || '#6366F1',
+          uses_primary_addons: Boolean(p.uses_primary_addons),
+          uses_primary_plugins: Boolean(p.uses_primary_plugins),
+          avatar_id: p.avatar_id ?? null,
+          avatar_url: p.avatar_url
+        };
+      }
+      return {
+        profile_index: Number(p.profile_index ?? p.id),
+        name: p.name,
+        avatar_color_hex: p.avatar_color_hex || '#6366F1',
+        uses_primary_addons: Boolean(p.uses_primary_addons),
+        uses_primary_plugins: Boolean(p.uses_primary_plugins),
+        avatar_id: p.avatar_id ?? null,
+        avatar_url: p.avatar_url
+      };
+    });
+
+    // Vector 1: RPC sync_push_profiles
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profiles',
+        body: {
+          p_profiles: updatedList,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_push_profiles al actualizar perfil falló:', rpcErr.message);
+    }
+
+    // Vector 2: PATCH en /rest/v1/profiles
+    const patchFilters = [];
+    if (targetUuid) patchFilters.push(`id=eq.${encodeURIComponent(targetUuid)}`);
+    patchFilters.push(`profile_index=eq.${encodeURIComponent(profId)}`);
+    patchFilters.push(`profile_id=eq.${encodeURIComponent(profId)}`);
+
+    for (const filter of patchFilters) {
+      try {
+        await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({ name: cleanName })
+        });
+      } catch (_) {}
+    }
+
+    return { success: true, name: cleanName };
+  }
+
+  /**
+   * Obtiene la lista de plugins instalados en el perfil
+   */
+  static async listPlugins({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_plugins',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.plugins)) return data.plugins;
+    } catch (_) {}
+
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/plugins?profile_id=eq.${encodeURIComponent(profId)}&select=*`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene el progreso de visualización (Watch Progress) de un perfil
+   */
+  static async pullWatchProgress({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_watch_progress',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data) && data.length > 0) return data;
+      if (Array.isArray(data?.items)) return data.items;
+      if (Array.isArray(data?.progress)) return data.progress;
+    } catch (_) {}
+
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/watch_progress?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc&limit=20`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene los elementos guardados en la biblioteca del perfil
+   */
+  static async pullLibrary({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_library',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data) && data.length > 0) return data;
+      if (Array.isArray(data?.items)) return data.items;
+      if (Array.isArray(data?.library)) return data.library;
+    } catch (_) {}
+
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/library?profile_id=eq.${encodeURIComponent(profId)}&select=*&limit=50`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene el historial de contenidos vistos (Watched) del perfil
+   */
+  static async pullWatched({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_watched',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data) && data.length > 0) return data;
+      if (Array.isArray(data?.items)) return data.items;
+      if (Array.isArray(data?.watched)) return data.watched;
+    } catch (_) {}
+
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/watched?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc&limit=20`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
 }

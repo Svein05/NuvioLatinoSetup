@@ -17,7 +17,19 @@ export const accountState = {
   session: null, // { accessToken, userId, email }
   profiles: [],
   selectedProfileId: null,
-  activeSection: 'profiles', // 'profiles' | 'collections' | 'aiometadata' | 'settings'
+  activeSection: 'overview', // 'overview' | 'collections' | 'aiometadata' | 'settings'
+  hasChosenProfileInSession: false,
+
+  // Métricas y contenidos de la pestaña Resumen
+  overviewData: {
+    pluginsCount: 0,
+    addonsCount: 0,
+    progressCount: 0,
+    libraryCount: 0,
+    watchedCount: 0,
+    currentlyWatching: [],
+    recentlyWatched: []
+  },
 
   // Colecciones dinámicas reales del perfil del usuario
   collections: [],
@@ -215,26 +227,31 @@ export async function fetchProfiles() {
 
 export async function selectProfile(profileId) {
   accountState.selectedProfileId = Number(profileId) || profileId;
+  accountState.hasChosenProfileInSession = true;
   const profile = accountState.profiles.find(p => Number(p.profile_index ?? p.id) === accountState.selectedProfileId);
 
-  // Actualizar UI del perfil activo en la barra lateral
+  // Actualizar UI del perfil activo en la barra de navegación
   const activeAvatar = document.getElementById('sidebarActiveAvatar');
   const activeName = document.getElementById('sidebarActiveName');
   if (activeAvatar && profile) activeAvatar.src = profile.avatar_url;
   if (activeName && profile) activeName.textContent = profile.name;
 
+  // Actualizar popover
+  renderProfilePopover();
+
   // Reset de estados dirty ante cambio de perfil
   accountState.dirty = { collections: false, aiometadata: false, settings: false };
   updateSaveButton();
 
-  // Renderizar grid de perfiles
-  renderProfilesGrid();
+  // Activar por defecto la sección Resumen
+  switchSection('overview');
 
   // Cargar concurrentemente los datos del perfil seleccionado
   await Promise.all([
     loadProfileAddonsAndAio(),
     loadProfileCollections(),
-    loadProfileSettings()
+    loadProfileSettings(),
+    loadProfileOverview()
   ]);
 }
 
@@ -753,73 +770,620 @@ async function loadProfileSettings() {
 // RENDERIZADO VISUAL DE SECCIONES
 // ============================================================
 
-export function renderProfilesGrid() {
-  const container = document.getElementById('accountProfilesGrid');
-  if (!container) return;
+// ============================================================
+// GESTOR DE POPOVER DESPLEGABLE Y MODALES DE PERFILES
+// ============================================================
 
-  container.innerHTML = accountState.profiles.map(p => {
+export function setupProfilePopover() {
+  const trigger = document.getElementById('btnAccountProfileTrigger');
+  const popover = document.getElementById('accountProfilePopover');
+  const chevron = document.getElementById('sidebarActiveChevron');
+
+  if (!trigger || !popover || trigger.dataset.bound === 'true') return;
+  trigger.dataset.bound = 'true';
+
+  const togglePopover = (forceState = null) => {
+    const isCurrentlyHidden = popover.classList.contains('hidden');
+    const shouldShow = forceState !== null ? forceState : isCurrentlyHidden;
+
+    if (shouldShow) {
+      renderProfilePopover();
+      popover.classList.remove('hidden');
+      trigger.setAttribute('aria-expanded', 'true');
+      if (chevron) chevron.classList.add('rotate-180');
+    } else {
+      popover.classList.add('hidden');
+      trigger.setAttribute('aria-expanded', 'false');
+      if (chevron) chevron.classList.remove('rotate-180');
+    }
+  };
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePopover();
+  });
+
+  // Cerrar al hacer clic fuera
+  document.addEventListener('click', (e) => {
+    if (!popover.classList.contains('hidden') && !popover.contains(e.target) && !trigger.contains(e.target)) {
+      togglePopover(false);
+    }
+  });
+
+  // Cerrar con Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !popover.classList.contains('hidden')) {
+      togglePopover(false);
+    }
+  });
+}
+
+export function renderProfilePopover() {
+  const list = document.getElementById('popoverProfilesList');
+  const countBadge = document.getElementById('popoverProfileCount');
+  const addContainer = document.getElementById('popoverAddProfileContainer');
+  if (!list) return;
+
+  const profiles = accountState.profiles || [];
+  if (countBadge) countBadge.textContent = `${profiles.length}/6`;
+
+  // Control de visibilidad del botón Agregar Perfil (solo si < 6)
+  if (addContainer) {
+    if (profiles.length >= 6) {
+      addContainer.classList.add('hidden');
+    } else {
+      addContainer.classList.remove('hidden');
+    }
+  }
+
+  list.innerHTML = profiles.map(p => {
+    const id = Number(p.profile_index ?? p.id);
+    const isSelected = id === Number(accountState.selectedProfileId);
+
+    return `
+      <div class="popover-profile-row ${isSelected ? 'is-active' : ''}" data-profile-id="${id}">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1 pointer-events-none">
+          <img src="${p.avatar_url}" alt="${p.name}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0">
+          <div class="min-w-0 flex-1">
+            <div class="text-xs font-semibold text-white truncate profile-row-name">${p.name}</div>
+            <div class="text-[10px] text-white/40 font-mono">Espacio #${p.profile_index || id}</div>
+          </div>
+          ${isSelected ? '<i class="fa-solid fa-check text-xs text-[#ffd479] mr-1"></i>' : ''}
+        </div>
+        <button type="button" class="btn-popover-edit" data-id="${id}" title="Editar perfil">
+          <i class="fa-solid fa-pencil text-[11px] pointer-events-none"></i>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  // Eventos de filas
+  list.querySelectorAll('.popover-profile-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-popover-edit')) return;
+      const id = row.dataset.profileId;
+      if (id && Number(id) !== Number(accountState.selectedProfileId)) {
+        selectProfile(id);
+      }
+      const popover = document.getElementById('accountProfilePopover');
+      const chevron = document.getElementById('sidebarActiveChevron');
+      if (popover) popover.classList.add('hidden');
+      if (chevron) chevron.classList.remove('rotate-180');
+    });
+  });
+
+  list.querySelectorAll('.btn-popover-edit').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const popover = document.getElementById('accountProfilePopover');
+      const chevron = document.getElementById('sidebarActiveChevron');
+      if (popover) popover.classList.add('hidden');
+      if (chevron) chevron.classList.remove('rotate-180');
+      openEditProfileModal(id);
+    });
+  });
+}
+
+// Modal "¿Qué perfil quieres gestionar?"
+export function showSelectProfilePrompt() {
+  const modal = document.getElementById('modalSelectProfilePrompt');
+  const grid = document.getElementById('modalProfileCardsGrid');
+  if (!modal || !grid) return;
+
+  const profiles = accountState.profiles || [];
+  grid.innerHTML = profiles.map(p => {
     const id = Number(p.profile_index ?? p.id);
     const isSelected = id === Number(accountState.selectedProfileId);
     return `
-      <div class="account-profile-box ${isSelected ? 'is-selected' : ''}" data-profile-id="${id}">
-        <div class="flex items-center gap-3.5">
-          <img src="${p.avatar_url}" alt="${p.name}" class="w-12 h-12 rounded-full border border-white/20 bg-black/40 object-cover shadow-sm">
-          <div class="flex-1 min-w-0">
-            <h4 class="text-sm font-semibold text-white truncate">${p.name}</h4>
-            <span class="text-xs text-white/50 font-mono">Espacio #${p.profile_index || id}</span>
-          </div>
-          ${isSelected ? '<span class="text-xs px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] font-medium border border-[#ffd479]/30">Activo</span>' : ''}
+      <div class="p-4 rounded-2xl bg-white/[0.04] border ${isSelected ? 'border-[#ffd479] bg-white/[0.08]' : 'border-white/10'} hover:border-[#ffd479]/60 hover:bg-white/[0.08] transition-all cursor-pointer flex flex-col items-center gap-2.5 group select-none shadow-sm" data-profile-id="${id}">
+        <div class="relative">
+          <img src="${p.avatar_url}" alt="${p.name}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg">
+          ${isSelected ? '<span class="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#ffd479] text-black text-[10px] flex items-center justify-center font-bold shadow-md"><i class="fa-solid fa-check"></i></span>' : ''}
         </div>
-        <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-          <button type="button" class="btn-select-profile text-white/70 hover:text-white transition-colors" data-id="${id}">
-            ${isSelected ? '<i class="fa-solid fa-check text-emerald-400 mr-1"></i> Seleccionado' : 'Seleccionar'}
-          </button>
-          ${accountState.profiles.length > 1 ? `
-            <button type="button" class="btn-delete-profile text-rose-400/70 hover:text-rose-400 transition-colors p-1" data-id="${id}" title="Eliminar Perfil">
-              <i class="fa-regular fa-trash-can"></i>
-            </button>
-          ` : ''}
+        <div class="text-center w-full">
+          <h4 class="text-xs sm:text-sm font-semibold text-white group-hover:text-[#ffd479] transition-colors truncate max-w-[130px] mx-auto">${p.name}</h4>
+          <span class="text-[10px] text-white/40 font-mono">Espacio #${p.profile_index || id}</span>
         </div>
       </div>
     `;
   }).join('');
 
-  // Vincular eventos de selección y eliminación
-  container.querySelectorAll('.account-profile-box').forEach(box => {
-    box.addEventListener('click', (e) => {
-      if (e.target.closest('.btn-delete-profile')) return;
-      const id = box.dataset.profileId;
-      if (id && Number(id) !== Number(accountState.selectedProfileId)) {
-        selectProfile(id);
-      }
+  grid.querySelectorAll('[data-profile-id]').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.profileId;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      selectProfile(id);
     });
   });
 
-  container.querySelectorAll('.btn-delete-profile').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const id = btn.dataset.id;
-      if (confirm(`¿Estás seguro de que deseas eliminar este perfil (#${id})? Esta acción borrará sus addons y colecciones en Nuvio.`)) {
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+export function closeSelectProfilePrompt() {
+  const modal = document.getElementById('modalSelectProfilePrompt');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+// Modal Editar Perfil
+export function openEditProfileModal(profileId) {
+  const modal = document.getElementById('modalEditProfile');
+  const targetIdInput = document.getElementById('editProfileTargetId');
+  const nameInput = document.getElementById('inputEditProfileName');
+  const subEl = document.getElementById('modalEditProfileSub');
+  const btnDelete = document.getElementById('btnDeleteProfileInModal');
+  if (!modal) return;
+
+  const id = Number(profileId);
+  const profile = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === id);
+  if (!profile) return;
+
+  if (targetIdInput) targetIdInput.value = id;
+  if (nameInput) nameInput.value = profile.name;
+  if (subEl) subEl.textContent = `Espacio #${profile.profile_index || id}`;
+
+  // Solo permitir eliminar si hay más de 1 perfil en la cuenta
+  if (btnDelete) {
+    if ((accountState.profiles || []).length <= 1) {
+      btnDelete.classList.add('hidden');
+    } else {
+      btnDelete.classList.remove('hidden');
+    }
+  }
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  if (nameInput) setTimeout(() => nameInput.focus(), 50);
+}
+
+export function closeEditProfileModal() {
+  const modal = document.getElementById('modalEditProfile');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+// Modal Crear Perfil
+export function openCreateProfileModal() {
+  if ((accountState.profiles || []).length >= 6) {
+    showToast('Has alcanzado el límite máximo de 6 perfiles en Nuvio.', 'warning');
+    return;
+  }
+  const modal = document.getElementById('modalCreateProfile');
+  const nameInput = document.getElementById('inputCreateProfileName');
+  if (!modal) return;
+
+  if (nameInput) nameInput.value = '';
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  if (nameInput) setTimeout(() => nameInput.focus(), 50);
+}
+
+export function closeCreateProfileModal() {
+  const modal = document.getElementById('modalCreateProfile');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+export function setupProfileModals() {
+  // Modal Prompt Who's Watching
+  const btnPromptCreate = document.getElementById('btnPromptCreateProfile');
+  const btnPromptClose = document.getElementById('btnCloseSelectProfileModal');
+  if (btnPromptCreate) {
+    btnPromptCreate.addEventListener('click', () => {
+      closeSelectProfilePrompt();
+      openCreateProfileModal();
+    });
+  }
+  if (btnPromptClose) {
+    btnPromptClose.addEventListener('click', closeSelectProfilePrompt);
+  }
+
+  // Modal Editar Perfil
+  const formEdit = document.getElementById('formEditProfile');
+  const btnCloseEdit = document.getElementById('btnCloseEditProfileModal');
+  const btnCancelEdit = document.getElementById('btnCancelEditProfile');
+  const btnDeleteModal = document.getElementById('btnDeleteProfileInModal');
+
+  if (btnCloseEdit) btnCloseEdit.addEventListener('click', closeEditProfileModal);
+  if (btnCancelEdit) btnCancelEdit.addEventListener('click', closeEditProfileModal);
+
+  if (formEdit) {
+    formEdit.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const targetId = document.getElementById('editProfileTargetId')?.value;
+      const newName = document.getElementById('inputEditProfileName')?.value.trim();
+      const btnSubmit = document.getElementById('btnSaveEditProfile');
+
+      if (!newName || !targetId) return;
+
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Guardando...';
+      }
+
+      try {
+        await NuvioClient.updateProfile({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: accountState.session.accessToken,
+          userId: accountState.session.userId,
+          profileId: targetId,
+          name: newName
+        });
+
+        // Actualizar en memoria local
+        const p = accountState.profiles.find(item => Number(item.profile_index ?? item.id) === Number(targetId));
+        if (p) p.name = newName;
+
+        if (Number(accountState.selectedProfileId) === Number(targetId)) {
+          const activeName = document.getElementById('sidebarActiveName');
+          if (activeName) activeName.textContent = newName;
+        }
+
+        renderProfilePopover();
+        showToast('✓ Nombre de perfil actualizado con éxito.', 'success');
+        closeEditProfileModal();
+      } catch (err) {
+        showToast(`Error actualizando perfil: ${err.message}`, 'error');
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Guardar';
+        }
+      }
+    });
+  }
+
+  if (btnDeleteModal) {
+    btnDeleteModal.addEventListener('click', async () => {
+      const targetId = document.getElementById('editProfileTargetId')?.value;
+      if (!targetId) return;
+
+      if (confirm(`¿Estás seguro de que deseas eliminar este perfil (#${targetId})? Se borrarán sus datos y configuraciones en Nuvio.`)) {
+        btnDeleteModal.disabled = true;
+        btnDeleteModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando...';
+
         try {
           await NuvioClient.deleteProfile({
             apiUrl: CONFIG.NUVIO_API_URL,
             apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
             accessToken: accountState.session.accessToken,
             userId: accountState.session.userId,
-            profileId: id
+            profileId: targetId
           });
-          showToast('Perfil eliminado con éxito', 'success');
+
+          showToast('✓ Perfil eliminado con éxito.', 'success');
+          closeEditProfileModal();
+
           await fetchProfiles();
+          renderProfilePopover();
           if (accountState.profiles.length > 0) {
             selectProfile(accountState.profiles[0].profile_index ?? accountState.profiles[0].id);
           }
         } catch (delErr) {
           showToast(`Error al eliminar perfil: ${delErr.message}`, 'error');
+        } finally {
+          btnDeleteModal.disabled = false;
+          btnDeleteModal.innerHTML = '<i class="fa-regular fa-trash-can mr-1"></i> Eliminar';
         }
       }
     });
-  });
+  }
+
+  // Modal Crear Perfil
+  const formCreate = document.getElementById('formCreateProfile');
+  const btnCloseCreate = document.getElementById('btnCloseCreateProfileModal');
+  const btnCancelCreate = document.getElementById('btnCancelCreateProfile');
+  const btnPopoverAdd = document.getElementById('btnPopoverAddProfile');
+
+  if (btnCloseCreate) btnCloseCreate.addEventListener('click', closeCreateProfileModal);
+  if (btnCancelCreate) btnCancelCreate.addEventListener('click', closeCreateProfileModal);
+  if (btnPopoverAdd) btnPopoverAdd.addEventListener('click', openCreateProfileModal);
+
+  if (formCreate) {
+    formCreate.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('inputCreateProfileName')?.value.trim();
+      const btnSubmit = document.getElementById('btnSubmitCreateProfile');
+
+      if (!name) return;
+
+      if (btnSubmit) {
+        btnSubmit.disabled = true;
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Creando...';
+      }
+
+      try {
+        const created = await NuvioClient.createProfile({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: accountState.session.accessToken,
+          userId: accountState.session.userId,
+          name: name
+        });
+
+        showToast('✓ Perfil creado con éxito.', 'success');
+        closeCreateProfileModal();
+
+        await fetchProfiles();
+        renderProfilePopover();
+        const newId = created.profile_index ?? created.id;
+        if (newId) {
+          selectProfile(newId);
+        }
+      } catch (createErr) {
+        showToast(`Error al crear perfil: ${createErr.message}`, 'error');
+      } finally {
+        if (btnSubmit) {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = '<i class="fa-solid fa-plus mr-1"></i> Crear Perfil';
+        }
+      }
+    });
+  }
 }
+
+// ============================================================
+// CARGA Y RENDERIZADO DE LA PESTAÑA RESUMEN (MÉTRICAS Y FILAS TMDB)
+// ============================================================
+
+const tmdbDetailsCache = new Map();
+
+async function fetchTmdbMediaDetails(rawItem, apiKey) {
+  if (!apiKey) return null;
+
+  let tmdbId = rawItem.tmdb_id || null;
+  let imdbId = rawItem.imdb_id || null;
+  let type = String(rawItem.type || rawItem.media_type || 'movie').toLowerCase();
+  if (type === 'series') type = 'tv';
+
+  const rawId = String(rawItem.item_id || rawItem.media_id || rawItem.id || '');
+  if (!imdbId && rawId.startsWith('tt')) {
+    imdbId = rawId.split(':')[0];
+  } else if (!tmdbId && /^\d+$/.test(rawId)) {
+    tmdbId = rawId;
+  } else if (rawId.includes(':')) {
+    const parts = rawId.split(':');
+    if (parts[0] === 'tmdb') tmdbId = parts[1];
+    else if (parts[0] === 'imdb' || parts[0].startsWith('tt')) imdbId = parts[0].startsWith('tt') ? parts[0] : parts[1];
+  }
+
+  const cacheKey = `${type}_${tmdbId || imdbId}`;
+  if (tmdbDetailsCache.has(cacheKey)) {
+    return tmdbDetailsCache.get(cacheKey);
+  }
+
+  try {
+    let url = '';
+    if (tmdbId) {
+      url = `https://api.themoviedb.org/3/${type === 'tv' ? 'tv' : 'movie'}/${tmdbId}?api_key=${encodeURIComponent(apiKey)}&language=es-MX`;
+    } else if (imdbId) {
+      url = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${encodeURIComponent(apiKey)}&external_source=imdb_id&language=es-MX`;
+    }
+
+    if (!url) return null;
+
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+
+    let details = null;
+    if (imdbId && (data.movie_results || data.tv_results)) {
+      const match = (data.movie_results && data.movie_results[0]) || (data.tv_results && data.tv_results[0]);
+      if (match) {
+        details = {
+          title: match.title || match.name,
+          poster_path: match.poster_path ? `https://image.tmdb.org/t/p/w500${match.poster_path}` : '',
+          backdrop_path: match.backdrop_path ? `https://image.tmdb.org/t/p/w780${match.backdrop_path}` : ''
+        };
+      }
+    } else if (data) {
+      details = {
+        title: data.title || data.name,
+        poster_path: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
+        backdrop_path: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : ''
+      };
+    }
+
+    if (details) tmdbDetailsCache.set(cacheKey, details);
+    return details;
+  } catch (_) {
+    return null;
+  }
+}
+
+export async function loadProfileOverview() {
+  const profId = accountState.selectedProfileId;
+  if (!profId || !accountState.session) return;
+
+  try {
+    const [plugins, progressItems, libraryItems, watchedItems] = await Promise.all([
+      NuvioClient.listPlugins({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        profileId: profId
+      }).catch(() => []),
+      NuvioClient.pullWatchProgress({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        profileId: profId
+      }).catch(() => []),
+      NuvioClient.pullLibrary({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        profileId: profId
+      }).catch(() => []),
+      NuvioClient.pullWatched({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        profileId: profId
+      }).catch(() => [])
+    ]);
+
+    accountState.overviewData = {
+      pluginsCount: Array.isArray(plugins) ? plugins.length : 0,
+      addonsCount: (accountState.installedAddons || []).length,
+      progressCount: Array.isArray(progressItems) ? progressItems.length : 0,
+      libraryCount: Array.isArray(libraryItems) ? libraryItems.length : 0,
+      watchedCount: Array.isArray(watchedItems) ? watchedItems.length : 0,
+      currentlyWatching: Array.isArray(progressItems) ? progressItems.slice(0, 5) : [],
+      recentlyWatched: Array.isArray(watchedItems) ? watchedItems.slice(0, 5) : []
+    };
+
+    renderOverviewSection();
+  } catch (err) {
+    console.warn('[AccountManager] Error cargando métricas de resumen:', err);
+  }
+}
+
+export async function renderOverviewSection() {
+  const data = accountState.overviewData;
+
+  // Actualizar 5 tarjetas de métricas
+  const elPlugins = document.getElementById('metricPluginsCount');
+  const elAddons = document.getElementById('metricAddonsCount');
+  const elProgress = document.getElementById('metricProgressCount');
+  const elLibrary = document.getElementById('metricLibraryCount');
+  const elWatched = document.getElementById('metricWatchedCount');
+
+  if (elPlugins) elPlugins.textContent = data.pluginsCount;
+  if (elAddons) elAddons.textContent = (accountState.installedAddons || []).length || data.addonsCount;
+  if (elProgress) elProgress.textContent = data.progressCount;
+  if (elLibrary) elLibrary.textContent = data.libraryCount;
+  if (elWatched) elWatched.textContent = data.watchedCount;
+
+  // Condición de seguridad TMDB requerida por el usuario:
+  // "si el perfil no tiene el enrichment activado y sin clave tmdb, no pondras las 2 filas, para evitar errores claro"
+  const tmdbKey = (accountState.settings.tmdb_api_key || '').trim();
+  const isEnrichmentActive = Boolean(accountState.settings.enrichment_enabled);
+  const canShowCinemaRows = Boolean(isEnrichmentActive && tmdbKey);
+
+  const cinemaContainer = document.getElementById('overviewCinemaContainer');
+  const tmdbNotice = document.getElementById('overviewTmdbNotice');
+
+  if (!canShowCinemaRows) {
+    if (cinemaContainer) cinemaContainer.classList.add('hidden');
+    if (tmdbNotice) tmdbNotice.classList.remove('hidden');
+    return;
+  }
+
+  if (cinemaContainer) cinemaContainer.classList.remove('hidden');
+  if (tmdbNotice) tmdbNotice.classList.add('hidden');
+
+  // Renderizar Fila 1: Actualmente Viendo
+  const watchingContainer = document.getElementById('rowCurrentlyWatchingCards');
+  if (watchingContainer) {
+    if (data.currentlyWatching.length === 0) {
+      watchingContainer.innerHTML = `
+        <div class="col-span-full py-8 text-center text-xs text-white/40 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
+          <i class="fa-solid fa-play text-white/20 text-lg mb-1 block"></i>
+          Sin reproducciones en curso en este perfil.
+        </div>
+      `;
+    } else {
+      watchingContainer.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-white/40"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Cargando metadatos en Latino...</div>';
+
+      const cardsHtml = await Promise.all(data.currentlyWatching.map(async (item) => {
+        const details = await fetchTmdbMediaDetails(item, tmdbKey);
+        const title = details?.title || item.title || item.name || 'Contenido Nuvio';
+        const posterUrl = details?.poster_path || item.poster_url || item.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
+        const pct = Math.min(100, Math.max(8, Number(item.progress_percentage || (item.progress && item.duration ? Math.round((item.progress / item.duration) * 100) : 45))));
+
+        return `
+          <div class="nuvio-cinema-card group select-none">
+            <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
+              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy">
+              <div class="card-gradient-overlay"></div>
+              <div class="card-progress-bar" style="width: ${pct}%"></div>
+              <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-mono text-[#ffd479] font-medium border border-white/10 flex items-center gap-1">
+                <i class="fa-solid fa-play text-[8px]"></i> ${pct}%
+              </span>
+            </div>
+            <div class="p-2.5">
+              <h5 class="text-xs font-semibold text-white truncate group-hover:text-[#ffd479] transition-colors" title="${title}">${title}</h5>
+              <span class="text-[10px] text-white/40 font-mono capitalize">${item.type || 'Película'}</span>
+            </div>
+          </div>
+        `;
+      }));
+
+      watchingContainer.innerHTML = cardsHtml.join('');
+    }
+  }
+
+  // Renderizar Fila 2: Últimas Vistas
+  const watchedContainer = document.getElementById('rowRecentlyWatchedCards');
+  if (watchedContainer) {
+    if (data.recentlyWatched.length === 0) {
+      watchedContainer.innerHTML = `
+        <div class="col-span-full py-8 text-center text-xs text-white/40 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
+          <i class="fa-solid fa-check text-white/20 text-lg mb-1 block"></i>
+          Sin contenidos marcados como vistos en este perfil.
+        </div>
+      `;
+    } else {
+      watchedContainer.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-white/40"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Cargando metadatos en Latino...</div>';
+
+      const cardsHtml = await Promise.all(data.recentlyWatched.map(async (item) => {
+        const details = await fetchTmdbMediaDetails(item, tmdbKey);
+        const title = details?.title || item.title || item.name || 'Contenido Nuvio';
+        const posterUrl = details?.poster_path || item.poster_url || item.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
+
+        return `
+          <div class="nuvio-cinema-card group select-none">
+            <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
+              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy">
+              <div class="card-gradient-overlay"></div>
+              <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/20 backdrop-blur-md text-[10px] font-mono text-emerald-300 font-medium border border-emerald-500/30 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-[9px]"></i> Visto
+              </span>
+            </div>
+            <div class="p-2.5">
+              <h5 class="text-xs font-semibold text-white truncate group-hover:text-emerald-300 transition-colors" title="${title}">${title}</h5>
+              <span class="text-[10px] text-white/40 font-mono capitalize">${item.type || 'Película'}</span>
+            </div>
+          </div>
+        `;
+      }));
+
+      watchedContainer.innerHTML = cardsHtml.join('');
+    }
+  }
+}
+
 
 export function renderAioSection() {
   const card = document.getElementById('accountAioCard');
@@ -1636,7 +2200,9 @@ export function switchSection(sectionId) {
     pane.classList.toggle('is-active', pane.id === `sectionPane-${sectionId}`);
   });
 
-  if (sectionId === 'collections') {
+  if (sectionId === 'overview') {
+    renderOverviewSection();
+  } else if (sectionId === 'collections') {
     renderMiniNuvio();
   } else if (sectionId === 'aiometadata') {
     setupPasswordToggles();
@@ -1656,9 +2222,11 @@ export async function initAccountPage() {
   const btnLogout = document.getElementById('btnAccountLogout');
   const btnSave = document.getElementById('btnAccountSave');
 
-  // Inicializar toggles de contraseña y pestañas deslizables
+  // Inicializar toggles de contraseña, scroll de pestañas, popover y modales de perfil
   setupPasswordToggles();
   setupScrollableTabs();
+  setupProfilePopover();
+  setupProfileModals();
 
   // Suscribirse a cambios en colecciones para marcar dirty (solo cuando el usuario realiza cambios interactivos)
   state.subscribe((s, eventType) => {
@@ -1677,7 +2245,12 @@ export async function initAccountPage() {
       // Cargar plantillas en segundo plano sin bloquear la lectura del perfil real
       state.loadTemplates().catch(() => null);
       await fetchProfiles();
+      renderProfilePopover();
+
       if (accountState.profiles.length > 0) {
+        if (!accountState.hasChosenProfileInSession) {
+          showSelectProfilePrompt();
+        }
         await selectProfile(accountState.profiles[0].profile_index ?? accountState.profiles[0].id);
       }
     } catch (err) {
@@ -1727,7 +2300,10 @@ export async function initAccountPage() {
         // Cargar plantillas en segundo plano sin bloquear la lectura del perfil real
         state.loadTemplates().catch(() => null);
         await fetchProfiles();
+        renderProfilePopover();
+
         if (accountState.profiles.length > 0) {
+          showSelectProfilePrompt();
           await selectProfile(accountState.profiles[0].profile_index ?? accountState.profiles[0].id);
         }
       } catch (err) {
@@ -1756,37 +2332,13 @@ export async function initAccountPage() {
     btnSave.addEventListener('click', saveAllChanges);
   }
 
-  // 5. Navegación por tabs en la sidebar
+  // 5. Navegación por tabs en la sub-barra horizontal
   document.querySelectorAll('.account-nav-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const section = btn.dataset.section;
       if (section) switchSection(section);
     });
   });
-
-  // 6. Botón de crear perfil
-  const btnCreateProfile = document.getElementById('btnCreateProfile');
-  if (btnCreateProfile) {
-    btnCreateProfile.addEventListener('click', async () => {
-      const name = prompt('Nombre del nuevo perfil en Nuvio:');
-      if (name && name.trim()) {
-        try {
-          await NuvioClient.createProfile({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-            accessToken: accountState.session.accessToken,
-            userId: accountState.session.userId,
-            name: name.trim()
-          });
-          showToast('Perfil creado con éxito.', 'success');
-          await fetchProfiles();
-          renderProfilesGrid();
-        } catch (err) {
-          showToast(`Error creando perfil: ${err.message}`, 'error');
-        }
-      }
-    });
-  }
 }
 
 // Inicializar automáticamente cuando el DOM esté listo

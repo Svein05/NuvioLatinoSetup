@@ -183,18 +183,40 @@
       <!-- Sub-Barra Horizontal Flotante con Pestañas Deslizables -->
       <header class="account-subnav-bar w-full flex items-center justify-between gap-2.5 sm:gap-4 select-none">
         
-        <!-- Límite Izquierdo Fijo: Perfil Activo -->
-        <div class="lat-floating-pill px-3 py-1.5 sm:py-2 flex items-center gap-2.5 shrink-0 bg-white/[0.05] border border-white/10" title="Perfil seleccionado">
-          <img id="sidebarActiveAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio" alt="Avatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-black/40 object-cover shadow-sm shrink-0">
-          <span id="sidebarActiveName" class="text-xs sm:text-sm font-semibold text-white truncate max-w-[110px] sm:max-w-[160px] md:max-w-[200px]">Cargando...</span>
+        <!-- Límite Izquierdo Fijo: Perfil Activo con Popover Desplegable -->
+        <div class="relative shrink-0">
+          <button type="button" id="btnAccountProfileTrigger" class="lat-floating-pill px-3 py-1.5 sm:py-2 flex items-center gap-2 sm:gap-2.5 bg-white/[0.05] border border-white/10 hover:border-white/25 hover:bg-white/[0.08] transition-all cursor-pointer group select-none" title="Cambiar o gestionar perfil" aria-expanded="false" aria-haspopup="true">
+            <img id="sidebarActiveAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio" alt="Avatar" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-black/40 object-cover shadow-sm shrink-0">
+            <span id="sidebarActiveName" class="text-xs sm:text-sm font-semibold text-white truncate max-w-[90px] sm:max-w-[140px] md:max-w-[180px]">Cargando...</span>
+            <i id="sidebarActiveChevron" class="fa-solid fa-chevron-down text-[10px] sm:text-xs text-white/50 group-hover:text-white transition-transform duration-300 ml-0.5"></i>
+          </button>
+
+          <!-- Popover Desplegable de Perfiles (Apple Glassmorphism) -->
+          <div id="accountProfilePopover" class="account-profile-popover hidden absolute left-0 top-full mt-2 w-72 sm:w-80 rounded-[22px] bg-[#0c0e14]/95 border border-white/[0.14] shadow-[0_20px_50px_rgba(0,0,0,0.7)] backdrop-blur-2xl z-50 p-2.5 space-y-2 select-none">
+            <div class="flex items-center justify-between px-2 pt-1 pb-1.5 border-b border-white/[0.08] text-xs text-white/60">
+              <span class="font-medium">Perfiles de la cuenta</span>
+              <span id="popoverProfileCount" class="font-mono text-[11px] text-white/40"></span>
+            </div>
+
+            <div id="popoverProfilesList" class="space-y-1 max-h-64 overflow-y-auto pr-0.5">
+              <!-- Inyectado dinámicamente -->
+            </div>
+
+            <div id="popoverAddProfileContainer" class="pt-1 border-t border-white/[0.08]">
+              <button type="button" id="btnPopoverAddProfile" class="w-full lat-capsule-btn glass text-xs py-2 px-3 flex items-center justify-center gap-1.5 text-white/80 hover:text-white border-white/10 hover:border-emerald-400/40 hover:bg-emerald-500/10 transition-all">
+                <i class="fa-solid fa-plus text-emerald-400 text-[11px]"></i>
+                <span>Agregar Perfil</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Zona Central Deslizable: Cápsula de Pestañas con Scroll/Drag Horizontal -->
         <div class="account-tabs-slider-wrap flex-1 min-w-0 flex items-center justify-center">
           <nav class="account-tabs-pill lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium">
-            <button type="button" class="account-nav-btn is-active shrink-0" data-section="profiles" title="Mis Perfiles">
-              <i class="fa-solid fa-users-gear text-xs sm:text-sm"></i>
-              <span>Mis Perfiles</span>
+            <button type="button" class="account-nav-btn is-active shrink-0" data-section="overview" title="Resumen">
+              <i class="fa-solid fa-chart-pie text-xs sm:text-sm"></i>
+              <span>Resumen</span>
             </button>
             <button type="button" class="account-nav-btn shrink-0" data-section="collections" title="Colecciones">
               <i class="fa-solid fa-layer-group text-xs sm:text-sm"></i>
@@ -239,21 +261,127 @@
           </button>
         </div>
 
-        <!-- SECCIÓN 1: PERFILES -->
-        <div id="sectionPane-profiles" class="account-section-pane is-active space-y-6">
-          <div class="flex items-center justify-between flex-wrap gap-3">
+        <!-- SECCIÓN 1: RESUMEN -->
+        <div id="sectionPane-overview" class="account-section-pane is-active space-y-6">
+          <div class="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h3 class="text-base font-semibold text-white">Perfiles de la Cuenta</h3>
-              <p class="text-xs text-white/60">Haz clic en un perfil para activarlo o administrarlo.</p>
+              <h3 class="text-base font-semibold text-white">Resumen del Perfil</h3>
+              <p class="text-xs text-white/60">Métricas clave del perfil, actividad reciente y contenido sincronizado.</p>
             </div>
-            <button type="button" id="btnCreateProfile" class="lat-capsule-btn glass text-xs py-2 px-3.5">
-              <i class="fa-solid fa-plus text-emerald-400 mr-1"></i> Nuevo Perfil
-            </button>
           </div>
 
-          <div id="accountProfilesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Grid dinámico de perfiles -->
+          <!-- Cuadrícula de 5 Métricas Traducidas -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+            
+            <!-- 1. Plugins -->
+            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-white/60 font-medium">Plugins</span>
+                <div class="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-puzzle-piece"></i>
+                </div>
+              </div>
+              <div>
+                <span id="metricPluginsCount" class="text-xl sm:text-2xl font-bold text-white font-mono">-</span>
+                <span class="block text-[10px] text-white/40 mt-0.5">Instalados</span>
+              </div>
+            </div>
+
+            <!-- 2. Addons -->
+            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-white/60 font-medium">Addons</span>
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-cubes"></i>
+                </div>
+              </div>
+              <div>
+                <span id="metricAddonsCount" class="text-xl sm:text-2xl font-bold text-white font-mono">-</span>
+                <span class="block text-[10px] text-white/40 mt-0.5">Streaming & Meta</span>
+              </div>
+            </div>
+
+            <!-- 3. Watch Progress -->
+            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-white/60 font-medium">Progreso</span>
+                <div class="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-clock-rotate-left"></i>
+                </div>
+              </div>
+              <div>
+                <span id="metricProgressCount" class="text-xl sm:text-2xl font-bold text-white font-mono">-</span>
+                <span class="block text-[10px] text-white/40 mt-0.5">En reproducción</span>
+              </div>
+            </div>
+
+            <!-- 4. Biblioteca (Library) -->
+            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-white/60 font-medium">Biblioteca</span>
+                <div class="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-bookmark"></i>
+                </div>
+              </div>
+              <div>
+                <span id="metricLibraryCount" class="text-xl sm:text-2xl font-bold text-white font-mono">-</span>
+                <span class="block text-[10px] text-white/40 mt-0.5">Guardados</span>
+              </div>
+            </div>
+
+            <!-- 5. Vistos (Watched) -->
+            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm col-span-2 sm:col-span-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-white/60 font-medium">Vistos</span>
+                <div class="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-xs">
+                  <i class="fa-solid fa-circle-check"></i>
+                </div>
+              </div>
+              <div>
+                <span id="metricWatchedCount" class="text-xl sm:text-2xl font-bold text-white font-mono">-</span>
+                <span class="block text-[10px] text-white/40 mt-0.5">Completados</span>
+              </div>
+            </div>
+
           </div>
+
+          <!-- Filas Cinematográficas Nuvio Style (Condicional a TMDB Enrichment y Key) -->
+          <div id="overviewCinemaContainer" class="space-y-6 pt-2">
+            <!-- Fila 1: Actualmente Viendo -->
+            <div id="rowCurrentlyWatchingWrap" class="space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-play text-xs text-[#ffd479]"></i>
+                  <span>Actualmente Viendo</span>
+                </h4>
+                <span class="text-[11px] text-white/40">Últimos 5</span>
+              </div>
+              <div id="rowCurrentlyWatchingCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
+                <!-- Tarjetas dinámicas -->
+              </div>
+            </div>
+
+            <!-- Fila 2: Últimas Vistas -->
+            <div id="rowRecentlyWatchedWrap" class="space-y-3 pt-2">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-check-double text-xs text-emerald-400"></i>
+                  <span>Últimas Vistas</span>
+                </h4>
+                <span class="text-[11px] text-white/40">Últimos 5</span>
+              </div>
+              <div id="rowRecentlyWatchedCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
+                <!-- Tarjetas dinámicas -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje alternativo si TMDB enrichment no está configurado -->
+          <div id="overviewTmdbNotice" class="hidden p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs text-white/50 flex items-center gap-3">
+            <i class="fa-solid fa-info-circle text-amber-400/80 text-sm shrink-0"></i>
+            <span>Para visualizar tus carátulas y títulos en Español Latino en "Actualmente Viendo" y "Últimas Vistas", habilita TMDB Enrichment con tu API Key en la pestaña <strong>Ajustes & Badges</strong>.</span>
+          </div>
+
         </div>
 
         <!-- SECCIÓN 2: COLECCIONES -->
@@ -429,6 +557,116 @@
 
     </div>
   </footer>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: ¿QUÉ PERFIL QUIERES GESTIONAR? (WHO'S WATCHING) -->
+  <!-- ======================================================== -->
+  <div id="modalSelectProfilePrompt" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-xl w-full p-6 sm:p-7 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-6 text-center">
+      <div>
+        <span class="lat-label text-indigo-400">Nuvio Profiles</span>
+        <h3 class="text-xl sm:text-2xl font-serif text-white mt-1">¿Qué perfil quieres gestionar?</h3>
+        <p class="text-xs text-white/60 mt-1">Selecciona el perfil que deseas inspeccionar y sincronizar.</p>
+      </div>
+
+      <!-- Grid de perfiles para selección con avatares grandes -->
+      <div id="modalProfileCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 max-h-[55vh] overflow-y-auto p-1">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-between text-xs text-white/50">
+        <button type="button" id="btnPromptCreateProfile" class="lat-capsule-btn glass text-xs py-2 px-3 text-emerald-400 border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-500/10">
+          <i class="fa-solid fa-plus mr-1"></i> Nuevo Perfil
+        </button>
+        <button type="button" id="btnCloseSelectProfileModal" class="lat-capsule-btn glass text-xs py-2 px-3.5">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: EDITAR PERFIL (CAMBIAR NOMBRE / ELIMINAR)       -->
+  <!-- ======================================================== -->
+  <div id="modalEditProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-xs text-indigo-400">
+            <i class="fa-solid fa-user-pen"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Editar Perfil</h3>
+            <span id="modalEditProfileSub" class="text-[11px] text-white/50 font-mono">Espacio #</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseEditProfileModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <form id="formEditProfile" class="space-y-4 pt-1">
+        <input type="hidden" id="editProfileTargetId">
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Perfil</label>
+          <input type="text" id="inputEditProfileName" required maxlength="30" placeholder="Nombre en Nuvio" class="lat-field w-full text-sm">
+        </div>
+
+        <div class="border-t border-white/[0.08] pt-3 flex items-center justify-between gap-2">
+          <button type="button" id="btnDeleteProfileInModal" class="lat-capsule-btn glass text-xs py-2 px-3 text-rose-400/90 border-rose-500/30 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
+            <i class="fa-regular fa-trash-can mr-1"></i> Eliminar
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnCancelEditProfile" class="lat-capsule-btn glass text-xs py-2 px-3">
+              Cancelar
+            </button>
+            <button type="submit" id="btnSaveEditProfile" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold">
+              <i class="fa-solid fa-check mr-1"></i> Guardar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: CREAR NUEVO PERFIL (REUTILIZANDO ESTILO SETUP)   -->
+  <!-- ======================================================== -->
+  <div id="modalCreateProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs text-emerald-400">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Nuevo Perfil</h3>
+            <span class="text-[11px] text-white/50">Crea un nuevo espacio de usuario en tu cuenta</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseCreateProfileModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <form id="formCreateProfile" class="space-y-4 pt-1">
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Perfil</label>
+          <input type="text" id="inputCreateProfileName" required maxlength="30" placeholder="Ej. Familia, Cine, Anime..." class="lat-field w-full text-sm">
+          <p class="text-[11px] text-white/40 mt-1">Se le asignará un avatar personalizado automáticamente.</p>
+        </div>
+
+        <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+          <button type="button" id="btnCancelCreateProfile" class="lat-capsule-btn glass text-xs py-2 px-3">
+            Cancelar
+          </button>
+          <button type="submit" id="btnSubmitCreateProfile" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099]">
+            <i class="fa-solid fa-plus mr-1"></i> Crear Perfil
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Sincronización automática de versión -->
   <script type="module" src="../js/version.js"></script>
