@@ -619,6 +619,96 @@ export class NuvioClient {
   }
 
   /**
+   * Obtiene las colecciones del perfil desde Nuvio (vía RPC sync_pull_collections o fallback PostgREST)
+   */
+  static async pullCollections({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+
+    // 1. Intentar RPC sync_pull_collections
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_collections',
+        body: {
+          p_profile_id: profId
+        }
+      });
+      if (data) {
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.collections)) return data.collections;
+        if (typeof data === 'object') return data;
+      }
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_pull_collections RPC falló, probando fallback REST:', rpcErr.message);
+    }
+
+    // 2. Fallback REST a /rest/v1/collections
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/collections?profile_id=eq.${encodeURIComponent(profId)}&select=*`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene la configuración de enriquecimiento y carátulas del perfil (vía RPC sync_pull_profile_settings_blob o fallback PostgREST)
+   */
+  static async pullProfileSettings({ apiUrl, apikey, accessToken, profileId, platform = 'tv' }) {
+    const profId = Number(profileId) || profileId;
+
+    // 1. Intentar RPC sync_pull_profile_settings_blob
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_profile_settings_blob',
+        body: {
+          p_profile_id: profId,
+          p_platform: platform
+        }
+      });
+      if (data) return data;
+    } catch (rpcErr) {
+      console.warn(`[NuvioClient] sync_pull_profile_settings_blob (${platform}) falló:`, rpcErr.message);
+    }
+
+    // 2. Fallback REST
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/profile_settings?profile_id=eq.${encodeURIComponent(profId)}&platform=eq.${encodeURIComponent(platform)}&select=*`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const rows = await response.json();
+        return Array.isArray(rows) && rows.length > 0 ? (rows[0].settings || rows[0]) : null;
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  /**
    * Lista los addons registrados en un perfil específico
    */
   static async listAddons({ apiUrl, apikey, accessToken, userId, profileId }) {
