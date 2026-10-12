@@ -207,7 +207,7 @@
             </button>
             <button type="button" class="account-nav-btn" data-section="settings">
               <i class="fa-solid fa-sliders text-sm w-4 text-center"></i>
-              <span>Ajustes & API Keys</span>
+              <span>Ajustes & Badges</span>
             </button>
           </nav>
         </div>
@@ -258,10 +258,16 @@
 
         <!-- SECCIÓN 2: COLECCIONES -->
         <div id="sectionPane-collections" class="account-section-pane space-y-6">
-          <div>
-            <h3 class="text-base font-semibold text-white">Colecciones de Nuvio</h3>
-            <p class="text-xs text-white/60">Activa, desactiva o visualiza las colecciones en la pantalla principal de tu Nuvio.</p>
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 class="text-base font-semibold text-white">Colecciones de Nuvio</h3>
+              <p class="text-xs text-white/60">Visualiza, activa/desactiva y reordena las colecciones en vivo de tu perfil de Nuvio.</p>
+            </div>
+            <div id="collectionsToolbarActions" class="flex items-center gap-2"></div>
           </div>
+
+          <!-- Estado o mensaje para colecciones vacías -->
+          <div id="accountCollectionsEmptyState" class="hidden"></div>
 
           <!-- Contenedor interactivo del Mini Nuvio -->
           <div id="miniNuvioContainer">
@@ -273,7 +279,7 @@
         <div id="sectionPane-aiometadata" class="account-section-pane space-y-6">
           <div>
             <h3 class="text-base font-semibold text-white">Configuración del Addon AIOMetadata</h3>
-            <p class="text-xs text-white/60">Inspecciona y actualiza in-place la configuración del addon vinculado a este perfil.</p>
+            <p class="text-xs text-white/60">Inspecciona y personaliza in-place el motor de pósters, carátulas y enlaces del addon vinculado.</p>
           </div>
 
           <div id="accountAioCard">
@@ -284,12 +290,12 @@
         <!-- SECCIÓN 4: AJUSTES & API KEYS -->
         <div id="sectionPane-settings" class="account-section-pane space-y-6">
           <div>
-            <h3 class="text-base font-semibold text-white">Ajustes de Plataforma & Proveedores</h3>
-            <p class="text-xs text-white/60">Configura tus API Keys de TMDB, MDBList y opciones de enriquecimiento.</p>
+            <h3 class="text-base font-semibold text-white">Ajustes de Nuvio & Fusion Badges</h3>
+            <p class="text-xs text-white/60">Configura tus API Keys de TMDB, MDBList, enriquecimiento oficial y Fusion Badges en tu reproductor.</p>
           </div>
 
           <div id="accountSettingsContainer">
-            <!-- Inputs protegidos de API Keys y toggles -->
+            <!-- Inputs protegidos de API Keys y Fusion Badges -->
           </div>
         </div>
 
