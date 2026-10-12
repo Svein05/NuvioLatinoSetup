@@ -1085,6 +1085,53 @@ export class NuvioClient {
   }
 
   /**
+   * Obtiene las credenciales de proveedores (TMDB, MDBList, etc.) asociadas al perfil en Nuvio.
+   *
+   * @param {Object} params
+   * @param {string} params.apiUrl
+   * @param {string} params.apikey
+   * @param {string} params.accessToken
+   * @param {number|string} params.profileId
+   * @returns {Promise<Array<{provider: string, credential_json: Object}>>}
+   */
+  static async pullProviderCredentials({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    // 1. Intentar RPC sync_pull_provider_credentials
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_provider_credentials',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data) && data.length > 0) return data;
+      if (Array.isArray(data?.credentials)) return data.credentials;
+    } catch (_) {}
+
+    // 2. Consultar directamente tabla REST provider_credentials
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/provider_credentials?profile_id=eq.${encodeURIComponent(profId)}&select=*`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
    * Configura las opciones del perfil para activar TMDB Enrichment y MDBList Ratings
    * en Español Latino (es-MX) tanto para plataforma 'tv' como 'mobile'.
    */

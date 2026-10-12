@@ -1,11 +1,12 @@
 /**
- * Controlador del Gestor de Cuenta y Perfil (/cuenta)
+ * Controlador Modular del Gestor de Cuenta y Perfil (/cuenta)
  * Ecosistema Nuvio Metadata Latino & AIOMetadata
  */
 import { CONFIG } from './config.js';
 import { NuvioClient } from './nuvio-client.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
-import { isAioMetadataAddon } from './state.js';
+import { state, isAioMetadataAddon } from './state.js';
+import { MiniNuvio } from './mini-nuvio.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const SESSION_KEY = 'nuvio_account_session_v1';
@@ -16,20 +17,21 @@ export const accountState = {
   profiles: [],
   selectedProfileId: null,
   activeSection: 'profiles', // 'profiles' | 'collections' | 'aiometadata' | 'settings'
-  
+
   // Datos vivos del perfil activo
   collections: [],
   originalCollections: [],
   installedAddons: [],
-  
+
   // AIOMetadata vinculado
   aioAddon: null,
   aioUuid: null,
   aioConfig: null,
   originalAioConfig: null,
   aioPassword: 'NuvioSetupMaster2026',
-  
-  // Ajustes y credenciales
+  aioProtected: false, // Flag si requiere contraseña personalizada
+
+  // Ajustes y credenciales oficiales
   settings: {
     enrichment_enabled: true,
     ratings_enabled: true,
@@ -38,14 +40,14 @@ export const accountState = {
     mdblist_api_key: ''
   },
   originalSettings: {},
-  
-  // Dirty State Tracker (Rastreo inteligente de cambios)
+
+  // Dirty State Tracker (Rastreo inteligente de cambios para guardar solo lo necesario)
   dirty: {
     collections: false,
     aiometadata: false,
     settings: false
   },
-  
+
   isSaving: false
 };
 
@@ -84,6 +86,39 @@ export function showToast(message, type = 'info') {
 }
 
 // ============================================================
+// CONTROLADOR DE ALTERNAR VISIBILIDAD DE CONTRASEÑA ("OJITO")
+// ============================================================
+
+export function setupPasswordToggles() {
+  document.querySelectorAll('.btn-toggle-key').forEach((btn) => {
+    if (btn.dataset.toggleBound === 'true') return;
+    btn.dataset.toggleBound = 'true';
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (!input) return;
+
+      const icon = btn.querySelector('i');
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+          icon.className = 'fa-solid fa-eye-slash text-xs pointer-events-none';
+        }
+        btn.title = 'Ocultar contraseña';
+      } else {
+        input.type = 'password';
+        if (icon) {
+          icon.className = 'fa-solid fa-eye text-xs pointer-events-none';
+        }
+        btn.title = 'Mostrar contraseña';
+      }
+    });
+  });
+}
+
+// ============================================================
 // GESTIÓN DE SESIÓN AISLADA (SESSION STORAGE)
 // ============================================================
 
@@ -112,6 +147,7 @@ function clearSession() {
   accountState.collections = [];
   accountState.aioConfig = null;
   accountState.aioUuid = null;
+  accountState.aioProtected = false;
   try {
     sessionStorage.removeItem(SESSION_KEY);
   } catch (_) {}
@@ -174,8 +210,8 @@ export async function fetchProfiles() {
 export async function selectProfile(profileId) {
   accountState.selectedProfileId = Number(profileId) || profileId;
   const profile = accountState.profiles.find(p => Number(p.profile_index ?? p.id) === accountState.selectedProfileId);
-  
-  // Actualizar UI del perfil activo
+
+  // Actualizar UI del perfil activo en la barra lateral
   const activeAvatar = document.getElementById('sidebarActiveAvatar');
   const activeName = document.getElementById('sidebarActiveName');
   if (activeAvatar && profile) activeAvatar.src = profile.avatar_url;
@@ -188,7 +224,7 @@ export async function selectProfile(profileId) {
   // Renderizar grid de perfiles
   renderProfilesGrid();
 
-  // Cargar datos concurrentes del perfil seleccionado
+  // Cargar concurrentemente los datos del perfil seleccionado
   await Promise.all([
     loadProfileAddonsAndAio(),
     loadProfileCollections(),
@@ -231,6 +267,7 @@ async function loadProfileAddonsAndAio() {
     } else {
       accountState.aioUuid = null;
       accountState.aioConfig = null;
+      accountState.aioProtected = false;
       renderAioSection();
     }
   } catch (err) {
@@ -238,34 +275,73 @@ async function loadProfileAddonsAndAio() {
   }
 }
 
-export async function loadAioConfigByUuid(uuid) {
+export async function loadAioConfigByUuid(uuid, password = null) {
   if (!uuid) return;
   const statusEl = document.getElementById('aioLoadingStatus');
   if (statusEl) statusEl.textContent = 'Cargando configuración de AIOMetadata...';
+
+  // Determinar contraseña: explícita -> accountState -> wizardSession -> master fallback
+  let passToTry = password || accountState.aioPassword;
+  if (!passToTry || passToTry === 'NuvioSetupMaster2026') {
+    try {
+      const rawWizard = sessionStorage.getItem('nuvio_wizard_auth');
+      if (rawWizard) {
+        const parsed = JSON.parse(rawWizard);
+        if (parsed?.aioPassword) passToTry = parsed.aioPassword;
+      }
+    } catch (_) {}
+  }
+  if (!passToTry) passToTry = 'NuvioSetupMaster2026';
 
   try {
     const res = await AIOMetadataClient.loadWithFallbacks(
       CONFIG.AIOMETADATA_INSTANCES,
       uuid,
-      accountState.aioPassword
+      passToTry
     );
 
     accountState.aioUuid = uuid;
+    accountState.aioPassword = passToTry;
+    accountState.aioProtected = false;
     accountState.aioConfig = JSON.parse(JSON.stringify(res.config));
     accountState.originalAioConfig = JSON.parse(JSON.stringify(res.config));
+
+    // Hidratar API keys si estaban vacías en los ajustes
+    const aioKeys = accountState.aioConfig.apiKeys || accountState.aioConfig.config?.apiKeys || {};
+    if (aioKeys.tmdb && !accountState.settings.tmdb_api_key) {
+      accountState.settings.tmdb_api_key = aioKeys.tmdb;
+      accountState.originalSettings.tmdb_api_key = aioKeys.tmdb;
+      state.apiKeys.tmdb = aioKeys.tmdb;
+    }
+    if (aioKeys.mdblist && !accountState.settings.mdblist_api_key) {
+      accountState.settings.mdblist_api_key = aioKeys.mdblist;
+      accountState.originalSettings.mdblist_api_key = aioKeys.mdblist;
+      state.apiKeys.mdblist = aioKeys.mdblist;
+    }
+
     accountState.dirty.aiometadata = false;
     updateSaveButton();
     renderAioSection();
+    renderSettingsSection();
     if (statusEl) statusEl.textContent = 'Configuración sincronizada.';
+    if (password) showToast('✓ Addon AIOMetadata desbloqueado y sincronizado.', 'success');
   } catch (err) {
-    console.error('[AccountManager] Error cargando config de AIOMetadata:', err);
-    if (statusEl) statusEl.textContent = 'No se pudo cargar la configuración de AIOMetadata.';
-    showToast(`Error al leer AIOMetadata: ${err.message}`, 'error');
+    console.warn('[AccountManager] AIOMetadata load:', err.message);
+    const isAuthErr = /401|invalid|password|contraseña/i.test(err.message);
+    if (isAuthErr) {
+      accountState.aioProtected = true;
+      accountState.aioUuid = uuid;
+      renderAioSection();
+    } else {
+      if (statusEl) statusEl.textContent = 'No se pudo cargar la configuración de AIOMetadata.';
+      showToast(`AIOMetadata: ${err.message}`, 'warning');
+    }
+    if (password) throw err;
   }
 }
 
 // ============================================================
-// CARGA DE COLECCIONES DE NUVIO
+// CARGA DE COLECCIONES DE NUVIO & INTEGRACIÓN CON MINI NUVIO
 // ============================================================
 
 async function loadProfileCollections() {
@@ -273,6 +349,10 @@ async function loadProfileCollections() {
   if (!profId || !accountState.session) return;
 
   try {
+    // 1. Asegurar que las plantillas nativas de colecciones estén cargadas en state
+    await state.loadTemplates();
+
+    // 2. Obtener colecciones sincronizadas de Nuvio
     const rawCollections = await NuvioClient.pullCollections({
       apiUrl: CONFIG.NUVIO_API_URL,
       apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -280,25 +360,64 @@ async function loadProfileCollections() {
       profileId: profId
     });
 
-    let list = [];
-    if (Array.isArray(rawCollections)) {
-      list = rawCollections;
-    } else if (rawCollections?.collections && Array.isArray(rawCollections.collections)) {
-      list = rawCollections.collections;
+    // 3. Reconciliar colecciones de Nuvio con state.collections
+    if (Array.isArray(rawCollections) && rawCollections.length > 0) {
+      const isSectionsTree = rawCollections.some(r => Array.isArray(r.folders));
+      if (isSectionsTree) {
+        state.collections.forEach(sec => {
+          const matchSec = rawCollections.find(s => s.id === sec.id || s.name === sec.name);
+          if (matchSec) {
+            sec.enabled = matchSec.enabled !== false;
+            (sec.folders || []).forEach(f => {
+              const matchFolder = (matchSec.folders || []).find(mf => mf.id === f.id || mf.title === f.title);
+              if (matchFolder) {
+                f.enabled = matchFolder.enabled !== false;
+              }
+            });
+          }
+        });
+      } else {
+        // Formato plano (/rest/v1/collections)
+        const activeIds = new Set(rawCollections.map(r => r.catalog_id || r.id || r.name).filter(Boolean));
+        if (activeIds.size > 0) {
+          state.collections.forEach(sec => {
+            let anyEnabled = false;
+            (sec.folders || []).forEach(f => {
+              const matches = activeIds.has(f.id) || activeIds.has(f.title) || (f.sources || []).some(s => activeIds.has(s.catalogId || s.id));
+              f.enabled = matches;
+              if (matches) anyEnabled = true;
+            });
+            sec.enabled = anyEnabled;
+          });
+        }
+      }
     }
 
-    accountState.collections = JSON.parse(JSON.stringify(list));
-    accountState.originalCollections = JSON.parse(JSON.stringify(list));
+    accountState.collections = JSON.parse(JSON.stringify(state.collections));
+    accountState.originalCollections = JSON.parse(JSON.stringify(state.collections));
     accountState.dirty.collections = false;
     updateSaveButton();
-    renderCollectionsList();
+
+    renderMiniNuvio();
   } catch (err) {
     console.warn('[AccountManager] Error cargando colecciones de perfil:', err);
   }
 }
 
+export function renderMiniNuvio() {
+  const container = document.getElementById('miniNuvioContainer');
+  if (!container) return;
+
+  if (!window.miniNuvioInstance) {
+    window.miniNuvioInstance = new MiniNuvio('miniNuvioContainer');
+    window.miniNuvioInstance.init();
+  } else {
+    window.miniNuvioInstance.render();
+  }
+}
+
 // ============================================================
-// CARGA DE AJUSTES DEL PERFIL (TMDB / MDBLIST)
+// CARGA DE AJUSTES DEL PERFIL & PROVEEDORES (TMDB / MDBLIST)
 // ============================================================
 
 async function loadProfileSettings() {
@@ -306,31 +425,57 @@ async function loadProfileSettings() {
   if (!profId || !accountState.session) return;
 
   try {
-    const blob = await NuvioClient.pullProfileSettings({
-      apiUrl: CONFIG.NUVIO_API_URL,
-      apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-      accessToken: accountState.session.accessToken,
-      profileId: profId,
-      platform: 'tv'
-    });
+    const [blob, credentials] = await Promise.all([
+      NuvioClient.pullProfileSettings({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        profileId: profId,
+        platform: 'tv'
+      }).catch(() => null),
+      NuvioClient.pullProviderCredentials({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        profileId: profId
+      }).catch(() => [])
+    ]);
 
-    if (blob) {
-      const features = blob.features || {};
-      const tmdb = features.tmdb_settings || {};
-      const mdblist = features.mdblist_settings || {};
+    const features = blob?.features || {};
+    const tmdb = features.tmdb_settings || {};
+    const mdblist = features.mdblist_settings || {};
 
-      accountState.settings = {
-        enrichment_enabled: tmdb.tmdb_enabled?.value !== false,
-        ratings_enabled: mdblist.mdblist_enabled?.value !== false,
-        tmdb_language: tmdb.tmdb_language?.value || 'es-MX',
-        tmdb_api_key: tmdb.tmdb_api_key?.value || '',
-        mdblist_api_key: mdblist.mdblist_api_key?.value || ''
-      };
-      accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));
-      accountState.dirty.settings = false;
-      updateSaveButton();
-      renderSettingsSection();
-    }
+    // Buscar en credenciales de proveedores oficiales de Nuvio
+    const tmdbCred = (credentials || []).find(c => String(c.provider || '').toLowerCase() === 'tmdb');
+    const mdblistCred = (credentials || []).find(c => String(c.provider || '').toLowerCase() === 'mdblist');
+
+    const credTmdbKey = tmdbCred?.credential_json?.api_key || tmdbCred?.credential_json?.apiKey || tmdbCred?.credential_json?.key || '';
+    const credMdblistKey = mdblistCred?.credential_json?.api_key || mdblistCred?.credential_json?.apiKey || mdblistCred?.credential_json?.key || '';
+
+    // Buscar en AIOMetadata si ya está cargado
+    const aioTmdbKey = accountState.aioConfig?.apiKeys?.tmdb || accountState.aioConfig?.config?.apiKeys?.tmdb || '';
+    const aioMdblistKey = accountState.aioConfig?.apiKeys?.mdblist || accountState.aioConfig?.config?.apiKeys?.mdblist || '';
+
+    // Priorizar claves no vacías existentes en cualquiera de las fuentes
+    const resolvedTmdbKey = (credTmdbKey || tmdb.tmdb_api_key?.value || aioTmdbKey || accountState.settings.tmdb_api_key || '').trim();
+    const resolvedMdblistKey = (credMdblistKey || mdblist.mdblist_api_key?.value || aioMdblistKey || accountState.settings.mdblist_api_key || '').trim();
+
+    accountState.settings = {
+      enrichment_enabled: tmdb.tmdb_enabled?.value !== false,
+      ratings_enabled: mdblist.mdblist_enabled?.value !== false,
+      tmdb_language: tmdb.tmdb_language?.value || 'es-MX',
+      tmdb_api_key: resolvedTmdbKey,
+      mdblist_api_key: resolvedMdblistKey
+    };
+    accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));
+    accountState.dirty.settings = false;
+
+    // Sincronizar también con state.apiKeys para coherencia en todo el ecosistema
+    if (resolvedTmdbKey) state.apiKeys.tmdb = resolvedTmdbKey;
+    if (resolvedMdblistKey) state.apiKeys.mdblist = resolvedMdblistKey;
+
+    updateSaveButton();
+    renderSettingsSection();
   } catch (err) {
     console.warn('[AccountManager] Error cargando ajustes de perfil:', err);
   }
@@ -408,62 +553,92 @@ export function renderProfilesGrid() {
   });
 }
 
-export function renderCollectionsList() {
-  const container = document.getElementById('accountCollectionsContainer');
-  if (!container) return;
-
-  if (accountState.collections.length === 0) {
-    container.innerHTML = `
-      <div class="p-8 text-center text-white/50">
-        <i class="fa-solid fa-layer-group text-3xl mb-3 opacity-40"></i>
-        <p>No se encontraron colecciones en este perfil de Nuvio.</p>
-      </div>
-    `;
-    return;
-  }
-
-  container.innerHTML = accountState.collections.map((col, idx) => {
-    const isVisible = col.inHome !== false;
-    const name = col.name || col.title || `Colección #${idx + 1}`;
-    const type = col.type || 'mixed';
-    return `
-      <div class="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all group" data-col-idx="${idx}">
-        <div class="flex items-center gap-3">
-          <i class="fa-solid fa-grip-vertical text-white/30 cursor-grab group-hover:text-white/60"></i>
-          <div>
-            <h5 class="text-sm font-medium text-white">${name}</h5>
-            <span class="text-xs text-white/40 uppercase tracking-wider">${type}</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <label class="lat-switch" title="Mostrar en pantalla de inicio de Nuvio">
-            <input type="checkbox" class="col-toggle-inhome" data-idx="${idx}" ${isVisible ? 'checked' : ''}>
-            <span class="lat-switch-track">
-              <span class="lat-switch-thumb"></span>
-            </span>
-          </label>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  container.querySelectorAll('.col-toggle-inhome').forEach(cb => {
-    cb.addEventListener('change', (e) => {
-      const idx = Number(cb.dataset.idx);
-      if (accountState.collections[idx]) {
-        accountState.collections[idx].inHome = cb.checked;
-        markDirty('collections', true);
-      }
-    });
-  });
-}
-
 export function renderAioSection() {
   const card = document.getElementById('accountAioCard');
   if (!card) return;
 
   const hasAddon = Boolean(accountState.aioAddon || accountState.aioUuid);
 
+  if (accountState.aioProtected) {
+    // Addon protegido con contraseña no predeterminada
+    card.innerHTML = `
+      <div class="p-5 rounded-2xl bg-white/[0.03] border border-amber-500/30 space-y-4">
+        <div class="flex items-center gap-3 text-amber-300">
+          <i class="fa-solid fa-shield-halved text-xl"></i>
+          <div>
+            <h4 class="text-sm font-semibold text-white">Addon AIOMetadata Protegido</h4>
+            <span class="text-xs text-white/60">Este addon requiere su contraseña para sincronizar los catálogos en vivo.</span>
+          </div>
+        </div>
+
+        <div class="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-200/90 leading-relaxed">
+          Ingresa la contraseña que definiste al crear este addon para sincronizar y editar sus opciones.
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="text-xs text-white/70 block mb-1 font-medium">UUID del Addon</label>
+            <input type="text" id="inputAioUuidPrompt" value="${accountState.aioUuid || ''}" readonly 
+                   class="lat-field w-full text-xs font-mono opacity-80 cursor-not-allowed">
+          </div>
+          <div>
+            <label class="text-xs text-white/70 block mb-1 font-medium">Contraseña de AIOMetadata</label>
+            <div class="relative">
+              <input type="password" id="inputAioPasswordPrompt" placeholder="Tu contraseña de addon" 
+                     class="lat-field w-full text-xs font-mono pr-10">
+              <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="inputAioPasswordPrompt" title="Mostrar contraseña">
+                <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <div id="aioPromptError" class="text-xs text-rose-400 font-medium"></div>
+          <button type="button" id="btnUnlockAio" class="lat-capsule-btn solid text-xs py-2 px-5 font-semibold">
+            <i class="fa-solid fa-lock-open mr-1.5"></i> Desbloquear & Sincronizar
+          </button>
+        </div>
+      </div>
+    `;
+
+    setupPasswordToggles();
+
+    const btnUnlock = document.getElementById('btnUnlockAio');
+    const passInput = document.getElementById('inputAioPasswordPrompt');
+    const errorEl = document.getElementById('aioPromptError');
+
+    const handleUnlock = async () => {
+      const pass = (passInput?.value || '').trim();
+      if (!pass) {
+        if (errorEl) errorEl.textContent = 'Por favor ingresa la contraseña.';
+        passInput?.focus();
+        return;
+      }
+      if (btnUnlock) {
+        btnUnlock.disabled = true;
+        btnUnlock.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando...';
+      }
+      try {
+        await loadAioConfigByUuid(accountState.aioUuid, pass);
+      } catch (e) {
+        if (errorEl) errorEl.textContent = 'Contraseña incorrecta. Inténtalo nuevamente.';
+      } finally {
+        if (btnUnlock) {
+          btnUnlock.disabled = false;
+          btnUnlock.innerHTML = '<i class="fa-solid fa-lock-open mr-1.5"></i> Desbloquear & Sincronizar';
+        }
+      }
+    };
+
+    if (btnUnlock) btnUnlock.addEventListener('click', handleUnlock);
+    if (passInput) passInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); handleUnlock(); }
+    });
+    return;
+  }
+
+  // Addon no protegido o ya desbloqueado
   card.innerHTML = `
     <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4">
       <div class="flex items-center justify-between flex-wrap gap-2">
@@ -494,8 +669,13 @@ export function renderAioSection() {
         </div>
         <div>
           <label class="text-xs text-white/60 block mb-1">Contraseña de Configuración</label>
-          <input type="password" id="inputAioPassword" value="${accountState.aioPassword}" 
-                 class="lat-field w-full text-xs font-mono">
+          <div class="relative">
+            <input type="password" id="inputAioPassword" value="${accountState.aioPassword}" 
+                   class="lat-field w-full text-xs font-mono pr-10">
+            <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="inputAioPassword" title="Mostrar contraseña">
+              <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -508,12 +688,14 @@ export function renderAioSection() {
             <span class="text-xs font-mono text-emerald-400">${(accountState.aioConfig.catalogs || accountState.aioConfig.config?.catalogs || []).length} activos</span>
           </div>
           <p class="text-xs text-white/50">
-            Al pulsar "Guardar Cambios", los catálogos y colecciones se mantendrán estrictamente sincronizados en orden y disponibilidad.
+            Al pulsar "Guardar Cambios", los catálogos y colecciones de Nuvio se mantendrán sincronizados automáticamente en orden y disponibilidad.
           </p>
         </div>
       ` : ''}
     </div>
   `;
+
+  setupPasswordToggles();
 
   const btnLoad = document.getElementById('btnLoadAioByUuid');
   const inputUuid = document.getElementById('inputAioUuid');
@@ -523,7 +705,7 @@ export function renderAioSection() {
     btnLoad.addEventListener('click', () => {
       const u = inputUuid.value.trim();
       if (inputPass) accountState.aioPassword = inputPass.value.trim() || 'NuvioSetupMaster2026';
-      if (u) loadAioConfigByUuid(u);
+      if (u) loadAioConfigByUuid(u, accountState.aioPassword);
     });
   }
 }
@@ -537,38 +719,56 @@ export function renderSettingsSection() {
       <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
         <div class="flex items-center justify-between">
           <label class="text-sm font-medium text-white flex items-center gap-2">
-            <i class="fa-solid fa-sparkles text-amber-300"></i> Enriquecimiento TMDB
+            <i class="fa-solid fa-film text-amber-300"></i> TMDB API Key & Enriquecimiento
           </label>
-          <label class="lat-switch">
+          <label class="lat-switch" title="Activar/desactivar enriquecimiento oficial">
             <input type="checkbox" id="chkEnrichment" ${accountState.settings.enrichment_enabled ? 'checked' : ''}>
             <span class="lat-switch-track"><span class="lat-switch-thumb"></span></span>
           </label>
         </div>
         <div>
-          <label class="text-xs text-white/60 block mb-1">Clave de API TMDB (Opcional)</label>
-          <input type="password" id="inputTmdbKey" value="${accountState.settings.tmdb_api_key || ''}" 
-                 placeholder="API Key v3 de TMDB" class="lat-field w-full text-xs font-mono">
+          <label class="text-xs text-white/60 block mb-1">Clave de API TMDB</label>
+          <div class="relative">
+            <input type="password" id="inputTmdbKey" value="${accountState.settings.tmdb_api_key || ''}" 
+                   placeholder="API Key v3 de TMDB" class="lat-field w-full text-xs font-mono pr-10">
+            <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="inputTmdbKey" title="Mostrar clave">
+              <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
+            </button>
+          </div>
+          <p class="text-[11px] text-white/40 mt-1">
+            Utilizada por Nuvio para sinopsis, actores y pósters oficiales en español latino.
+          </p>
         </div>
       </div>
 
       <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
         <div class="flex items-center justify-between">
           <label class="text-sm font-medium text-white flex items-center gap-2">
-            <i class="fa-solid fa-star text-amber-400"></i> Calificaciones MDBList
+            <i class="fa-solid fa-star text-amber-400"></i> MDBList API Key & Calificaciones
           </label>
-          <label class="lat-switch">
+          <label class="lat-switch" title="Activar/desactivar calificaciones">
             <input type="checkbox" id="chkRatings" ${accountState.settings.ratings_enabled ? 'checked' : ''}>
             <span class="lat-switch-track"><span class="lat-switch-thumb"></span></span>
           </label>
         </div>
         <div>
-          <label class="text-xs text-white/60 block mb-1">Clave de API MDBList (Opcional)</label>
-          <input type="password" id="inputMdblistKey" value="${accountState.settings.mdblist_api_key || ''}" 
-                 placeholder="API Key de MDBList" class="lat-field w-full text-xs font-mono">
+          <label class="text-xs text-white/60 block mb-1">Clave de API MDBList</label>
+          <div class="relative">
+            <input type="password" id="inputMdblistKey" value="${accountState.settings.mdblist_api_key || ''}" 
+                   placeholder="API Key de MDBList" class="lat-field w-full text-xs font-mono pr-10">
+            <button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="inputMdblistKey" title="Mostrar clave">
+              <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
+            </button>
+          </div>
+          <p class="text-[11px] text-white/40 mt-1">
+            Proporciona calificaciones agregadas (IMDb, Rotten Tomatoes, Trakt) y soporte de carátulas dinámicas.
+          </p>
         </div>
       </div>
     </div>
   `;
+
+  setupPasswordToggles();
 
   const chkE = document.getElementById('chkEnrichment');
   const chkR = document.getElementById('chkRatings');
@@ -604,60 +804,55 @@ export async function saveAllChanges() {
   accountState.isSaving = true;
   updateSaveButton();
   const btn = document.getElementById('btnAccountSave');
-  if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+  if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Guardando...';
 
   try {
     const profId = accountState.selectedProfileId;
 
     // 1. Si cambiaron las colecciones: sincronizar Nuvio y mantener equivalencia con AIOMetadata
     if (accountState.dirty.collections) {
+      const synchronizedCollections = state.getSynchronizedNuvioCollections();
       await NuvioClient.pushCollections({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
         accessToken: accountState.session.accessToken,
         profileId: profId,
-        collectionsJson: accountState.collections
+        collectionsJson: synchronizedCollections
       });
 
-      // Equivalencia con AIOMetadata si hay un addon vinculado:
+      // Si hay AIOMetadata vinculado, mantener paridad de catálogos
       if (accountState.aioUuid && accountState.aioConfig) {
-        // Asegurar que los catálogos en AIOMetadata concuerden
         accountState.dirty.aiometadata = true;
       }
       accountState.dirty.collections = false;
     }
 
-    // 2. Si cambió AIOMetadata: actualizar in-place sin cambiar de UUID
-    if (accountState.dirty.aiometadata && accountState.aioUuid) {
-      await AIOMetadataClient.updateWithFallbacks(
-        CONFIG.AIOMETADATA_INSTANCES,
-        accountState.aioUuid,
-        {
-          password: accountState.aioPassword,
-          config: accountState.aioConfig
-        }
-      );
-      accountState.dirty.aiometadata = false;
-    }
-
-    // 3. Si cambiaron los ajustes: actualizar perfil Nuvio
+    // 2. Si cambiaron los ajustes: actualizar perfil Nuvio preservando credenciales
     if (accountState.dirty.settings) {
+      // Regla de Oro: Preservar credenciales existentes si los inputs están vacíos o inalterados
+      const tmdbKeyToSave = (accountState.settings.tmdb_api_key || accountState.originalSettings.tmdb_api_key || '').trim();
+      const mdblistKeyToSave = (accountState.settings.mdblist_api_key || accountState.originalSettings.mdblist_api_key || '').trim();
+
       await NuvioClient.pushProfileSettings({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
         accessToken: accountState.session.accessToken,
         profileId: profId,
         platform: 'tv',
-        settings: accountState.settings
+        settings: {
+          ...accountState.settings,
+          tmdb_api_key: tmdbKeyToSave,
+          mdblist_api_key: mdblistKeyToSave
+        }
       });
 
-      // Sincronizar credenciales si se especificaron
+      // Sincronizar credenciales oficiales de proveedores en Nuvio
       const creds = [];
-      if (accountState.settings.tmdb_api_key) {
-        creds.push({ provider: 'tmdb', credential_json: { api_key: accountState.settings.tmdb_api_key } });
+      if (tmdbKeyToSave) {
+        creds.push({ provider: 'tmdb', credential_json: { api_key: tmdbKeyToSave } });
       }
-      if (accountState.settings.mdblist_api_key) {
-        creds.push({ provider: 'mdblist', credential_json: { api_key: accountState.settings.mdblist_api_key } });
+      if (mdblistKeyToSave) {
+        creds.push({ provider: 'mdblist', credential_json: { api_key: mdblistKeyToSave } });
       }
       if (creds.length > 0) {
         await NuvioClient.pushProviderCredentials({
@@ -668,16 +863,44 @@ export async function saveAllChanges() {
           credentials: creds
         });
       }
+
+      accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));
       accountState.dirty.settings = false;
     }
 
-    showToast('Cambios guardados exitosamente con equivalencia.', 'success');
+    // 3. Si cambió AIOMetadata: actualizar in-place sin cambiar de UUID
+    if (accountState.dirty.aiometadata && accountState.aioUuid && accountState.aioConfig) {
+      if (!accountState.aioConfig.apiKeys) accountState.aioConfig.apiKeys = {};
+      const finalTmdb = (accountState.settings.tmdb_api_key || accountState.originalSettings.tmdb_api_key || accountState.aioConfig.apiKeys.tmdb || '').trim();
+      const finalMdblist = (accountState.settings.mdblist_api_key || accountState.originalSettings.mdblist_api_key || accountState.aioConfig.apiKeys.mdblist || '').trim();
+      if (finalTmdb) accountState.aioConfig.apiKeys.tmdb = finalTmdb;
+      if (finalMdblist) accountState.aioConfig.apiKeys.mdblist = finalMdblist;
+
+      // Sincronizar catálogos activos de colecciones en AIOMetadata
+      const synchronizedPayload = state.getSynchronizedMetadataPayload();
+      accountState.aioConfig.catalogs = synchronizedPayload.config?.catalogs || accountState.aioConfig.catalogs;
+
+      await AIOMetadataClient.updateWithFallbacks(
+        CONFIG.AIOMETADATA_INSTANCES,
+        accountState.aioUuid,
+        {
+          password: accountState.aioPassword,
+          config: accountState.aioConfig
+        }
+      );
+      accountState.originalAioConfig = JSON.parse(JSON.stringify(accountState.aioConfig));
+      accountState.dirty.aiometadata = false;
+    }
+
+    showToast('✓ Cambios guardados exitosamente con equivalencia total.', 'success');
   } catch (err) {
     console.error('[AccountManager] Error guardando cambios:', err);
     showToast(`Error al guardar: ${err.message}`, 'error');
   } finally {
     accountState.isSaving = false;
-    if (btn) btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios <span id="accountSaveCountBadge" class="hidden ml-1 px-1.5 py-0.2 rounded-full text-xs bg-black text-amber-300 font-bold"></span>';
+    if (btn) {
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i><span>Guardar Cambios</span><span id="accountSaveCountBadge" class="hidden ml-1.5 px-2 py-0.5 rounded-full text-[11px] bg-black text-[#ffd479] font-mono font-bold"></span>';
+    }
     updateSaveButton();
   }
 }
@@ -698,6 +921,14 @@ export function switchSection(sectionId) {
   document.querySelectorAll('.account-section-pane').forEach(pane => {
     pane.classList.toggle('is-active', pane.id === `sectionPane-${sectionId}`);
   });
+
+  if (sectionId === 'collections') {
+    renderMiniNuvio();
+  } else if (sectionId === 'aiometadata') {
+    setupPasswordToggles();
+  } else if (sectionId === 'settings') {
+    setupPasswordToggles();
+  }
 }
 
 // ============================================================
@@ -711,13 +942,24 @@ export async function initAccountPage() {
   const btnLogout = document.getElementById('btnAccountLogout');
   const btnSave = document.getElementById('btnAccountSave');
 
+  // Inicializar toggles de contraseña en el DOM estático
+  setupPasswordToggles();
+
+  // Suscribirse a cambios en colecciones para marcar dirty
+  state.subscribe((s, eventType) => {
+    if (eventType === 'COLLECTIONS_UPDATED') {
+      markDirty('collections', true);
+    }
+  });
+
   // 1. Revisar si hay sesión activa en sessionStorage
   const session = loadSession();
   if (session?.accessToken) {
     if (authView) authView.classList.add('hidden');
     if (dashboardView) dashboardView.classList.remove('hidden');
-    
+
     try {
+      await state.loadTemplates();
       await fetchProfiles();
       if (accountState.profiles.length > 0) {
         await selectProfile(accountState.profiles[0].profile_index ?? accountState.profiles[0].id);
@@ -745,7 +987,7 @@ export async function initAccountPage() {
 
       if (btnSubmit) {
         btnSubmit.disabled = true;
-        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Iniciando sesión...';
+        btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Iniciando sesión...';
       }
 
       try {
@@ -766,6 +1008,7 @@ export async function initAccountPage() {
         if (authView) authView.classList.add('hidden');
         if (dashboardView) dashboardView.classList.remove('hidden');
 
+        await state.loadTemplates();
         await fetchProfiles();
         if (accountState.profiles.length > 0) {
           await selectProfile(accountState.profiles[0].profile_index ?? accountState.profiles[0].id);

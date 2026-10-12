@@ -115,6 +115,9 @@ export function initNavIndicator() {
         trackingId = null;
         const finalTarget = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
         if (finalTarget) updateIndicator(finalTarget, false);
+        requestAnimationFrame(() => {
+          indicator.style.transition = 'all 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
+        });
       }
     }
     trackingId = requestAnimationFrame(step);
@@ -152,24 +155,6 @@ export function initNavIndicator() {
     }
   });
 
-  // Escuchar fin de transiciones de las pestañas
-  nav.addEventListener('transitionend', (e) => {
-    if (e.propertyName === 'max-width' || e.propertyName === 'padding') {
-      const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-      if (target) updateIndicator(target, false);
-    }
-  });
-
-  // ResizeObserver para recalibrar ante cualquier cambio dinámico de tamaño
-  if (window.ResizeObserver) {
-    const ro = new ResizeObserver(() => {
-      const currentTarget = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-      if (currentTarget && !trackingId) {
-        updateIndicator(currentTarget, false);
-      }
-    });
-    ro.observe(nav);
-  }
 }
 
 // Inicializar automáticamente si el documento ya cargó
