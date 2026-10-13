@@ -1963,4 +1963,135 @@ header.lat-floating-nav nav {
   z-index: 10;
 }
 
+/* ============================================================ */
+/* SECCIÓN DE AVATARES ESTILO NETFLIX (/account)                */
+/* ============================================================ */
+
+.avatar-filter-pill {
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.avatar-filter-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+.avatar-filter-pill.is-active {
+  background: #ffd479 !important;
+  color: #08090c !important;
+  border-color: #ffd479 !important;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(255, 212, 121, 0.35);
+}
+
+.avatar-filter-pill .pill-badge {
+  font-size: 0.65rem;
+  font-family: monospace;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+}
+
+.avatar-filter-pill.is-active .pill-badge {
+  background: rgba(0, 0, 0, 0.3);
+  color: #08090c;
+}
+
+/* Tarjeta individual de avatar estilo Netflix */
+.netflix-avatar-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 20px;
+  background: rgba(14, 17, 24, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  user-select: none;
+}
+
+.netflix-avatar-card:hover {
+  transform: translateY(-4px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 212, 121, 0.2);
+}
+
+.netflix-avatar-card .avatar-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.32s ease;
+}
+
+.netflix-avatar-card:hover .avatar-card-img {
+  transform: scale(1.08);
+}
+
+.netflix-avatar-card.is-selected {
+  border-color: #ffd479 !important;
+  box-shadow: 0 0 24px rgba(255, 212, 121, 0.45), inset 0 0 12px rgba(255, 212, 121, 0.15) !important;
+}
+
+.netflix-avatar-card .avatar-selected-badge {
+  display: none;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: #ffd479;
+  color: #08090c;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+.netflix-avatar-card.is-selected .avatar-selected-badge {
+  display: flex;
+}
+
+.netflix-avatar-card .avatar-card-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.25rem 0.5rem 0.35rem 0.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.netflix-avatar-card:hover .avatar-card-name-overlay {
+  opacity: 1;
+  color: #ffd479;
+}
+
 

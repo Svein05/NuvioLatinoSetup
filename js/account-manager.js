@@ -8,6 +8,15 @@ import { AIOMetadataClient } from './aiometadata-client.js';
 import { state, isAioMetadataAddon } from './state.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { BADGE_PACKS, compileUniversalBadgeRules, getBadgePackById } from './badge-packs.js';
+import { 
+  getCompiledAvatars, 
+  getStylesSummary, 
+  getFranchisesSummary, 
+  filterAvatars, 
+  formatCharacterName, 
+  formatFranchiseName, 
+  formatStyleName 
+} from './avatars-data.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const SESSION_KEY = 'nuvio_account_session_v1';
@@ -17,8 +26,17 @@ export const accountState = {
   session: null, // { accessToken, userId, email }
   profiles: [],
   selectedProfileId: null,
-  activeSection: 'overview', // 'overview' | 'collections' | 'aiometadata' | 'settings'
+  activeSection: 'overview', // 'overview' | 'avatars' | 'collections' | 'aiometadata' | 'settings'
   hasChosenProfileInSession: false,
+
+  // Avatar del perfil seleccionado y filtros de catálogo
+  selectedAvatarUrl: null,
+  originalAvatarUrl: null,
+  avatarFilters: {
+    style: 'all',
+    franchise: 'all',
+    query: ''
+  },
 
   // Métricas y contenidos de la pestaña Resumen
   overviewData: {
@@ -63,7 +81,8 @@ export const accountState = {
   dirty: {
     collections: false,
     aiometadata: false,
-    settings: false
+    settings: false,
+    avatar: false
   },
 
   isSaving: false
@@ -236,15 +255,24 @@ export async function selectProfile(profileId) {
   if (activeAvatar && profile) activeAvatar.src = profile.avatar_url;
   if (activeName && profile) activeName.textContent = profile.name;
 
+  // Actualizar avatar en memoria para la sección de avatares
+  accountState.selectedAvatarUrl = profile?.avatar_url || null;
+  accountState.originalAvatarUrl = profile?.avatar_url || null;
+
   // Actualizar popover
   renderProfilePopover();
 
   // Reset de estados dirty ante cambio de perfil
-  accountState.dirty = { collections: false, aiometadata: false, settings: false };
+  accountState.dirty = { collections: false, aiometadata: false, settings: false, avatar: false };
   updateSaveButton();
 
-  // Activar por defecto la sección Resumen
-  switchSection('overview');
+  // Si ya nos encontramos en la sección de avatares, re-renderizar de inmediato
+  if (accountState.activeSection === 'avatars') {
+    renderAvatarsSection();
+  } else {
+    // Activar por defecto la sección Resumen
+    switchSection('overview');
+  }
 
   // Cargar concurrentemente los datos del perfil seleccionado
   await Promise.all([
@@ -1061,6 +1089,8 @@ export function setupProfileModals() {
         if (Number(accountState.selectedProfileId) === Number(targetId)) {
           const activeName = document.getElementById('sidebarActiveName');
           if (activeName) activeName.textContent = newName;
+          const currentAvName = document.getElementById('avatarCurrentProfileName');
+          if (currentAvName) currentAvName.textContent = newName;
         }
 
         renderProfilePopover();
@@ -1536,9 +1566,6 @@ export async function renderOverviewSection() {
             <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
               <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'">
               <div class="card-gradient-overlay"></div>
-              <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/20 backdrop-blur-md text-[10px] font-mono text-emerald-300 font-medium border border-emerald-500/30 flex items-center gap-1">
-                <i class="fa-solid fa-circle-check text-[9px]"></i> Visto
-              </span>
             </div>
             <div class="p-2.5">
               <h5 class="text-xs font-semibold text-white truncate group-hover:text-emerald-300 transition-colors" title="${title}">${title}</h5>
@@ -1553,6 +1580,338 @@ export async function renderOverviewSection() {
   }
 }
 
+// ============================================================
+// GESTOR DE AVATARES ESTILO NETFLIX (/account -> Avatares)
+// ============================================================
+
+export function resolvePublicAvatarUrl(rawUrl) {
+  if (!rawUrl) return '';
+  const trimmed = String(rawUrl).trim();
+  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
+    return trimmed;
+  }
+  if (trimmed.includes('assets/profile_icons/')) {
+    const subPath = trimmed.split('assets/profile_icons/')[1];
+    if (subPath) {
+      return `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/main/assets/profile_icons/${subPath}`;
+    }
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    try {
+      return new URL(trimmed, window.location.href).href;
+    } catch (_) {}
+  }
+  return trimmed;
+}
+
+export function setNewSelectedAvatar(newUrl) {
+  if (!newUrl) return;
+  accountState.selectedAvatarUrl = newUrl;
+
+  const isChanged = accountState.selectedAvatarUrl !== accountState.originalAvatarUrl;
+  markDirty('avatar', isChanged);
+
+  const preview = document.getElementById('avatarCurrentPreview');
+  if (preview) preview.src = newUrl;
+
+  const modifiedBadge = document.getElementById('avatarModifiedBadge');
+  if (modifiedBadge) modifiedBadge.classList.toggle('hidden', !isChanged);
+
+  // Actualizar tarjeta seleccionada en el catálogo
+  document.querySelectorAll('.netflix-avatar-card').forEach(card => {
+    const cardPath = card.dataset.avatarPath;
+    const isSelected = cardPath === newUrl || 
+      resolvePublicAvatarUrl(cardPath) === resolvePublicAvatarUrl(newUrl);
+    card.classList.toggle('is-selected', isSelected);
+  });
+}
+
+function processUploadedAvatarFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('El archivo seleccionado no es una imagen válida.', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('La imagen es demasiado pesada (máx 10MB).', 'warning');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const rawDataUrl = e.target.result;
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const size = Math.min(Math.max(img.width, img.height), 256);
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+        const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        setNewSelectedAvatar(optimizedDataUrl);
+        showToast('✓ Imagen personalizada cargada. Pulsa "Guardar Cambios".', 'info');
+      } catch (_) {
+        setNewSelectedAvatar(rawDataUrl);
+        showToast('✓ Imagen personalizada cargada. Pulsa "Guardar Cambios".', 'info');
+      }
+    };
+    img.onerror = () => {
+      setNewSelectedAvatar(rawDataUrl);
+      showToast('✓ Imagen personalizada cargada. Pulsa "Guardar Cambios".', 'info');
+    };
+    img.src = rawDataUrl;
+  };
+  reader.readAsDataURL(file);
+}
+
+export function renderAvatarsSection() {
+  const profile = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === Number(accountState.selectedProfileId));
+  
+  // 1. Cabecera: Avatar actual y nombre del perfil
+  const preview = document.getElementById('avatarCurrentPreview');
+  const nameEl = document.getElementById('avatarCurrentProfileName');
+  const modifiedBadge = document.getElementById('avatarModifiedBadge');
+  
+  const currentAvatarUrl = accountState.selectedAvatarUrl || profile?.avatar_url || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio';
+  if (preview) preview.src = currentAvatarUrl;
+  if (nameEl) nameEl.textContent = profile?.name || 'Perfil Nuvio';
+  if (modifiedBadge) modifiedBadge.classList.toggle('hidden', !accountState.dirty.avatar);
+
+  // 2. Control de subida de archivo local
+  const fileInput = document.getElementById('inputAvatarFileUpload');
+  if (fileInput && fileInput.dataset.bound !== 'true') {
+    fileInput.dataset.bound = 'true';
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) processUploadedAvatarFile(file);
+      fileInput.value = '';
+    });
+  }
+
+  // 3. Control de enlace URL directo
+  const urlInput = document.getElementById('inputAvatarUrlDirect');
+  const btnApplyUrl = document.getElementById('btnApplyAvatarUrl');
+  if (btnApplyUrl && btnApplyUrl.dataset.bound !== 'true') {
+    btnApplyUrl.dataset.bound = 'true';
+    const applyUrlAction = () => {
+      const val = urlInput?.value?.trim();
+      if (!val) {
+        showToast('Ingresa un enlace URL de imagen válido.', 'warning');
+        return;
+      }
+      if (!/^https?:\/\//i.test(val) && !/^data:image\//i.test(val)) {
+        showToast('El enlace debe comenzar con https:// o http://', 'error');
+        return;
+      }
+      setNewSelectedAvatar(val);
+      if (urlInput) urlInput.value = '';
+      showToast('✓ Enlace de avatar aplicado. Pulsa "Guardar Cambios".', 'info');
+    };
+
+    btnApplyUrl.addEventListener('click', applyUrlAction);
+    if (urlInput) {
+      urlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          applyUrlAction();
+        }
+      });
+    }
+  }
+
+  // 4. Buscador en tiempo real de personajes
+  const searchInput = document.getElementById('inputAvatarSearch');
+  const btnClearSearch = document.getElementById('btnClearAvatarSearch');
+  if (searchInput && searchInput.dataset.bound !== 'true') {
+    searchInput.dataset.bound = 'true';
+    searchInput.addEventListener('input', (e) => {
+      accountState.avatarFilters.query = e.target.value;
+      if (btnClearSearch) {
+        btnClearSearch.classList.toggle('hidden', !e.target.value.trim());
+      }
+      renderAvatarsCatalog();
+    });
+  }
+  if (btnClearSearch && btnClearSearch.dataset.bound !== 'true') {
+    btnClearSearch.dataset.bound = 'true';
+    btnClearSearch.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      accountState.avatarFilters.query = '';
+      btnClearSearch.classList.add('hidden');
+      renderAvatarsCatalog();
+    });
+  }
+
+  // 5. Renderizar filtros y catálogo
+  renderAvatarStylePills();
+  renderAvatarFranchisePills();
+  renderAvatarsCatalog();
+}
+
+function renderAvatarStylePills() {
+  const container = document.getElementById('avatarStyleFilterPills');
+  if (!container) return;
+
+  const styles = getStylesSummary();
+  container.innerHTML = styles.map(s => {
+    const isAct = s.id === accountState.avatarFilters.style;
+    return `
+      <button type="button" class="avatar-filter-pill ${isAct ? 'is-active' : ''}" data-style-id="${s.id}">
+        <span>${s.name}</span>
+        <span class="pill-badge">${s.count}</span>
+      </button>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.avatar-filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sId = btn.dataset.styleId;
+      if (sId && sId !== accountState.avatarFilters.style) {
+        accountState.avatarFilters.style = sId;
+        renderAvatarStylePills();
+        renderAvatarFranchisePills();
+        renderAvatarsCatalog();
+      }
+    });
+  });
+}
+
+function renderAvatarFranchisePills() {
+  const container = document.getElementById('avatarFranchiseFilterPills');
+  if (!container) return;
+
+  const franchises = getFranchisesSummary(accountState.avatarFilters.style);
+  container.innerHTML = franchises.map(f => {
+    const isAct = f.id === accountState.avatarFilters.franchise;
+    return `
+      <button type="button" class="avatar-filter-pill ${isAct ? 'is-active' : ''}" data-franchise-id="${f.id}">
+        <span>${f.name}</span>
+        <span class="pill-badge">${f.count}</span>
+      </button>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.avatar-filter-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const fId = btn.dataset.franchiseId;
+      if (fId && fId !== accountState.avatarFilters.franchise) {
+        accountState.avatarFilters.franchise = fId;
+        renderAvatarFranchisePills();
+        renderAvatarsCatalog();
+      }
+    });
+  });
+}
+
+function renderAvatarsCatalog() {
+  const container = document.getElementById('avatarsCatalogContainer');
+  if (!container) return;
+
+  const filtered = filterAvatars(accountState.avatarFilters);
+  const activeAvatar = accountState.selectedAvatarUrl || '';
+  const activePublic = resolvePublicAvatarUrl(activeAvatar);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="p-8 text-center bg-white/[0.02] border border-white/10 rounded-2xl max-w-md mx-auto my-6 space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto text-lg">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <h4 class="text-sm font-semibold text-white">Sin avatares encontrados</h4>
+        <p class="text-xs text-white/50">No hay personajes que coincidan con la búsqueda o filtro actual.</p>
+        <button type="button" id="btnResetAvatarFilters" class="lat-capsule-btn glass text-xs py-2 px-4 text-[#ffd479] border-[#ffd479]/30 hover:border-[#ffd479]/60">
+          Restablecer filtros
+        </button>
+      </div>
+    `;
+
+    const btnReset = document.getElementById('btnResetAvatarFilters');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        accountState.avatarFilters = { style: 'all', franchise: 'all', query: '' };
+        const searchInput = document.getElementById('inputAvatarSearch');
+        const btnClearSearch = document.getElementById('btnClearAvatarSearch');
+        if (searchInput) searchInput.value = '';
+        if (btnClearSearch) btnClearSearch.classList.add('hidden');
+        renderAvatarStylePills();
+        renderAvatarFranchisePills();
+        renderAvatarsCatalog();
+      });
+    }
+    return;
+  }
+
+  const renderCard = (av) => {
+    const isSelected = av.path === activeAvatar || resolvePublicAvatarUrl(av.path) === activePublic;
+    return `
+      <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''}" 
+           data-avatar-path="${av.path}" 
+           data-avatar-name="${av.character}" 
+           title="${av.character} (${av.franchiseName})">
+        <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+        <div class="avatar-card-name-overlay">${av.character}</div>
+        <div class="avatar-selected-badge">
+          <i class="fa-solid fa-check"></i>
+        </div>
+      </div>
+    `;
+  };
+
+  // Si no hay filtro de franquicia y no hay búsqueda activa, agrupar por obras tipo Netflix
+  if (accountState.avatarFilters.franchise === 'all' && !accountState.avatarFilters.query) {
+    const groups = new Map();
+    for (const av of filtered) {
+      if (!groups.has(av.franchise)) {
+        groups.set(av.franchise, { name: av.franchiseName, items: [] });
+      }
+      groups.get(av.franchise).items.push(av);
+    }
+
+    let html = '';
+    for (const [fId, group] of groups.entries()) {
+      html += `
+        <div class="space-y-3">
+          <div class="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-masks-theater text-[#ffd479] text-xs"></i>
+              <span>${group.name}</span>
+            </h4>
+            <span class="text-xs text-white/40 font-mono">${group.items.length} avatares</span>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${group.items.map(renderCard).join('')}
+          </div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+  } else {
+    // Modo filtrado plano
+    container.innerHTML = `
+      <div class="space-y-3">
+        <div class="flex items-center justify-between pb-1 border-b border-white/[0.06]">
+          <span class="text-xs text-white/50 font-medium">Mostrando ${filtered.length} avatares</span>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+          ${filtered.map(renderCard).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // Eventos de selección de avatar
+  container.querySelectorAll('.netflix-avatar-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const path = card.dataset.avatarPath;
+      if (path) setNewSelectedAvatar(path);
+    });
+  });
+}
 
 export function renderAioSection() {
   const card = document.getElementById('accountAioCard');
@@ -2128,6 +2487,36 @@ export async function saveAllChanges() {
   try {
     const profId = accountState.selectedProfileId;
 
+    // 0. Guardar Avatar de Perfil si cambió
+    if (accountState.dirty.avatar && accountState.selectedAvatarUrl) {
+      const avatarUrlToSave = resolvePublicAvatarUrl(accountState.selectedAvatarUrl);
+      await NuvioClient.updateProfileAvatar({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        userId: accountState.session.userId,
+        profileId: profId,
+        avatarUrl: avatarUrlToSave
+      });
+
+      // Actualizar en el estado local del perfil
+      const targetProf = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === Number(profId));
+      if (targetProf) {
+        targetProf.avatar_url = avatarUrlToSave;
+      }
+      accountState.originalAvatarUrl = accountState.selectedAvatarUrl;
+
+      // Actualizar avatar en barra lateral y popover
+      const sidebarAvatar = document.getElementById('sidebarActiveAvatar');
+      if (sidebarAvatar) sidebarAvatar.src = accountState.selectedAvatarUrl;
+
+      renderProfilePopover();
+      accountState.dirty.avatar = false;
+
+      const modifiedBadge = document.getElementById('avatarModifiedBadge');
+      if (modifiedBadge) modifiedBadge.classList.add('hidden');
+    }
+
     // 1. Guardar Colecciones de Nuvio si cambiaron
     if (accountState.dirty.collections) {
       const synchronizedCollections = (accountState.collections || [])
@@ -2371,6 +2760,8 @@ export function switchSection(sectionId) {
 
   if (sectionId === 'overview') {
     renderOverviewSection();
+  } else if (sectionId === 'avatars') {
+    renderAvatarsSection();
   } else if (sectionId === 'collections') {
     renderMiniNuvio();
   } else if (sectionId === 'aiometadata') {

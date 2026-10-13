@@ -1364,6 +1364,82 @@ export class NuvioClient {
   }
 
   /**
+   * Actualiza el avatar de un perfil existente en Nuvio (sync_push_profiles + PATCH REST)
+   */
+  static async updateProfileAvatar({ apiUrl, apikey, accessToken, userId, profileId, avatarUrl }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const cleanAvatar = String(avatarUrl || '').trim();
+
+    if (!cleanAvatar) {
+      throw new Error('La URL del avatar no puede estar vacía.');
+    }
+
+    // 1. Obtener lista viva de perfiles
+    let existing = [];
+    try {
+      existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const target = existing.find(p => Number(p.profile_index ?? p.id) === Number(profId));
+    const targetUuid = target?.uuid || null;
+
+    // Actualizar avatar en la lista para sync_push_profiles
+    const updatedList = existing.map(p => {
+      const isTarget = Number(p.profile_index ?? p.id) === Number(profId);
+      return {
+        profile_index: Number(p.profile_index ?? p.id),
+        name: p.name,
+        avatar_color_hex: p.avatar_color_hex || '#6366F1',
+        uses_primary_addons: Boolean(p.uses_primary_addons),
+        uses_primary_plugins: Boolean(p.uses_primary_plugins),
+        avatar_id: p.avatar_id ?? null,
+        avatar_url: isTarget ? cleanAvatar : p.avatar_url
+      };
+    });
+
+    // Vector 1: RPC sync_push_profiles
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profiles',
+        body: {
+          p_profiles: updatedList,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_push_profiles al actualizar avatar falló:', rpcErr.message);
+    }
+
+    // Vector 2: PATCH en /rest/v1/profiles
+    const patchFilters = [];
+    if (targetUuid) patchFilters.push(`id=eq.${encodeURIComponent(targetUuid)}`);
+    patchFilters.push(`profile_index=eq.${encodeURIComponent(profId)}`);
+    patchFilters.push(`profile_id=eq.${encodeURIComponent(profId)}`);
+
+    for (const filter of patchFilters) {
+      try {
+        await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({ avatar_url: cleanAvatar })
+        });
+      } catch (_) {}
+    }
+
+    return { success: true, avatar_url: cleanAvatar };
+  }
+
+  /**
    * Obtiene la lista de plugins instalados en el perfil
    */
   static async listPlugins({ apiUrl, apikey, accessToken, profileId }) {
