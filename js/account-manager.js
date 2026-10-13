@@ -639,7 +639,7 @@ async function loadProfileCollections() {
       state.notify('COLLECTIONS_UPDATED');
       renderMiniNuvio();
 
-      const totalCols = parsed.reduce((sum, s) => sum + (Array.isArray(s.folders) ? s.folders.length : 0), 0) || parsed.length;
+      const totalCols = parsed.length;
       if (accountState.overviewData) accountState.overviewData.collectionsCount = totalCols;
       const elCol = document.getElementById('metricCollectionsCount');
       if (elCol) elCol.textContent = totalCols;
@@ -1319,19 +1319,70 @@ export async function loadProfileOverview() {
 
     const calcCollectionsCount = () => {
       if (Array.isArray(accountState.collections) && accountState.collections.length > 0) {
-        const totalFolders = accountState.collections.reduce((sum, s) => sum + (Array.isArray(s.folders) ? s.folders.length : 0), 0);
-        return totalFolders > 0 ? totalFolders : accountState.collections.length;
+        return accountState.collections.length;
       }
       return 0;
     };
 
-    const progressCount = progressItems.totalCount !== undefined
-      ? progressItems.totalCount
-      : (Array.isArray(progressItems) ? progressItems.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))).length : 0);
+    // 1. Filtrar watchedItems estrictamente por profile_id
+    const filteredWatched = (Array.isArray(watchedItems) ? watchedItems : []).filter(item => 
+      item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))
+    );
 
-    const watchedCount = watchedItems.totalCount !== undefined
-      ? watchedItems.totalCount
-      : (Array.isArray(watchedItems) ? watchedItems.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))).length : 0);
+    // 2. Deduplicar watchedItems por content_id y season/episode para conteo exacto de Nuvio (96)
+    const seenWatched = new Set();
+    const uniqueWatchedItems = [];
+    for (const w of filteredWatched) {
+      const key = `${w.content_id || ''}_${w.season ?? ''}_${w.episode ?? ''}`;
+      if (!seenWatched.has(key)) {
+        seenWatched.add(key);
+        uniqueWatchedItems.push(w);
+      }
+    }
+    const watchedCount = uniqueWatchedItems.length;
+
+    // 3. Filtrar progressItems para obtener ÚNICAMENTE los contenidos activos en progreso (NO completados)
+    const inProgressItems = (Array.isArray(progressItems) ? progressItems : []).filter(item => {
+      if (!item) return false;
+      if (item.profile_id !== undefined && Number(item.profile_id) !== Number(profId)) return false;
+
+      const pos = Number(item.position || 0);
+      const dur = Number(item.duration || 0);
+      // Sin reproducción iniciada
+      if (pos <= 0) return false;
+      // Si la posición superó el 90% de la duración, ya fue completado
+      if (dur > 0 && (pos / dur) >= 0.90) return false;
+
+      // Si ya está registrado en watchedItems, ya fue completado
+      const alreadyWatched = uniqueWatchedItems.some(w => {
+        if (!w || !w.content_id || w.content_id !== item.content_id) return false;
+        if (item.season !== undefined && item.season !== null && w.season !== undefined && w.season !== null) {
+          return Number(item.season) === Number(w.season) && Number(item.episode) === Number(w.episode);
+        }
+        return true;
+      });
+      if (alreadyWatched) return false;
+
+      return true;
+    });
+
+    // 4. Deduplicar series para "Actualmente Viendo" para mostrar solo el último episodio activo de cada serie
+    const seenShows = new Set();
+    const currentlyWatching = [];
+    for (const item of inProgressItems) {
+      const showKey = item.content_id || item.video_id;
+      if (!seenShows.has(showKey)) {
+        seenShows.add(showKey);
+        currentlyWatching.push(item);
+      }
+      if (currentlyWatching.length >= 5) break;
+    }
+
+    // 5. Métrica de progreso: en Nuvio Sync corresponde a los contenidos en curso (46)
+    let progressCount = inProgressItems.length;
+    if (progressCount === 0 && Array.isArray(progressItems) && progressItems.length > 0) {
+      progressCount = progressItems.totalCount ?? progressItems.length;
+    }
 
     const libraryCount = libraryItems.totalCount !== undefined
       ? libraryItems.totalCount
@@ -1348,8 +1399,8 @@ export async function loadProfileOverview() {
       libraryCount,
       collectionsCount: calcCollectionsCount(),
       watchedCount,
-      currentlyWatching: Array.isArray(progressItems) ? progressItems.slice(0, 5) : [],
-      recentlyWatched: Array.isArray(watchedItems) ? watchedItems.slice(0, 5) : []
+      currentlyWatching,
+      recentlyWatched: uniqueWatchedItems.slice(0, 5)
     };
 
     renderOverviewSection();
@@ -1377,8 +1428,7 @@ export async function renderOverviewSection() {
   if (elCollections) {
     let colCount = data.collectionsCount;
     if (colCount === undefined && Array.isArray(accountState.collections)) {
-      const totalFolders = accountState.collections.reduce((sum, s) => sum + (Array.isArray(s.folders) ? s.folders.length : 0), 0);
-      colCount = totalFolders > 0 ? totalFolders : accountState.collections.length;
+      colCount = accountState.collections.length;
     }
     elCollections.textContent = colCount ?? 0;
   }

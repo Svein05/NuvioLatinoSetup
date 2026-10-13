@@ -1415,13 +1415,14 @@ export class NuvioClient {
         path: 'sync_pull_watch_progress',
         body: {
           p_profile_id: profId,
-          p_limit: 100
+          p_limit: 100,
+          p_since_last_watched: '1970-01-01T00:00:00Z'
         }
       });
       const list = Array.isArray(data) ? data : (data?.items || data?.progress || []);
       if (Array.isArray(list) && list.length > 0) {
-        // Filtrar por profile_id si viene mezclado con otros perfiles
-        const filtered = list.filter(item => item.profile_id === undefined || Number(item.profile_id) === Number(profId));
+        // Filtrar por profile_id estrictamente
+        const filtered = list.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId)));
         const resList = filtered.length > 0 ? filtered : list;
         resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
         return resList;

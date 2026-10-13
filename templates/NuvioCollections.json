@@ -23,21 +23,6 @@
             "tmdbSourceType": null
           },
           {
-            "type": "movie",
-            "genre": "None",
-            "title": "La mas recomendadas según su puntuación en Metacritic",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.83109",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "series",
             "genre": "None",
             "title": "Las mejores 25 recomendaciones de la semana",
@@ -48,6 +33,21 @@
             "sortHow": null,
             "provider": "addon",
             "catalogId": "mdblist.31380",
+            "mediaType": null,
+            "traktListId": null,
+            "tmdbSourceType": null
+          },
+          {
+            "type": "movie",
+            "genre": "None",
+            "title": "La mas recomendadas según su puntuación en Metacritic",
+            "sortBy": null,
+            "tmdbId": null,
+            "addonId": "aio-metadata",
+            "filters": null,
+            "sortHow": null,
+            "provider": "addon",
+            "catalogId": "mdblist.83109",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -114,18 +114,18 @@
             "title": "Las mejores 25 recomendaciones de la semana"
           },
           {
-            "type": "movie",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.83109",
-            "title": "La mas recomendadas según su puntuación en Metacritic"
-          },
-          {
             "type": "series",
             "genre": null,
             "addonId": "aio-metadata",
             "catalogId": "mdblist.31380",
             "title": "Las mejores 25 recomendaciones de la semana"
+          },
+          {
+            "type": "movie",
+            "genre": null,
+            "addonId": "aio-metadata",
+            "catalogId": "mdblist.83109",
+            "title": "La mas recomendadas según su puntuación en Metacritic"
           },
           {
             "type": "series",
@@ -187,21 +187,6 @@
             "tmdbSourceType": null
           },
           {
-            "type": "series",
-            "genre": "None",
-            "title": "Lo más nuevo en Mini Series",
-            "sortBy": null,
-            "tmdbId": null,
-            "addonId": "aio-metadata",
-            "filters": null,
-            "sortHow": null,
-            "provider": "addon",
-            "catalogId": "mdblist.58886",
-            "mediaType": null,
-            "traktListId": null,
-            "tmdbSourceType": null
-          },
-          {
             "type": "movie",
             "genre": "None",
             "title": "Más esperadas",
@@ -211,7 +196,7 @@
             "filters": null,
             "sortHow": null,
             "provider": "addon",
-            "catalogId": "mdblist.60883",
+            "catalogId": "mdblist.official.anticipated",
             "mediaType": null,
             "traktListId": null,
             "tmdbSourceType": null
@@ -255,17 +240,10 @@
             "title": "Últimos estrenos de esta semana"
           },
           {
-            "type": "series",
-            "genre": null,
-            "addonId": "aio-metadata",
-            "catalogId": "mdblist.58886",
-            "title": "Lo más nuevo en Mini Series"
-          },
-          {
             "type": "movie",
             "genre": null,
             "addonId": "aio-metadata",
-            "catalogId": "mdblist.60883",
+            "catalogId": "mdblist.official.anticipated",
             "title": "Más esperadas"
           },
           {

@@ -113,30 +113,6 @@
         ]
       },
       {
-        "id": "mdblist.83109",
-        "type": "movie",
-        "name": "La mas recomendadas según su puntuación en Metacritic",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "movie",
-        "metadata": {
-          "itemCount": 6227,
-          "author": "user58",
-          "url": "https://mdblist.com/lists/user58/lnr-recommended-movies",
-          "mediatype": "movie"
-        },
-        "tags": [
-          "Ahora en Nuvio",
-          "Recomendados"
-        ]
-      },
-      {
         "id": "mdblist.31380",
         "type": "series",
         "name": "Las mejores 25 recomendaciones de la semana",
@@ -154,6 +130,30 @@
           "author": "tonkapug",
           "url": "https://mdblist.com/lists/tonkapug/top-25-recommended-tv-shows-of-the-week",
           "mediatype": "show"
+        },
+        "tags": [
+          "Ahora en Nuvio",
+          "Recomendados"
+        ]
+      },
+      {
+        "id": "mdblist.83109",
+        "type": "movie",
+        "name": "La mas recomendadas según su puntuación en Metacritic",
+        "enabled": true,
+        "showInHome": false,
+        "source": "mdblist",
+        "sort": "default",
+        "order": "asc",
+        "cacheTTL": 86400,
+        "genreSelection": "standard",
+        "enableRatingPosters": true,
+        "displayType": "movie",
+        "metadata": {
+          "itemCount": 6227,
+          "author": "user58",
+          "url": "https://mdblist.com/lists/user58/lnr-recommended-movies",
+          "mediatype": "movie"
         },
         "tags": [
           "Ahora en Nuvio",
@@ -261,36 +261,13 @@
         ]
       },
       {
-        "id": "mdblist.58886",
-        "type": "series",
-        "name": "Lo más nuevo en Mini Series",
-        "enabled": true,
-        "showInHome": false,
-        "source": "mdblist",
-        "sort": "default",
-        "order": "asc",
-        "cacheTTL": 86400,
-        "genreSelection": "standard",
-        "enableRatingPosters": true,
-        "displayType": "series",
-        "metadata": {
-          "itemCount": 27,
-          "author": "amything",
-          "url": "https://mdblist.com/lists/amything/mini-series-premiers",
-          "mediatype": "show"
-        },
-        "tags": [
-          "Ahora en Nuvio",
-          "Estreno"
-        ]
-      },
-      {
-        "id": "mdblist.60883",
+        "id": "mdblist.official.anticipated",
         "type": "movie",
         "name": "Más esperadas",
         "enabled": true,
         "showInHome": false,
         "source": "mdblist",
+        "sourceUrl": "https://api.mdblist.com/lists/official/anticipated/items",
         "sort": "default",
         "order": "asc",
         "cacheTTL": 86400,
@@ -298,9 +275,8 @@
         "enableRatingPosters": true,
         "displayType": "movie",
         "metadata": {
-          "itemCount": 127,
-          "author": "shavedbroom",
-          "url": "https://mdblist.com/lists/shavedbroom/most-anticipated-upcoming-movies",
+          "author": "official",
+          "url": "https://mdblist.com/lists/official/movies/anticipated",
           "mediatype": "movie"
         },
         "tags": [
