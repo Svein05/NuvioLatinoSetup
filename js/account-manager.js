@@ -1749,7 +1749,7 @@ export function renderAvatarsSection() {
 
   // 5. Renderizar filtros y catálogo
   renderAvatarStylePills();
-  renderAvatarFranchisePills();
+  renderAvatarFranchiseDropdown();
   renderAvatarsCatalog();
 }
 
@@ -1774,34 +1774,76 @@ function renderAvatarStylePills() {
       if (sId && sId !== accountState.avatarFilters.style) {
         accountState.avatarFilters.style = sId;
         renderAvatarStylePills();
-        renderAvatarFranchisePills();
+        renderAvatarFranchiseDropdown();
         renderAvatarsCatalog();
       }
     });
   });
 }
 
-function renderAvatarFranchisePills() {
-  const container = document.getElementById('avatarFranchiseFilterPills');
-  if (!container) return;
+function renderAvatarFranchiseDropdown() {
+  const triggerBtn = document.getElementById('btnAvatarFranchiseDropdown');
+  const labelEl = document.getElementById('avatarFranchiseDropdownLabel');
+  const countEl = document.getElementById('avatarFranchiseDropdownCount');
+  const chevronEl = document.getElementById('avatarFranchiseDropdownChevron');
+  const menuEl = document.getElementById('avatarFranchiseDropdownMenu');
+  if (!triggerBtn || !menuEl) return;
 
   const franchises = getFranchisesSummary(accountState.avatarFilters.style);
-  container.innerHTML = franchises.map(f => {
-    const isAct = f.id === accountState.avatarFilters.franchise;
+  const currentFranchiseId = accountState.avatarFilters.franchise || 'all';
+  const activeItem = franchises.find(f => f.id === currentFranchiseId) || franchises[0];
+
+  if (labelEl) labelEl.textContent = activeItem?.name || 'Todas las obras';
+  if (countEl) countEl.textContent = activeItem?.count ?? 0;
+
+  menuEl.innerHTML = franchises.map(f => {
+    const isAct = f.id === currentFranchiseId;
     return `
-      <button type="button" class="avatar-filter-pill ${isAct ? 'is-active' : ''}" data-franchise-id="${f.id}">
-        <span>${f.name}</span>
-        <span class="pill-badge">${f.count}</span>
+      <button type="button" class="avatar-dropdown-item ${isAct ? 'is-active' : ''}" data-franchise-id="${f.id}">
+        <div class="flex items-center gap-2 min-w-0">
+          <i class="fa-solid fa-masks-theater text-xs ${isAct ? 'text-[#ffd479]' : 'text-white/40'}"></i>
+          <span class="truncate">${f.name}</span>
+        </div>
+        <span class="item-count">${f.count}</span>
       </button>
     `;
   }).join('');
 
-  container.querySelectorAll('.avatar-filter-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const fId = btn.dataset.franchiseId;
-      if (fId && fId !== accountState.avatarFilters.franchise) {
+  if (triggerBtn.dataset.bound !== 'true') {
+    triggerBtn.dataset.bound = 'true';
+    triggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = menuEl.classList.contains('hidden');
+      if (isHidden) {
+        menuEl.classList.remove('hidden');
+        triggerBtn.setAttribute('aria-expanded', 'true');
+        if (chevronEl) chevronEl.classList.add('rotate-180');
+      } else {
+        menuEl.classList.add('hidden');
+        triggerBtn.setAttribute('aria-expanded', 'false');
+        if (chevronEl) chevronEl.classList.remove('rotate-180');
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!menuEl.classList.contains('hidden') && !menuEl.contains(e.target) && !triggerBtn.contains(e.target)) {
+        menuEl.classList.add('hidden');
+        triggerBtn.setAttribute('aria-expanded', 'false');
+        if (chevronEl) chevronEl.classList.remove('rotate-180');
+      }
+    });
+  }
+
+  menuEl.querySelectorAll('.avatar-dropdown-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fId = item.dataset.franchiseId;
+      if (fId) {
         accountState.avatarFilters.franchise = fId;
-        renderAvatarFranchisePills();
+        menuEl.classList.add('hidden');
+        triggerBtn.setAttribute('aria-expanded', 'false');
+        if (chevronEl) chevronEl.classList.remove('rotate-180');
+        renderAvatarFranchiseDropdown();
         renderAvatarsCatalog();
       }
     });
@@ -1839,17 +1881,17 @@ function renderAvatarsCatalog() {
         if (searchInput) searchInput.value = '';
         if (btnClearSearch) btnClearSearch.classList.add('hidden');
         renderAvatarStylePills();
-        renderAvatarFranchisePills();
+        renderAvatarFranchiseDropdown();
         renderAvatarsCatalog();
       });
     }
     return;
   }
 
-  const renderCard = (av) => {
+  const renderCard = (av, extraClass = '') => {
     const isSelected = av.path === activeAvatar || resolvePublicAvatarUrl(av.path) === activePublic;
     return `
-      <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''}" 
+      <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
            title="${av.character} (${av.franchiseName})">
@@ -1862,8 +1904,24 @@ function renderAvatarsCatalog() {
     `;
   };
 
-  // Si no hay filtro de franquicia y no hay búsqueda activa, agrupar por obras tipo Netflix
-  if (accountState.avatarFilters.franchise === 'all' && !accountState.avatarFilters.query) {
+  // MODO 1: Búsqueda activa por texto -> Resultados planos instantáneos
+  if (accountState.avatarFilters.query) {
+    container.innerHTML = `
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+          <span class="text-xs text-white/60 font-medium">
+            Resultados para "<strong class="text-white">${accountState.avatarFilters.query}</strong>"
+          </span>
+          <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+          ${filtered.map(av => renderCard(av)).join('')}
+        </div>
+      </div>
+    `;
+  } 
+  // MODO 2: Todas las Obras (sin búsqueda) -> Filas infinitas de colecciones con previsualización adaptable
+  else if (accountState.avatarFilters.franchise === 'all') {
     const groups = new Map();
     for (const av of filtered) {
       if (!groups.has(av.franchise)) {
@@ -1874,37 +1932,91 @@ function renderAvatarsCatalog() {
 
     let html = '';
     for (const [fId, group] of groups.entries()) {
+      // Previsualización adaptativa de 1 fila (3 en mobile, 4 en sm, 6 en md, 8 en lg)
+      const previewItems = group.items.slice(0, 8);
+      const previewCardsHtml = previewItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:block';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:block';
+        else if (idx >= 6) responsiveClass = 'hidden lg:block';
+        return renderCard(av, responsiveClass);
+      }).join('');
+
       html += `
-        <div class="space-y-3">
-          <div class="flex items-center justify-between pb-1 border-b border-white/[0.06]">
-            <h4 class="text-sm font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-masks-theater text-[#ffd479] text-xs"></i>
-              <span>${group.name}</span>
-            </h4>
-            <span class="text-xs text-white/40 font-mono">${group.items.length} avatares</span>
+        <div class="avatar-collection-block space-y-3.5">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-7 h-7 rounded-lg bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] flex items-center justify-center text-xs shrink-0">
+                <i class="fa-solid fa-masks-theater"></i>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
+                <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
+              </div>
+            </div>
+            <button type="button" class="btn-open-avatar-collection" data-open-franchise="${fId}" title="Ver todos los avatares de ${group.name}">
+              <span>Abrir colección de avatares</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
           </div>
           <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-            ${group.items.map(renderCard).join('')}
+            ${previewCardsHtml}
           </div>
         </div>
       `;
     }
     container.innerHTML = html;
-  } else {
-    // Modo filtrado plano
+
+    // Conectar botones "Abrir colección de avatares"
+    container.querySelectorAll('.btn-open-avatar-collection').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const franchiseId = btn.dataset.openFranchise;
+        if (franchiseId) {
+          accountState.avatarFilters.franchise = franchiseId;
+          renderAvatarFranchiseDropdown();
+          renderAvatarsCatalog();
+          const catEl = document.getElementById('avatarsCatalogContainer');
+          if (catEl) catEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+  } 
+  // MODO 3: Colección Única Seleccionada -> Todos los avatares desplegados con botón volver
+  else {
+    const currentFranchiseName = formatFranchiseName(accountState.avatarFilters.franchise);
     container.innerHTML = `
-      <div class="space-y-3">
-        <div class="flex items-center justify-between pb-1 border-b border-white/[0.06]">
-          <span class="text-xs text-white/50 font-medium">Mostrando ${filtered.length} avatares</span>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <button type="button" class="btn-back-all-collections" id="btnBackToAllFranchises" title="Volver a ver todas las colecciones">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>Todas las obras</span>
+            </button>
+            <div class="h-4 w-px bg-white/10 hidden sm:block"></div>
+            <h4 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-masks-theater text-[#ffd479] text-xs"></i>
+              <span>${currentFranchiseName}</span>
+            </h4>
+          </div>
+          <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
         </div>
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-          ${filtered.map(renderCard).join('')}
+          ${filtered.map(av => renderCard(av)).join('')}
         </div>
       </div>
     `;
+
+    const btnBack = document.getElementById('btnBackToAllFranchises');
+    if (btnBack) {
+      btnBack.addEventListener('click', () => {
+        accountState.avatarFilters.franchise = 'all';
+        renderAvatarFranchiseDropdown();
+        renderAvatarsCatalog();
+      });
+    }
   }
 
-  // Eventos de selección de avatar
+  // Eventos de selección de avatar (disponibles en cualquier modo)
   container.querySelectorAll('.netflix-avatar-card').forEach(card => {
     card.addEventListener('click', () => {
       const path = card.dataset.avatarPath;
