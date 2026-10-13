@@ -1960,9 +1960,9 @@ function renderAvatarsCatalog() {
       const previewItems = group.items.slice(0, 8);
       const previewCardsHtml = previewItems.map((av, idx) => {
         let responsiveClass = '';
-        if (idx === 3) responsiveClass = 'hidden sm:block';
-        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:block';
-        else if (idx >= 6) responsiveClass = 'hidden lg:block';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
         return renderCard(av, responsiveClass);
       }).join('');
 

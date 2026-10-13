@@ -2018,11 +2018,13 @@ header.lat-floating-nav nav {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 0.45rem;
   cursor: pointer;
   user-select: none;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   min-width: 0;
+  width: 100%;
 }
 
 .netflix-avatar-card:hover {
@@ -2087,6 +2089,7 @@ header.lat-floating-nav nav {
 }
 
 .netflix-avatar-card .avatar-card-name-label {
+  display: block;
   font-size: 0.6875rem;
   font-weight: 600;
   text-align: center;
