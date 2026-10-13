@@ -273,6 +273,11 @@ async function loadProfileAddonsAndAio() {
     });
 
     accountState.installedAddons = addons;
+    if (accountState.overviewData) {
+      accountState.overviewData.addonsCount = addons.length;
+      const elAddons = document.getElementById('metricAddonsCount');
+      if (elAddons) elAddons.textContent = addons.length;
+    }
 
     // Buscar addon de AIOMetadata en la lista instalada
     const aio = addons.find(a => isAioMetadataAddon(a));
@@ -367,6 +372,7 @@ export async function loadAioConfigByUuid(uuid, password = null) {
     updateSaveButton();
     renderAioSection();
     renderSettingsSection();
+    if (accountState.overviewData) renderOverviewSection();
     if (statusEl) statusEl.textContent = 'Configuración sincronizada.';
     if (password) showToast('✓ Addon AIOMetadata desbloqueado y sincronizado.', 'success');
   } catch (err) {
@@ -632,11 +638,20 @@ async function loadProfileCollections() {
 
       state.notify('COLLECTIONS_UPDATED');
       renderMiniNuvio();
+
+      const totalCols = parsed.reduce((sum, s) => sum + (Array.isArray(s.folders) ? s.folders.length : 0), 0) || parsed.length;
+      if (accountState.overviewData) accountState.overviewData.collectionsCount = totalCols;
+      const elCol = document.getElementById('metricCollectionsCount');
+      if (elCol) elCol.textContent = totalCols;
     } else {
       accountState.hasUserCollections = false;
       state.collections = [];
       accountState.collections = [];
       accountState.originalCollections = [];
+
+      if (accountState.overviewData) accountState.overviewData.collectionsCount = 0;
+      const elCol = document.getElementById('metricCollectionsCount');
+      if (elCol) elCol.textContent = 0;
 
       renderCollectionsEmptyState();
     }
@@ -761,6 +776,7 @@ async function loadProfileSettings() {
 
     updateSaveButton();
     renderSettingsSection();
+    if (accountState.overviewData) renderOverviewSection();
   } catch (err) {
     console.warn('[AccountManager] Error cargando ajustes de perfil:', err);
   }
@@ -846,7 +862,6 @@ export function renderProfilePopover() {
           <img src="${p.avatar_url}" alt="${p.name}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0">
           <div class="min-w-0 flex-1">
             <div class="text-xs font-semibold text-white truncate profile-row-name">${p.name}</div>
-            <div class="text-[10px] text-white/40 font-mono">Espacio #${p.profile_index || id}</div>
           </div>
           ${isSelected ? '<i class="fa-solid fa-check text-xs text-[#ffd479] mr-1"></i>' : ''}
         </div>
@@ -903,7 +918,6 @@ export function showSelectProfilePrompt() {
         </div>
         <div class="text-center w-full">
           <h4 class="text-xs sm:text-sm font-semibold text-white group-hover:text-[#ffd479] transition-colors truncate max-w-[130px] mx-auto">${p.name}</h4>
-          <span class="text-[10px] text-white/40 font-mono">Espacio #${p.profile_index || id}</span>
         </div>
       </div>
     `;
@@ -945,7 +959,7 @@ export function openEditProfileModal(profileId) {
 
   if (targetIdInput) targetIdInput.value = id;
   if (nameInput) nameInput.value = profile.name;
-  if (subEl) subEl.textContent = `Espacio #${profile.profile_index || id}`;
+  if (subEl) subEl.textContent = 'Personaliza el nombre de tu perfil';
 
   // Solo permitir eliminar si hay más de 1 perfil en la cuenta
   if (btnDelete) {
@@ -1068,7 +1082,9 @@ export function setupProfileModals() {
       const targetId = document.getElementById('editProfileTargetId')?.value;
       if (!targetId) return;
 
-      if (confirm(`¿Estás seguro de que deseas eliminar este perfil (#${targetId})? Se borrarán sus datos y configuraciones en Nuvio.`)) {
+      const targetProf = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === Number(targetId));
+      const profName = targetProf ? targetProf.name : 'este perfil';
+      if (confirm(`¿Estás seguro de que deseas eliminar el perfil "${profName}"? Se borrarán sus datos y configuraciones en Nuvio.`)) {
         btnDeleteModal.disabled = true;
         btnDeleteModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando...';
 
@@ -1159,66 +1175,114 @@ export function setupProfileModals() {
 const tmdbDetailsCache = new Map();
 
 async function fetchTmdbMediaDetails(rawItem, apiKey) {
-  if (!apiKey) return null;
+  if (!rawItem) return null;
 
-  let tmdbId = rawItem.tmdb_id || null;
+  // 1. Extraer identificador de contenido priorizando content_id real de Nuvio
+  const rawContentId = String(rawItem.content_id || rawItem.video_id || rawItem.item_id || rawItem.media_id || '').trim();
   let imdbId = rawItem.imdb_id || null;
-  let type = String(rawItem.type || rawItem.media_type || 'movie').toLowerCase();
-  if (type === 'series') type = 'tv';
+  let tmdbId = rawItem.tmdb_id || null;
 
-  const rawId = String(rawItem.item_id || rawItem.media_id || rawItem.id || '');
-  if (!imdbId && rawId.startsWith('tt')) {
-    imdbId = rawId.split(':')[0];
-  } else if (!tmdbId && /^\d+$/.test(rawId)) {
-    tmdbId = rawId;
-  } else if (rawId.includes(':')) {
-    const parts = rawId.split(':');
-    if (parts[0] === 'tmdb') tmdbId = parts[1];
-    else if (parts[0] === 'imdb' || parts[0].startsWith('tt')) imdbId = parts[0].startsWith('tt') ? parts[0] : parts[1];
+  if (rawContentId) {
+    if (rawContentId.startsWith('tt')) {
+      imdbId = rawContentId.split(':')[0];
+    } else if (rawContentId.startsWith('tmdb:')) {
+      tmdbId = rawContentId.replace(/^tmdb:/, '').split(':')[0];
+    } else if (/^\d+$/.test(rawContentId)) {
+      tmdbId = rawContentId;
+    } else if (rawContentId.includes(':')) {
+      const parts = rawContentId.split(':');
+      if (parts[0].startsWith('tt')) imdbId = parts[0];
+      else if (parts[0] === 'imdb' && parts[1]?.startsWith('tt')) imdbId = parts[1];
+      else if (parts[0] === 'tmdb') tmdbId = parts[1];
+    }
   }
 
-  const cacheKey = `${type}_${tmdbId || imdbId}`;
+  // 2. Determinar tipo de contenido
+  let type = String(rawItem.content_type || rawItem.type || rawItem.media_type || '').toLowerCase();
+  if (type === 'series' || type === 'tv' || type === 'show' || (rawItem.season !== undefined && rawItem.season !== null)) {
+    type = 'tv';
+  } else {
+    type = 'movie';
+  }
+
+  if (!imdbId && !tmdbId) return null;
+
+  const cacheKey = `${type}_${imdbId || tmdbId}`;
   if (tmdbDetailsCache.has(cacheKey)) {
     return tmdbDetailsCache.get(cacheKey);
   }
 
-  try {
-    let url = '';
-    if (tmdbId) {
-      url = `https://api.themoviedb.org/3/${type === 'tv' ? 'tv' : 'movie'}/${tmdbId}?api_key=${encodeURIComponent(apiKey)}&language=es-MX`;
-    } else if (imdbId) {
-      url = `https://api.themoviedb.org/3/find/${imdbId}?api_key=${encodeURIComponent(apiKey)}&external_source=imdb_id&language=es-MX`;
-    }
+  let details = null;
 
-    if (!url) return null;
-
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const data = await res.json();
-
-    let details = null;
-    if (imdbId && (data.movie_results || data.tv_results)) {
-      const match = (data.movie_results && data.movie_results[0]) || (data.tv_results && data.tv_results[0]);
-      if (match) {
-        details = {
-          title: match.title || match.name,
-          poster_path: match.poster_path ? `https://image.tmdb.org/t/p/w500${match.poster_path}` : '',
-          backdrop_path: match.backdrop_path ? `https://image.tmdb.org/t/p/w780${match.backdrop_path}` : ''
-        };
+  // 3. Consulta a TMDB si se cuenta con API Key
+  if (apiKey) {
+    try {
+      let url = '';
+      if (imdbId) {
+        url = `https://api.themoviedb.org/3/find/${encodeURIComponent(imdbId)}?api_key=${encodeURIComponent(apiKey)}&external_source=imdb_id&language=es-MX`;
+      } else if (tmdbId) {
+        url = `https://api.themoviedb.org/3/${type === 'tv' ? 'tv' : 'movie'}/${encodeURIComponent(tmdbId)}?api_key=${encodeURIComponent(apiKey)}&language=es-MX`;
       }
-    } else if (data) {
+
+      if (url) {
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (imdbId) {
+            const results = (data.movie_results || []).concat(data.tv_results || []);
+            const match = results[0];
+            if (match) {
+              details = {
+                title: match.title || match.name,
+                poster_path: match.poster_path ? `https://image.tmdb.org/t/p/w500${match.poster_path}` : '',
+                backdrop_path: match.backdrop_path ? `https://image.tmdb.org/t/p/w780${match.backdrop_path}` : ''
+              };
+            }
+          } else if (data) {
+            details = {
+              title: data.title || data.name,
+              poster_path: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
+              backdrop_path: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : ''
+            };
+          }
+        }
+      }
+    } catch (tmdbErr) {
+      console.warn('[AccountManager] TMDB find:', tmdbErr.message);
+    }
+  }
+
+  // 4. Fallback con Cinemeta / Metahub si no se obtuvo póster o título completo y hay imdbId
+  if (imdbId && (!details || !details.poster_path || !details.title)) {
+    try {
+      const cinemetaType = type === 'tv' ? 'series' : 'movie';
+      const metaRes = await fetch(`https://v3-cinemeta.strem.io/meta/${cinemetaType}/${encodeURIComponent(imdbId)}.json`);
+      if (metaRes.ok) {
+        const metaJson = await metaRes.json();
+        const meta = metaJson?.meta;
+        if (meta) {
+          details = {
+            title: details?.title || meta.name || rawItem.title || 'Contenido Nuvio',
+            poster_path: details?.poster_path || meta.poster || `https://images.metahub.space/poster/medium/${imdbId}/img`,
+            backdrop_path: details?.backdrop_path || meta.background || ''
+          };
+        }
+      }
+    } catch (_) {}
+
+    if (!details?.poster_path) {
       details = {
-        title: data.title || data.name,
-        poster_path: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
-        backdrop_path: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : ''
+        title: details?.title || rawItem.title || 'Contenido Nuvio',
+        poster_path: `https://images.metahub.space/poster/medium/${imdbId}/img`,
+        backdrop_path: details?.backdrop_path || ''
       };
     }
-
-    if (details) tmdbDetailsCache.set(cacheKey, details);
-    return details;
-  } catch (_) {
-    return null;
   }
+
+  if (details) {
+    tmdbDetailsCache.set(cacheKey, details);
+  }
+  return details;
 }
 
 export async function loadProfileOverview() {
@@ -1253,12 +1317,37 @@ export async function loadProfileOverview() {
       }).catch(() => [])
     ]);
 
+    const calcCollectionsCount = () => {
+      if (Array.isArray(accountState.collections) && accountState.collections.length > 0) {
+        const totalFolders = accountState.collections.reduce((sum, s) => sum + (Array.isArray(s.folders) ? s.folders.length : 0), 0);
+        return totalFolders > 0 ? totalFolders : accountState.collections.length;
+      }
+      return 0;
+    };
+
+    const progressCount = progressItems.totalCount !== undefined
+      ? progressItems.totalCount
+      : (Array.isArray(progressItems) ? progressItems.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))).length : 0);
+
+    const watchedCount = watchedItems.totalCount !== undefined
+      ? watchedItems.totalCount
+      : (Array.isArray(watchedItems) ? watchedItems.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))).length : 0);
+
+    const libraryCount = libraryItems.totalCount !== undefined
+      ? libraryItems.totalCount
+      : (Array.isArray(libraryItems) ? libraryItems.length : 0);
+
+    const pluginsCount = plugins.totalCount !== undefined
+      ? plugins.totalCount
+      : (Array.isArray(plugins) ? plugins.length : 0);
+
     accountState.overviewData = {
-      pluginsCount: Array.isArray(plugins) ? plugins.length : 0,
+      pluginsCount,
       addonsCount: (accountState.installedAddons || []).length,
-      progressCount: Array.isArray(progressItems) ? progressItems.length : 0,
-      libraryCount: Array.isArray(libraryItems) ? libraryItems.length : 0,
-      watchedCount: Array.isArray(watchedItems) ? watchedItems.length : 0,
+      progressCount,
+      libraryCount,
+      collectionsCount: calcCollectionsCount(),
+      watchedCount,
       currentlyWatching: Array.isArray(progressItems) ? progressItems.slice(0, 5) : [],
       recentlyWatched: Array.isArray(watchedItems) ? watchedItems.slice(0, 5) : []
     };
@@ -1271,21 +1360,31 @@ export async function loadProfileOverview() {
 
 export async function renderOverviewSection() {
   const data = accountState.overviewData;
+  if (!data) return;
 
-  // Actualizar 5 tarjetas de métricas
+  // Actualizar las 6 tarjetas de métricas (coherencia 100% con SYNC DATA de Nuvio)
   const elPlugins = document.getElementById('metricPluginsCount');
   const elAddons = document.getElementById('metricAddonsCount');
   const elProgress = document.getElementById('metricProgressCount');
   const elLibrary = document.getElementById('metricLibraryCount');
+  const elCollections = document.getElementById('metricCollectionsCount');
   const elWatched = document.getElementById('metricWatchedCount');
 
   if (elPlugins) elPlugins.textContent = data.pluginsCount;
   if (elAddons) elAddons.textContent = (accountState.installedAddons || []).length || data.addonsCount;
   if (elProgress) elProgress.textContent = data.progressCount;
   if (elLibrary) elLibrary.textContent = data.libraryCount;
+  if (elCollections) {
+    let colCount = data.collectionsCount;
+    if (colCount === undefined && Array.isArray(accountState.collections)) {
+      const totalFolders = accountState.collections.reduce((sum, s) => sum + (Array.isArray(s.folders) ? s.folders.length : 0), 0);
+      colCount = totalFolders > 0 ? totalFolders : accountState.collections.length;
+    }
+    elCollections.textContent = colCount ?? 0;
+  }
   if (elWatched) elWatched.textContent = data.watchedCount;
 
-  // Condición de seguridad TMDB requerida por el usuario:
+  // Condición de seguridad requerida:
   // "si el perfil no tiene el enrichment activado y sin clave tmdb, no pondras las 2 filas, para evitar errores claro"
   const tmdbKey = (accountState.settings.tmdb_api_key || '').trim();
   const isEnrichmentActive = Boolean(accountState.settings.enrichment_enabled);
@@ -1302,6 +1401,18 @@ export async function renderOverviewSection() {
 
   if (cinemaContainer) cinemaContainer.classList.remove('hidden');
   if (tmdbNotice) tmdbNotice.classList.add('hidden');
+
+  // Helper para formatear subtítulo de contenido (Temporada/Episodio o Tipo)
+  const formatMediaSubtitle = (item) => {
+    let sub = String(item.content_type || item.type || 'Película').toLowerCase();
+    if (sub === 'series' || sub === 'tv' || (item.season !== undefined && item.season !== null)) {
+      if (item.season !== undefined && item.season !== null && item.episode !== undefined && item.episode !== null) {
+        return `T${item.season} : E${item.episode}`;
+      }
+      return 'Serie';
+    }
+    return 'Película';
+  };
 
   // Renderizar Fila 1: Actualmente Viendo
   const watchingContainer = document.getElementById('rowCurrentlyWatchingCards');
@@ -1320,21 +1431,28 @@ export async function renderOverviewSection() {
         const details = await fetchTmdbMediaDetails(item, tmdbKey);
         const title = details?.title || item.title || item.name || 'Contenido Nuvio';
         const posterUrl = details?.poster_path || item.poster_url || item.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
-        const pct = Math.min(100, Math.max(8, Number(item.progress_percentage || (item.progress && item.duration ? Math.round((item.progress / item.duration) * 100) : 45))));
+        
+        let pct = 40;
+        if (item.position && item.duration && item.duration > 0) {
+          pct = Math.min(100, Math.max(5, Math.round((item.position / item.duration) * 100)));
+        } else if (item.progress && item.duration && item.duration > 0) {
+          pct = Math.min(100, Math.max(5, Math.round((item.progress / item.duration) * 100)));
+        } else if (item.progress_percentage) {
+          pct = Math.min(100, Math.max(5, Number(item.progress_percentage)));
+        }
+
+        const subtitle = formatMediaSubtitle(item);
 
         return `
           <div class="nuvio-cinema-card group select-none">
             <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
-              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy">
+              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'">
               <div class="card-gradient-overlay"></div>
               <div class="card-progress-bar" style="width: ${pct}%"></div>
-              <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-mono text-[#ffd479] font-medium border border-white/10 flex items-center gap-1">
-                <i class="fa-solid fa-play text-[8px]"></i> ${pct}%
-              </span>
             </div>
             <div class="p-2.5">
               <h5 class="text-xs font-semibold text-white truncate group-hover:text-[#ffd479] transition-colors" title="${title}">${title}</h5>
-              <span class="text-[10px] text-white/40 font-mono capitalize">${item.type || 'Película'}</span>
+              <span class="text-[10px] text-white/40 font-mono">${subtitle}</span>
             </div>
           </div>
         `;
@@ -1361,11 +1479,12 @@ export async function renderOverviewSection() {
         const details = await fetchTmdbMediaDetails(item, tmdbKey);
         const title = details?.title || item.title || item.name || 'Contenido Nuvio';
         const posterUrl = details?.poster_path || item.poster_url || item.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
+        const subtitle = formatMediaSubtitle(item);
 
         return `
           <div class="nuvio-cinema-card group select-none">
             <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
-              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy">
+              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'">
               <div class="card-gradient-overlay"></div>
               <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/20 backdrop-blur-md text-[10px] font-mono text-emerald-300 font-medium border border-emerald-500/30 flex items-center gap-1">
                 <i class="fa-solid fa-circle-check text-[9px]"></i> Visto
@@ -1373,7 +1492,7 @@ export async function renderOverviewSection() {
             </div>
             <div class="p-2.5">
               <h5 class="text-xs font-semibold text-white truncate group-hover:text-emerald-300 transition-colors" title="${title}">${title}</h5>
-              <span class="text-[10px] text-white/40 font-mono capitalize">${item.type || 'Película'}</span>
+              <span class="text-[10px] text-white/40 font-mono">${subtitle}</span>
             </div>
           </div>
         `;

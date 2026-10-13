@@ -1406,30 +1406,47 @@ export class NuvioClient {
     const profId = Number(profileId) || profileId;
     const cleanUrl = apiUrl.replace(/\/+$/, '');
 
+    // 1. Intentar RPC sync_pull_watch_progress
     try {
       const data = await this.rpc({
         apiUrl,
         apikey,
         accessToken,
         path: 'sync_pull_watch_progress',
-        body: { p_profile_id: profId }
+        body: {
+          p_profile_id: profId,
+          p_limit: 100
+        }
       });
-      if (Array.isArray(data) && data.length > 0) return data;
-      if (Array.isArray(data?.items)) return data.items;
-      if (Array.isArray(data?.progress)) return data.progress;
+      const list = Array.isArray(data) ? data : (data?.items || data?.progress || []);
+      if (Array.isArray(list) && list.length > 0) {
+        // Filtrar por profile_id si viene mezclado con otros perfiles
+        const filtered = list.filter(item => item.profile_id === undefined || Number(item.profile_id) === Number(profId));
+        const resList = filtered.length > 0 ? filtered : list;
+        resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
+        return resList;
+      }
     } catch (_) {}
 
+    // 2. Fallback REST directo a /rest/v1/watch_progress con order por last_watched
     try {
-      const res = await fetch(`${cleanUrl}/rest/v1/watch_progress?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc&limit=20`, {
+      const res = await fetch(`${cleanUrl}/rest/v1/watch_progress?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=last_watched.desc&limit=100`, {
         headers: {
           'apikey': apikey,
           'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Prefer': 'count=exact'
         }
       });
       if (res.ok) {
         const rows = await res.json();
-        if (Array.isArray(rows)) return rows;
+        if (Array.isArray(rows)) {
+          const contentRange = res.headers.get('content-range');
+          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
+          const total = totalMatch ? parseInt(totalMatch[1], 10) : rows.length;
+          rows.totalCount = total;
+          return rows;
+        }
       }
     } catch (_) {}
 
@@ -1437,7 +1454,7 @@ export class NuvioClient {
   }
 
   /**
-   * Obtiene los elementos guardados en la biblioteca del perfil
+   * Obtiene los elementos guardados en la biblioteca del perfil (library_items)
    */
   static async pullLibrary({ apiUrl, apikey, accessToken, profileId }) {
     const profId = Number(profileId) || profileId;
@@ -1451,22 +1468,30 @@ export class NuvioClient {
         path: 'sync_pull_library',
         body: { p_profile_id: profId }
       });
-      if (Array.isArray(data) && data.length > 0) return data;
-      if (Array.isArray(data?.items)) return data.items;
-      if (Array.isArray(data?.library)) return data.library;
+      const list = Array.isArray(data) ? data : (data?.items || data?.library || []);
+      if (Array.isArray(list) && list.length > 0) {
+        list.totalCount = data?.total ?? data?.total_count ?? data?.count ?? list.length;
+        return list;
+      }
     } catch (_) {}
 
     try {
-      const res = await fetch(`${cleanUrl}/rest/v1/library?profile_id=eq.${encodeURIComponent(profId)}&select=*&limit=50`, {
+      const res = await fetch(`${cleanUrl}/rest/v1/library_items?profile_id=eq.${encodeURIComponent(profId)}&select=*&limit=100`, {
         headers: {
           'apikey': apikey,
           'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Prefer': 'count=exact'
         }
       });
       if (res.ok) {
         const rows = await res.json();
-        if (Array.isArray(rows)) return rows;
+        if (Array.isArray(rows)) {
+          const contentRange = res.headers.get('content-range');
+          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
+          if (totalMatch) rows.totalCount = parseInt(totalMatch[1], 10);
+          return rows;
+        }
       }
     } catch (_) {}
 
@@ -1474,36 +1499,53 @@ export class NuvioClient {
   }
 
   /**
-   * Obtiene el historial de contenidos vistos (Watched) del perfil
+   * Obtiene el historial de contenidos vistos (Watched) del perfil (watched_items)
    */
   static async pullWatched({ apiUrl, apikey, accessToken, profileId }) {
     const profId = Number(profileId) || profileId;
     const cleanUrl = apiUrl.replace(/\/+$/, '');
 
+    // 1. Intentar RPC sync_pull_watched_items
     try {
       const data = await this.rpc({
         apiUrl,
         apikey,
         accessToken,
-        path: 'sync_pull_watched',
-        body: { p_profile_id: profId }
+        path: 'sync_pull_watched_items',
+        body: {
+          p_profile_id: profId,
+          p_page: 1,
+          p_page_size: 100
+        }
       });
-      if (Array.isArray(data) && data.length > 0) return data;
-      if (Array.isArray(data?.items)) return data.items;
-      if (Array.isArray(data?.watched)) return data.watched;
+      const list = Array.isArray(data) ? data : (data?.items || data?.watched || []);
+      if (Array.isArray(list) && list.length > 0) {
+        const filtered = list.filter(item => item.profile_id === undefined || Number(item.profile_id) === Number(profId));
+        const resList = filtered.length > 0 ? filtered : list;
+        resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
+        return resList;
+      }
     } catch (_) {}
 
+    // 2. Fallback REST directo a /rest/v1/watched_items con order por watched_at
     try {
-      const res = await fetch(`${cleanUrl}/rest/v1/watched?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc&limit=20`, {
+      const res = await fetch(`${cleanUrl}/rest/v1/watched_items?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=watched_at.desc&limit=100`, {
         headers: {
           'apikey': apikey,
           'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'Prefer': 'count=exact'
         }
       });
       if (res.ok) {
         const rows = await res.json();
-        if (Array.isArray(rows)) return rows;
+        if (Array.isArray(rows)) {
+          const contentRange = res.headers.get('content-range');
+          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
+          const total = totalMatch ? parseInt(totalMatch[1], 10) : rows.length;
+          rows.totalCount = total;
+          return rows;
+        }
       }
     } catch (_) {}
 
