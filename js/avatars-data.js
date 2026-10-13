@@ -172,6 +172,8 @@ export function getCompiledAvatars() {
     }
   }
 
+  // Ordenar alfabéticamente por nombre de personaje de la A a la Z
+  list.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
   return list;
 }
 
@@ -199,7 +201,7 @@ export function getStylesSummary(avatarsList = null) {
 }
 
 /**
- * Obtiene la lista de franquicias únicas con sus contadores, opcionalmente filtrada por estilo
+ * Obtiene la lista de franquicias únicas con sus contadores, ordenadas alfabéticamente
  */
 export function getFranchisesSummary(selectedStyle = 'all', avatarsList = null) {
   const allAvatars = avatarsList || getCompiledAvatars();
@@ -212,40 +214,100 @@ export function getFranchisesSummary(selectedStyle = 'all', avatarsList = null) 
     map.set(av.franchise, (map.get(av.franchise) || 0) + 1);
   }
 
-  const result = [{ id: 'all', name: 'Todas las obras', count: filtered.length }];
+  const franchiseEntries = [];
   for (const [franchiseId, count] of map.entries()) {
-    result.push({
+    franchiseEntries.push({
       id: franchiseId,
       name: formatFranchiseName(franchiseId),
       count
     });
   }
 
-  return result;
+  // Ordenar alfabéticamente por nombre de la obra
+  franchiseEntries.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+  return [
+    { id: 'all', name: 'Todas las obras', count: filtered.length },
+    ...franchiseEntries
+  ];
 }
 
 /**
- * Filtro multicriterio de avatares (estilo, franquicia y texto en tiempo real)
+ * Filtro multicriterio de avatares con priorización inteligente:
+ * - Prioridad 1: Personajes (si buscas "naruto", muestra solo a Naruto, no a toda la serie).
+ * - Prioridad 2: Obra completa (solo si la búsqueda es específica de la obra ej: "naruto shippuden" o no hay personajes).
+ * - Soporte de prefijos opcionales:
+ *     pj: Naruto  -> búsqueda forzada por personaje
+ *     ob: Naruto  -> búsqueda forzada por obra/serie
  */
 export function filterAvatars({ style = 'all', franchise = 'all', query = '' }, avatarsList = null) {
   const avatars = avatarsList || getCompiledAvatars();
-  const cleanQ = String(query || '').trim().toLowerCase();
+  let cleanQ = String(query || '').trim().toLowerCase();
 
-  return avatars.filter(item => {
-    // Filtro de estilo
+  // Filtrado base por estilo y franquicia seleccionados
+  let baseList = avatars.filter(item => {
     if (style !== 'all' && item.style !== style) return false;
-
-    // Filtro de franquicia
     if (franchise !== 'all' && item.franchise !== franchise) return false;
-
-    // Búsqueda por texto (personaje, franquicia o archivo)
-    if (cleanQ) {
-      const matchChar = item.character.toLowerCase().includes(cleanQ);
-      const matchFran = item.franchiseName.toLowerCase().includes(cleanQ);
-      const matchFile = item.fileName.toLowerCase().includes(cleanQ);
-      if (!matchChar && !matchFran && !matchFile) return false;
-    }
-
     return true;
   });
+
+  if (!cleanQ) {
+    return baseList.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+  }
+
+  // Detección de prefijos opcionales
+  let forceMode = null;
+  if (/^(pj|personaje|char):/i.test(cleanQ)) {
+    forceMode = 'character';
+    cleanQ = cleanQ.replace(/^(pj|personaje|char):\s*/i, '').trim();
+  } else if (/^(ob|obra|serie|fran):/i.test(cleanQ)) {
+    forceMode = 'franchise';
+    cleanQ = cleanQ.replace(/^(ob|obra|serie|fran):\s*/i, '').trim();
+  }
+
+  // Modo forzado por prefijo
+  if (forceMode === 'character') {
+    return baseList.filter(item => item.character.toLowerCase().includes(cleanQ))
+      .sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+  }
+
+  if (forceMode === 'franchise') {
+    return baseList.filter(item => item.franchiseName.toLowerCase().includes(cleanQ))
+      .sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+  }
+
+  // Búsqueda general sin prefijo: PRIORIZAR PERSONAJE ANTE OBRA
+  const characterMatches = baseList.filter(item => item.character.toLowerCase().includes(cleanQ));
+
+  if (characterMatches.length > 0) {
+    // Si la búsqueda coincide con un personaje directamente, devolver ÚNICAMENTE los personajes
+    // a menos que la búsqueda sea extensa y específica de la obra (con espacios o >= 10 caracteres)
+    const isExplicitFranchiseSearch = cleanQ.length >= 10 || cleanQ.includes(' ');
+    
+    if (!isExplicitFranchiseSearch) {
+      return characterMatches.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+    }
+
+    const franchiseMatches = baseList.filter(item => item.franchiseName.toLowerCase().includes(cleanQ));
+    const seen = new Set(characterMatches.map(m => m.id));
+    const combined = [...characterMatches];
+    franchiseMatches.forEach(fm => {
+      if (!seen.has(fm.id)) {
+        seen.add(fm.id);
+        combined.push(fm);
+      }
+    });
+
+    return combined.sort((a, b) => {
+      const aChar = a.character.toLowerCase().includes(cleanQ);
+      const bChar = b.character.toLowerCase().includes(cleanQ);
+      if (aChar && !bChar) return -1;
+      if (!aChar && bChar) return 1;
+      return a.character.localeCompare(b.character, 'es', { sensitivity: 'base' });
+    });
+  }
+
+  // Si ningún personaje coincide, buscar coincidencias en el nombre de la franquicia
+  const franchiseMatches = baseList.filter(item => item.franchiseName.toLowerCase().includes(cleanQ));
+  return franchiseMatches.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
 }

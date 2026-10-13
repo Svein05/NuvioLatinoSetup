@@ -1748,8 +1748,9 @@ export function renderAvatarsSection() {
   }
 
   // 5. Renderizar filtros y catálogo
+  setupFranchisesModal();
   renderAvatarStylePills();
-  renderAvatarFranchiseDropdown();
+  renderModalFranchisesList();
   renderAvatarsCatalog();
 }
 
@@ -1774,20 +1775,67 @@ function renderAvatarStylePills() {
       if (sId && sId !== accountState.avatarFilters.style) {
         accountState.avatarFilters.style = sId;
         renderAvatarStylePills();
-        renderAvatarFranchiseDropdown();
+        renderModalFranchisesList();
         renderAvatarsCatalog();
       }
     });
   });
 }
 
-function renderAvatarFranchiseDropdown() {
-  const triggerBtn = document.getElementById('btnAvatarFranchiseDropdown');
+function openFranchisesModal() {
+  const modal = document.getElementById('modalAvatarFranchises');
+  if (modal) {
+    renderModalFranchisesList();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeFranchisesModal() {
+  const modal = document.getElementById('modalAvatarFranchises');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+}
+
+function setupFranchisesModal() {
+  const triggerBtn = document.getElementById('btnOpenFranchisesModal');
+  const closeBtn = document.getElementById('btnCloseFranchisesModal');
+  const modal = document.getElementById('modalAvatarFranchises');
+
+  if (triggerBtn && triggerBtn.dataset.bound !== 'true') {
+    triggerBtn.dataset.bound = 'true';
+    triggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openFranchisesModal();
+    });
+  }
+
+  if (closeBtn && closeBtn.dataset.bound !== 'true') {
+    closeBtn.dataset.bound = 'true';
+    closeBtn.addEventListener('click', closeFranchisesModal);
+  }
+
+  if (modal && modal.dataset.bound !== 'true') {
+    modal.dataset.bound = 'true';
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeFranchisesModal();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeFranchisesModal();
+      }
+    });
+  }
+}
+
+function renderModalFranchisesList() {
+  const gridEl = document.getElementById('modalFranchisesListGrid');
   const labelEl = document.getElementById('avatarFranchiseDropdownLabel');
   const countEl = document.getElementById('avatarFranchiseDropdownCount');
-  const chevronEl = document.getElementById('avatarFranchiseDropdownChevron');
-  const menuEl = document.getElementById('avatarFranchiseDropdownMenu');
-  if (!triggerBtn || !menuEl) return;
 
   const franchises = getFranchisesSummary(accountState.avatarFilters.style);
   const currentFranchiseId = accountState.avatarFilters.franchise || 'all';
@@ -1796,54 +1844,28 @@ function renderAvatarFranchiseDropdown() {
   if (labelEl) labelEl.textContent = activeItem?.name || 'Todas las obras';
   if (countEl) countEl.textContent = activeItem?.count ?? 0;
 
-  menuEl.innerHTML = franchises.map(f => {
+  if (!gridEl) return;
+
+  gridEl.innerHTML = franchises.map(f => {
     const isAct = f.id === currentFranchiseId;
     return `
-      <button type="button" class="avatar-dropdown-item ${isAct ? 'is-active' : ''}" data-franchise-id="${f.id}">
-        <div class="flex items-center gap-2 min-w-0">
+      <button type="button" class="modal-franchise-card ${isAct ? 'is-selected' : ''}" data-franchise-id="${f.id}">
+        <div class="flex items-center gap-2.5 min-w-0">
           <i class="fa-solid fa-masks-theater text-xs ${isAct ? 'text-[#ffd479]' : 'text-white/40'}"></i>
           <span class="truncate">${f.name}</span>
         </div>
-        <span class="item-count">${f.count}</span>
+        <span class="pill-badge">${f.count}</span>
       </button>
     `;
   }).join('');
 
-  if (triggerBtn.dataset.bound !== 'true') {
-    triggerBtn.dataset.bound = 'true';
-    triggerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isHidden = menuEl.classList.contains('hidden');
-      if (isHidden) {
-        menuEl.classList.remove('hidden');
-        triggerBtn.setAttribute('aria-expanded', 'true');
-        if (chevronEl) chevronEl.classList.add('rotate-180');
-      } else {
-        menuEl.classList.add('hidden');
-        triggerBtn.setAttribute('aria-expanded', 'false');
-        if (chevronEl) chevronEl.classList.remove('rotate-180');
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!menuEl.classList.contains('hidden') && !menuEl.contains(e.target) && !triggerBtn.contains(e.target)) {
-        menuEl.classList.add('hidden');
-        triggerBtn.setAttribute('aria-expanded', 'false');
-        if (chevronEl) chevronEl.classList.remove('rotate-180');
-      }
-    });
-  }
-
-  menuEl.querySelectorAll('.avatar-dropdown-item').forEach(item => {
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
+  gridEl.querySelectorAll('.modal-franchise-card').forEach(item => {
+    item.addEventListener('click', () => {
       const fId = item.dataset.franchiseId;
       if (fId) {
         accountState.avatarFilters.franchise = fId;
-        menuEl.classList.add('hidden');
-        triggerBtn.setAttribute('aria-expanded', 'false');
-        if (chevronEl) chevronEl.classList.remove('rotate-180');
-        renderAvatarFranchiseDropdown();
+        closeFranchisesModal();
+        renderModalFranchisesList();
         renderAvatarsCatalog();
       }
     });
@@ -1881,7 +1903,7 @@ function renderAvatarsCatalog() {
         if (searchInput) searchInput.value = '';
         if (btnClearSearch) btnClearSearch.classList.add('hidden');
         renderAvatarStylePills();
-        renderAvatarFranchiseDropdown();
+        renderModalFranchisesList();
         renderAvatarsCatalog();
       });
     }
@@ -1895,11 +1917,13 @@ function renderAvatarsCatalog() {
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
            title="${av.character} (${av.franchiseName})">
-        <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
-        <div class="avatar-card-name-overlay">${av.character}</div>
-        <div class="avatar-selected-badge">
-          <i class="fa-solid fa-check"></i>
+        <div class="avatar-circle-wrap">
+          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          <div class="avatar-selected-badge">
+            <i class="fa-solid fa-check"></i>
+          </div>
         </div>
+        <span class="avatar-card-name-label">${av.character}</span>
       </div>
     `;
   };
@@ -1973,7 +1997,7 @@ function renderAvatarsCatalog() {
         const franchiseId = btn.dataset.openFranchise;
         if (franchiseId) {
           accountState.avatarFilters.franchise = franchiseId;
-          renderAvatarFranchiseDropdown();
+          renderModalFranchisesList();
           renderAvatarsCatalog();
           const catEl = document.getElementById('avatarsCatalogContainer');
           if (catEl) catEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2010,7 +2034,7 @@ function renderAvatarsCatalog() {
     if (btnBack) {
       btnBack.addEventListener('click', () => {
         accountState.avatarFilters.franchise = 'all';
-        renderAvatarFranchiseDropdown();
+        renderModalFranchisesList();
         renderAvatarsCatalog();
       });
     }

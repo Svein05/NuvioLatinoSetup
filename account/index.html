@@ -450,25 +450,19 @@
 
               <span class="hidden sm:inline text-white/20">|</span>
 
-              <!-- Selector Dropdown de Obras / Franquicias -->
-              <div class="relative" id="avatarFranchiseDropdownContainer">
-                <button type="button" id="btnAvatarFranchiseDropdown" class="avatar-dropdown-trigger" aria-expanded="false" title="Filtrar por obra o colección">
-                  <i class="fa-solid fa-masks-theater text-xs text-[#ffd479]"></i>
-                  <span id="avatarFranchiseDropdownLabel">Todas las obras</span>
-                  <span id="avatarFranchiseDropdownCount" class="pill-badge">46</span>
-                  <i class="fa-solid fa-chevron-down text-[10px] text-white/40 ml-1 transition-transform" id="avatarFranchiseDropdownChevron"></i>
-                </button>
-
-                <div id="avatarFranchiseDropdownMenu" class="avatar-dropdown-menu hidden">
-                  <!-- Inyectado dinámicamente por js/account-manager.js -->
-                </div>
-              </div>
+              <!-- Botón Selector de Obras (Abre pantalla de selección) -->
+              <button type="button" id="btnOpenFranchisesModal" class="avatar-dropdown-trigger" title="Elegir obra o colección">
+                <i class="fa-solid fa-masks-theater text-xs text-[#ffd479]"></i>
+                <span id="avatarFranchiseDropdownLabel">Todas las obras</span>
+                <span id="avatarFranchiseDropdownCount" class="pill-badge">46</span>
+                <i class="fa-solid fa-chevron-right text-[10px] text-white/40 ml-1"></i>
+              </button>
             </div>
 
-            <!-- Buscador Rápido de Personajes -->
-            <div class="relative w-full sm:w-72 lg:w-80 shrink-0">
+            <!-- Buscador Rápido de Personajes con soporte de prefijos pj: y ob: -->
+            <div class="relative w-full sm:w-80 lg:w-96 shrink-0">
               <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-white/40 pointer-events-none"></i>
-              <input type="text" id="inputAvatarSearch" placeholder="Buscar personaje (ej: Luffy)..." class="lat-field w-full text-xs pl-8 pr-7 py-2">
+              <input type="text" id="inputAvatarSearch" placeholder="Buscar (ej: Luffy, pj: Naruto, ob: Shippuden)..." class="lat-field w-full text-xs pl-8 pr-7 py-2">
               <button type="button" id="btnClearAvatarSearch" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-0.5 text-xs cursor-pointer" title="Limpiar búsqueda">
                 <i class="fa-solid fa-xmark"></i>
               </button>
@@ -763,6 +757,33 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: SELECCIONAR OBRA / FRANQUICIA (PANTALLA LIMPIA)  -->
+  <!-- ======================================================== -->
+  <div id="modalAvatarFranchises" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-lg w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 flex items-center justify-center text-xs text-[#ffd479]">
+            <i class="fa-solid fa-masks-theater"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Elegir Obra</h3>
+            <span class="text-[11px] text-white/50">Selecciona la serie o anime para filtrar los avatares</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseFranchisesModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Grid Limpio de Obras / Franquicias Seleccionables (Sin buscador redundante) -->
+      <div id="modalFranchisesListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[380px] overflow-y-auto pr-1">
+        <!-- Inyectado dinámicamente por js/account-manager.js -->
+      </div>
     </div>
   </div>
 

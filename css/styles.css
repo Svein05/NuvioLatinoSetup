@@ -2012,55 +2012,71 @@ header.lat-floating-nav nav {
   color: #08090c;
 }
 
-/* Tarjeta individual de avatar estilo Netflix */
+/* Tarjeta individual de avatar CIRCULAR estilo Nuvio */
 .netflix-avatar-card {
   position: relative;
-  aspect-ratio: 1;
-  border-radius: 20px;
-  background: rgba(14, 17, 24, 0.7);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
   cursor: pointer;
-  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   user-select: none;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
 }
 
 .netflix-avatar-card:hover {
-  transform: translateY(-4px) scale(1.03);
-  border-color: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 212, 121, 0.2);
+  transform: translateY(-3px);
+}
+
+.netflix-avatar-card .avatar-circle-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  background: rgba(14, 17, 24, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.netflix-avatar-card:hover .avatar-circle-wrap {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 212, 121, 0.25);
 }
 
 .netflix-avatar-card .avatar-card-img {
   width: 100%;
   height: 100%;
+  border-radius: 9999px;
   object-fit: cover;
-  transition: transform 0.32s ease;
+  transition: transform 0.3s ease;
+  display: block;
 }
 
 .netflix-avatar-card:hover .avatar-card-img {
   transform: scale(1.08);
 }
 
-.netflix-avatar-card.is-selected {
+.netflix-avatar-card.is-selected .avatar-circle-wrap {
   border-color: #ffd479 !important;
-  box-shadow: 0 0 24px rgba(255, 212, 121, 0.45), inset 0 0 12px rgba(255, 212, 121, 0.15) !important;
+  box-shadow: 0 0 24px rgba(255, 212, 121, 0.5), inset 0 0 10px rgba(255, 212, 121, 0.2) !important;
 }
 
 .netflix-avatar-card .avatar-selected-badge {
   display: none;
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 22px;
-  height: 22px;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
   border-radius: 9999px;
   background: #ffd479;
   color: #08090c;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   z-index: 10;
@@ -2070,31 +2086,26 @@ header.lat-floating-nav nav {
   display: flex;
 }
 
-.netflix-avatar-card .avatar-card-name-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1.25rem 0.5rem 0.35rem 0.5rem;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, transparent 100%);
+.netflix-avatar-card .avatar-card-name-label {
   font-size: 0.6875rem;
   font-weight: 600;
   text-align: center;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  pointer-events: none;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
+  width: 100%;
+  max-width: 100%;
+  transition: color 0.2s ease;
+  line-height: 1.2;
 }
 
-.netflix-avatar-card:hover .avatar-card-name-overlay {
-  opacity: 1;
+.netflix-avatar-card:hover .avatar-card-name-label,
+.netflix-avatar-card.is-selected .avatar-card-name-label {
   color: #ffd479;
 }
 
-/* Selector Dropdown de Franquicias / Obras */
+/* Selector / Disparador del Modal de Obras */
 .avatar-dropdown-trigger {
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
@@ -2112,8 +2123,7 @@ header.lat-floating-nav nav {
   gap: 0.45rem;
 }
 
-.avatar-dropdown-trigger:hover,
-.avatar-dropdown-trigger[aria-expanded="true"] {
+.avatar-dropdown-trigger:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 212, 121, 0.4);
   box-shadow: 0 0 14px rgba(255, 212, 121, 0.15);
@@ -2128,85 +2138,75 @@ header.lat-floating-nav nav {
   color: #ffd479;
 }
 
-.avatar-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  min-width: 230px;
-  max-width: 320px;
-  max-height: 280px;
-  overflow-y: auto;
-  border-radius: 16px;
-  background: rgba(14, 17, 24, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 0, 0, 0.4);
-  padding: 0.35rem;
-  z-index: 40;
-  display: flex;
-  flex-col: column;
-  gap: 0.2rem;
-}
-
-.avatar-dropdown-menu.hidden {
-  display: none !important;
-}
-
-.avatar-dropdown-item {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
+/* Tarjetas de obras dentro del modal de selección */
+.modal-franchise-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  user-select: none;
-  background: transparent;
-  border: none;
-}
-
-.avatar-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
-
-.avatar-dropdown-item.is-active {
-  background: rgba(255, 212, 121, 0.12);
-  color: #ffd479;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8125rem;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  width: 100%;
+  text-align: left;
 }
 
-.avatar-dropdown-item .item-count {
-  font-size: 0.65rem;
-  font-family: monospace;
-  padding: 0.1rem 0.4rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.5);
+.modal-franchise-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 212, 121, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
-.avatar-dropdown-item.is-active .item-count {
-  background: rgba(255, 212, 121, 0.2);
+.modal-franchise-card.is-selected {
+  background: rgba(255, 212, 121, 0.12);
+  border-color: #ffd479;
   color: #ffd479;
+  box-shadow: 0 0 16px rgba(255, 212, 121, 0.2);
 }
 
-/* Bloques de colección tipo escaparate */
+.modal-franchise-card .pill-badge {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.modal-franchise-card.is-selected .pill-badge {
+  background: #ffd479;
+  color: #08090c;
+  font-weight: 700;
+}
+
+/* Bloques de colección tipo escaparate con padding garantizado */
 .avatar-collection-block {
-  padding: 1.25rem sm:1.5rem;
-  border-radius: 20px;
+  padding: 1.5rem;
+  border-radius: 24px;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   transition: all 0.24s ease;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .avatar-collection-block {
+    padding: 1.15rem;
+    border-radius: 20px;
+  }
 }
 
 .avatar-collection-block:hover {
   background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Botón interactivo "Abrir colección de avatares" */
@@ -2214,7 +2214,7 @@ header.lat-floating-nav nav {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.35rem 0.85rem;
+  padding: 0.4rem 0.95rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -2247,13 +2247,13 @@ header.lat-floating-nav nav {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.35rem 0.85rem;
+  padding: 0.4rem 0.95rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -2261,8 +2261,8 @@ header.lat-floating-nav nav {
 
 .btn-back-all-collections:hover {
   background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+  border-color: rgba(255, 212, 121, 0.35);
+  color: #ffd479;
 }
 
 
