@@ -14,6 +14,7 @@ export const AVATAR_STYLE_LABELS = {
 
 export const AVATAR_FRANCHISE_LABELS = {
   all: 'Todas las obras',
+  Naruto: 'Naruto',
   NarutoShippuden: 'Naruto Shippuden',
   OnePiece: 'One Piece'
 };
@@ -35,8 +36,11 @@ export function formatCharacterName(rawName) {
   if (CHARACTER_NAME_OVERRIDES[rawName]) {
     return CHARACTER_NAME_OVERRIDES[rawName];
   }
-  // Separar camelCase si aplica (ej: GoingMerry -> Going Merry)
-  return rawName.replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  // Separar camelCase y números (ej: GoingMerry -> Going Merry, Naruto2 -> Naruto 2)
+  return rawName
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([a-zA-Z])(\d+)/g, '$1 $2')
+    .trim();
 }
 
 export function formatFranchiseName(rawFranchise) {
@@ -60,77 +64,113 @@ export function formatStyleName(rawStyle) {
  * Cada entrada define: estilo, franquicia y la lista de archivos detectados.
  */
 export const RAW_AVATAR_REGISTRY = [
-  // 1. IconsStyle
   {
-    style: 'IconsStyle',
-    franchise: 'NarutoShippuden',
+    style: "IconsStyle",
+    franchise: "Naruto",
     files: [
-      'NarutoShippuden_Naruto.jpg'
-    ]
-  },
-
-  // 2. NetflixStyle
-  {
-    style: 'NetflixStyle',
-    franchise: 'NarutoShippuden',
-    files: [
-      'NarutoShippuden_Anko.png',
-      'NarutoShippuden_Asuma.png',
-      'NarutoShippuden_Baki.png',
-      'NarutoShippuden_Choji.png',
-      'NarutoShippuden_Deidara.png',
-      'NarutoShippuden_Gaara.png',
-      'NarutoShippuden_Gai.png',
-      'NarutoShippuden_Hidan.png',
-      'NarutoShippuden_Hinata.png',
-      'NarutoShippuden_Ino.png',
-      'NarutoShippuden_Itachi.png',
-      'NarutoShippuden_Jiraiya.png',
-      'NarutoShippuden_Kabuto.png',
-      'NarutoShippuden_Kakashi.png',
-      'NarutoShippuden_Kankuro.png',
-      'NarutoShippuden_Kiba.png',
-      'NarutoShippuden_Kisame.png',
-      'NarutoShippuden_Kurenai.png',
-      'NarutoShippuden_Naruto.png',
-      'NarutoShippuden_Neji.png',
-      'NarutoShippuden_Orochimaru.png',
-      'NarutoShippuden_Rock.png',
-      'NarutoShippuden_Sae.png',
-      'NarutoShippuden_Sakura.png',
-      'NarutoShippuden_Sasori1.png',
-      'NarutoShippuden_Sasori2.png',
-      'NarutoShippuden_Sasuke.png',
-      'NarutoShippuden_Shikamaru.png',
-      'NarutoShippuden_Shino.png',
-      'NarutoShippuden_Temari.png',
-      'NarutoShippuden_Tsunade.png',
-      'NarutoShippuden_Yamato.png'
+      "Naruto_Naruto.jpg",
+      "Naruto_Naruto2.jpg"
     ]
   },
   {
-    style: 'NetflixStyle',
-    franchise: 'OnePiece',
+    style: "IconsStyle",
+    franchise: "NarutoShippuden",
     files: [
-      'OnePiece_Brook.png',
-      'OnePiece_Chopper.png',
-      'OnePiece_Franky.png',
-      'OnePiece_GoingMerry.jpeg',
-      'OnePiece_Jinbe.png',
-      'OnePiece_Luffy1.png',
-      'OnePiece_Luffy2.png',
-      'OnePiece_Nami.png',
-      'OnePiece_Robin.png',
-      'OnePiece_Sanji.png',
-      'OnePiece_ThousandSunny.jpeg',
-      'OnePiece_Usopp.jpeg',
-      'OnePiece_Zoro.png'
+      "NarutoShippuden_Naruto.jpg"
+    ]
+  },
+  {
+    style: "NetflixStyle",
+    franchise: "NarutoShippuden",
+    files: [
+      "NarutoShippuden_Anko.png",
+      "NarutoShippuden_Asuma.png",
+      "NarutoShippuden_Baki.png",
+      "NarutoShippuden_Choji.png",
+      "NarutoShippuden_Deidara.png",
+      "NarutoShippuden_Gaara.png",
+      "NarutoShippuden_Gai.png",
+      "NarutoShippuden_Hidan.png",
+      "NarutoShippuden_Hinata.png",
+      "NarutoShippuden_Ino.png",
+      "NarutoShippuden_Itachi.png",
+      "NarutoShippuden_Jiraiya.png",
+      "NarutoShippuden_Kabuto.png",
+      "NarutoShippuden_Kakashi.png",
+      "NarutoShippuden_Kankuro.png",
+      "NarutoShippuden_Kiba.png",
+      "NarutoShippuden_Kisame.png",
+      "NarutoShippuden_Kurenai.png",
+      "NarutoShippuden_Naruto.png",
+      "NarutoShippuden_Neji.png",
+      "NarutoShippuden_Orochimaru.png",
+      "NarutoShippuden_Rock.png",
+      "NarutoShippuden_Sae.png",
+      "NarutoShippuden_Sakura.png",
+      "NarutoShippuden_Sasori1.png",
+      "NarutoShippuden_Sasori2.png",
+      "NarutoShippuden_Sasuke.png",
+      "NarutoShippuden_Shikamaru.png",
+      "NarutoShippuden_Shino.png",
+      "NarutoShippuden_Temari.png",
+      "NarutoShippuden_Tsunade.png",
+      "NarutoShippuden_Yamato.png"
+    ]
+  },
+  {
+    style: "NetflixStyle",
+    franchise: "OnePiece",
+    files: [
+      "OnePiece_Brook.png",
+      "OnePiece_Chopper.png",
+      "OnePiece_Franky.png",
+      "OnePiece_GoingMerry.jpeg",
+      "OnePiece_Jinbe.png",
+      "OnePiece_Luffy1.png",
+      "OnePiece_Luffy2.png",
+      "OnePiece_Nami.png",
+      "OnePiece_Robin.png",
+      "OnePiece_Sanji.png",
+      "OnePiece_ThousandSunny.jpeg",
+      "OnePiece_Usopp.jpeg",
+      "OnePiece_Zoro.png"
     ]
   }
 ];
 
 /**
+ * Comparador universal de avatares con ordenamiento coherente:
+ * 1. Compara por nombre base de personaje (A-Z)
+ * 2. Si es el mismo personaje, AGRUPA Y ORDENA POR OBRA / FRANQUICIA (A-Z) para dar sentido
+ * 3. Dentro de la misma obra, ordena por número de variación (1, 2, 3...)
+ * 4. Si aún coinciden, ordena por estilo
+ */
+export function compareAvatars(a, b) {
+  const baseA = a.baseCharacter || a.character;
+  const baseB = b.baseCharacter || b.character;
+  const charComp = baseA.localeCompare(baseB, 'es', { sensitivity: 'base' });
+  if (charComp !== 0) return charComp;
+
+  // Si coinciden en personaje, agrupar estrictamente por Obra
+  const franComp = a.franchiseName.localeCompare(b.franchiseName, 'es', { sensitivity: 'base' });
+  if (franComp !== 0) return franComp;
+
+  // Dentro de la misma obra, ordenar por número de variación (1, 2, 3...)
+  const numA = a.variationNumber || 0;
+  const numB = b.variationNumber || 0;
+  if (numA !== numB) return numA - numB;
+
+  // Ordenar por estilo
+  const styleComp = a.styleName.localeCompare(b.styleName, 'es', { sensitivity: 'base' });
+  if (styleComp !== 0) return styleComp;
+
+  return a.character.localeCompare(b.character, 'es', { sensitivity: 'base' });
+}
+
+/**
  * Compila y normaliza todos los avatares en un catálogo plano enriquecido
+ * - Detecta automáticamente variaciones de un mismo personaje dentro de una obra (ej: Naruto (1), Naruto (2))
+ * - Aplica el número entre paréntesis ÚNICAMENTE cuando ese personaje tiene 2 o más variaciones en esa serie
  */
 export function getCompiledAvatars() {
   const list = [];
@@ -140,11 +180,11 @@ export function getCompiledAvatars() {
     const styleName = formatStyleName(style);
     const franchiseName = formatFranchiseName(franchise);
 
+    // 1. Extraer los datos crudos de cada archivo
+    const rawItems = [];
     for (const fileName of files) {
-      // Ignorar desktop.ini u ocultos
       if (/desktop\.ini$/i.test(fileName) || fileName.startsWith('.')) continue;
 
-      // Extraer nombre del personaje: {Franchise}_{Character}.{ext}
       const dotIndex = fileName.lastIndexOf('.');
       const baseName = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName;
       const extension = dotIndex !== -1 ? fileName.substring(dotIndex + 1).toLowerCase() : '';
@@ -154,26 +194,87 @@ export function getCompiledAvatars() {
         rawChar = baseName.substring(franchise.length + 1);
       }
 
-      const character = formatCharacterName(rawChar);
-      const relativePath = `../assets/profile_icons/${style}/${franchise}/${fileName}`;
+      // Detectar si tiene override explícito o sufijo numérico
+      let baseChar = '';
+      let variationNum = 1;
+      let hasExplicitOverride = false;
 
-      list.push({
-        id: `${style}_${franchise}_${rawChar}`,
+      if (CHARACTER_NAME_OVERRIDES[rawChar]) {
+        baseChar = CHARACTER_NAME_OVERRIDES[rawChar];
+        hasExplicitOverride = true;
+      } else {
+        const numMatch = rawChar.match(/^(.*?)(?:_|-|\s)?(\d+)$/);
+        if (numMatch && numMatch[1]) {
+          baseChar = formatCharacterName(numMatch[1]);
+          variationNum = parseInt(numMatch[2], 10);
+        } else {
+          baseChar = formatCharacterName(rawChar);
+          variationNum = 1;
+        }
+      }
+
+      rawItems.push({
         fileName,
-        character,
-        rawCharacter: rawChar,
-        franchise,
-        franchiseName,
-        style,
-        styleName,
-        path: relativePath,
-        extension
+        rawChar,
+        baseChar,
+        variationNum,
+        hasExplicitOverride,
+        extension,
+        relativePath: `../assets/profile_icons/${style}/${franchise}/${fileName}`
+      });
+    }
+
+    // 2. Agrupar por baseChar dentro de esta obra y estilo para detectar variaciones
+    const baseMap = new Map();
+    for (const item of rawItems) {
+      if (!baseMap.has(item.baseChar)) {
+        baseMap.set(item.baseChar, []);
+      }
+      baseMap.get(item.baseChar).push(item);
+    }
+
+    // 3. Asignar nombres finales: "Personaje (1)", "Personaje (2)" SOLO si hay variaciones (> 1)
+    for (const [baseChar, items] of baseMap.entries()) {
+      const hasVariations = items.length > 1;
+
+      // Ordenar las variaciones por variationNum ascendente
+      items.sort((a, b) => a.variationNum - b.variationNum);
+
+      items.forEach((item, idx) => {
+        let finalCharacterName = '';
+        let variationNumber = null;
+
+        if (item.hasExplicitOverride) {
+          finalCharacterName = item.baseChar;
+        } else if (hasVariations) {
+          finalCharacterName = `${item.baseChar} (${idx + 1})`;
+          variationNumber = idx + 1;
+        } else {
+          finalCharacterName = item.baseChar;
+          variationNumber = null;
+        }
+
+        list.push({
+          id: `${style}_${franchise}_${item.rawChar}`,
+          fileName: item.fileName,
+          character: finalCharacterName,
+          baseCharacter: item.baseChar,
+          variationNumber,
+          isVariation: hasVariations,
+          rawCharacter: item.rawChar,
+          franchise,
+          franchiseName,
+          style,
+          styleName,
+          path: item.relativePath,
+          extension: item.extension
+        });
       });
     }
   }
 
-  // Ordenar alfabéticamente por nombre de personaje de la A a la Z
-  list.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+  // Ordenar catálogo con el comparador coherente (por personaje, obra, variación y estilo)
+  list.sort(compareAvatars);
   return list;
 }
 
@@ -252,7 +353,7 @@ export function filterAvatars({ style = 'all', franchise = 'all', query = '' }, 
   });
 
   if (!cleanQ) {
-    return baseList.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+    return baseList.sort(compareAvatars);
   }
 
   // Detección de prefijos opcionales
@@ -267,17 +368,22 @@ export function filterAvatars({ style = 'all', franchise = 'all', query = '' }, 
 
   // Modo forzado por prefijo
   if (forceMode === 'character') {
-    return baseList.filter(item => item.character.toLowerCase().includes(cleanQ))
-      .sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+    return baseList.filter(item => 
+      item.character.toLowerCase().includes(cleanQ) || 
+      (item.baseCharacter && item.baseCharacter.toLowerCase().includes(cleanQ))
+    ).sort(compareAvatars);
   }
 
   if (forceMode === 'franchise') {
     return baseList.filter(item => item.franchiseName.toLowerCase().includes(cleanQ))
-      .sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+      .sort(compareAvatars);
   }
 
   // Búsqueda general sin prefijo: PRIORIZAR PERSONAJE ANTE OBRA
-  const characterMatches = baseList.filter(item => item.character.toLowerCase().includes(cleanQ));
+  const characterMatches = baseList.filter(item => 
+    item.character.toLowerCase().includes(cleanQ) || 
+    (item.baseCharacter && item.baseCharacter.toLowerCase().includes(cleanQ))
+  );
 
   if (characterMatches.length > 0) {
     // Si la búsqueda coincide con un personaje directamente, devolver ÚNICAMENTE los personajes
@@ -285,7 +391,7 @@ export function filterAvatars({ style = 'all', franchise = 'all', query = '' }, 
     const isExplicitFranchiseSearch = cleanQ.length >= 10 || cleanQ.includes(' ');
     
     if (!isExplicitFranchiseSearch) {
-      return characterMatches.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+      return characterMatches.sort(compareAvatars);
     }
 
     const franchiseMatches = baseList.filter(item => item.franchiseName.toLowerCase().includes(cleanQ));
@@ -299,15 +405,15 @@ export function filterAvatars({ style = 'all', franchise = 'all', query = '' }, 
     });
 
     return combined.sort((a, b) => {
-      const aChar = a.character.toLowerCase().includes(cleanQ);
-      const bChar = b.character.toLowerCase().includes(cleanQ);
+      const aChar = a.character.toLowerCase().includes(cleanQ) || (a.baseCharacter && a.baseCharacter.toLowerCase().includes(cleanQ));
+      const bChar = b.character.toLowerCase().includes(cleanQ) || (b.baseCharacter && b.baseCharacter.toLowerCase().includes(cleanQ));
       if (aChar && !bChar) return -1;
       if (!aChar && bChar) return 1;
-      return a.character.localeCompare(b.character, 'es', { sensitivity: 'base' });
+      return compareAvatars(a, b);
     });
   }
 
   // Si ningún personaje coincide, buscar coincidencias en el nombre de la franquicia
   const franchiseMatches = baseList.filter(item => item.franchiseName.toLowerCase().includes(cleanQ));
-  return franchiseMatches.sort((a, b) => a.character.localeCompare(b.character, 'es', { sensitivity: 'base' }));
+  return franchiseMatches.sort(compareAvatars);
 }
