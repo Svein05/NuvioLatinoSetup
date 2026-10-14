@@ -43,17 +43,15 @@ export const AVATAR_FRANCHISE_LABELS = {
   all: 'Todas las obras',
   Naruto: 'Naruto',
   NarutoShippuden: 'Naruto Shippuden',
-  OnePiece: 'One Piece'
+  OnePiece: 'One Piece',
+  'X-men97': "X-Men '97",
+  Xmen97: "X-Men '97"
 };
 
 // Formateador de nombres de personajes
 const CHARACTER_NAME_OVERRIDES = {
   Rock: 'Rock Lee',
   Sae: 'Sai',
-  Sasori1: 'Sasori (Humano)',
-  Sasori2: 'Sasori (Marioneta)',
-  Luffy1: 'Monkey D. Luffy',
-  Luffy2: 'Luffy (Capitán)',
   GoingMerry: 'Going Merry',
   ThousandSunny: 'Thousand Sunny'
 };
@@ -63,11 +61,17 @@ export function formatCharacterName(rawName) {
   if (CHARACTER_NAME_OVERRIDES[rawName]) {
     return CHARACTER_NAME_OVERRIDES[rawName];
   }
-  // Separar camelCase y números (ej: GoingMerry -> Going Merry, Naruto2 -> Naruto 2)
-  return rawName
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/([a-zA-Z])(\d+)/g, '$1 $2')
-    .trim();
+  // Si ya tiene espacios (ej. "Monkey D. Luffy", "Rock Lee"), respetar
+  if (rawName.includes(' ')) {
+    return rawName.trim();
+  }
+  // Separar puntos como Mr.Sinister -> Mr. Sinister
+  let formatted = rawName.replace(/\.([A-Za-z])/g, '. $1');
+  // Separar camelCase (ej: GoblinQueen -> Goblin Queen, EmmaFrost -> Emma Frost)
+  formatted = formatted.replace(/([a-z])([A-Z])/g, '$1 $2');
+  // Separar números si no fueron tratados previamente
+  formatted = formatted.replace(/([a-zA-Z])(\d+)/g, '$1 $2');
+  return formatted.trim();
 }
 
 export function formatFranchiseName(rawFranchise) {
@@ -75,7 +79,13 @@ export function formatFranchiseName(rawFranchise) {
   if (AVATAR_FRANCHISE_LABELS[rawFranchise]) {
     return AVATAR_FRANCHISE_LABELS[rawFranchise];
   }
-  return rawFranchise.replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  if (/^x-?men/i.test(rawFranchise)) {
+    return rawFranchise.replace(/^x-?men/i, 'X-Men ').replace(/(\d+)/, "'$1").trim();
+  }
+  return rawFranchise
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([a-zA-Z])(\d+)/g, '$1 $2')
+    .trim();
 }
 
 export function formatStyleName(rawStyle) {
@@ -87,10 +97,9 @@ export function formatStyleName(rawStyle) {
 }
 
 /**
- * Registro maestro de archivos existentes en assets/profile_icons/
- * Cada entrada define: estilo, franquicia y la lista de archivos detectados.
+ * Catálogo base de respaldo en caso de desconexión total u offline
  */
-export const RAW_AVATAR_REGISTRY = [
+export const RAW_AVATAR_FALLBACK_SEED = [
   {
     style: "IconsStyle",
     franchise: "Naruto",
@@ -165,49 +174,135 @@ export const RAW_AVATAR_REGISTRY = [
   }
 ];
 
+export const RAW_AVATAR_REGISTRY = RAW_AVATAR_FALLBACK_SEED;
+
+let compiledAvatarsCache = null;
+let rawRegistryCache = null;
+
 /**
- * Comparador universal de avatares con ordenamiento coherente:
- * 1. Compara por nombre base de personaje (A-Z)
- * 2. Si es el mismo personaje, AGRUPA Y ORDENA POR OBRA / FRANQUICIA (A-Z) para dar sentido
- * 3. Dentro de la misma obra, ordena por número de variación (1, 2, 3...)
- * 4. Si aún coinciden, ordena por estilo
+ * Rastreador asíncrono dinámico para entornos locales (Live Server / Python)
+ * Lee los directorios HTML automáticos de assets/profile_icons/ sin tocar código.
  */
-export function compareAvatars(a, b) {
-  const baseA = a.baseCharacter || a.character;
-  const baseB = b.baseCharacter || b.character;
-  const charComp = baseA.localeCompare(baseB, 'es', { sensitivity: 'base' });
-  if (charComp !== 0) return charComp;
+async function crawlLocalAvatars() {
+  const origin = window.location.origin;
+  const basePath = '/assets/profile_icons/';
+  const rootUrl = `${origin}${basePath}`;
+  
+  const rootRes = await fetch(rootUrl, { cache: 'no-cache' });
+  if (!rootRes.ok) return null;
+  const rootText = await rootRes.text();
+  const rootLinks = extractChildLinks(rootText, basePath);
+  if (!rootLinks || rootLinks.length === 0) return null;
 
-  // Si coinciden en personaje, agrupar estrictamente por Obra
-  const franComp = a.franchiseName.localeCompare(b.franchiseName, 'es', { sensitivity: 'base' });
-  if (franComp !== 0) return franComp;
+  // Filtrar estilos (carpetas sin punto de extensión)
+  const styles = rootLinks.filter(l => !l.includes('.') && l !== '..' && l !== '');
+  if (styles.length === 0) return null;
 
-  // Dentro de la misma obra, ordenar por número de variación (1, 2, 3...)
-  const numA = a.variationNumber || 0;
-  const numB = b.variationNumber || 0;
-  if (numA !== numB) return numA - numB;
+  const registry = [];
 
-  // Ordenar por estilo
-  const styleComp = a.styleName.localeCompare(b.styleName, 'es', { sensitivity: 'base' });
-  if (styleComp !== 0) return styleComp;
+  for (const style of styles) {
+    const stylePath = `${basePath}${style}/`;
+    try {
+      const styleRes = await fetch(`${origin}${stylePath}`, { cache: 'no-cache' });
+      if (!styleRes.ok) continue;
+      const styleText = await styleRes.text();
+      const franchiseLinks = extractChildLinks(styleText, stylePath);
+      const franchises = franchiseLinks.filter(l => !l.includes('.') && l !== '..' && l !== '');
 
-  return a.character.localeCompare(b.character, 'es', { sensitivity: 'base' });
+      for (const franchise of franchises) {
+        const franchisePath = `${stylePath}${franchise}/`;
+        try {
+          const franRes = await fetch(`${origin}${franchisePath}`, { cache: 'no-cache' });
+          if (!franRes.ok) continue;
+          const franText = await franRes.text();
+          const fileLinks = extractChildLinks(franText, franchisePath);
+          const files = fileLinks.filter(f => /\.(jpe?g|png|webp|svg)$/i.test(f) && !f.startsWith('.') && !/desktop\.ini$/i.test(f));
+
+          if (files.length > 0) {
+            registry.push({
+              style,
+              franchise,
+              files
+            });
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  return registry.length > 0 ? registry : null;
+}
+
+function extractChildLinks(htmlText, currentDirectoryPath) {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+    const links = [];
+    const cleanDir = currentDirectoryPath.endsWith('/') ? currentDirectoryPath : `${currentDirectoryPath}/`;
+
+    doc.querySelectorAll('a').forEach(a => {
+      let rawHref = (a.getAttribute('href') || '').trim();
+      if (!rawHref || rawHref === '#' || rawHref.startsWith('?') || rawHref === '..') return;
+
+      let resolvedPath = '';
+      try {
+        const u = new URL(rawHref, (typeof window !== 'undefined' ? window.location.origin : 'http://localhost') + cleanDir);
+        resolvedPath = u.pathname;
+      } catch (_) {
+        resolvedPath = rawHref;
+      }
+
+      if (!resolvedPath.startsWith(cleanDir) || resolvedPath === cleanDir) return;
+
+      const sub = resolvedPath.substring(cleanDir.length).replace(/\/+$/, '');
+      if (!sub || sub.includes('/')) return;
+
+      if (!links.includes(sub)) {
+        links.push(sub);
+      }
+    });
+    return links;
+  } catch (_) {
+    return [];
+  }
+}
+
+function parseGitHubTree(tree) {
+  const map = new Map();
+  for (const item of tree) {
+    if (item.type !== 'blob' || !item.path.startsWith('assets/profile_icons/')) continue;
+    const parts = item.path.split('/');
+    if (parts.length === 5) {
+      const style = parts[2];
+      const franchise = parts[3];
+      const file = parts[4];
+      if (/\.(jpe?g|png|webp|svg)$/i.test(file) && !file.startsWith('.') && !/desktop\.ini$/i.test(file)) {
+        const key = `${style}::${franchise}`;
+        if (!map.has(key)) map.set(key, { style, franchise, files: [] });
+        map.get(key).files.push(file);
+      }
+    }
+  }
+  return Array.from(map.values());
 }
 
 /**
- * Compila y normaliza todos los avatares en un catálogo plano enriquecido
- * - Detecta automáticamente variaciones de un mismo personaje dentro de una obra (ej: Naruto (1), Naruto (2))
- * - Aplica el número entre paréntesis ÚNICAMENTE cuando ese personaje tiene 2 o más variaciones en esa serie
+ * Normaliza y compila una lista de carpetas y archivos en el catálogo plano con variaciones
  */
-export function getCompiledAvatars() {
+export function compileRegistry(registry) {
   const list = [];
+  const isSubfolder = typeof window !== 'undefined' && (
+    window.location.pathname.includes('/account/') || 
+    window.location.pathname.includes('/configuration/') || 
+    window.location.pathname.includes('/documentation/')
+  );
+  const relPrefix = isSubfolder ? '../' : './';
 
-  for (const group of RAW_AVATAR_REGISTRY) {
+  for (const group of registry) {
     const { style, franchise, files } = group;
     const styleName = formatStyleName(style);
     const franchiseName = formatFranchiseName(franchise);
 
-    // 1. Extraer los datos crudos de cada archivo
     const rawItems = [];
     for (const fileName of files) {
       if (/desktop\.ini$/i.test(fileName) || fileName.startsWith('.')) continue;
@@ -217,11 +312,10 @@ export function getCompiledAvatars() {
       const extension = dotIndex !== -1 ? fileName.substring(dotIndex + 1).toLowerCase() : '';
 
       let rawChar = baseName;
-      if (baseName.startsWith(`${franchise}_`)) {
+      if (baseName.toLowerCase().startsWith(`${franchise.toLowerCase()}_`)) {
         rawChar = baseName.substring(franchise.length + 1);
       }
 
-      // Detectar si tiene override explícito o sufijo numérico
       let baseChar = '';
       let variationNum = 1;
       let hasExplicitOverride = false;
@@ -230,9 +324,9 @@ export function getCompiledAvatars() {
         baseChar = CHARACTER_NAME_OVERRIDES[rawChar];
         hasExplicitOverride = true;
       } else {
-        const numMatch = rawChar.match(/^(.*?)(?:_|-|\s)?(\d+)$/);
-        if (numMatch && numMatch[1]) {
-          baseChar = formatCharacterName(numMatch[1]);
+        const numMatch = rawChar.match(/^(.*?)(?:[_\-\s]|\s*\()?(\d+)\)?$/);
+        if (numMatch && numMatch[1] && numMatch[1].trim()) {
+          baseChar = formatCharacterName(numMatch[1].trim());
           variationNum = parseInt(numMatch[2], 10);
         } else {
           baseChar = formatCharacterName(rawChar);
@@ -247,11 +341,10 @@ export function getCompiledAvatars() {
         variationNum,
         hasExplicitOverride,
         extension,
-        relativePath: `../assets/profile_icons/${style}/${franchise}/${fileName}`
+        relativePath: `${relPrefix}assets/profile_icons/${style}/${franchise}/${fileName}`
       });
     }
 
-    // 2. Agrupar por baseChar dentro de esta obra y estilo para detectar variaciones
     const baseMap = new Map();
     for (const item of rawItems) {
       if (!baseMap.has(item.baseChar)) {
@@ -260,11 +353,8 @@ export function getCompiledAvatars() {
       baseMap.get(item.baseChar).push(item);
     }
 
-    // 3. Asignar nombres finales: "Personaje (1)", "Personaje (2)" SOLO si hay variaciones (> 1)
     for (const [baseChar, items] of baseMap.entries()) {
       const hasVariations = items.length > 1;
-
-      // Ordenar las variaciones por variationNum ascendente
       items.sort((a, b) => a.variationNum - b.variationNum);
 
       items.forEach((item, idx) => {
@@ -300,9 +390,146 @@ export function getCompiledAvatars() {
     }
   }
 
-  // Ordenar catálogo con el comparador coherente (por personaje, obra, variación y estilo)
   list.sort(compareAvatars);
   return list;
+}
+
+/**
+ * Carga el catálogo dinámicamente según el entorno:
+ * 1. Local (Live Server / Python): Crawling automático de directorios HTML
+ * 2. Remoto (GitHub Pages / Prod): GitHub Trees API con caché en sessionStorage
+ * 3. Fallback: assets/profile_icons/manifest.json
+ * 4. Fallback final: semilla interna
+ */
+export async function loadAvatarsCatalog(forceRefresh = false) {
+  if (compiledAvatarsCache && !forceRefresh) {
+    return compiledAvatarsCache;
+  }
+
+  const isLocal = typeof window !== 'undefined' && ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+
+  if (isLocal) {
+    try {
+      const localRegistry = await crawlLocalAvatars();
+      if (localRegistry && localRegistry.length > 0) {
+        rawRegistryCache = localRegistry;
+        compiledAvatarsCache = compileRegistry(localRegistry);
+        return compiledAvatarsCache;
+      }
+    } catch (err) {
+      console.warn('[AvatarsData] No se pudo rastrear directorio local dinámico, probando fallback:', err);
+    }
+  }
+
+  try {
+    const cachedTree = !forceRefresh && typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('nuvio_avatars_tree_cache') : null;
+    let treeData = null;
+    if (cachedTree) {
+      try {
+        const parsed = JSON.parse(cachedTree);
+        if (parsed.timestamp && (Date.now() - parsed.timestamp < 3600000) && parsed.registry) {
+          treeData = parsed.registry;
+        }
+      } catch (_) {}
+    }
+
+    if (!treeData) {
+      const ghRes = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/trees/main?recursive=1`, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (ghRes.ok) {
+        const ghJson = await ghRes.json();
+        if (Array.isArray(ghJson.tree)) {
+          treeData = parseGitHubTree(ghJson.tree);
+          if (typeof sessionStorage !== 'undefined' && treeData.length > 0) {
+            sessionStorage.setItem('nuvio_avatars_tree_cache', JSON.stringify({
+              timestamp: Date.now(),
+              registry: treeData
+            }));
+          }
+        }
+      }
+    }
+
+    if (treeData && treeData.length > 0) {
+      rawRegistryCache = treeData;
+      compiledAvatarsCache = compileRegistry(treeData);
+      return compiledAvatarsCache;
+    }
+  } catch (err) {
+    console.warn('[AvatarsData] No se pudo obtener árbol de GitHub:', err);
+  }
+
+  try {
+    const isSubfolder = typeof window !== 'undefined' && (
+      window.location.pathname.includes('/account/') || 
+      window.location.pathname.includes('/configuration/') || 
+      window.location.pathname.includes('/documentation/')
+    );
+    const manifestPath = isSubfolder ? '../assets/profile_icons/manifest.json' : './assets/profile_icons/manifest.json';
+    const mRes = await fetch(manifestPath, { cache: forceRefresh ? 'no-cache' : 'default' });
+    if (mRes.ok) {
+      const mJson = await mRes.json();
+      if (Array.isArray(mJson.styles)) {
+        const manifestRegistry = [];
+        for (const s of mJson.styles) {
+          for (const f of s.franchises || []) {
+            manifestRegistry.push({
+              style: s.style,
+              franchise: f.franchise,
+              files: f.files || []
+            });
+          }
+        }
+        if (manifestRegistry.length > 0) {
+          rawRegistryCache = manifestRegistry;
+          compiledAvatarsCache = compileRegistry(manifestRegistry);
+          return compiledAvatarsCache;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[AvatarsData] Fallback manifest.json no disponible:', err);
+  }
+
+  rawRegistryCache = RAW_AVATAR_FALLBACK_SEED;
+  compiledAvatarsCache = compileRegistry(RAW_AVATAR_FALLBACK_SEED);
+  return compiledAvatarsCache;
+}
+
+/**
+ * Comparador universal de avatares con ordenamiento coherente:
+ * 1. Compara por nombre base de personaje (A-Z)
+ * 2. Si es el mismo personaje, AGRUPA Y ORDENA POR OBRA / FRANQUICIA (A-Z) para dar sentido
+ * 3. Dentro de la misma obra, ordena por número de variación (1, 2, 3...)
+ * 4. Si aún coinciden, ordena por estilo
+ */
+export function compareAvatars(a, b) {
+  const baseA = a.baseCharacter || a.character;
+  const baseB = b.baseCharacter || b.character;
+  const charComp = baseA.localeCompare(baseB, 'es', { sensitivity: 'base' });
+  if (charComp !== 0) return charComp;
+
+  const franComp = a.franchiseName.localeCompare(b.franchiseName, 'es', { sensitivity: 'base' });
+  if (franComp !== 0) return franComp;
+
+  const numA = a.variationNumber || 0;
+  const numB = b.variationNumber || 0;
+  if (numA !== numB) return numA - numB;
+
+  const styleComp = a.styleName.localeCompare(b.styleName, 'es', { sensitivity: 'base' });
+  if (styleComp !== 0) return styleComp;
+
+  return a.character.localeCompare(b.character, 'es', { sensitivity: 'base' });
+}
+
+/**
+ * Compila y normaliza todos los avatares en un catálogo plano enriquecido
+ */
+export function getCompiledAvatars() {
+  if (compiledAvatarsCache) return compiledAvatarsCache;
+  compiledAvatarsCache = compileRegistry(rawRegistryCache || RAW_AVATAR_FALLBACK_SEED);
+  return compiledAvatarsCache;
 }
 
 /**

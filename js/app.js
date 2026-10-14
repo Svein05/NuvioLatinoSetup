@@ -23,6 +23,7 @@ import {
 } from './badge-packs.js';
 import { initCompletionsCounterUI, recordSuccessfulCompletion } from './counter.js';
 import { 
+  loadAvatarsCatalog,
   getCompiledAvatars, 
   filterAvatars, 
   resolveAvatarCdnUrl, 
@@ -300,6 +301,9 @@ class AppController {
 
     // Inicializar contador global de configuraciones
     initCompletionsCounterUI();
+
+    // Pre-cargar catálogo de avatares en segundo plano
+    loadAvatarsCatalog().catch(() => null);
 
     await state.loadTemplates();
     this.miniNuvio.init();
@@ -1334,12 +1338,13 @@ class AppController {
     }
   }
 
-  openWizardAvatarPicker() {
+  async openWizardAvatarPicker() {
     const modal = document.getElementById('modalWizardAvatarPicker');
     if (!modal) return;
     this.wizardAvatarFilters = { franchise: 'all', query: '' };
     const searchInput = document.getElementById('inputWizardAvatarSearch');
     if (searchInput) searchInput.value = '';
+    await loadAvatarsCatalog();
     this.updateWizardFranchiseTriggerLabel();
     this.renderWizardAvatarsCatalog();
     modal.classList.remove('hidden');
@@ -1354,11 +1359,12 @@ class AppController {
     }
   }
 
-  openWizardFranchisesModal() {
+  async openWizardFranchisesModal() {
     const modal = document.getElementById('modalWizardFranchises');
     const grid = document.getElementById('wizardFranchisesListGrid');
     if (!modal || !grid) return;
 
+    await loadAvatarsCatalog();
     const franchises = getFranchisesSummary('all');
     const currentId = this.wizardAvatarFilters?.franchise || 'all';
 

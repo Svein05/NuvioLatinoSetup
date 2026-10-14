@@ -1,0 +1,136 @@
+{
+  "updatedAt": "2026-10-14T23:30:00Z",
+  "styles": [
+    {
+      "style": "IconsStyle",
+      "franchises": [
+        {
+          "franchise": "Naruto",
+          "files": [
+            "Naruto_Naruto.jpg",
+            "Naruto_Naruto2.jpg"
+          ]
+        },
+        {
+          "franchise": "NarutoShippuden",
+          "files": [
+            "NarutoShippuden_Naruto.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "style": "NetflixStyle",
+      "franchises": [
+        {
+          "franchise": "NarutoShippuden",
+          "files": [
+            "NarutoShippuden_Anko.png",
+            "NarutoShippuden_Asuma.png",
+            "NarutoShippuden_Baki.png",
+            "NarutoShippuden_Choji.png",
+            "NarutoShippuden_Deidara.png",
+            "NarutoShippuden_Gaara.png",
+            "NarutoShippuden_Gai.png",
+            "NarutoShippuden_Hidan.png",
+            "NarutoShippuden_Hinata.png",
+            "NarutoShippuden_Ino.png",
+            "NarutoShippuden_Itachi.png",
+            "NarutoShippuden_Jiraiya.png",
+            "NarutoShippuden_Kabuto.png",
+            "NarutoShippuden_Kakashi.png",
+            "NarutoShippuden_Kankuro.png",
+            "NarutoShippuden_Kiba.png",
+            "NarutoShippuden_Kisame.png",
+            "NarutoShippuden_Kurenai.png",
+            "NarutoShippuden_Naruto.png",
+            "NarutoShippuden_Neji.png",
+            "NarutoShippuden_Orochimaru.png",
+            "NarutoShippuden_Rock.png",
+            "NarutoShippuden_Sae.png",
+            "NarutoShippuden_Sakura.png",
+            "NarutoShippuden_Sasori1.png",
+            "NarutoShippuden_Sasori2.png",
+            "NarutoShippuden_Sasuke.png",
+            "NarutoShippuden_Shikamaru.png",
+            "NarutoShippuden_Shino.png",
+            "NarutoShippuden_Temari.png",
+            "NarutoShippuden_Tsunade.png",
+            "NarutoShippuden_Yamato.png"
+          ]
+        },
+        {
+          "franchise": "OnePiece",
+          "files": [
+            "OnePiece_Brook.png",
+            "OnePiece_Chopper.png",
+            "OnePiece_Franky.png",
+            "OnePiece_GoingMerry.jpeg",
+            "OnePiece_Jinbe.png",
+            "OnePiece_Luffy1.png",
+            "OnePiece_Luffy2.png",
+            "OnePiece_Nami.png",
+            "OnePiece_Robin.png",
+            "OnePiece_Sanji.png",
+            "OnePiece_ThousandSunny.jpeg",
+            "OnePiece_Usopp.jpeg",
+            "OnePiece_Zoro.png"
+          ]
+        },
+        {
+          "franchise": "X-men97",
+          "files": [
+            "X-men97_Archangel.jpeg",
+            "X-men97_Banshee.jpeg",
+            "X-men97_Bastion.jpeg",
+            "X-men97_Beast.jpeg",
+            "X-men97_Bishop.jpeg",
+            "X-men97_Blob.jpeg",
+            "X-men97_Cable.jpeg",
+            "X-men97_CaptainAmerica.jpeg",
+            "X-men97_Colossus.jpeg",
+            "X-men97_Cyclops1.jpeg",
+            "X-men97_Cyclops2.jpeg",
+            "X-men97_Dazzler.jpeg",
+            "X-men97_Deathbird.jpeg",
+            "X-men97_EmmaFrost.jpeg",
+            "X-men97_Forge.jpeg",
+            "X-men97_Gambit.jpeg",
+            "X-men97_GoblinQueen.jpeg",
+            "X-men97_Jubilee.jpeg",
+            "X-men97_Juggernaut.jpeg",
+            "X-men97_LadyDeathstrike.jpeg",
+            "X-men97_LilandraNeramani.jpeg",
+            "X-men97_Magneto1.jpeg",
+            "X-men97_Magneto2.jpeg",
+            "X-men97_MaryJane.jpeg",
+            "X-men97_Mojo.jpeg",
+            "X-men97_Morph1.jpeg",
+            "X-men97_Morph2.jpeg",
+            "X-men97_Mr.Sinister.jpeg",
+            "X-men97_NathanSummers.jpeg",
+            "X-men97_Nightcrawler.jpeg",
+            "X-men97_OmegaRed.jpeg",
+            "X-men97_Phoenix.jpeg",
+            "X-men97_Phoenix2.jpeg",
+            "X-men97_Psylocke.jpeg",
+            "X-men97_Quicksilver.jpeg",
+            "X-men97_Rogue1.jpeg",
+            "X-men97_Rogue2.jpeg",
+            "X-men97_Sentinel.jpeg",
+            "X-men97_SilverSamurai.jpeg",
+            "X-men97_Spiderman1.jpeg",
+            "X-men97_Spiderman2.jpeg",
+            "X-men97_Spiral.jpeg",
+            "X-men97_Storm1.jpeg",
+            "X-men97_Storm2.jpeg",
+            "X-men97_Sunspot.jpeg",
+            "X-men97_Wolverine1.jpeg",
+            "X-men97_Wolverine2.jpeg",
+            "X-men97_X-cutioner.jpeg"
+          ]
+        }
+      ]
+    }
+  ]
+}
