@@ -33,19 +33,28 @@ export function resolveAvatarCdnUrl(avatarPath) {
 }
 
 // Formateadores universales y limpios (sin diccionarios ni listas fijas)
+function safeDecode(str) {
+  if (!str) return '';
+  try {
+    return decodeURIComponent(str);
+  } catch (_) {
+    return str;
+  }
+}
+
 export function formatStyleName(rawStyle) {
   if (!rawStyle || rawStyle === 'all') return 'Todos los estilos';
-  return rawStyle.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  return safeDecode(rawStyle).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
 export function formatFranchiseName(rawFranchise) {
   if (!rawFranchise || rawFranchise === 'all') return 'Todas las obras';
-  return rawFranchise.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  return safeDecode(rawFranchise).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
 export function formatCharacterName(rawName) {
   if (!rawName) return 'Desconocido';
-  return rawName.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  return safeDecode(rawName).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
 let compiledAvatarsCache = null;
@@ -73,7 +82,7 @@ async function crawlLocalAvatars() {
   const registry = [];
 
   for (const style of styles) {
-    const stylePath = `${basePath}${style}/`;
+    const stylePath = `${basePath}${encodeURIComponent(style)}/`;
     try {
       const styleRes = await fetch(`${origin}${stylePath}`, { cache: 'no-cache' });
       if (!styleRes.ok) continue;
@@ -82,7 +91,7 @@ async function crawlLocalAvatars() {
       const franchises = franchiseLinks.filter(l => !l.includes('.') && l !== '..' && l !== '');
 
       for (const franchise of franchises) {
-        const franchisePath = `${stylePath}${franchise}/`;
+        const franchisePath = `${stylePath}${encodeURIComponent(franchise)}/`;
         try {
           const franRes = await fetch(`${origin}${franchisePath}`, { cache: 'no-cache' });
           if (!franRes.ok) continue;
@@ -126,8 +135,12 @@ function extractChildLinks(htmlText, currentDirectoryPath) {
 
       if (!resolvedPath.startsWith(cleanDir) || resolvedPath === cleanDir) return;
 
-      const sub = resolvedPath.substring(cleanDir.length).replace(/\/+$/, '');
+      let sub = resolvedPath.substring(cleanDir.length).replace(/\/+$/, '');
       if (!sub || sub.includes('/')) return;
+
+      try {
+        sub = decodeURIComponent(sub);
+      } catch (_) {}
 
       if (!links.includes(sub)) {
         links.push(sub);
@@ -145,9 +158,9 @@ function parseGitHubTree(tree) {
     if (item.type !== 'blob' || !item.path.startsWith('assets/profile_icons/')) continue;
     const parts = item.path.split('/');
     if (parts.length === 5) {
-      const style = parts[2];
-      const franchise = parts[3];
-      const file = parts[4];
+      const style = safeDecode(parts[2]);
+      const franchise = safeDecode(parts[3]);
+      const file = safeDecode(parts[4]);
       if (/\.(jpe?g|png|webp|svg)$/i.test(file) && !file.startsWith('.') && !/desktop\.ini$/i.test(file)) {
         const key = `${style}::${franchise}`;
         if (!map.has(key)) map.set(key, { style, franchise, files: [] });
@@ -183,9 +196,19 @@ export function compileRegistry(registry) {
       const baseName = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName;
       const extension = dotIndex !== -1 ? fileName.substring(dotIndex + 1).toLowerCase() : '';
 
+      // Quitar prefijo de franquicia si el archivo fue nombrado {Franquicia}_{Personaje}
       let rawChar = baseName;
-      if (baseName.toLowerCase().startsWith(`${franchise.toLowerCase()}_`)) {
-        rawChar = baseName.substring(franchise.length + 1);
+      const cleanFranchise = franchise.toLowerCase();
+      const franchiseNoSpaces = cleanFranchise.replace(/[\s\-_]/g, '');
+      const baseLower = baseName.toLowerCase();
+
+      if (baseLower.startsWith(`${cleanFranchise}_`)) {
+        rawChar = baseName.substring(cleanFranchise.length + 1);
+      } else if (baseLower.startsWith(`${franchiseNoSpaces}_`)) {
+        const underscoreIdx = baseName.indexOf('_');
+        if (underscoreIdx !== -1) {
+          rawChar = baseName.substring(underscoreIdx + 1);
+        }
       }
 
       let baseChar = '';
@@ -206,7 +229,7 @@ export function compileRegistry(registry) {
         baseChar,
         variationNum,
         extension,
-        relativePath: `${relPrefix}assets/profile_icons/${style}/${franchise}/${fileName}`
+        relativePath: `${relPrefix}assets/profile_icons/${encodeURI(style)}/${encodeURI(franchise)}/${encodeURI(fileName)}`
       });
     }
 
