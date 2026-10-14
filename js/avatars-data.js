@@ -54,7 +54,11 @@ export function formatFranchiseName(rawFranchise) {
 
 export function formatCharacterName(rawName) {
   if (!rawName) return 'Desconocido';
-  return safeDecode(rawName).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  return safeDecode(rawName)
+    .replace(/_/g, ' ')
+    .replace(/\.([A-Za-z])/g, '. $1')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim();
 }
 
 let compiledAvatarsCache = null;
@@ -198,16 +202,24 @@ export function compileRegistry(registry) {
 
       // Quitar prefijo de franquicia si el archivo fue nombrado {Franquicia}_{Personaje}
       let rawChar = baseName;
-      const cleanFranchise = franchise.toLowerCase();
-      const franchiseNoSpaces = cleanFranchise.replace(/[\s\-_]/g, '');
-      const baseLower = baseName.toLowerCase();
+      const underscoreIdx = baseName.indexOf('_');
+      const normFranchise = franchise.toLowerCase().replace(/[^a-z0-9]/g, '');
 
-      if (baseLower.startsWith(`${cleanFranchise}_`)) {
-        rawChar = baseName.substring(cleanFranchise.length + 1);
-      } else if (baseLower.startsWith(`${franchiseNoSpaces}_`)) {
-        const underscoreIdx = baseName.indexOf('_');
-        if (underscoreIdx !== -1) {
+      if (underscoreIdx !== -1) {
+        const prefix = baseName.substring(0, underscoreIdx);
+        const normPrefix = prefix.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (normPrefix === normFranchise) {
           rawChar = baseName.substring(underscoreIdx + 1);
+        }
+      } else {
+        const cleanBase = baseName.trim();
+        const normBase = cleanBase.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (normBase.startsWith(normFranchise)) {
+          const escaped = franchise.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(`^${escaped}[_\\-\\s]*`, 'i');
+          if (regex.test(cleanBase)) {
+            rawChar = cleanBase.replace(regex, '');
+          }
         }
       }
 
