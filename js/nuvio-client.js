@@ -647,7 +647,7 @@ export class NuvioClient {
     // 2. Fallback REST a /rest/v1/collections
     const cleanUrl = apiUrl.replace(/\/+$/, '');
     try {
-      const endpoint = `${cleanUrl}/rest/v1/collections?profile_id=eq.${encodeURIComponent(profId)}&select=*`;
+      const endpoint = `${cleanUrl}/rest/v1/collections?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc,id.desc`;
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
@@ -664,7 +664,7 @@ export class NuvioClient {
 
     // 3. Fallback adicional a /rest/v1/profile_collections
     try {
-      const endpoint2 = `${cleanUrl}/rest/v1/profile_collections?profile_id=eq.${encodeURIComponent(profId)}&select=*`;
+      const endpoint2 = `${cleanUrl}/rest/v1/profile_collections?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc,id.desc`;
       const response2 = await fetch(endpoint2, {
         method: 'GET',
         headers: {
@@ -705,10 +705,10 @@ export class NuvioClient {
       console.warn(`[NuvioClient] sync_pull_profile_settings_blob (${platform}) falló:`, rpcErr.message);
     }
 
-    // 2. Fallback REST
+    // 2. Fallback REST con plataforma específica
     const cleanUrl = apiUrl.replace(/\/+$/, '');
     try {
-      const endpoint = `${cleanUrl}/rest/v1/profile_settings?profile_id=eq.${encodeURIComponent(profId)}&platform=eq.${encodeURIComponent(platform)}&select=*`;
+      const endpoint = `${cleanUrl}/rest/v1/profile_settings?profile_id=eq.${encodeURIComponent(profId)}&platform=eq.${encodeURIComponent(platform)}&select=*&order=updated_at.desc,id.desc`;
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {
@@ -719,7 +719,28 @@ export class NuvioClient {
       });
       if (response.ok) {
         const rows = await response.json();
-        return Array.isArray(rows) && rows.length > 0 ? (rows[0].settings || rows[0]) : null;
+        if (Array.isArray(rows) && rows.length > 0) {
+          return rows[0].settings || rows[0].settings_json || rows[0];
+        }
+      }
+    } catch (_) {}
+
+    // 3. Fallback REST sin filtro exclusivo de plataforma (cualquiera guardada en Nuvio)
+    try {
+      const endpointAll = `${cleanUrl}/rest/v1/profile_settings?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc,id.desc`;
+      const responseAll = await fetch(endpointAll, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (responseAll.ok) {
+        const rowsAll = await responseAll.json();
+        if (Array.isArray(rowsAll) && rowsAll.length > 0) {
+          return rowsAll[0].settings || rowsAll[0].settings_json || rowsAll[0];
+        }
       }
     } catch (_) {}
 

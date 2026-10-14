@@ -13,7 +13,10 @@ import {
   getBadgePackById, 
   addCustomBadgePack, 
   getPackSectionsOrdered, 
-  getBadgeModuleLabel 
+  getBadgeModuleLabel,
+  getCanonicalModuleId,
+  isSectionActive,
+  BADGE_MODULE_DEFINITIONS
 } from './badge-packs.js';
 import { 
   getCompiledAvatars, 
@@ -23,7 +26,8 @@ import {
   formatCharacterName, 
   formatFranchiseName, 
   formatStyleName,
-  resolveAvatarCdnUrl
+  resolveAvatarCdnUrl,
+  loadAvatarsCatalog
 } from './avatars-data.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
@@ -81,7 +85,10 @@ export const accountState = {
     tmdb_api_key: '',
     mdblist_api_key: '',
     badgesEnabled: false,
-    selectedBadgePack: 'tinted'
+    selectedBadgePack: 'tinted',
+    activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
+    badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
+    stream_badge_rules: ''
   },
   originalSettings: {},
 
@@ -274,13 +281,9 @@ export async function selectProfile(profileId) {
   accountState.dirty = { collections: false, aiometadata: false, settings: false, avatar: false };
   updateSaveButton();
 
-  // Si ya nos encontramos en la sección de avatares, re-renderizar de inmediato
-  if (accountState.activeSection === 'avatars') {
-    renderAvatarsSection();
-  } else {
-    // Activar por defecto la sección Resumen
-    switchSection('overview');
-  }
+  // Respetar la sección actualmente activa o activar Resumen por defecto
+  const targetSection = accountState.activeSection || 'overview';
+  switchSection(targetSection);
 
   // Cargar concurrentemente los datos del perfil seleccionado
   await Promise.all([
@@ -740,10 +743,28 @@ async function loadProfileSettings() {
       }).catch(() => [])
     ]);
 
-    const features = blob?.features || blob?.settings?.features || blob?.p_settings?.features || blob || {};
+    // Extractor multi-envoltura resiliente (features, p_settings_json, settings_json, settings)
+    let features = null;
+    let rawBlob = blob;
+    if (typeof rawBlob === 'string') {
+      try { rawBlob = JSON.parse(rawBlob); } catch (_) {}
+    }
+    if (rawBlob && typeof rawBlob === 'object') {
+      let pSettings = rawBlob.p_settings_json || rawBlob.settings_json || rawBlob.p_settings || rawBlob.settings;
+      if (typeof pSettings === 'string') {
+        try { pSettings = JSON.parse(pSettings); } catch (_) {}
+      }
+      features = pSettings?.features || rawBlob.features || pSettings || rawBlob;
+    } else {
+      features = {};
+    }
+    if (typeof features === 'string') {
+      try { features = JSON.parse(features); } catch (_) { features = {}; }
+    }
+
     const tmdb = features.tmdb_settings || features.tmdb || {};
     const mdblist = features.mdblist_settings || features.mdblist || {};
-    const streamBadges = features.stream_badge_settings || {};
+    const streamBadges = features.stream_badge_settings || features.stream_badges || features.badges || {};
 
     // 1. Extraer credenciales oficiales de Nuvio (soportando objeto o string JSON)
     const tmdbCred = (credentials || []).find(c => String(c.provider || '').toLowerCase() === 'tmdb');
@@ -782,12 +803,29 @@ async function loadProfileSettings() {
     const resolvedMdblistKey = (credMdblistKey || blobMdblistKey || aioMdblistKey || prevMdblistKey || '').trim();
 
     // 5. Detectar Fusion Badges en Nuvio
-    const rawBadgeRules = streamBadges.stream_badge_rules?.value || streamBadges.stream_badge_rules || '';
-    const hasBadges = Boolean(rawBadgeRules && String(rawBadgeRules).trim().length > 10 && rawBadgeRules !== 'null');
+    let rawBadgeRules = streamBadges.stream_badge_rules?.value || 
+                        streamBadges.stream_badge_rules || 
+                        features.stream_badge_rules?.value || 
+                        features.stream_badge_rules || 
+                        '';
+    if (typeof rawBadgeRules === 'object' && rawBadgeRules !== null) {
+      try { rawBadgeRules = JSON.stringify(rawBadgeRules); } catch (_) {}
+    }
+    const rawBadgeStr = String(rawBadgeRules || '').trim();
+    const hasBadges = Boolean(
+      rawBadgeStr.length > 5 && 
+      rawBadgeStr !== 'null' && 
+      rawBadgeStr !== '{}' && 
+      rawBadgeStr !== '[]' &&
+      (rawBadgeStr.includes('imports') || rawBadgeStr.includes('rules') || rawBadgeStr.includes('nuvio-badges') || rawBadgeStr.includes('http') || rawBadgeStr.length > 15)
+    );
 
     let detectedPack = 'tinted';
-    if (rawBadgeRules) {
-      const lower = String(rawBadgeRules).toLowerCase();
+    let activeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+    let orderModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+
+    if (rawBadgeStr) {
+      const lower = rawBadgeStr.toLowerCase();
       const matchedKnownPack = BADGE_PACKS.find(p => 
         (p.rawV2 && lower.includes(p.rawV2.toLowerCase())) ||
         (p.rawV1 && lower.includes(p.rawV1.toLowerCase())) ||
@@ -802,7 +840,7 @@ async function loadProfileSettings() {
         detectedPack = 'solid';
       } else if (lower.includes('clear')) {
         detectedPack = 'clear';
-      } else if (lower.includes('tinted')) {
+      } else if (lower.includes('tinted') || lower.includes('nuvio-badges-latino')) {
         detectedPack = 'tinted';
       } else if (hasBadges) {
         // Pack personalizado externo configurado en Nuvio
@@ -810,7 +848,7 @@ async function loadProfileSettings() {
         if (!BADGE_PACKS.some(p => p.id === customId)) {
           let customAuthor = 'Configuración Nuvio';
           try {
-            const parsed = typeof rawBadgeRules === 'string' ? JSON.parse(rawBadgeRules) : rawBadgeRules;
+            const parsed = JSON.parse(rawBadgeStr);
             if (parsed?.imports?.[0]?.sourceUrl) {
               const src = parsed.imports[0].sourceUrl;
               customAuthor = src.replace(/^https?:\/\//, '').split('/')[0] || customAuthor;
@@ -832,6 +870,18 @@ async function loadProfileSettings() {
         }
         detectedPack = customId;
       }
+
+      // Extraer orden y módulos activos si vienen en el JSON
+      try {
+        const parsed = JSON.parse(rawBadgeStr);
+        if (Array.isArray(parsed?.rules) && parsed.rules.length > 0) {
+          const ruleIds = parsed.rules.map(r => r.id).filter(Boolean);
+          if (ruleIds.length > 0) {
+            orderModules = ruleIds;
+            activeModules = ruleIds;
+          }
+        }
+      } catch (_) {}
     }
 
     accountState.settings = {
@@ -841,7 +891,10 @@ async function loadProfileSettings() {
       tmdb_api_key: resolvedTmdbKey,
       mdblist_api_key: resolvedMdblistKey,
       badgesEnabled: hasBadges,
-      selectedBadgePack: detectedPack
+      selectedBadgePack: detectedPack,
+      activeBadgeModules: activeModules,
+      badgeModulesOrder: orderModules,
+      stream_badge_rules: rawBadgeStr
     };
     accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));
     accountState.dirty.settings = false;
@@ -1927,27 +1980,61 @@ function processUploadedAvatarFile(file) {
         
         const base64Clean = canvas.toDataURL('image/jpeg', 0.85).replace(/^data:image\/[a-z]+;base64,/, '');
 
-        // Subir a hosting público con CORS para obtener URL corta compatible con Nuvio TV y PostgREST
-        try {
-          const formData = new FormData();
-          formData.append('image', base64Clean);
-          
-          const uploadRes = await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa5ad3ac50ce6c452', {
-            method: 'POST',
-            body: formData
-          });
+        // Subir a hosting público con CORS para obtener URL corta compatible con Nuvio TV (varchar 255)
+        let uploadedPublicUrl = null;
 
-          if (uploadRes.ok) {
-            const uploadData = await uploadRes.json();
-            const publicUrl = uploadData?.data?.display_url || uploadData?.data?.url;
-            if (publicUrl) {
-              setNewSelectedAvatar(publicUrl);
-              showToast('✓ Imagen subida con éxito y lista para guardar.', 'success');
-              return;
+        // 1. Intentar ImgBB con múltiples API Keys rotativas
+        const imgbbKeys = [
+          '6d207e02198a847aa5ad3ac50ce6c452',
+          '2b6a9e144a1eb4fc47c5d7999713b192',
+          'e647b1c3b17fb3a54b38345c264a78aa'
+        ];
+
+        for (const key of imgbbKeys) {
+          try {
+            const formData = new FormData();
+            formData.append('image', base64Clean);
+            const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
+              method: 'POST',
+              body: formData
+            });
+
+            if (uploadRes.ok) {
+              const uploadData = await uploadRes.json();
+              const url = uploadData?.data?.display_url || uploadData?.data?.url;
+              if (url && url.startsWith('http')) {
+                uploadedPublicUrl = url;
+                break;
+              }
             }
-          }
-        } catch (netErr) {
-          console.warn('[AvatarUpload] Subida externa falló:', netErr);
+          } catch (_) {}
+        }
+
+        // 2. Fallback: tmpfiles.org
+        if (!uploadedPublicUrl) {
+          try {
+            const blobData = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
+            if (blobData) {
+              const formData = new FormData();
+              formData.append('file', blobData, 'avatar.jpg');
+              const tfRes = await fetch('https://tmpfiles.org/api/v1/upload', {
+                method: 'POST',
+                body: formData
+              });
+              if (tfRes.ok) {
+                const tfData = await tfRes.json();
+                if (tfData?.data?.url) {
+                  uploadedPublicUrl = tfData.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+                }
+              }
+            }
+          } catch (_) {}
+        }
+
+        if (uploadedPublicUrl) {
+          setNewSelectedAvatar(uploadedPublicUrl);
+          showToast('✓ Imagen subida con éxito y lista para guardar.', 'success');
+          return;
         }
 
         showToast('No se pudo subir automáticamente a la nube. Pega un enlace https:// directo abajo.', 'warning');
@@ -2799,6 +2886,28 @@ export function renderSettingsSection() {
 
   const isBadgesActive = Boolean(accountState.settings.badgesEnabled);
   const selectedPackId = accountState.settings.selectedBadgePack || 'tinted';
+  const activeIds = accountState.settings.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+  const orderIds = accountState.settings.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+  const activeSet = new Set(activeIds);
+  const currentPack = getBadgePackById(selectedPackId);
+
+  // Módulos disponibles combinando catálogo base con módulos del pack actual
+  const allModulesMap = new Map();
+  BADGE_MODULE_DEFINITIONS.forEach(def => allModulesMap.set(def.id, def));
+  if (currentPack && currentPack.sections) {
+    currentPack.sections.forEach(sec => {
+      const canonId = getCanonicalModuleId(sec.id);
+      if (!allModulesMap.has(canonId) && !allModulesMap.has(sec.id)) {
+        allModulesMap.set(sec.id, {
+          id: sec.id,
+          labelEs: getBadgeModuleLabel(sec.id, sec.name),
+          defaultActive: true
+        });
+      }
+    });
+  }
+  const moduleDefs = Array.from(allModulesMap.values());
+  const activeOrdered = orderIds.filter(id => isSectionActive(id, activeSet));
 
   container.innerHTML = `
     <div class="space-y-6">
@@ -2856,7 +2965,7 @@ export function renderSettingsSection() {
       </div>
 
       <!-- 2. Fusion Badges de Nuvio (Stream Badges) -->
-      <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4">
+      <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-5">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div>
             <h4 class="text-sm font-semibold text-white flex items-center gap-2">
@@ -2873,84 +2982,185 @@ export function renderSettingsSection() {
           </label>
         </div>
 
-        <!-- Selector de Packs de Badges con Vista Detallada Idéntica al Setup -->
-        <div id="badgesPackSelectorContainer" class="${isBadgesActive ? '' : 'hidden'} pt-2 space-y-4">
-          <label class="text-xs text-white/70 block font-medium">Paquete de Diseño de Badges</label>
-          <div class="space-y-4">
-            ${BADGE_PACKS.map(pack => {
-              const isSelected = pack.id === selectedPackId;
-              const borderClass = isSelected
-                ? 'border-[#ffd479] bg-white/[0.07] shadow-[0_0_25px_rgba(255,212,121,0.22)]'
-                : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20';
+        <!-- Contenedor Completo de Personalización de Badges -->
+        <div id="badgesPackSelectorContainer" class="${isBadgesActive ? '' : 'hidden'} space-y-5 pt-1">
+          
+          <!-- Módulos / Categorías Activas con Checkboxes -->
+          <div class="space-y-2 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-white/80 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-toggle-on text-[#ffd479] text-xs"></i>
+                <span>Categorías de Insignias Activas</span>
+              </label>
+              <span class="text-[10px] text-white/40 font-mono">${activeIds.length} activadas</span>
+            </div>
+            <div id="badgeModulesCheckboxes" class="flex flex-wrap gap-2 pt-1">
+              ${moduleDefs.map(def => {
+                const isChecked = isSectionActive(def.id, activeSet);
+                return `
+                  <label class="badge-module-pill flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isChecked ? 'border-[#ffd479]/40 bg-[#ffd479]/10 text-white' : 'border-white/[0.08] bg-white/[0.02] text-white/60'} hover:border-white/20 cursor-pointer text-xs transition-all select-none">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} class="sr-only chk-badge-module" data-module-id="${def.id}">
+                    <div class="w-4 h-4 rounded-md border ${isChecked ? 'border-[#ffd479] bg-[#ffd479] text-black' : 'border-white/30 bg-transparent text-transparent'} flex items-center justify-center transition-all check-indicator">
+                      <i class="fa-solid fa-check text-[10px]"></i>
+                    </div>
+                    <span class="font-medium">+ ${def.labelEs}</span>
+                  </label>
+                `;
+              }).join('')}
+            </div>
+          </div>
 
-              const checkIcon = isSelected
-                ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
-                : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
+          <!-- Barra de Reordenamiento Secuencial con Flechas < y > -->
+          <div class="space-y-2 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-white/80 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-arrows-left-right text-[#ffd479] text-xs"></i>
+                <span>Orden de Visualización en el Reproductor</span>
+              </label>
+              <span class="text-[10px] text-white/40">Usa las flechas para mover</span>
+            </div>
+            <div id="badgeModulesOrderBar" class="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-black/40 border border-white/10 min-h-[46px]">
+              ${activeOrdered.length === 0 ? `
+                <span class="text-[11px] text-white/40 italic">Ningún módulo activado. Marca categorías arriba para incluirlas y ordenarlas.</span>
+              ` : activeOrdered.map((id, idx) => {
+                const isFirst = (idx === 0);
+                const isLast = (idx === activeOrdered.length - 1);
+                const label = getBadgeModuleLabel(id);
+                return `
+                  <div class="badge-order-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/10 text-xs text-white">
+                    <span class="font-mono text-[10px] text-[#ffd479] font-bold">${idx + 1}.</span>
+                    <span>${label}</span>
+                    <div class="flex items-center gap-1 ml-1">
+                      <button type="button" ${isFirst ? 'disabled' : ''} data-module-id="${id}" data-delta="-1" class="btn-move-badge-module w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-[10px] text-white/60 hover:text-white disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed" title="Mover a la izquierda / antes">
+                        <i class="fa-solid fa-chevron-left"></i>
+                      </button>
+                      <button type="button" ${isLast ? 'disabled' : ''} data-module-id="${id}" data-delta="1" class="btn-move-badge-module w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-[10px] text-white/60 hover:text-white disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed" title="Mover a la derecha / después">
+                        <i class="fa-solid fa-chevron-right"></i>
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
 
-              const activeIds = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-              const orderIds = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-              const visibleSections = getPackSectionsOrdered(pack, activeIds, orderIds);
+          <!-- Acciones de Importación y Exportación JSON -->
+          <div class="flex flex-wrap items-center justify-between gap-2.5 pt-1">
+            <button type="button" id="btnToggleImportBadge" class="lat-capsule-btn glass text-xs py-2 px-3.5 flex items-center gap-1.5">
+              <i class="fa-solid fa-file-import text-indigo-400"></i>
+              <span>Importar Pack Personalizado</span>
+            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btnCopyBadgeRulesJson" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5" title="Copiar configuración JSON compilada al portapapeles">
+                <i class="fa-regular fa-copy text-[#ffd479]"></i>
+                <span>Copiar JSON</span>
+              </button>
+              <button type="button" id="btnDownloadBadgeRulesJson" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5" title="Descargar archivo JSON listo para Nuvio">
+                <i class="fa-solid fa-download text-emerald-400"></i>
+                <span>Descargar JSON</span>
+              </button>
+            </div>
+          </div>
 
-              const sectionsHtml = visibleSections.map(sec => {
-                const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
-                const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
-                const badgesHtml = (sec.items || []).map(b => {
-                  const isFlag = (sec.id === 'glang' || sec.id === 'gl' || sec.id === 'lang');
-                  const isSub = (sec.id === 'gsub' || sec.id === 'sub');
-                  const imgClass = isFlag
-                    ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
-                    : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
-                  const widthAttr = isFlag ? 'width="21"' : '';
-                  const heightAttr = 'height="14"';
+          <!-- Cajón de Importación de Pack Personalizado (Oculto por defecto) -->
+          <div id="accountImportBadgeDrawer" class="hidden p-4 rounded-2xl bg-white/[0.03] border border-white/12 space-y-3">
+            <div class="flex items-center justify-between">
+              <h5 class="text-xs font-semibold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-code text-[#ffd479]"></i>
+                <span>Importar Pack de Badges por URL o JSON</span>
+              </h5>
+              <button type="button" id="btnCancelImportBadge" class="text-white/40 hover:text-white text-xs">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div>
+              <textarea id="inputAccountCustomBadge" rows="3" placeholder="Pega el enlace directo a tu archivo badges.json (ej: https://raw.githubusercontent.com/.../badges.json) o el código JSON completo..." class="lat-field w-full text-xs font-mono"></textarea>
+            </div>
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" id="btnConfirmImportBadge" class="lat-capsule-btn solid text-xs py-1.5 px-4 text-black bg-[#ffd479] hover:bg-[#ffe099] font-semibold">
+                Importar y Seleccionar
+              </button>
+            </div>
+          </div>
+
+          <!-- Galería de Packs de Badges Disponibles -->
+          <div class="space-y-3 pt-2">
+            <label class="text-xs text-white/80 font-semibold block">Galería de Estilos de Badges</label>
+            <div class="space-y-4">
+              ${BADGE_PACKS.map(pack => {
+                const isSelected = pack.id === selectedPackId;
+                const borderClass = isSelected
+                  ? 'border-[#ffd479] bg-white/[0.07] shadow-[0_0_25px_rgba(255,212,121,0.22)]'
+                  : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20';
+
+                const checkIcon = isSelected
+                  ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
+                  : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
+
+                const visibleSections = getPackSectionsOrdered(pack, activeIds, orderIds);
+
+                const sectionsHtml = visibleSections.map(sec => {
+                  const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
+                  const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
+                  const badgesHtml = (sec.items || []).map(b => {
+                    const isFlag = (sec.id === 'glang' || sec.id === 'gl' || sec.id === 'lang');
+                    const isSub = (sec.id === 'gsub' || sec.id === 'sub');
+                    const imgClass = isFlag
+                      ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
+                      : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
+                    const widthAttr = isFlag ? 'width="21"' : '';
+                    const heightAttr = 'height="14"';
+
+                    return `
+                      <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
+                            style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
+                            title="${b.name}">
+                        ${b.img ? `<img src="${b.img}" alt="${b.name}" ${widthAttr} ${heightAttr} class="${imgClass}" loading="eager" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
+                      </span>
+                    `;
+                  }).join('');
 
                   return `
-                    <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
-                          style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
-                          title="${b.name}">
-                      ${b.img ? `<img src="${b.img}" alt="${b.name}" ${widthAttr} ${heightAttr} class="${imgClass}" loading="eager" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
-                    </span>
+                    <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-start gap-1.5 flex-1 min-w-[190px] sm:min-w-[210px]">
+                      <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold shrink-0">
+                        <span class="truncate">${titleEs}</span>
+                        <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
+                      </div>
+                      <div class="badges-flow-container relative flex flex-wrap items-center gap-1.5 content-start">
+                        ${badgesHtml}
+                      </div>
+                    </div>
                   `;
                 }).join('');
 
                 return `
-                  <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-start gap-1.5 flex-1 min-w-[190px] sm:min-w-[210px]">
-                    <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold shrink-0">
-                      <span class="truncate">${titleEs}</span>
-                      <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
-                    </div>
-                    <div class="badges-flow-container relative flex flex-wrap items-center gap-1.5 content-start">
-                      ${badgesHtml}
+                  <div class="badge-pack-card relative p-5 rounded-[24px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3.5 group shadow-[var(--shadow-lift)]" data-pack-id="${pack.id}">
+                    <div class="space-y-3">
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <div class="flex items-center gap-2">
+                            <h4 class="text-sm font-semibold text-white tracking-wide">${pack.name}</h4>
+                            ${isSelected ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] border border-[#ffd479]/30">Activo</span>' : ''}
+                            ${pack.isCustom ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Personalizado</span>' : ''}
+                          </div>
+                          <div class="flex items-center gap-1.5 text-[11px] text-white/50 pt-0.5">
+                            <i class="fa-brands fa-github text-[#ffd479]"></i>
+                            <span>Hecho por ${pack.authorUrl && pack.authorUrl !== '#' ? `<a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a>` : `<span class="text-[#ffd479] font-medium">${pack.author}</span>`}</span>
+                          </div>
+                        </div>
+                        ${checkIcon}
+                      </div>
+
+                      <div class="flex flex-wrap gap-2 pt-0.5">
+                        ${sectionsHtml}
+                      </div>
                     </div>
                   </div>
                 `;
-              }).join('');
-
-              return `
-                <div class="badge-pack-card relative p-5 rounded-[24px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3.5 group shadow-[var(--shadow-lift)]" data-pack-id="${pack.id}">
-                  <div class="space-y-3">
-                    <div class="flex items-start justify-between gap-3">
-                      <div>
-                        <div class="flex items-center gap-2">
-                          <h4 class="text-sm font-semibold text-white tracking-wide">${pack.name}</h4>
-                          ${isSelected ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] border border-[#ffd479]/30">Activo</span>' : ''}
-                          ${pack.isCustom ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Personalizado</span>' : ''}
-                        </div>
-                        <div class="flex items-center gap-1.5 text-[11px] text-white/50 pt-0.5">
-                          <i class="fa-brands fa-github text-[#ffd479]"></i>
-                          <span>Hecho por ${pack.authorUrl && pack.authorUrl !== '#' ? `<a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a>` : `<span class="text-[#ffd479] font-medium">${pack.author}</span>`}</span>
-                        </div>
-                      </div>
-                      ${checkIcon}
-                    </div>
-
-                    <div class="flex flex-wrap gap-2 pt-0.5">
-                      ${sectionsHtml}
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
+              }).join('')}
+            </div>
           </div>
+
         </div>
       </div>
     </div>
@@ -2985,6 +3195,56 @@ export function renderSettingsSection() {
     });
   }
 
+  // Checkboxes de módulos de categorías
+  container.querySelectorAll('.chk-badge-module').forEach(chk => {
+    chk.addEventListener('change', () => {
+      const modId = chk.dataset.moduleId;
+      const isChecked = chk.checked;
+      let active = accountState.settings.activeBadgeModules || [];
+      const canon = getCanonicalModuleId(modId);
+
+      if (isChecked) {
+        if (!active.includes(modId)) active.push(modId);
+        if (canon && canon !== modId && !active.includes(canon)) active.push(canon);
+      } else {
+        active = active.filter(x => x !== modId && getCanonicalModuleId(x) !== canon);
+      }
+      accountState.settings.activeBadgeModules = active;
+      markDirty('settings', true);
+      renderSettingsSection();
+    });
+  });
+
+  // Reordenar módulos con flechas < y >
+  container.querySelectorAll('.btn-move-badge-module').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const modId = btn.dataset.moduleId;
+      const delta = parseInt(btn.dataset.delta, 10);
+      const active = accountState.settings.activeBadgeModules || [];
+      const order = [...(accountState.settings.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'])];
+      const activeSet = new Set(active);
+      const activeOrdered = order.filter(x => isSectionActive(x, activeSet));
+      const curIdx = activeOrdered.indexOf(modId);
+      const targetIdx = curIdx + delta;
+
+      if (curIdx < 0 || targetIdx < 0 || targetIdx >= activeOrdered.length) return;
+
+      const targetId = activeOrdered[targetIdx];
+      const gCurIdx = order.indexOf(modId);
+      const gTargetIdx = order.indexOf(targetId);
+
+      if (gCurIdx >= 0 && gTargetIdx >= 0) {
+        order[gCurIdx] = targetId;
+        order[gTargetIdx] = modId;
+        accountState.settings.badgeModulesOrder = order;
+        markDirty('settings', true);
+        renderSettingsSection();
+      }
+    });
+  });
+
+  // Selector de packs
   container.querySelectorAll('.badge-pack-card').forEach(cardEl => {
     cardEl.addEventListener('click', () => {
       const pId = cardEl.dataset.packId;
@@ -2995,6 +3255,120 @@ export function renderSettingsSection() {
       }
     });
   });
+
+  // Botón Copiar JSON compilado
+  const btnCopy = document.getElementById('btnCopyBadgeRulesJson');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', async () => {
+      try {
+        const pId = accountState.settings.selectedBadgePack || 'tinted';
+        const pObj = getBadgePackById(pId);
+        const rules = await compileUniversalBadgeRules(pObj, activeIds, orderIds);
+        await navigator.clipboard.writeText(JSON.stringify(rules, null, 2));
+        showToast('✓ Reglas JSON de Fusion Badges copiadas al portapapeles.', 'success');
+      } catch (err) {
+        showToast('No se pudo copiar automáticamente: ' + err.message, 'warning');
+      }
+    });
+  }
+
+  // Botón Descargar JSON compilado
+  const btnDownload = document.getElementById('btnDownloadBadgeRulesJson');
+  if (btnDownload) {
+    btnDownload.addEventListener('click', async () => {
+      try {
+        const pId = accountState.settings.selectedBadgePack || 'tinted';
+        const pObj = getBadgePackById(pId);
+        const rules = await compileUniversalBadgeRules(pObj, activeIds, orderIds);
+        const jsonStr = JSON.stringify(rules, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `nuvio-badges-${pId}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('✓ Archivo JSON de Fusion Badges descargado con éxito.', 'success');
+      } catch (err) {
+        showToast('Error al descargar JSON: ' + err.message, 'error');
+      }
+    });
+  }
+
+  // Botón Toggle Importador
+  const btnToggleImport = document.getElementById('btnToggleImportBadge');
+  const importDrawer = document.getElementById('accountImportBadgeDrawer');
+  const btnCancelImport = document.getElementById('btnCancelImportBadge');
+  const btnConfirmImport = document.getElementById('btnConfirmImportBadge');
+
+  if (btnToggleImport && importDrawer) {
+    btnToggleImport.addEventListener('click', () => {
+      importDrawer.classList.toggle('hidden');
+      if (!importDrawer.classList.contains('hidden')) {
+        document.getElementById('inputAccountCustomBadge')?.focus();
+      }
+    });
+  }
+  if (btnCancelImport && importDrawer) {
+    btnCancelImport.addEventListener('click', () => {
+      importDrawer.classList.add('hidden');
+    });
+  }
+  if (btnConfirmImport && importDrawer) {
+    btnConfirmImport.addEventListener('click', async () => {
+      const inputEl = document.getElementById('inputAccountCustomBadge');
+      const val = (inputEl?.value || '').trim();
+      if (!val) {
+        showToast('Ingresa una URL o código JSON de tu pack.', 'warning');
+        return;
+      }
+
+      let parsedData = null;
+      let isUrl = false;
+
+      if (val.startsWith('http://') || val.startsWith('https://')) {
+        isUrl = true;
+        try {
+          const res = await fetch(val);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          parsedData = await res.json();
+        } catch (fetchErr) {
+          showToast(`Error al obtener el JSON desde la URL: ${fetchErr.message}`, 'error');
+          return;
+        }
+      } else {
+        try {
+          parsedData = JSON.parse(val);
+        } catch (jsonErr) {
+          showToast('El texto ingresado no es un JSON válido ni una URL accesible.', 'error');
+          return;
+        }
+      }
+
+      const customId = `custom-${Date.now()}`;
+      const customAuthor = isUrl ? val.replace(/^https?:\/\//, '').split('/')[0] : 'Personalizado';
+
+      addCustomBadgePack({
+        id: customId,
+        name: parsedData.name || 'Pack Personalizado',
+        author: customAuthor,
+        authorUrl: isUrl ? val : '#',
+        description: parsedData.description || 'Pack de badges importado manualmente en tu cuenta.',
+        isCustom: true,
+        customJson: parsedData,
+        tags: ['Personalizado'],
+        accentColor: '#10b981',
+        sections: parsedData.sections || BADGE_PACKS[0].sections
+      });
+
+      accountState.settings.selectedBadgePack = customId;
+      markDirty('settings', true);
+      renderSettingsSection();
+      showToast('✓ Pack personalizado importado y seleccionado con éxito.', 'success');
+    });
+  }
 }
 
 export async function saveAllChanges() {
@@ -3081,8 +3455,8 @@ export async function saveAllChanges() {
 
       if (accountState.settings.badgesEnabled) {
         const selectedPack = getBadgePackById(accountState.settings.selectedBadgePack) || BADGE_PACKS[0];
-        const activeIds = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-        const orderIds = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+        const activeIds = accountState.settings.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+        const orderIds = accountState.settings.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
         let compiled = { groups: [], filters: [] };
         try {
           compiled = await compileUniversalBadgeRules(selectedPack, activeIds, orderIds);
@@ -3090,10 +3464,14 @@ export async function saveAllChanges() {
           console.warn('[AccountManager] Error compilando badges:', compileErr);
         }
 
+        const sourceUrl = (selectedPack.isCustom && selectedPack.authorUrl && selectedPack.authorUrl !== '#')
+          ? selectedPack.authorUrl
+          : 'custom://nuvio-badges-latino';
+
         const badgeRulesJson = {
           imports: [
             {
-              sourceUrl: 'custom://nuvio-badges-latino',
+              sourceUrl,
               filters: compiled.filters,
               groups: compiled.groups,
               isActive: true
@@ -3313,11 +3691,39 @@ export async function initAccountPage() {
   const btnLogout = document.getElementById('btnAccountLogout');
   const btnSave = document.getElementById('btnAccountSave');
 
-  // Inicializar toggles de contraseña, scroll de pestañas, popover y modales de perfil
+  // 1. Inicialización síncrona inmediata de componentes y controles de interfaz (0ms lag)
   setupPasswordToggles();
   setupScrollableTabs();
   setupProfilePopover();
   setupProfileModals();
+
+  // Navegación por tabs en la sub-barra horizontal (registrado de inmediato)
+  document.querySelectorAll('.account-nav-btn').forEach(btn => {
+    if (!btn.dataset.bound) {
+      btn.dataset.bound = 'true';
+      btn.addEventListener('click', () => {
+        const section = btn.dataset.section;
+        if (section) switchSection(section);
+      });
+    }
+  });
+
+  // Botón de cerrar sesión
+  if (btnLogout && !btnLogout.dataset.bound) {
+    btnLogout.dataset.bound = 'true';
+    btnLogout.addEventListener('click', () => {
+      clearSession();
+      if (dashboardView) dashboardView.classList.add('hidden');
+      if (authView) authView.classList.remove('hidden');
+      showToast('Sesión cerrada correctamente.', 'info');
+    });
+  }
+
+  // Botón de guardar cambios
+  if (btnSave && !btnSave.dataset.bound) {
+    btnSave.dataset.bound = 'true';
+    btnSave.addEventListener('click', saveAllChanges);
+  }
 
   // Suscribirse a cambios en colecciones para marcar dirty (solo cuando el usuario realiza cambios interactivos)
   state.subscribe((s, eventType) => {
@@ -3326,15 +3732,16 @@ export async function initAccountPage() {
     }
   });
 
-  // 1. Revisar si hay sesión activa en sessionStorage
+  // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
+  loadAvatarsCatalog().catch(() => null);
+
+  // 2. Revisar si hay sesión activa en sessionStorage
   const session = loadSession();
   if (session?.accessToken) {
     if (authView) authView.classList.add('hidden');
     if (dashboardView) dashboardView.classList.remove('hidden');
 
     try {
-      // Cargar plantillas en segundo plano sin bloquear la lectura del perfil real
-      state.loadTemplates().catch(() => null);
       await fetchProfiles();
       renderProfilePopover();
 
@@ -3352,8 +3759,9 @@ export async function initAccountPage() {
     if (dashboardView) dashboardView.classList.add('hidden');
   }
 
-  // 2. Formulario de inicio de sesión
-  if (authForm) {
+  // 3. Formulario de inicio de sesión
+  if (authForm && !authForm.dataset.bound) {
+    authForm.dataset.bound = 'true';
     authForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('accountEmail')?.value.trim();
@@ -3388,8 +3796,6 @@ export async function initAccountPage() {
         if (authView) authView.classList.add('hidden');
         if (dashboardView) dashboardView.classList.remove('hidden');
 
-        // Cargar plantillas en segundo plano sin bloquear la lectura del perfil real
-        state.loadTemplates().catch(() => null);
         await fetchProfiles();
         renderProfilePopover();
 
@@ -3407,29 +3813,6 @@ export async function initAccountPage() {
       }
     });
   }
-
-  // 3. Botón de cerrar sesión
-  if (btnLogout) {
-    btnLogout.addEventListener('click', () => {
-      clearSession();
-      if (dashboardView) dashboardView.classList.add('hidden');
-      if (authView) authView.classList.remove('hidden');
-      showToast('Sesión cerrada correctamente.', 'info');
-    });
-  }
-
-  // 4. Botón de guardar cambios
-  if (btnSave) {
-    btnSave.addEventListener('click', saveAllChanges);
-  }
-
-  // 5. Navegación por tabs en la sub-barra horizontal
-  document.querySelectorAll('.account-nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const section = btn.dataset.section;
-      if (section) switchSection(section);
-    });
-  });
 }
 
 // Inicializar automáticamente cuando el DOM esté listo
