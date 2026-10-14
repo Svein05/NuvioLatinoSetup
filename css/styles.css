@@ -2150,7 +2150,7 @@ header.lat-floating-nav nav {
   padding: 0.85rem 1.15rem;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -2159,20 +2159,21 @@ header.lat-floating-nav nav {
   user-select: none;
   width: 100%;
   text-align: left;
+  outline: none;
+  background-clip: padding-box;
 }
 
 .modal-franchise-card:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 212, 121, 0.4);
   color: #ffffff;
-  transform: translateY(-1px);
 }
 
 .modal-franchise-card.is-selected {
   background: rgba(255, 212, 121, 0.12);
   border-color: #ffd479;
   color: #ffd479;
-  box-shadow: 0 0 16px rgba(255, 212, 121, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 212, 121, 0.35), 0 0 16px rgba(255, 212, 121, 0.2);
 }
 
 .modal-franchise-card .pill-badge {
