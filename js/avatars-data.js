@@ -5,6 +5,33 @@
  * Estructura de carpetas: assets/profile_icons/{Estilo}/{Franquicia}/{Franquicia}_{Personaje}.{ext}
  */
 
+import { CONFIG } from './config.js';
+
+/**
+ * Resuelve la URL pública para cualquier avatar de profile_icons mediante jsDelivr CDN
+ */
+export function resolveAvatarCdnUrl(avatarPath) {
+  if (!avatarPath) return '';
+  const trimmed = String(avatarPath).trim();
+  // Migración automática de enlaces raw de GitHub a jsDelivr CDN
+  if (trimmed.includes('raw.githubusercontent.com') && trimmed.includes('/assets/profile_icons/')) {
+    const sub = trimmed.split('/assets/profile_icons/')[1];
+    if (sub) {
+      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${sub}`;
+    }
+  }
+  if (trimmed.includes('assets/profile_icons/')) {
+    const subPath = trimmed.split('assets/profile_icons/')[1];
+    if (subPath) {
+      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${subPath}`;
+    }
+  }
+  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return trimmed;
+}
+
 // Nombres amigables para estilos y franquicias
 export const AVATAR_STYLE_LABELS = {
   all: 'Todos los estilos',

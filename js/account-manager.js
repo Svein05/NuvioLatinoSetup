@@ -7,7 +7,14 @@ import { NuvioClient } from './nuvio-client.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { state, isAioMetadataAddon } from './state.js';
 import { MiniNuvio } from './mini-nuvio.js';
-import { BADGE_PACKS, compileUniversalBadgeRules, getBadgePackById } from './badge-packs.js';
+import { 
+  BADGE_PACKS, 
+  compileUniversalBadgeRules, 
+  getBadgePackById, 
+  addCustomBadgePack, 
+  getPackSectionsOrdered, 
+  getBadgeModuleLabel 
+} from './badge-packs.js';
 import { 
   getCompiledAvatars, 
   getStylesSummary, 
@@ -15,7 +22,8 @@ import {
   filterAvatars, 
   formatCharacterName, 
   formatFranchiseName, 
-  formatStyleName 
+  formatStyleName,
+  resolveAvatarCdnUrl
 } from './avatars-data.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
@@ -373,7 +381,7 @@ export async function loadAioConfigByUuid(uuid, password = null) {
       } else if (customPattern.includes('postersplus.stremio.ru')) {
         accountState.posterEngine = 'postersplus';
       } else if (customPattern) {
-        accountState.posterEngine = 'betterposter';
+        accountState.posterEngine = 'custom_external';
       } else {
         accountState.posterEngine = 'betterposter';
       }
@@ -780,10 +788,50 @@ async function loadProfileSettings() {
     let detectedPack = 'tinted';
     if (rawBadgeRules) {
       const lower = String(rawBadgeRules).toLowerCase();
-      if (lower.includes('glow')) detectedPack = 'glow';
-      else if (lower.includes('solid')) detectedPack = 'solid';
-      else if (lower.includes('clear')) detectedPack = 'clear';
-      else if (lower.includes('tinted')) detectedPack = 'tinted';
+      const matchedKnownPack = BADGE_PACKS.find(p => 
+        (p.rawV2 && lower.includes(p.rawV2.toLowerCase())) ||
+        (p.rawV1 && lower.includes(p.rawV1.toLowerCase())) ||
+        (p.id && lower.includes(p.id.toLowerCase()))
+      );
+
+      if (matchedKnownPack) {
+        detectedPack = matchedKnownPack.id;
+      } else if (lower.includes('glow')) {
+        detectedPack = 'glow';
+      } else if (lower.includes('solid')) {
+        detectedPack = 'solid';
+      } else if (lower.includes('clear')) {
+        detectedPack = 'clear';
+      } else if (lower.includes('tinted')) {
+        detectedPack = 'tinted';
+      } else if (hasBadges) {
+        // Pack personalizado externo configurado en Nuvio
+        const customId = 'custom-external-pack';
+        if (!BADGE_PACKS.some(p => p.id === customId)) {
+          let customAuthor = 'Configuración Nuvio';
+          try {
+            const parsed = typeof rawBadgeRules === 'string' ? JSON.parse(rawBadgeRules) : rawBadgeRules;
+            if (parsed?.imports?.[0]?.sourceUrl) {
+              const src = parsed.imports[0].sourceUrl;
+              customAuthor = src.replace(/^https?:\/\//, '').split('/')[0] || customAuthor;
+            }
+          } catch (_) {}
+
+          const basePack = BADGE_PACKS[0];
+          addCustomBadgePack({
+            id: customId,
+            name: 'Pack Personalizado Activo',
+            author: customAuthor,
+            authorUrl: '#',
+            description: 'Pack de stream badges detectado directamente en la configuración de tu perfil de Nuvio.',
+            isCustom: true,
+            tags: ['Personalizado', 'Externo'],
+            accentColor: '#10b981',
+            sections: basePack ? JSON.parse(JSON.stringify(basePack.sections)) : []
+          });
+        }
+        detectedPack = customId;
+      }
     }
 
     accountState.settings = {
@@ -1012,10 +1060,18 @@ export function closeEditProfileModal() {
 }
 
 // Modal Crear Perfil
+let createProfileAvatarUrl = null;
+let createProfileAvatarFilters = { franchise: 'all', query: '' };
+
 export function openCreateProfileModal() {
   if ((accountState.profiles || []).length >= 6) {
     showToast('Has alcanzado el límite máximo de 6 perfiles en Nuvio.', 'warning');
     return;
+  }
+  createProfileAvatarUrl = null;
+  const preview = document.getElementById('createProfileAvatarPreview');
+  if (preview) {
+    preview.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil';
   }
   const modal = document.getElementById('modalCreateProfile');
   const nameInput = document.getElementById('inputCreateProfileName');
@@ -1033,6 +1089,183 @@ export function closeCreateProfileModal() {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
   }
+}
+
+export function openCreateProfileAvatarPicker() {
+  const modal = document.getElementById('modalCreateProfileAvatarPicker');
+  if (!modal) return;
+  createProfileAvatarFilters = { franchise: 'all', query: '' };
+  const searchInput = document.getElementById('inputCreateProfileAvatarSearch');
+  if (searchInput) searchInput.value = '';
+  updateCreateProfileFranchiseTriggerLabel();
+  renderCreateProfileAvatarsCatalog();
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+export function closeCreateProfileAvatarPicker() {
+  const modal = document.getElementById('modalCreateProfileAvatarPicker');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+function updateCreateProfileFranchiseTriggerLabel() {
+  const label = document.getElementById('createProfileFranchiseLabel');
+  const count = document.getElementById('createProfileFranchiseCount');
+  const franchises = getFranchisesSummary('all');
+  const cur = franchises.find(f => f.id === createProfileAvatarFilters.franchise) || franchises[0];
+  if (label) label.textContent = cur?.name || 'Todas las obras';
+  if (count) count.textContent = cur?.count ?? 0;
+}
+
+export function renderCreateProfileAvatarsCatalog() {
+  const container = document.getElementById('createProfileAvatarsCatalogContainer');
+  if (!container) return;
+
+  const filtered = filterAvatars(createProfileAvatarFilters);
+  const selectedUrl = createProfileAvatarUrl;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="p-8 text-center bg-white/[0.02] border border-white/10 rounded-2xl max-w-md mx-auto my-6 space-y-3">
+        <div class="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto text-lg">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <h4 class="text-sm font-semibold text-white">Sin avatares encontrados</h4>
+        <p class="text-xs text-white/50">No hay personajes que coincidan con la búsqueda.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const renderCard = (av, extraClass = '') => {
+    const cdnUrl = resolveAvatarCdnUrl(av.path);
+    const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
+    return `
+      <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
+           data-avatar-path="${av.path}" 
+           data-avatar-name="${av.character}" 
+           title="${av.character} (${av.franchiseName})">
+        <div class="avatar-circle-wrap">
+          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          <div class="avatar-selected-badge">
+            <i class="fa-solid fa-check"></i>
+          </div>
+        </div>
+        <span class="avatar-card-name-label">${av.character}</span>
+      </div>
+    `;
+  };
+
+  if (createProfileAvatarFilters.query) {
+    container.innerHTML = `
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+          <span class="text-xs text-white/60 font-medium">Resultados para "<strong class="text-white">${createProfileAvatarFilters.query}</strong>"</span>
+          <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+          ${filtered.map(av => renderCard(av)).join('')}
+        </div>
+      </div>
+    `;
+  } else if (createProfileAvatarFilters.franchise === 'all') {
+    const groups = new Map();
+    for (const av of filtered) {
+      if (!groups.has(av.franchise)) {
+        groups.set(av.franchise, { name: av.franchiseName, items: [] });
+      }
+      groups.get(av.franchise).items.push(av);
+    }
+
+    let html = '';
+    for (const [fId, group] of groups.entries()) {
+      const previewItems = group.items.slice(0, 8);
+      const previewCardsHtml = previewItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+        return renderCard(av, responsiveClass);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-7 h-7 rounded-lg bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] flex items-center justify-center text-xs shrink-0">
+                <i class="fa-solid fa-masks-theater"></i>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
+                <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
+              </div>
+            </div>
+            <button type="button" class="btn-create-profile-open-franchise text-xs text-[#ffd479] hover:underline flex items-center gap-1 cursor-pointer" data-open-franchise="${fId}">
+              <span>Ver todos</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${previewCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+    container.innerHTML = html;
+
+    container.querySelectorAll('.btn-create-profile-open-franchise').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fId = btn.dataset.openFranchise;
+        if (fId) {
+          createProfileAvatarFilters.franchise = fId;
+          updateCreateProfileFranchiseTriggerLabel();
+          renderCreateProfileAvatarsCatalog();
+        }
+      });
+    });
+  } else {
+    const currentFranchiseName = formatFranchiseName(createProfileAvatarFilters.franchise);
+    container.innerHTML = `
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-wrap gap-2">
+          <button type="button" id="btnCreateProfileBackToAllFranchises" class="text-xs text-[#ffd479] hover:underline flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-arrow-left text-xs"></i>
+            <span>Todas las obras</span>
+          </button>
+          <h4 class="text-sm font-bold text-white">${currentFranchiseName}</h4>
+          <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+          ${filtered.map(av => renderCard(av)).join('')}
+        </div>
+      </div>
+    `;
+
+    const btnBack = document.getElementById('btnCreateProfileBackToAllFranchises');
+    if (btnBack) {
+      btnBack.addEventListener('click', () => {
+        createProfileAvatarFilters.franchise = 'all';
+        updateCreateProfileFranchiseTriggerLabel();
+        renderCreateProfileAvatarsCatalog();
+      });
+    }
+  }
+
+  // Evento al seleccionar avatar
+  container.querySelectorAll('.netflix-avatar-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const path = card.dataset.avatarPath;
+      if (path) {
+        createProfileAvatarUrl = resolveAvatarCdnUrl(path);
+        const preview = document.getElementById('createProfileAvatarPreview');
+        if (preview) preview.src = createProfileAvatarUrl;
+        closeCreateProfileAvatarPicker();
+      }
+    });
+  });
 }
 
 export function setupProfileModals() {
@@ -1145,11 +1378,40 @@ export function setupProfileModals() {
     });
   }
 
-  // Modal Crear Perfil
+  // Modal Crear Perfil y Selector de Avatar
   const formCreate = document.getElementById('formCreateProfile');
   const btnCloseCreate = document.getElementById('btnCloseCreateProfileModal');
   const btnCancelCreate = document.getElementById('btnCancelCreateProfile');
   const btnPopoverAdd = document.getElementById('btnPopoverAddProfile');
+
+  const btnPickAvatar = document.getElementById('btnPickCreateProfileAvatar');
+  const btnClosePicker = document.getElementById('btnCloseCreateProfileAvatarPicker');
+  const modalPicker = document.getElementById('modalCreateProfileAvatarPicker');
+  const btnTriggerFranchises = document.getElementById('btnCreateProfileFranchisesTrigger');
+  const inputSearch = document.getElementById('inputCreateProfileAvatarSearch');
+
+  if (btnPickAvatar) {
+    btnPickAvatar.addEventListener('click', openCreateProfileAvatarPicker);
+  }
+  if (btnClosePicker) {
+    btnClosePicker.addEventListener('click', closeCreateProfileAvatarPicker);
+  }
+  if (modalPicker) {
+    modalPicker.addEventListener('click', (e) => {
+      if (e.target === modalPicker) closeCreateProfileAvatarPicker();
+    });
+  }
+  if (btnTriggerFranchises) {
+    btnTriggerFranchises.addEventListener('click', () => {
+      openFranchisesModal();
+    });
+  }
+  if (inputSearch) {
+    inputSearch.addEventListener('input', (e) => {
+      createProfileAvatarFilters.query = e.target.value.trim();
+      renderCreateProfileAvatarsCatalog();
+    });
+  }
 
   if (btnCloseCreate) btnCloseCreate.addEventListener('click', closeCreateProfileModal);
   if (btnCancelCreate) btnCancelCreate.addEventListener('click', closeCreateProfileModal);
@@ -1174,7 +1436,8 @@ export function setupProfileModals() {
           apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
           accessToken: accountState.session.accessToken,
           userId: accountState.session.userId,
-          name: name
+          name: name,
+          avatarUrl: createProfileAvatarUrl || null
         });
 
         showToast('✓ Perfil creado con éxito.', 'success');
@@ -1405,7 +1668,7 @@ export async function loadProfileOverview() {
         seenShows.add(showKey);
         currentlyWatching.push(item);
       }
-      if (currentlyWatching.length >= 5) break;
+      if (currentlyWatching.length >= 6) break;
     }
 
     // 5. Métrica de progreso: en Nuvio Sync corresponde a los contenidos en curso (46)
@@ -1430,7 +1693,7 @@ export async function loadProfileOverview() {
       collectionsCount: calcCollectionsCount(),
       watchedCount,
       currentlyWatching,
-      recentlyWatched: uniqueWatchedItems.slice(0, 5)
+      recentlyWatched: uniqueWatchedItems.slice(0, 6)
     };
 
     renderOverviewSection();
@@ -1587,14 +1850,21 @@ export async function renderOverviewSection() {
 export function resolvePublicAvatarUrl(rawUrl) {
   if (!rawUrl) return '';
   const trimmed = String(rawUrl).trim();
-  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
-    return trimmed;
+  // Migración automática de enlaces raw.githubusercontent.com hacia jsDelivr CDN
+  if (trimmed.includes('raw.githubusercontent.com') && trimmed.includes('/assets/profile_icons/')) {
+    const sub = trimmed.split('/assets/profile_icons/')[1];
+    if (sub) {
+      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${sub}`;
+    }
   }
   if (trimmed.includes('assets/profile_icons/')) {
     const subPath = trimmed.split('assets/profile_icons/')[1];
     if (subPath) {
-      return `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/main/assets/profile_icons/${subPath}`;
+      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${subPath}`;
     }
+  }
+  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
+    return trimmed;
   }
   if (typeof window !== 'undefined' && window.location) {
     try {
@@ -1637,11 +1907,13 @@ function processUploadedAvatarFile(file) {
     return;
   }
 
+  showToast('Procesando imagen...', 'info');
+
   const reader = new FileReader();
   reader.onload = (e) => {
     const rawDataUrl = e.target.result;
     const img = new Image();
-    img.onload = () => {
+    img.onload = async () => {
       try {
         const canvas = document.createElement('canvas');
         const size = Math.min(Math.max(img.width, img.height), 256);
@@ -1652,17 +1924,41 @@ function processUploadedAvatarFile(file) {
         const sx = (img.width - minDim) / 2;
         const sy = (img.height - minDim) / 2;
         ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-        const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
-        setNewSelectedAvatar(optimizedDataUrl);
-        showToast('✓ Imagen personalizada cargada. Pulsa "Guardar Cambios".', 'info');
-      } catch (_) {
-        setNewSelectedAvatar(rawDataUrl);
-        showToast('✓ Imagen personalizada cargada. Pulsa "Guardar Cambios".', 'info');
+        
+        const base64Clean = canvas.toDataURL('image/jpeg', 0.85).replace(/^data:image\/[a-z]+;base64,/, '');
+
+        // Subir a hosting público con CORS para obtener URL corta compatible con Nuvio TV y PostgREST
+        try {
+          const formData = new FormData();
+          formData.append('image', base64Clean);
+          
+          const uploadRes = await fetch('https://api.imgbb.com/1/upload?key=6d207e02198a847aa5ad3ac50ce6c452', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (uploadRes.ok) {
+            const uploadData = await uploadRes.json();
+            const publicUrl = uploadData?.data?.display_url || uploadData?.data?.url;
+            if (publicUrl) {
+              setNewSelectedAvatar(publicUrl);
+              showToast('✓ Imagen subida con éxito y lista para guardar.', 'success');
+              return;
+            }
+          }
+        } catch (netErr) {
+          console.warn('[AvatarUpload] Subida externa falló:', netErr);
+        }
+
+        showToast('No se pudo subir automáticamente a la nube. Pega un enlace https:// directo abajo.', 'warning');
+        const urlInput = document.getElementById('inputAvatarUrlDirect');
+        if (urlInput) urlInput.focus();
+      } catch (err) {
+        showToast('Error procesando imagen: ' + err.message, 'error');
       }
     };
     img.onerror = () => {
-      setNewSelectedAvatar(rawDataUrl);
-      showToast('✓ Imagen personalizada cargada. Pulsa "Guardar Cambios".', 'info');
+      showToast('Error cargando archivo de imagen.', 'error');
     };
     img.src = rawDataUrl;
   };
@@ -2142,6 +2438,18 @@ export function renderAioSection() {
   const customUrl = accountState.customPosterUrl || '';
   const catalogsCount = (accountState.aioConfig?.catalogs || accountState.aioConfig?.config?.catalogs || []).length;
 
+  const isCustomExternal = currentEngine === 'custom_external';
+  let card1Title = isCustomExternal ? 'Motor Personalizado' : 'Default (Nativo)';
+  let card1Sub = isCustomExternal ? 'Motor de pósters externo configurado' : 'TMDB Limpio es-MX (Sin dependencias)';
+  let card1ImgSrc = 'https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg';
+  if (isCustomExternal && customUrl) {
+    card1ImgSrc = customUrl
+      .replace(/\{imdb_id\??\}/gi, 'tt5950044')
+      .replace(/\{tmdb_id\??\}/gi, '1061474')
+      .replace(/\{stremio_id\??\}|\{id\??\}/gi, 'tt5950044')
+      .replace(/\{type\??\}/gi, 'movie');
+  }
+
   card.innerHTML = `
     <div class="space-y-6">
       <!-- 1. Tarjeta de Identidad y Enlaces del Addon -->
@@ -2151,7 +2459,7 @@ export function renderAioSection() {
             <i class="fa-solid fa-wand-magic-sparkles text-emerald-400 text-lg"></i>
             <div>
               <h4 class="text-sm font-semibold text-white">Addon AIOMetadata Vinculado</h4>
-              <span class="text-xs text-white/50">${hasAddon ? 'Detectado y activo en este perfil' : 'No detectado en este perfil'}</span>
+              <span class="text-xs text-white/50">${hasAddon ? 'Detectado y activo en este perfil' : 'No detectado en este perfil (Tus colecciones y ajustes funcionan de forma independiente)'}</span>
             </div>
           </div>
           ${uuid ? `
@@ -2218,21 +2526,31 @@ export function renderAioSection() {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-          <!-- Tarjeta 1: Default (Limpio) -->
-          <div id="cardPosterDefault" class="poster-option-card relative p-4 rounded-2xl bg-white/[0.03] border-2 ${currentEngine === 'default' ? 'border-[#ffd479] bg-[#ffd479]/[0.06] shadow-lg' : 'border-white/10 hover:border-white/20'} cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+          <!-- Tarjeta 1: Default o Motor Personalizado Externo -->
+          <div id="cardPosterDefault" class="poster-option-card relative p-4 rounded-2xl bg-white/[0.03] border-2 ${(currentEngine === 'default' || isCustomExternal) ? 'border-[#ffd479] bg-[#ffd479]/[0.06] shadow-lg' : 'border-white/10 hover:border-white/20'} cursor-pointer transition-all flex flex-col justify-between gap-3 group">
             <div class="space-y-2.5">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-white">Default (Nativo)</span>
-                <div class="w-5 h-5 rounded-full border-2 ${currentEngine === 'default' ? 'border-[#ffd479] bg-[#ffd479] text-black' : 'border-white/20 text-transparent'} flex items-center justify-center text-[10px]">
+                <span class="text-xs font-semibold text-white">${card1Title}</span>
+                <div class="w-5 h-5 rounded-full border-2 ${(currentEngine === 'default' || isCustomExternal) ? 'border-[#ffd479] bg-[#ffd479] text-black' : 'border-white/20 text-transparent'} flex items-center justify-center text-[10px]">
                   <i class="fa-solid fa-check"></i>
                 </div>
               </div>
               <div class="w-36 aspect-[2/3] mx-auto rounded-xl overflow-hidden bg-black/40 border border-white/10 shadow-md">
-                <img src="https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg" alt="Póster Superman Original" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                <img src="${card1ImgSrc}" alt="Póster Superman" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://upload.wikimedia.org/wikipedia/en/3/32/Superman_%282025_film%29_poster.jpg'">
               </div>
             </div>
-            <div class="pt-2 border-t border-white/[0.06] text-center">
-              <span class="text-[10px] text-white/50">TMDB Limpio es-MX (Sin dependencias)</span>
+            <div class="pt-2 border-t border-white/[0.06] text-center space-y-1.5">
+              <span class="text-[10px] text-white/50">${card1Sub}</span>
+              ${isCustomExternal ? `
+                <div class="pt-1 space-y-1.5 text-left" onclick="event.stopPropagation()">
+                  <label class="text-[9px] text-white/40 block font-mono truncate">URL Configurada:</label>
+                  <input id="inputCustomExternalUrl" type="text" value="${customUrl}" placeholder="https://..." class="lat-field w-full text-[10px] font-mono">
+                  <button type="button" id="btnResetToDefaultTmdb" class="text-[10px] text-[#ffd479] hover:underline flex items-center gap-1 mx-auto pt-0.5">
+                    <i class="fa-solid fa-rotate-left text-[9px]"></i>
+                    <span>Cambiar a TMDB Limpio</span>
+                  </button>
+                </div>
+              ` : ''}
             </div>
           </div>
 
@@ -2323,6 +2641,26 @@ export function renderAioSection() {
   const btnCopy = document.getElementById('btnCopyAioManifest');
   const btnSync = document.getElementById('btnSyncAioWithCollections');
 
+  const inputExt = document.getElementById('inputCustomExternalUrl');
+  const btnResetTmdb = document.getElementById('btnResetToDefaultTmdb');
+
+  if (inputExt) {
+    inputExt.addEventListener('input', (e) => {
+      accountState.customPosterUrl = e.target.value.trim();
+      markDirty('aiometadata', true);
+    });
+  }
+
+  if (btnResetTmdb) {
+    btnResetTmdb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      accountState.posterEngine = 'default';
+      accountState.customPosterUrl = '';
+      markDirty('aiometadata', true);
+      renderAioSection();
+    });
+  }
+
   if (btnCopy && manifestUrl) {
     btnCopy.addEventListener('click', () => {
       navigator.clipboard.writeText(manifestUrl).then(() => {
@@ -2355,8 +2693,10 @@ export function renderAioSection() {
 
   if (cardDef) {
     cardDef.addEventListener('click', () => {
-      accountState.posterEngine = 'default';
-      accountState.customPosterUrl = '';
+      if (accountState.posterEngine !== 'custom_external') {
+        accountState.posterEngine = 'default';
+        accountState.customPosterUrl = '';
+      }
       markDirty('aiometadata', true);
       renderAioSection();
     });
@@ -2533,29 +2873,79 @@ export function renderSettingsSection() {
           </label>
         </div>
 
-        <!-- Selector de Packs de Badges -->
-        <div id="badgesPackSelectorContainer" class="${isBadgesActive ? '' : 'hidden'} pt-2 space-y-3">
+        <!-- Selector de Packs de Badges con Vista Detallada Idéntica al Setup -->
+        <div id="badgesPackSelectorContainer" class="${isBadgesActive ? '' : 'hidden'} pt-2 space-y-4">
           <label class="text-xs text-white/70 block font-medium">Paquete de Diseño de Badges</label>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="space-y-4">
             ${BADGE_PACKS.map(pack => {
               const isSelected = pack.id === selectedPackId;
-              const resSection = (pack.sections || []).find(s => s.id === 'gr');
-              const previewBadges = (resSection?.items || []).slice(0, 3);
-              return `
-                <div class="badge-pack-card p-3.5 rounded-xl border-2 ${isSelected ? 'border-indigo-400 bg-indigo-500/[0.08] shadow-md' : 'border-white/10 bg-white/[0.02] hover:border-white/20'} cursor-pointer transition-all flex flex-col justify-between gap-3 group" data-pack-id="${pack.id}">
-                  <div class="space-y-1.5">
-                    <div class="flex items-center justify-between">
-                      <span class="text-xs font-semibold text-white truncate">${pack.name}</span>
-                      <div class="w-4 h-4 rounded-full border-2 ${isSelected ? 'border-indigo-400 bg-indigo-400 text-black' : 'border-white/20 text-transparent'} flex items-center justify-center text-[9px] shrink-0">
-                        <i class="fa-solid fa-check"></i>
-                      </div>
+              const borderClass = isSelected
+                ? 'border-[#ffd479] bg-white/[0.07] shadow-[0_0_25px_rgba(255,212,121,0.22)]'
+                : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20';
+
+              const checkIcon = isSelected
+                ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
+                : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
+
+              const activeIds = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+              const orderIds = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
+              const visibleSections = getPackSectionsOrdered(pack, activeIds, orderIds);
+
+              const sectionsHtml = visibleSections.map(sec => {
+                const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
+                const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
+                const badgesHtml = (sec.items || []).map(b => {
+                  const isFlag = (sec.id === 'glang' || sec.id === 'gl' || sec.id === 'lang');
+                  const isSub = (sec.id === 'gsub' || sec.id === 'sub');
+                  const imgClass = isFlag
+                    ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
+                    : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
+                  const widthAttr = isFlag ? 'width="21"' : '';
+                  const heightAttr = 'height="14"';
+
+                  return `
+                    <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
+                          style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
+                          title="${b.name}">
+                      ${b.img ? `<img src="${b.img}" alt="${b.name}" ${widthAttr} ${heightAttr} class="${imgClass}" loading="eager" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
+                    </span>
+                  `;
+                }).join('');
+
+                return `
+                  <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-start gap-1.5 flex-1 min-w-[190px] sm:min-w-[210px]">
+                    <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold shrink-0">
+                      <span class="truncate">${titleEs}</span>
+                      <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
                     </div>
-                    <p class="text-[10px] text-white/50 line-clamp-2 leading-relaxed">${pack.description}</p>
+                    <div class="badges-flow-container relative flex flex-wrap items-center gap-1.5 content-start">
+                      ${badgesHtml}
+                    </div>
                   </div>
-                  <div class="pt-2 border-t border-white/[0.06] flex items-center gap-1.5 overflow-x-hidden">
-                    ${previewBadges.map(item => `
-                      <img src="${item.img}" alt="${item.name}" class="h-4 w-auto object-contain shrink-0" onerror="this.style.display='none'">
-                    `).join('')}
+                `;
+              }).join('');
+
+              return `
+                <div class="badge-pack-card relative p-5 rounded-[24px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3.5 group shadow-[var(--shadow-lift)]" data-pack-id="${pack.id}">
+                  <div class="space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <div class="flex items-center gap-2">
+                          <h4 class="text-sm font-semibold text-white tracking-wide">${pack.name}</h4>
+                          ${isSelected ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] border border-[#ffd479]/30">Activo</span>' : ''}
+                          ${pack.isCustom ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Personalizado</span>' : ''}
+                        </div>
+                        <div class="flex items-center gap-1.5 text-[11px] text-white/50 pt-0.5">
+                          <i class="fa-brands fa-github text-[#ffd479]"></i>
+                          <span>Hecho por ${pack.authorUrl && pack.authorUrl !== '#' ? `<a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a>` : `<span class="text-[#ffd479] font-medium">${pack.author}</span>`}</span>
+                        </div>
+                      </div>
+                      ${checkIcon}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 pt-0.5">
+                      ${sectionsHtml}
+                    </div>
                   </div>
                 </div>
               `;
@@ -2787,6 +3177,11 @@ export async function saveAllChanges() {
         const mdbEnc = encodeURIComponent(mdblistKeyToSave);
         const defaultPostersPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbEnc}&mdblist_key=${mdbEnc}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
         cfg.customPosterUrlPattern = (accountState.customPosterUrl || '').trim() || defaultPostersPlusPattern;
+        cfg.enableRatingPostersForLibrary = true;
+        cfg.usePosterProxy = true;
+      } else if (engine === 'custom_external') {
+        cfg.posterRatingProvider = "custom";
+        cfg.customPosterUrlPattern = (accountState.customPosterUrl || '').trim();
         cfg.enableRatingPostersForLibrary = true;
         cfg.usePosterProxy = true;
       }

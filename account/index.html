@@ -372,9 +372,9 @@
                   <i class="fa-solid fa-play text-xs text-[#ffd479]"></i>
                   <span>Actualmente Viendo</span>
                 </h4>
-                <span class="text-[11px] text-white/40">Últimos 5</span>
+                <span class="text-[11px] text-white/40">Últimos 6</span>
               </div>
-              <div id="rowCurrentlyWatchingCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
+              <div id="rowCurrentlyWatchingCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
                 <!-- Tarjetas dinámicas -->
               </div>
             </div>
@@ -386,9 +386,9 @@
                   <i class="fa-solid fa-check-double text-xs text-emerald-400"></i>
                   <span>Últimas Vistas</span>
                 </h4>
-                <span class="text-[11px] text-white/40">Últimos 5</span>
+                <span class="text-[11px] text-white/40">Últimos 6</span>
               </div>
-              <div id="rowRecentlyWatchedCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
+              <div id="rowRecentlyWatchedCards" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
                 <!-- Tarjetas dinámicas -->
               </div>
             </div>
@@ -742,10 +742,24 @@
       </div>
 
       <form id="formCreateProfile" class="space-y-4 pt-1">
+        <!-- Preview y Botón Personalizar Avatar -->
+        <div class="flex items-center gap-3.5 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+          <div class="relative shrink-0">
+            <img id="createProfileAvatarPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil" alt="Avatar Nuevo Perfil" class="w-14 h-14 rounded-full border-2 border-[#ffd479] object-cover bg-black/40 shadow-md">
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="text-xs font-semibold text-white block truncate">Avatar del Perfil</span>
+            <span class="text-[11px] text-white/50 block truncate">Elige un personaje de la colección</span>
+            <button type="button" id="btnPickCreateProfileAvatar" class="mt-1.5 lat-capsule-btn glass text-[11px] py-1 px-3 text-[#ffd479] border-[#ffd479]/30 hover:border-[#ffd479]/60 flex items-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+              <span>Personalizar Avatar</span>
+            </button>
+          </div>
+        </div>
+
         <div>
           <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Perfil</label>
           <input type="text" id="inputCreateProfileName" required maxlength="30" placeholder="Ej. Familia, Cine, Anime..." class="lat-field w-full text-sm">
-          <p class="text-[11px] text-white/40 mt-1">Se le asignará un avatar personalizado automáticamente.</p>
         </div>
 
         <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
@@ -757,6 +771,47 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Selector de Avatar para Crear Perfil en Cuenta -->
+  <div id="modalCreateProfileAvatarPicker" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-4xl w-full max-h-[88vh] shadow-[var(--shadow-lift)] text-white relative flex flex-col my-auto overflow-hidden">
+      <!-- Cabecera -->
+      <div class="flex items-center justify-between border-b border-white/[0.08] p-4 sm:p-5 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 flex items-center justify-center text-xs text-[#ffd479]">
+            <i class="fa-solid fa-masks-theater"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-semibold text-white">Elige tu Avatar</h3>
+            <span class="text-[11px] text-white/50">Selecciona un personaje para el nuevo perfil</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseCreateProfileAvatarPicker" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <div class="p-4 sm:p-5 border-b border-white/[0.06] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0 bg-white/[0.02]">
+        <button type="button" id="btnCreateProfileFranchisesTrigger" class="avatar-dropdown-trigger shrink-0" title="Elegir obra o colección">
+          <i class="fa-solid fa-masks-theater text-xs text-[#ffd479]"></i>
+          <span id="createProfileFranchiseLabel">Todas las obras</span>
+          <span id="createProfileFranchiseCount" class="pill-badge">46</span>
+          <i class="fa-solid fa-chevron-right text-[10px] text-white/40 ml-1"></i>
+        </button>
+
+        <div class="relative flex-1 sm:max-w-xs">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-white/40 pointer-events-none"></i>
+          <input type="text" id="inputCreateProfileAvatarSearch" placeholder="Buscar (ej: Luffy, pj: Naruto)..." class="lat-field w-full text-xs pl-8 pr-7 py-2">
+        </div>
+      </div>
+
+      <!-- Grid de Avatares Scrolleable -->
+      <div id="createProfileAvatarsCatalogContainer" class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <!-- Renderizado dinámico -->
+      </div>
     </div>
   </div>
 

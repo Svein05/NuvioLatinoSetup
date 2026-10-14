@@ -1399,6 +1399,8 @@ export class NuvioClient {
     });
 
     // Vector 1: RPC sync_push_profiles
+    let rpcSuccess = false;
+    let rpcErrorMsg = null;
     try {
       await this.rpc({
         apiUrl,
@@ -1411,7 +1413,9 @@ export class NuvioClient {
           p_origin_client_id: 'nuvio-setup-web'
         }
       });
+      rpcSuccess = true;
     } catch (rpcErr) {
+      rpcErrorMsg = rpcErr.message;
       console.warn('[NuvioClient] sync_push_profiles al actualizar avatar falló:', rpcErr.message);
     }
 
@@ -1421,9 +1425,11 @@ export class NuvioClient {
     patchFilters.push(`profile_index=eq.${encodeURIComponent(profId)}`);
     patchFilters.push(`profile_id=eq.${encodeURIComponent(profId)}`);
 
+    let patchSuccess = false;
+    let patchErrorMsg = null;
     for (const filter of patchFilters) {
       try {
-        await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+        const patchRes = await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
           method: 'PATCH',
           headers: {
             'apikey': apikey,
@@ -1433,7 +1439,19 @@ export class NuvioClient {
           },
           body: JSON.stringify({ avatar_url: cleanAvatar })
         });
-      } catch (_) {}
+        if (patchRes.ok) {
+          patchSuccess = true;
+        } else {
+          const errBody = await patchRes.text().catch(() => '');
+          patchErrorMsg = `HTTP ${patchRes.status}: ${errBody}`;
+        }
+      } catch (patchErr) {
+        patchErrorMsg = patchErr.message;
+      }
+    }
+
+    if (!rpcSuccess && !patchSuccess) {
+      throw new Error(`No se pudo actualizar el avatar en Nuvio: ${patchErrorMsg || rpcErrorMsg || 'Error de sincronización'}`);
     }
 
     return { success: true, avatar_url: cleanAvatar };

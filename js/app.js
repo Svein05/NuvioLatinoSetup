@@ -22,6 +22,13 @@ import {
   compileUniversalBadgeRules
 } from './badge-packs.js';
 import { initCompletionsCounterUI, recordSuccessfulCompletion } from './counter.js';
+import { 
+  getCompiledAvatars, 
+  filterAvatars, 
+  resolveAvatarCdnUrl, 
+  getFranchisesSummary, 
+  formatFranchiseName 
+} from './avatars-data.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 export const DEMO_POSTERS = [
@@ -1302,6 +1309,11 @@ class AppController {
       this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
       return;
     }
+    this.newProfileAvatarUrl = null;
+    const preview = document.getElementById('newProfileAvatarPreview');
+    if (preview) {
+      preview.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil';
+    }
     const modal = document.getElementById('modalNewProfile');
     const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
     if (modal) {
@@ -1320,6 +1332,231 @@ class AppController {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+  }
+
+  openWizardAvatarPicker() {
+    const modal = document.getElementById('modalWizardAvatarPicker');
+    if (!modal) return;
+    this.wizardAvatarFilters = { franchise: 'all', query: '' };
+    const searchInput = document.getElementById('inputWizardAvatarSearch');
+    if (searchInput) searchInput.value = '';
+    this.updateWizardFranchiseTriggerLabel();
+    this.renderWizardAvatarsCatalog();
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  closeWizardAvatarPicker() {
+    const modal = document.getElementById('modalWizardAvatarPicker');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  openWizardFranchisesModal() {
+    const modal = document.getElementById('modalWizardFranchises');
+    const grid = document.getElementById('wizardFranchisesListGrid');
+    if (!modal || !grid) return;
+
+    const franchises = getFranchisesSummary('all');
+    const currentId = this.wizardAvatarFilters?.franchise || 'all';
+
+    grid.innerHTML = franchises.map(f => {
+      const isAct = f.id === currentId;
+      return `
+        <button type="button" class="modal-franchise-card ${isAct ? 'is-selected' : ''}" data-franchise-id="${f.id}">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <i class="fa-solid fa-masks-theater text-xs ${isAct ? 'text-[#ffd479]' : 'text-white/40'}"></i>
+            <span class="truncate">${f.name}</span>
+          </div>
+          <span class="pill-badge">${f.count}</span>
+        </button>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('.modal-franchise-card').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fId = btn.dataset.franchiseId;
+        if (fId) {
+          if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
+          this.wizardAvatarFilters.franchise = fId;
+          this.updateWizardFranchiseTriggerLabel();
+          this.closeWizardFranchisesModal();
+          this.renderWizardAvatarsCatalog();
+        }
+      });
+    });
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  closeWizardFranchisesModal() {
+    const modal = document.getElementById('modalWizardFranchises');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  }
+
+  updateWizardFranchiseTriggerLabel() {
+    const label = document.getElementById('wizardFranchiseLabel');
+    const count = document.getElementById('wizardFranchiseCount');
+    const franchises = getFranchisesSummary('all');
+    const cur = franchises.find(f => f.id === (this.wizardAvatarFilters?.franchise || 'all')) || franchises[0];
+    if (label) label.textContent = cur?.name || 'Todas las obras';
+    if (count) count.textContent = cur?.count ?? 0;
+  }
+
+  renderWizardAvatarsCatalog() {
+    const container = document.getElementById('wizardAvatarsCatalogContainer');
+    if (!container) return;
+
+    const filtered = filterAvatars(this.wizardAvatarFilters || { franchise: 'all', query: '' });
+    const selectedUrl = this.newProfileAvatarUrl;
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="p-8 text-center bg-white/[0.02] border border-white/10 rounded-2xl max-w-md mx-auto my-6 space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto text-lg">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <h4 class="text-sm font-semibold text-white">Sin avatares encontrados</h4>
+          <p class="text-xs text-white/50">No hay personajes que coincidan con la búsqueda.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const renderCard = (av, extraClass = '') => {
+      const cdnUrl = resolveAvatarCdnUrl(av.path);
+      const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
+      return `
+        <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
+             data-avatar-path="${av.path}" 
+             data-avatar-name="${av.character}" 
+             title="${av.character} (${av.franchiseName})">
+          <div class="avatar-circle-wrap">
+            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+            <div class="avatar-selected-badge">
+              <i class="fa-solid fa-check"></i>
+            </div>
+          </div>
+          <span class="avatar-card-name-label">${av.character}</span>
+        </div>
+      `;
+    };
+
+    if (this.wizardAvatarFilters?.query) {
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-white/[0.06]">
+            <span class="text-xs text-white/60 font-medium">Resultados para "<strong class="text-white">${this.wizardAvatarFilters.query}</strong>"</span>
+            <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${filtered.map(av => renderCard(av)).join('')}
+          </div>
+        </div>
+      `;
+    } else if (this.wizardAvatarFilters?.franchise === 'all') {
+      const groups = new Map();
+      for (const av of filtered) {
+        if (!groups.has(av.franchise)) {
+          groups.set(av.franchise, { name: av.franchiseName, items: [] });
+        }
+        groups.get(av.franchise).items.push(av);
+      }
+
+      let html = '';
+      for (const [fId, group] of groups.entries()) {
+        const previewItems = group.items.slice(0, 8);
+        const previewCardsHtml = previewItems.map((av, idx) => {
+          let responsiveClass = '';
+          if (idx === 3) responsiveClass = 'hidden sm:flex';
+          else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+          else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+          return renderCard(av, responsiveClass);
+        }).join('');
+
+        html += `
+          <div class="avatar-collection-block space-y-3.5">
+            <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-lg bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] flex items-center justify-center text-xs shrink-0">
+                  <i class="fa-solid fa-masks-theater"></i>
+                </div>
+                <div class="min-w-0">
+                  <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
+                  <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
+                </div>
+              </div>
+              <button type="button" class="btn-wizard-open-franchise text-xs text-[#ffd479] hover:underline flex items-center gap-1 cursor-pointer" data-open-franchise="${fId}">
+                <span>Ver todos</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+              ${previewCardsHtml}
+            </div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+
+      container.querySelectorAll('.btn-wizard-open-franchise').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fId = btn.dataset.openFranchise;
+          if (fId) {
+            if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
+            this.wizardAvatarFilters.franchise = fId;
+            this.updateWizardFranchiseTriggerLabel();
+            this.renderWizardAvatarsCatalog();
+          }
+        });
+      });
+    } else {
+      const currentFranchiseName = formatFranchiseName(this.wizardAvatarFilters.franchise);
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-wrap gap-2">
+            <button type="button" id="btnWizardBackToAllFranchises" class="text-xs text-[#ffd479] hover:underline flex items-center gap-1.5 cursor-pointer">
+              <i class="fa-solid fa-arrow-left text-xs"></i>
+              <span>Todas las obras</span>
+            </button>
+            <h4 class="text-sm font-bold text-white">${currentFranchiseName}</h4>
+            <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${filtered.map(av => renderCard(av)).join('')}
+          </div>
+        </div>
+      `;
+
+      const btnBack = document.getElementById('btnWizardBackToAllFranchises');
+      if (btnBack) {
+        btnBack.addEventListener('click', () => {
+          if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
+          this.wizardAvatarFilters.franchise = 'all';
+          this.updateWizardFranchiseTriggerLabel();
+          this.renderWizardAvatarsCatalog();
+        });
+      }
+    }
+
+    // Eventos al hacer click en una tarjeta de avatar
+    container.querySelectorAll('.netflix-avatar-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const path = card.dataset.avatarPath;
+        if (path) {
+          this.newProfileAvatarUrl = resolveAvatarCdnUrl(path);
+          const preview = document.getElementById('newProfileAvatarPreview');
+          if (preview) preview.src = this.newProfileAvatarUrl;
+          this.closeWizardAvatarPicker();
+        }
+      });
+    });
   }
 
   promptDeleteProfile(profileId, profileName) {
@@ -1453,6 +1690,45 @@ class AppController {
       btnConfirmDeleteModal.addEventListener('click', () => this.confirmDeleteProfile());
     }
 
+    // Modal de Catálogo de Avatares en el Asistente
+    const btnPickAvatar = document.getElementById('btnPickNewProfileAvatar');
+    const btnClosePicker = document.getElementById('btnCloseWizardAvatarPicker');
+    const modalPicker = document.getElementById('modalWizardAvatarPicker');
+    const btnTriggerFranchises = document.getElementById('btnWizardFranchisesTrigger');
+    const btnCloseFranchises = document.getElementById('btnCloseWizardFranchises');
+    const modalFranchises = document.getElementById('modalWizardFranchises');
+    const inputSearch = document.getElementById('inputWizardAvatarSearch');
+
+    if (btnPickAvatar) {
+      btnPickAvatar.addEventListener('click', () => this.openWizardAvatarPicker());
+    }
+    if (btnClosePicker) {
+      btnClosePicker.addEventListener('click', () => this.closeWizardAvatarPicker());
+    }
+    if (modalPicker) {
+      modalPicker.addEventListener('click', (e) => {
+        if (e.target === modalPicker) this.closeWizardAvatarPicker();
+      });
+    }
+    if (btnTriggerFranchises) {
+      btnTriggerFranchises.addEventListener('click', () => this.openWizardFranchisesModal());
+    }
+    if (btnCloseFranchises) {
+      btnCloseFranchises.addEventListener('click', () => this.closeWizardFranchisesModal());
+    }
+    if (modalFranchises) {
+      modalFranchises.addEventListener('click', (e) => {
+        if (e.target === modalFranchises) this.closeWizardFranchisesModal();
+      });
+    }
+    if (inputSearch) {
+      inputSearch.addEventListener('input', (e) => {
+        if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
+        this.wizardAvatarFilters.query = e.target.value.trim();
+        this.renderWizardAvatarsCatalog();
+      });
+    }
+
     if (btnConfirmModal && nameInput) {
       const handleCreate = async () => {
         if (state.profiles && state.profiles.length >= 6) {
@@ -1483,7 +1759,8 @@ class AppController {
             apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
             accessToken: state.nuvioAuth.accessToken,
             userId: state.nuvioAuth.userId,
-            name: name
+            name: name,
+            avatarUrl: this.newProfileAvatarUrl || null
           });
 
           // Agregar a la lista de perfiles y auto-seleccionar
