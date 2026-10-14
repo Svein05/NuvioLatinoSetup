@@ -32,149 +32,21 @@ export function resolveAvatarCdnUrl(avatarPath) {
   return trimmed;
 }
 
-// Nombres amigables para estilos y franquicias
-export const AVATAR_STYLE_LABELS = {
-  all: 'Todos los estilos',
-  NetflixStyle: 'Estilo Netflix',
-  IconsStyle: 'Estilo Íconos'
-};
-
-export const AVATAR_FRANCHISE_LABELS = {
-  all: 'Todas las obras',
-  Naruto: 'Naruto',
-  NarutoShippuden: 'Naruto Shippuden',
-  OnePiece: 'One Piece',
-  'X-men97': "X-Men '97",
-  Xmen97: "X-Men '97"
-};
-
-// Formateador de nombres de personajes
-const CHARACTER_NAME_OVERRIDES = {
-  Rock: 'Rock Lee',
-  Sae: 'Sai',
-  GoingMerry: 'Going Merry',
-  ThousandSunny: 'Thousand Sunny'
-};
-
-export function formatCharacterName(rawName) {
-  if (!rawName) return 'Desconocido';
-  if (CHARACTER_NAME_OVERRIDES[rawName]) {
-    return CHARACTER_NAME_OVERRIDES[rawName];
-  }
-  // Si ya tiene espacios (ej. "Monkey D. Luffy", "Rock Lee"), respetar
-  if (rawName.includes(' ')) {
-    return rawName.trim();
-  }
-  // Separar puntos como Mr.Sinister -> Mr. Sinister
-  let formatted = rawName.replace(/\.([A-Za-z])/g, '. $1');
-  // Separar camelCase (ej: GoblinQueen -> Goblin Queen, EmmaFrost -> Emma Frost)
-  formatted = formatted.replace(/([a-z])([A-Z])/g, '$1 $2');
-  // Separar números si no fueron tratados previamente
-  formatted = formatted.replace(/([a-zA-Z])(\d+)/g, '$1 $2');
-  return formatted.trim();
+// Formateadores universales y limpios (sin diccionarios ni listas fijas)
+export function formatStyleName(rawStyle) {
+  if (!rawStyle || rawStyle === 'all') return 'Todos los estilos';
+  return rawStyle.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
 export function formatFranchiseName(rawFranchise) {
-  if (!rawFranchise) return '';
-  if (AVATAR_FRANCHISE_LABELS[rawFranchise]) {
-    return AVATAR_FRANCHISE_LABELS[rawFranchise];
-  }
-  if (/^x-?men/i.test(rawFranchise)) {
-    return rawFranchise.replace(/^x-?men/i, 'X-Men ').replace(/(\d+)/, "'$1").trim();
-  }
-  return rawFranchise
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/([a-zA-Z])(\d+)/g, '$1 $2')
-    .trim();
+  if (!rawFranchise || rawFranchise === 'all') return 'Todas las obras';
+  return rawFranchise.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
 
-export function formatStyleName(rawStyle) {
-  if (!rawStyle) return '';
-  if (AVATAR_STYLE_LABELS[rawStyle]) {
-    return AVATAR_STYLE_LABELS[rawStyle];
-  }
-  return rawStyle.replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+export function formatCharacterName(rawName) {
+  if (!rawName) return 'Desconocido';
+  return rawName.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
 }
-
-/**
- * Catálogo base de respaldo en caso de desconexión total u offline
- */
-export const RAW_AVATAR_FALLBACK_SEED = [
-  {
-    style: "IconsStyle",
-    franchise: "Naruto",
-    files: [
-      "Naruto_Naruto.jpg",
-      "Naruto_Naruto2.jpg"
-    ]
-  },
-  {
-    style: "IconsStyle",
-    franchise: "NarutoShippuden",
-    files: [
-      "NarutoShippuden_Naruto.jpg"
-    ]
-  },
-  {
-    style: "NetflixStyle",
-    franchise: "NarutoShippuden",
-    files: [
-      "NarutoShippuden_Anko.png",
-      "NarutoShippuden_Asuma.png",
-      "NarutoShippuden_Baki.png",
-      "NarutoShippuden_Choji.png",
-      "NarutoShippuden_Deidara.png",
-      "NarutoShippuden_Gaara.png",
-      "NarutoShippuden_Gai.png",
-      "NarutoShippuden_Hidan.png",
-      "NarutoShippuden_Hinata.png",
-      "NarutoShippuden_Ino.png",
-      "NarutoShippuden_Itachi.png",
-      "NarutoShippuden_Jiraiya.png",
-      "NarutoShippuden_Kabuto.png",
-      "NarutoShippuden_Kakashi.png",
-      "NarutoShippuden_Kankuro.png",
-      "NarutoShippuden_Kiba.png",
-      "NarutoShippuden_Kisame.png",
-      "NarutoShippuden_Kurenai.png",
-      "NarutoShippuden_Naruto.png",
-      "NarutoShippuden_Neji.png",
-      "NarutoShippuden_Orochimaru.png",
-      "NarutoShippuden_Rock.png",
-      "NarutoShippuden_Sae.png",
-      "NarutoShippuden_Sakura.png",
-      "NarutoShippuden_Sasori1.png",
-      "NarutoShippuden_Sasori2.png",
-      "NarutoShippuden_Sasuke.png",
-      "NarutoShippuden_Shikamaru.png",
-      "NarutoShippuden_Shino.png",
-      "NarutoShippuden_Temari.png",
-      "NarutoShippuden_Tsunade.png",
-      "NarutoShippuden_Yamato.png"
-    ]
-  },
-  {
-    style: "NetflixStyle",
-    franchise: "OnePiece",
-    files: [
-      "OnePiece_Brook.png",
-      "OnePiece_Chopper.png",
-      "OnePiece_Franky.png",
-      "OnePiece_GoingMerry.jpeg",
-      "OnePiece_Jinbe.png",
-      "OnePiece_Luffy1.png",
-      "OnePiece_Luffy2.png",
-      "OnePiece_Nami.png",
-      "OnePiece_Robin.png",
-      "OnePiece_Sanji.png",
-      "OnePiece_ThousandSunny.jpeg",
-      "OnePiece_Usopp.jpeg",
-      "OnePiece_Zoro.png"
-    ]
-  }
-];
-
-export const RAW_AVATAR_REGISTRY = RAW_AVATAR_FALLBACK_SEED;
 
 let compiledAvatarsCache = null;
 let rawRegistryCache = null;
@@ -318,20 +190,14 @@ export function compileRegistry(registry) {
 
       let baseChar = '';
       let variationNum = 1;
-      let hasExplicitOverride = false;
 
-      if (CHARACTER_NAME_OVERRIDES[rawChar]) {
-        baseChar = CHARACTER_NAME_OVERRIDES[rawChar];
-        hasExplicitOverride = true;
+      const numMatch = rawChar.match(/^(.*?)(?:[_\-\s]|\s*\()?(\d+)\)?$/);
+      if (numMatch && numMatch[1] && numMatch[1].trim()) {
+        baseChar = formatCharacterName(numMatch[1].trim());
+        variationNum = parseInt(numMatch[2], 10);
       } else {
-        const numMatch = rawChar.match(/^(.*?)(?:[_\-\s]|\s*\()?(\d+)\)?$/);
-        if (numMatch && numMatch[1] && numMatch[1].trim()) {
-          baseChar = formatCharacterName(numMatch[1].trim());
-          variationNum = parseInt(numMatch[2], 10);
-        } else {
-          baseChar = formatCharacterName(rawChar);
-          variationNum = 1;
-        }
+        baseChar = formatCharacterName(rawChar);
+        variationNum = 1;
       }
 
       rawItems.push({
@@ -339,7 +205,6 @@ export function compileRegistry(registry) {
         rawChar,
         baseChar,
         variationNum,
-        hasExplicitOverride,
         extension,
         relativePath: `${relPrefix}assets/profile_icons/${style}/${franchise}/${fileName}`
       });
@@ -358,18 +223,8 @@ export function compileRegistry(registry) {
       items.sort((a, b) => a.variationNum - b.variationNum);
 
       items.forEach((item, idx) => {
-        let finalCharacterName = '';
-        let variationNumber = null;
-
-        if (item.hasExplicitOverride) {
-          finalCharacterName = item.baseChar;
-        } else if (hasVariations) {
-          finalCharacterName = `${item.baseChar} (${idx + 1})`;
-          variationNumber = idx + 1;
-        } else {
-          finalCharacterName = item.baseChar;
-          variationNumber = null;
-        }
+        const finalCharacterName = hasVariations ? `${item.baseChar} (${idx + 1})` : item.baseChar;
+        const variationNumber = hasVariations ? idx + 1 : null;
 
         list.push({
           id: `${style}_${franchise}_${item.rawChar}`,
@@ -492,8 +347,8 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
     console.warn('[AvatarsData] Fallback manifest.json no disponible:', err);
   }
 
-  rawRegistryCache = RAW_AVATAR_FALLBACK_SEED;
-  compiledAvatarsCache = compileRegistry(RAW_AVATAR_FALLBACK_SEED);
+  rawRegistryCache = [];
+  compiledAvatarsCache = [];
   return compiledAvatarsCache;
 }
 
@@ -528,8 +383,11 @@ export function compareAvatars(a, b) {
  */
 export function getCompiledAvatars() {
   if (compiledAvatarsCache) return compiledAvatarsCache;
-  compiledAvatarsCache = compileRegistry(rawRegistryCache || RAW_AVATAR_FALLBACK_SEED);
-  return compiledAvatarsCache;
+  if (rawRegistryCache && rawRegistryCache.length > 0) {
+    compiledAvatarsCache = compileRegistry(rawRegistryCache);
+    return compiledAvatarsCache;
+  }
+  return [];
 }
 
 /**
