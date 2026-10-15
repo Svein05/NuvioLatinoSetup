@@ -54,11 +54,22 @@ export function formatFranchiseName(rawFranchise) {
 
 export function formatCharacterName(rawName) {
   if (!rawName) return 'Desconocido';
-  return safeDecode(rawName)
+  let formatted = safeDecode(rawName)
     .replace(/_/g, ' ')
     .replace(/\.([A-Za-z])/g, '. $1')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
     .trim();
+
+  // Diccionario canónico de refinamiento para nombres con signos o iniciales
+  const CANONICAL_OVERRIDES = {
+    'Monkey D Luffy': 'Monkey D. Luffy',
+    'Spider Man': 'Spider-Man',
+    'Mr Sinister': 'Mr. Sinister',
+    'X Cutioner': 'X-Cutioner'
+  };
+
+  return CANONICAL_OVERRIDES[formatted] || formatted;
 }
 
 let compiledAvatarsCache = null;

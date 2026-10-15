@@ -7,14 +7,14 @@
         {
           "franchise": "Naruto",
           "files": [
-            "Naruto_Naruto.jpg",
-            "Naruto_Naruto2.jpg"
+            "Naruto_NarutoUzumaki.jpg",
+            "Naruto_NarutoUzumaki2.jpg"
           ]
         },
         {
           "franchise": "NarutoShippuden",
           "files": [
-            "NarutoShippuden_Naruto.jpg"
+            "NarutoShippuden_NarutoUzumaki.jpg"
           ]
         }
       ]
@@ -25,35 +25,35 @@
         {
           "franchise": "NarutoShippuden",
           "files": [
-            "NarutoShippuden_Anko.png",
-            "NarutoShippuden_Asuma.png",
+            "NarutoShippuden_AnkoMitarashi.png",
+            "NarutoShippuden_AsumaSarutobi.png",
             "NarutoShippuden_Baki.png",
-            "NarutoShippuden_Choji.png",
+            "NarutoShippuden_ChojiAkimichi.png",
             "NarutoShippuden_Deidara.png",
             "NarutoShippuden_Gaara.png",
-            "NarutoShippuden_Gai.png",
             "NarutoShippuden_Hidan.png",
-            "NarutoShippuden_Hinata.png",
-            "NarutoShippuden_Ino.png",
-            "NarutoShippuden_Itachi.png",
+            "NarutoShippuden_HinataHyuga.png",
+            "NarutoShippuden_InoYamanaka.png",
+            "NarutoShippuden_ItachiUchiha.png",
             "NarutoShippuden_Jiraiya.png",
-            "NarutoShippuden_Kabuto.png",
-            "NarutoShippuden_Kakashi.png",
+            "NarutoShippuden_KabutoYakushi.png",
+            "NarutoShippuden_KakashiHatake.png",
             "NarutoShippuden_Kankuro.png",
-            "NarutoShippuden_Kiba.png",
-            "NarutoShippuden_Kisame.png",
-            "NarutoShippuden_Kurenai.png",
-            "NarutoShippuden_Naruto.png",
-            "NarutoShippuden_Neji.png",
+            "NarutoShippuden_KibaInuzuka.png",
+            "NarutoShippuden_KisameHoshigaki.png",
+            "NarutoShippuden_KurenaiYuhi.png",
+            "NarutoShippuden_MightGuy.png",
+            "NarutoShippuden_NarutoUzumaki.png",
+            "NarutoShippuden_NejiHyuga.png",
             "NarutoShippuden_Orochimaru.png",
-            "NarutoShippuden_Rock.png",
-            "NarutoShippuden_Sae.png",
-            "NarutoShippuden_Sakura.png",
+            "NarutoShippuden_RockLee.png",
+            "NarutoShippuden_Sai.png",
+            "NarutoShippuden_SakuraHaruno.png",
             "NarutoShippuden_Sasori1.png",
             "NarutoShippuden_Sasori2.png",
-            "NarutoShippuden_Sasuke.png",
-            "NarutoShippuden_Shikamaru.png",
-            "NarutoShippuden_Shino.png",
+            "NarutoShippuden_SasukeUchiha.png",
+            "NarutoShippuden_ShikamaruNara.png",
+            "NarutoShippuden_ShinoAburame.png",
             "NarutoShippuden_Temari.png",
             "NarutoShippuden_Tsunade.png",
             "NarutoShippuden_Yamato.png"
@@ -63,18 +63,18 @@
           "franchise": "OnePiece",
           "files": [
             "OnePiece_Brook.png",
-            "OnePiece_Chopper.png",
             "OnePiece_Franky.png",
             "OnePiece_GoingMerry.jpeg",
             "OnePiece_Jinbe.png",
-            "OnePiece_Luffy1.png",
-            "OnePiece_Luffy2.png",
+            "OnePiece_MonkeyDLuffy1.png",
+            "OnePiece_MonkeyDLuffy2.png",
             "OnePiece_Nami.png",
-            "OnePiece_Robin.png",
+            "OnePiece_NicoRobin.png",
+            "OnePiece_RoronoaZoro.png",
             "OnePiece_Sanji.png",
             "OnePiece_ThousandSunny.jpeg",
-            "OnePiece_Usopp.jpeg",
-            "OnePiece_Zoro.png"
+            "OnePiece_TonyTonyChopper.png",
+            "OnePiece_Usopp.jpeg"
           ]
         },
         {
@@ -107,7 +107,7 @@
             "X-men97_Mojo.jpeg",
             "X-men97_Morph1.jpeg",
             "X-men97_Morph2.jpeg",
-            "X-men97_Mr.Sinister.jpeg",
+            "X-men97_MrSinister.jpeg",
             "X-men97_NathanSummers.jpeg",
             "X-men97_Nightcrawler.jpeg",
             "X-men97_OmegaRed.jpeg",
@@ -119,8 +119,8 @@
             "X-men97_Rogue2.jpeg",
             "X-men97_Sentinel.jpeg",
             "X-men97_SilverSamurai.jpeg",
-            "X-men97_Spiderman1.jpeg",
-            "X-men97_Spiderman2.jpeg",
+            "X-men97_SpiderMan1.jpeg",
+            "X-men97_SpiderMan2.jpeg",
             "X-men97_Spiral.jpeg",
             "X-men97_Storm1.jpeg",
             "X-men97_Storm2.jpeg",
