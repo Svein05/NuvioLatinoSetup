@@ -1521,6 +1521,40 @@ export function resolvePublicAvatarUrl(rawUrl) {
   return trimmed;
 }
 
+export function updateAvatarComparisonUI() {
+  const origPreview = document.getElementById('avatarOriginalPreview');
+  const currentPreview = document.getElementById('avatarCurrentPreview');
+  const arrow = document.getElementById('avatarTransitionArrow');
+  const newWrap = document.getElementById('avatarNewWrap');
+  const origBadge = document.getElementById('avatarOriginalBadge');
+  const modBadge = document.getElementById('avatarModifiedBadge');
+
+  const origUrl = accountState.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio';
+  const selectedUrl = accountState.selectedAvatarUrl || origUrl;
+  const isChanged = Boolean(accountState.selectedAvatarUrl && accountState.selectedAvatarUrl !== accountState.originalAvatarUrl);
+
+  if (origPreview) origPreview.src = origUrl;
+
+  if (isChanged) {
+    if (arrow) {
+      arrow.classList.remove('hidden');
+      arrow.classList.add('flex');
+    }
+    if (newWrap) newWrap.classList.remove('hidden');
+    if (currentPreview) currentPreview.src = selectedUrl;
+    if (origBadge) origBadge.classList.remove('hidden');
+    if (modBadge) modBadge.classList.remove('hidden');
+  } else {
+    if (arrow) {
+      arrow.classList.add('hidden');
+      arrow.classList.remove('flex');
+    }
+    if (newWrap) newWrap.classList.add('hidden');
+    if (origBadge) origBadge.classList.add('hidden');
+    if (modBadge) modBadge.classList.add('hidden');
+  }
+}
+
 export function setNewSelectedAvatar(newUrl) {
   if (!newUrl) return;
   accountState.selectedAvatarUrl = newUrl;
@@ -1528,11 +1562,7 @@ export function setNewSelectedAvatar(newUrl) {
   const isChanged = accountState.selectedAvatarUrl !== accountState.originalAvatarUrl;
   markDirty('avatar', isChanged);
 
-  const preview = document.getElementById('avatarCurrentPreview');
-  if (preview) preview.src = newUrl;
-
-  const modifiedBadge = document.getElementById('avatarModifiedBadge');
-  if (modifiedBadge) modifiedBadge.classList.toggle('hidden', !isChanged);
+  updateAvatarComparisonUI();
 
   // Actualizar tarjeta seleccionada en el catálogo
   document.querySelectorAll('.netflix-avatar-card').forEach(card => {
@@ -1543,165 +1573,143 @@ export function setNewSelectedAvatar(newUrl) {
   });
 }
 
-function processUploadedAvatarFile(file) {
-  if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    showToast('El archivo seleccionado no es una imagen válida.', 'error');
-    return;
-  }
-  if (file.size > 10 * 1024 * 1024) {
-    showToast('La imagen es demasiado pesada (máx 10MB).', 'warning');
-    return;
-  }
+let pendingAvatarUrlToConfirm = null;
 
-  showToast('Procesando imagen...', 'info');
+export function setupAvatarUrlConfirmModal() {
+  const urlInput = document.getElementById('inputAvatarUrlDirect');
+  const btnApplyUrl = document.getElementById('btnApplyAvatarUrl');
+  const modal = document.getElementById('modalConfirmAvatarUrl');
+  const btnClose = document.getElementById('btnCloseConfirmAvatarUrlModal');
+  const btnCancel = document.getElementById('btnCancelConfirmAvatarUrl');
+  const btnAccept = document.getElementById('btnAcceptConfirmAvatarUrl');
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const rawDataUrl = e.target.result;
-    const img = new Image();
-    img.onload = async () => {
-      try {
-        const canvas = document.createElement('canvas');
-        const size = Math.min(Math.max(img.width, img.height), 256);
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        const minDim = Math.min(img.width, img.height);
-        const sx = (img.width - minDim) / 2;
-        const sy = (img.height - minDim) / 2;
-        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-        
-        const base64Clean = canvas.toDataURL('image/jpeg', 0.85).replace(/^data:image\/[a-z]+;base64,/, '');
+  const loadingEl = document.getElementById('confirmAvatarUrlLoading');
+  const previewImg = document.getElementById('confirmAvatarUrlPreview');
+  const statusSuccess = document.getElementById('confirmAvatarUrlStatusSuccess');
+  const statusError = document.getElementById('confirmAvatarUrlStatusError');
 
-        // Subir a hosting público con CORS para obtener URL corta compatible con Nuvio TV (varchar 255)
-        let uploadedPublicUrl = null;
-
-        // 1. Intentar ImgBB con múltiples API Keys rotativas
-        const imgbbKeys = [
-          '6d207e02198a847aa5ad3ac50ce6c452',
-          '2b6a9e144a1eb4fc47c5d7999713b192',
-          'e647b1c3b17fb3a54b38345c264a78aa'
-        ];
-
-        for (const key of imgbbKeys) {
-          try {
-            const formData = new FormData();
-            formData.append('image', base64Clean);
-            const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
-              method: 'POST',
-              body: formData
-            });
-
-            if (uploadRes.ok) {
-              const uploadData = await uploadRes.json();
-              const url = uploadData?.data?.display_url || uploadData?.data?.url;
-              if (url && url.startsWith('http')) {
-                uploadedPublicUrl = url;
-                break;
-              }
-            }
-          } catch (_) {}
-        }
-
-        // 2. Fallback: tmpfiles.org
-        if (!uploadedPublicUrl) {
-          try {
-            const blobData = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.85));
-            if (blobData) {
-              const formData = new FormData();
-              formData.append('file', blobData, 'avatar.jpg');
-              const tfRes = await fetch('https://tmpfiles.org/api/v1/upload', {
-                method: 'POST',
-                body: formData
-              });
-              if (tfRes.ok) {
-                const tfData = await tfRes.json();
-                if (tfData?.data?.url) {
-                  uploadedPublicUrl = tfData.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-                }
-              }
-            }
-          } catch (_) {}
-        }
-
-        if (uploadedPublicUrl) {
-          setNewSelectedAvatar(uploadedPublicUrl);
-          showToast('✓ Imagen subida con éxito y lista para guardar.', 'success');
-          return;
-        }
-
-        showToast('No se pudo subir automáticamente a la nube. Pega un enlace https:// directo abajo.', 'warning');
-        const urlInput = document.getElementById('inputAvatarUrlDirect');
-        if (urlInput) urlInput.focus();
-      } catch (err) {
-        showToast('Error procesando imagen: ' + err.message, 'error');
-      }
-    };
-    img.onerror = () => {
-      showToast('Error cargando archivo de imagen.', 'error');
-    };
-    img.src = rawDataUrl;
+  const closeModal = () => {
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+    pendingAvatarUrlToConfirm = null;
   };
-  reader.readAsDataURL(file);
+
+  const openModalWithUrl = (rawUrl) => {
+    const trimmed = (rawUrl || '').trim();
+    if (!trimmed) {
+      showToast('Ingresa un enlace URL de imagen válido.', 'warning');
+      return;
+    }
+    if (!/^https?:\/\//i.test(trimmed) && !/^data:image\//i.test(trimmed)) {
+      showToast('El enlace debe comenzar con https:// o http://', 'error');
+      return;
+    }
+
+    pendingAvatarUrlToConfirm = trimmed;
+
+    // Resetear estados visuales del modal
+    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (previewImg) {
+      previewImg.classList.add('hidden');
+      previewImg.src = '';
+    }
+    if (statusSuccess) statusSuccess.classList.add('hidden');
+    if (statusError) statusError.classList.add('hidden');
+    if (btnAccept) btnAccept.disabled = true;
+
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Verificar si la imagen carga de verdad
+    const testImg = new Image();
+    testImg.onload = () => {
+      if (pendingAvatarUrlToConfirm !== trimmed) return;
+      if (loadingEl) loadingEl.classList.add('hidden');
+      if (previewImg) {
+        previewImg.src = trimmed;
+        previewImg.classList.remove('hidden');
+      }
+      if (statusSuccess) statusSuccess.classList.remove('hidden');
+      if (statusError) statusError.classList.add('hidden');
+      if (btnAccept) btnAccept.disabled = false;
+    };
+    testImg.onerror = () => {
+      if (pendingAvatarUrlToConfirm !== trimmed) return;
+      if (loadingEl) loadingEl.classList.add('hidden');
+      if (previewImg) previewImg.classList.add('hidden');
+      if (statusSuccess) statusSuccess.classList.add('hidden');
+      if (statusError) statusError.classList.remove('hidden');
+      if (btnAccept) btnAccept.disabled = true;
+    };
+    testImg.src = trimmed;
+  };
+
+  if (btnApplyUrl && btnApplyUrl.dataset.bound !== 'true') {
+    btnApplyUrl.dataset.bound = 'true';
+    btnApplyUrl.addEventListener('click', () => {
+      openModalWithUrl(urlInput?.value);
+    });
+  }
+
+  if (urlInput && urlInput.dataset.bound !== 'true') {
+    urlInput.dataset.bound = 'true';
+    urlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        openModalWithUrl(urlInput.value);
+      }
+    });
+  }
+
+  if (btnClose && btnClose.dataset.bound !== 'true') {
+    btnClose.dataset.bound = 'true';
+    btnClose.addEventListener('click', closeModal);
+  }
+
+  if (btnCancel && btnCancel.dataset.bound !== 'true') {
+    btnCancel.dataset.bound = 'true';
+    btnCancel.addEventListener('click', closeModal);
+  }
+
+  if (btnAccept && btnAccept.dataset.bound !== 'true') {
+    btnAccept.dataset.bound = 'true';
+    btnAccept.addEventListener('click', () => {
+      if (pendingAvatarUrlToConfirm) {
+        setNewSelectedAvatar(pendingAvatarUrlToConfirm);
+        if (urlInput) urlInput.value = '';
+        closeModal();
+        showToast('✓ Avatar previsualizado. Pulsa "Guardar Cambios" para confirmar.', 'info');
+      }
+    });
+  }
+
+  if (modal && modal.dataset.bound !== 'true') {
+    modal.dataset.bound = 'true';
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
 }
 
 export function renderAvatarsSection() {
   const profile = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === Number(accountState.selectedProfileId));
   
-  // 1. Cabecera: Avatar actual y nombre del perfil
-  const preview = document.getElementById('avatarCurrentPreview');
+  // 1. Cabecera: Nombre y avatar actual / comparativo
   const nameEl = document.getElementById('avatarCurrentProfileName');
-  const modifiedBadge = document.getElementById('avatarModifiedBadge');
-  
-  const currentAvatarUrl = accountState.selectedAvatarUrl || profile?.avatar_url || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio';
-  if (preview) preview.src = currentAvatarUrl;
   if (nameEl) nameEl.textContent = profile?.name || 'Perfil Nuvio';
-  if (modifiedBadge) modifiedBadge.classList.toggle('hidden', !accountState.dirty.avatar);
 
-  // 2. Control de subida de archivo local
-  const fileInput = document.getElementById('inputAvatarFileUpload');
-  if (fileInput && fileInput.dataset.bound !== 'true') {
-    fileInput.dataset.bound = 'true';
-    fileInput.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      if (file) processUploadedAvatarFile(file);
-      fileInput.value = '';
-    });
-  }
+  updateAvatarComparisonUI();
 
-  // 3. Control de enlace URL directo
-  const urlInput = document.getElementById('inputAvatarUrlDirect');
-  const btnApplyUrl = document.getElementById('btnApplyAvatarUrl');
-  if (btnApplyUrl && btnApplyUrl.dataset.bound !== 'true') {
-    btnApplyUrl.dataset.bound = 'true';
-    const applyUrlAction = () => {
-      const val = urlInput?.value?.trim();
-      if (!val) {
-        showToast('Ingresa un enlace URL de imagen válido.', 'warning');
-        return;
-      }
-      if (!/^https?:\/\//i.test(val) && !/^data:image\//i.test(val)) {
-        showToast('El enlace debe comenzar con https:// o http://', 'error');
-        return;
-      }
-      setNewSelectedAvatar(val);
-      if (urlInput) urlInput.value = '';
-      showToast('✓ Enlace de avatar aplicado. Pulsa "Guardar Cambios".', 'info');
-    };
+  // 2. Control de enlace URL directo y modal de verificación
+  setupAvatarUrlConfirmModal();
 
-    btnApplyUrl.addEventListener('click', applyUrlAction);
-    if (urlInput) {
-      urlInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          applyUrlAction();
-        }
-      });
-    }
-  }
-
-  // 4. Buscador en tiempo real de personajes
+  // 3. Buscador en tiempo real de personajes
   const searchInput = document.getElementById('inputAvatarSearch');
   const btnClearSearch = document.getElementById('btnClearAvatarSearch');
   if (searchInput && searchInput.dataset.bound !== 'true') {
@@ -1724,7 +1732,7 @@ export function renderAvatarsSection() {
     });
   }
 
-  // 5. Renderizar filtros y catálogo
+  // 4. Renderizar filtros y catálogo
   setupFranchisesModal();
   renderAvatarStylePills();
   renderModalFranchisesList();
@@ -2551,8 +2559,7 @@ export async function saveAllChanges() {
       renderProfilePopover();
       accountState.dirty.avatar = false;
 
-      const modifiedBadge = document.getElementById('avatarModifiedBadge');
-      if (modifiedBadge) modifiedBadge.classList.add('hidden');
+      updateAvatarComparisonUI();
     }
 
     // 1. Guardar Ajustes de Nuvio & Credenciales (TMDB / MDBList)
