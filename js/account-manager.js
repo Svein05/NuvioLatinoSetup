@@ -6,18 +6,6 @@ import { CONFIG } from './config.js';
 import { NuvioClient } from './nuvio-client.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
 import { state, isAioMetadataAddon } from './state.js';
-import { MiniNuvio } from './mini-nuvio.js';
-import { 
-  BADGE_PACKS, 
-  compileUniversalBadgeRules, 
-  getBadgePackById, 
-  addCustomBadgePack, 
-  getPackSectionsOrdered, 
-  getBadgeModuleLabel,
-  getCanonicalModuleId,
-  isSectionActive,
-  BADGE_MODULE_DEFINITIONS
-} from './badge-packs.js';
 import { 
   getCompiledAvatars, 
   getStylesSummary, 
@@ -38,7 +26,7 @@ export const accountState = {
   session: null, // { accessToken, userId, email }
   profiles: [],
   selectedProfileId: null,
-  activeSection: 'overview', // 'overview' | 'avatars' | 'collections' | 'aiometadata' | 'settings'
+  activeSection: 'overview', // 'overview' | 'avatars' | 'aiometadata' | 'settings'
   hasChosenProfileInSession: false,
 
   // Avatar del perfil seleccionado y filtros de catálogo
@@ -61,10 +49,6 @@ export const accountState = {
     recentlyWatched: []
   },
 
-  // Colecciones dinámicas reales del perfil del usuario
-  collections: [],
-  originalCollections: [],
-  hasUserCollections: false,
   installedAddons: [],
 
   // AIOMetadata vinculado y opciones exclusivas del addon
@@ -74,27 +58,22 @@ export const accountState = {
   originalAioConfig: null,
   aioPassword: 'NuvioSetupMaster2026',
   aioProtected: false, // Flag si requiere contraseña personalizada
-  posterEngine: 'default', // 'default' | 'betterposter' | 'postersplus'
+  posterEngine: 'default', // 'default' | 'betterposter' | 'postersplus' | 'custom_external'
   customPosterUrl: '',
 
-  // Ajustes de Nuvio, Credenciales & Fusion Badges
+  // Ajustes de Nuvio & Credenciales (TMDB / MDBList)
   settings: {
     enrichment_enabled: true,
     ratings_enabled: true,
     tmdb_language: 'es-MX',
     tmdb_api_key: '',
-    mdblist_api_key: '',
-    badgesEnabled: false,
-    selectedBadgePack: 'tinted',
-    activeBadgeModules: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
-    badgeModulesOrder: ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'],
-    stream_badge_rules: ''
+    mdblist_api_key: ''
   },
   originalSettings: {},
+  _rawStreamBadgeSettings: null, // Preservar badges existentes en la TV del usuario sin alterarlos
 
   // Dirty State Tracker (Rastreo inteligente de cambios para guardar solo lo necesario)
   dirty: {
-    collections: false,
     aiometadata: false,
     settings: false,
     avatar: false
@@ -196,7 +175,6 @@ function clearSession() {
   accountState.session = null;
   accountState.profiles = [];
   accountState.selectedProfileId = null;
-  accountState.collections = [];
   accountState.aioConfig = null;
   accountState.aioUuid = null;
   accountState.aioProtected = false;
@@ -278,7 +256,7 @@ export async function selectProfile(profileId) {
   renderProfilePopover();
 
   // Reset de estados dirty ante cambio de perfil
-  accountState.dirty = { collections: false, aiometadata: false, settings: false, avatar: false };
+  accountState.dirty = { aiometadata: false, settings: false, avatar: false };
   updateSaveButton();
 
   // Respetar la sección actualmente activa o activar Resumen por defecto
@@ -288,7 +266,6 @@ export async function selectProfile(profileId) {
   // Cargar concurrentemente los datos del perfil seleccionado
   await Promise.all([
     loadProfileAddonsAndAio(),
-    loadProfileCollections(),
     loadProfileSettings(),
     loadProfileOverview()
   ]);
@@ -430,295 +407,6 @@ export async function loadAioConfigByUuid(uuid, password = null) {
 }
 
 // ============================================================
-// NORMALIZACIÓN Y CARGA DINÁMICA DE COLECCIONES DEL USUARIO
-// ============================================================
-
-export function normalizeUserCollections(raw) {
-  if (!raw) return [];
-
-  let data = raw;
-
-  // 1. Si es un string, deserializar JSON
-  if (typeof data === 'string') {
-    try { data = JSON.parse(data); } catch (_) { return []; }
-  }
-
-  // 2. Si viene envuelto en un objeto contenedor (RPC o wrapper)
-  if (data && typeof data === 'object' && !Array.isArray(data)) {
-    if (Array.isArray(data.folders)) {
-      data = [data]; // Es una sección sola con folders
-    } else {
-      const extracted = data.collections_json ?? 
-                        data.p_collections_json ?? 
-                        data.collections ?? 
-                        data.data ?? 
-                        data.p_collections ?? 
-                        data.content ?? 
-                        data.items;
-      if (extracted !== undefined) {
-        data = extracted;
-        if (typeof data === 'string') {
-          try { data = JSON.parse(data); } catch (_) { data = []; }
-        }
-      }
-    }
-  }
-
-  // 3. Si es un array, buscar si los elementos son filas de la tabla collections de Supabase (PostgREST)
-  // Cada fila de la tabla collections tiene { id, profile_id, collections_json, ... }
-  if (Array.isArray(data)) {
-    const rowWithCollections = data.find(item => item && typeof item === 'object' && (
-      item.collections_json !== undefined ||
-      item.p_collections_json !== undefined ||
-      (item.collections !== undefined && Array.isArray(item.collections)) ||
-      (item.data !== undefined && (Array.isArray(item.data) || typeof item.data === 'string'))
-    ));
-
-    if (rowWithCollections) {
-      let inner = rowWithCollections.collections_json ??
-                  rowWithCollections.p_collections_json ??
-                  rowWithCollections.collections ??
-                  rowWithCollections.data;
-      if (typeof inner === 'string') {
-        try { inner = JSON.parse(inner); } catch (_) { inner = []; }
-      }
-      if (Array.isArray(inner) && inner.length > 0) {
-        data = inner;
-      }
-    }
-  }
-
-  if (!Array.isArray(data) || data.length === 0) return [];
-
-  // Formato 1: Árbol de secciones nativo (usado por Nuvio TV y el RPC sync_push_collections)
-  // Cada sección contiene un array de 'folders'
-  if (data.some(item => item && Array.isArray(item.folders))) {
-    return data
-      .filter(sec => sec && (Array.isArray(sec.folders) || sec.title || sec.name))
-      .map((sec, sIdx) => ({
-        id: String(sec.id || `section-${sIdx + 1}`),
-        title: sec.title || sec.name || `Sección ${sIdx + 1}`,
-        name: sec.name || sec.title || `Sección ${sIdx + 1}`,
-        icon: sec.icon || 'fa-solid fa-layer-group',
-        pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
-        enabled: sec.enabled !== false,
-        folders: (sec.folders || []).map((f, fIdx) => ({
-          id: String(f.id || `folder-${fIdx + 1}`),
-          title: f.title || f.name || `Colección ${fIdx + 1}`,
-          name: f.name || f.title || `Colección ${fIdx + 1}`,
-          type: f.type || 'movie',
-          enabled: f.enabled !== false,
-          coverEmoji: f.coverEmoji || '🎬',
-          tileShape: f.tileShape || 'LANDSCAPE',
-          heroBackdropUrl: f.heroBackdropUrl || f.coverImageUrl || '',
-          coverImageUrl: f.coverImageUrl || f.heroBackdropUrl || '',
-          titleLogoUrl: f.titleLogoUrl || '',
-          sources: Array.isArray(f.sources) ? f.sources : [],
-          catalogSources: Array.isArray(f.catalogSources) ? f.catalogSources : (Array.isArray(f.sources) ? f.sources : [])
-        }))
-      }));
-  }
-
-  // Formato 2: Lista de carpetas sueltas (folders con sources pero sin sección contenedora)
-  if (data.some(item => item && (Array.isArray(item.sources) || Array.isArray(item.catalogSources) || item.coverImageUrl))) {
-    return [{
-      id: 'user-collections',
-      title: 'Mis Colecciones de Nuvio',
-      name: 'Mis Colecciones de Nuvio',
-      icon: 'fa-solid fa-layer-group',
-      pinToTop: true,
-      enabled: true,
-      folders: data.map((f, fIdx) => ({
-        id: String(f.id || `folder-${fIdx + 1}`),
-        title: f.title || f.name || `Colección ${fIdx + 1}`,
-        name: f.name || f.title || `Colección ${fIdx + 1}`,
-        type: f.type || 'movie',
-        enabled: f.enabled !== false,
-        coverEmoji: f.coverEmoji || '🎬',
-        tileShape: f.tileShape || 'LANDSCAPE',
-        heroBackdropUrl: f.heroBackdropUrl || f.coverImageUrl || '',
-        coverImageUrl: f.coverImageUrl || f.heroBackdropUrl || '',
-        titleLogoUrl: f.titleLogoUrl || '',
-        sources: Array.isArray(f.sources) ? f.sources : [],
-        catalogSources: Array.isArray(f.catalogSources) ? f.catalogSources : (Array.isArray(f.sources) ? f.sources : [])
-      }))
-    }];
-  }
-
-  // Formato 3: Lista plana de catálogos individuales válidos (con catalog_id o name legítimo que NO sea 'Catálogo 1')
-  const validCatalogs = data.filter(r => r && (r.catalog_id || (r.name && !/^catálogo\s*\d+$/i.test(r.name)) || (r.title && !/^catálogo\s*\d+$/i.test(r.title))));
-  if (validCatalogs.length > 0) {
-    return [{
-      id: 'user-collections',
-      title: 'Mis Colecciones de Nuvio',
-      name: 'Mis Colecciones de Nuvio',
-      icon: 'fa-solid fa-layer-group',
-      pinToTop: true,
-      enabled: true,
-      folders: validCatalogs.map((row, idx) => {
-        const catId = row.catalog_id || row.id || `row-${idx + 1}`;
-        const title = row.name || row.title || `Colección ${idx + 1}`;
-        const type = row.catalog_type || row.type || 'movie';
-        return {
-          id: String(catId),
-          title: title,
-          name: title,
-          type: type,
-          enabled: row.enabled !== false && row.is_active !== false,
-          coverEmoji: '🎬',
-          tileShape: row.tile_shape || 'LANDSCAPE',
-          heroBackdropUrl: row.backdrop_url || row.heroBackdropUrl || row.cover_url || '',
-          coverImageUrl: row.cover_url || row.coverImageUrl || row.backdrop_url || '',
-          titleLogoUrl: row.title_logo_url || row.titleLogoUrl || '',
-          sources: Array.isArray(row.sources) ? row.sources : [{
-            catalogId: catId,
-            title: title,
-            type: type,
-            addonId: row.addon_id || 'aio-metadata'
-          }],
-          catalogSources: Array.isArray(row.catalogSources) ? row.catalogSources : [{
-            catalogId: catId,
-            title: title,
-            type: type,
-            addonId: row.addon_id || 'aio-metadata'
-          }]
-        };
-      })
-    }];
-  }
-
-  // Si no contiene colecciones válidas, retornar vacío para que active el Empty State
-  return [];
-}
-
-function renderCollectionsEmptyState() {
-  const emptyStateEl = document.getElementById('accountCollectionsEmptyState');
-  const miniContainer = document.getElementById('miniNuvioContainer');
-  if (!emptyStateEl) return;
-
-  if (miniContainer) miniContainer.classList.add('hidden');
-  emptyStateEl.classList.remove('hidden');
-
-  emptyStateEl.innerHTML = `
-    <div class="p-8 text-center bg-white/[0.03] border border-white/10 rounded-2xl space-y-4 max-w-xl mx-auto my-6">
-      <div class="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto text-xl">
-        <i class="fa-solid fa-layer-group"></i>
-      </div>
-      <div>
-        <h4 class="text-base font-semibold text-white">Sin Colecciones Registradas</h4>
-        <p class="text-xs text-white/60 mt-1 max-w-md mx-auto">
-          Este perfil no tiene colecciones configuradas en Nuvio. Puedes importar la plantilla base de Metadata Latino o agregar tus propias filas.
-        </p>
-      </div>
-      <div class="flex items-center justify-center gap-3 pt-2">
-        <button type="button" id="btnImportDefaultTemplates" class="lat-capsule-btn glass text-xs py-2 px-4 text-[#ffd479] border-[#ffd479]/30 hover:border-[#ffd479]/60">
-          <i class="fa-solid fa-file-import mr-1.5"></i> Cargar Plantilla Metadata Latino
-        </button>
-      </div>
-    </div>
-  `;
-
-  const btnImport = document.getElementById('btnImportDefaultTemplates');
-  if (btnImport) {
-    btnImport.addEventListener('click', async () => {
-      btnImport.disabled = true;
-      btnImport.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Cargando plantilla...';
-      try {
-        await state.loadTemplates();
-        accountState.collections = JSON.parse(JSON.stringify(state.collections));
-        accountState.originalCollections = [];
-        accountState.hasUserCollections = true;
-        markDirty('collections', true);
-
-        emptyStateEl.classList.add('hidden');
-        if (miniContainer) miniContainer.classList.remove('hidden');
-
-        state.notify('COLLECTIONS_UPDATED');
-        renderMiniNuvio();
-        showToast('✓ Plantilla cargada. Pulsa "Guardar Cambios" para inyectarla en Nuvio.', 'success');
-      } catch (e) {
-        showToast(`Error al cargar plantilla: ${e.message}`, 'error');
-        btnImport.disabled = false;
-        btnImport.innerHTML = '<i class="fa-solid fa-file-import mr-1.5"></i> Cargar Plantilla Metadata Latino';
-      }
-    });
-  }
-}
-
-let isInternalUpdating = false;
-
-async function loadProfileCollections() {
-  const profId = accountState.selectedProfileId;
-  if (!profId || !accountState.session) return;
-
-  const emptyStateEl = document.getElementById('accountCollectionsEmptyState');
-  const miniContainer = document.getElementById('miniNuvioContainer');
-
-  try {
-    isInternalUpdating = true;
-    // 1. Obtener colecciones sincronizadas reales directamente de Nuvio (sin forzar plantilla estática)
-    const rawCollections = await NuvioClient.pullCollections({
-      apiUrl: CONFIG.NUVIO_API_URL,
-      apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-      accessToken: accountState.session.accessToken,
-      profileId: profId
-    });
-
-    const parsed = normalizeUserCollections(rawCollections);
-
-    if (parsed.length > 0) {
-      accountState.hasUserCollections = true;
-      state.collections = parsed;
-      accountState.collections = JSON.parse(JSON.stringify(parsed));
-      accountState.originalCollections = JSON.parse(JSON.stringify(parsed));
-
-      if (emptyStateEl) emptyStateEl.classList.add('hidden');
-      if (miniContainer) miniContainer.classList.remove('hidden');
-
-      state.notify('COLLECTIONS_UPDATED');
-      renderMiniNuvio();
-
-      const totalCols = parsed.length;
-      if (accountState.overviewData) accountState.overviewData.collectionsCount = totalCols;
-      const elCol = document.getElementById('metricCollectionsCount');
-      if (elCol) elCol.textContent = totalCols;
-    } else {
-      accountState.hasUserCollections = false;
-      state.collections = [];
-      accountState.collections = [];
-      accountState.originalCollections = [];
-
-      if (accountState.overviewData) accountState.overviewData.collectionsCount = 0;
-      const elCol = document.getElementById('metricCollectionsCount');
-      if (elCol) elCol.textContent = 0;
-
-      renderCollectionsEmptyState();
-    }
-
-    accountState.dirty.collections = false;
-    updateSaveButton();
-  } catch (err) {
-    console.warn('[AccountManager] Error cargando colecciones reales del perfil:', err);
-    renderCollectionsEmptyState();
-  } finally {
-    isInternalUpdating = false;
-  }
-}
-
-export function renderMiniNuvio() {
-  const container = document.getElementById('miniNuvioContainer');
-  if (!container) return;
-
-  if (!window.miniNuvioInstance) {
-    window.miniNuvioInstance = new MiniNuvio('miniNuvioContainer');
-    window.miniNuvioInstance.init();
-  } else {
-    window.miniNuvioInstance.focusedFolder = null;
-    window.miniNuvioInstance.render();
-  }
-}
-
-// ============================================================
 // CARGA DE AJUSTES DEL PERFIL & PROVEEDORES (TMDB / MDBLIST)
 // ============================================================
 
@@ -764,7 +452,12 @@ async function loadProfileSettings() {
 
     const tmdb = features.tmdb_settings || features.tmdb || {};
     const mdblist = features.mdblist_settings || features.mdblist || {};
-    const streamBadges = features.stream_badge_settings || features.stream_badges || features.badges || {};
+    const streamBadges = features.stream_badge_settings || features.stream_badges || features.badges || null;
+
+    // Preservar internamente los badges originales de Nuvio sin alterarlos
+    if (streamBadges) {
+      accountState._rawStreamBadgeSettings = streamBadges;
+    }
 
     // 1. Extraer credenciales oficiales de Nuvio (soportando objeto o string JSON)
     const tmdbCred = (credentials || []).find(c => String(c.provider || '').toLowerCase() === 'tmdb');
@@ -802,99 +495,12 @@ async function loadProfileSettings() {
     const resolvedTmdbKey = (credTmdbKey || blobTmdbKey || aioTmdbKey || prevTmdbKey || '').trim();
     const resolvedMdblistKey = (credMdblistKey || blobMdblistKey || aioMdblistKey || prevMdblistKey || '').trim();
 
-    // 5. Detectar Fusion Badges en Nuvio
-    let rawBadgeRules = streamBadges.stream_badge_rules?.value || 
-                        streamBadges.stream_badge_rules || 
-                        features.stream_badge_rules?.value || 
-                        features.stream_badge_rules || 
-                        '';
-    if (typeof rawBadgeRules === 'object' && rawBadgeRules !== null) {
-      try { rawBadgeRules = JSON.stringify(rawBadgeRules); } catch (_) {}
-    }
-    const rawBadgeStr = String(rawBadgeRules || '').trim();
-    const hasBadges = Boolean(
-      rawBadgeStr.length > 5 && 
-      rawBadgeStr !== 'null' && 
-      rawBadgeStr !== '{}' && 
-      rawBadgeStr !== '[]' &&
-      (rawBadgeStr.includes('imports') || rawBadgeStr.includes('rules') || rawBadgeStr.includes('nuvio-badges') || rawBadgeStr.includes('http') || rawBadgeStr.length > 15)
-    );
-
-    let detectedPack = 'tinted';
-    let activeModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-    let orderModules = ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-
-    if (rawBadgeStr) {
-      const lower = rawBadgeStr.toLowerCase();
-      const matchedKnownPack = BADGE_PACKS.find(p => 
-        (p.rawV2 && lower.includes(p.rawV2.toLowerCase())) ||
-        (p.rawV1 && lower.includes(p.rawV1.toLowerCase())) ||
-        (p.id && lower.includes(p.id.toLowerCase()))
-      );
-
-      if (matchedKnownPack) {
-        detectedPack = matchedKnownPack.id;
-      } else if (lower.includes('glow')) {
-        detectedPack = 'glow';
-      } else if (lower.includes('solid')) {
-        detectedPack = 'solid';
-      } else if (lower.includes('clear')) {
-        detectedPack = 'clear';
-      } else if (lower.includes('tinted') || lower.includes('nuvio-badges-latino')) {
-        detectedPack = 'tinted';
-      } else if (hasBadges) {
-        // Pack personalizado externo configurado en Nuvio
-        const customId = 'custom-external-pack';
-        if (!BADGE_PACKS.some(p => p.id === customId)) {
-          let customAuthor = 'Configuración Nuvio';
-          try {
-            const parsed = JSON.parse(rawBadgeStr);
-            if (parsed?.imports?.[0]?.sourceUrl) {
-              const src = parsed.imports[0].sourceUrl;
-              customAuthor = src.replace(/^https?:\/\//, '').split('/')[0] || customAuthor;
-            }
-          } catch (_) {}
-
-          const basePack = BADGE_PACKS[0];
-          addCustomBadgePack({
-            id: customId,
-            name: 'Pack Personalizado Activo',
-            author: customAuthor,
-            authorUrl: '#',
-            description: 'Pack de stream badges detectado directamente en la configuración de tu perfil de Nuvio.',
-            isCustom: true,
-            tags: ['Personalizado', 'Externo'],
-            accentColor: '#10b981',
-            sections: basePack ? JSON.parse(JSON.stringify(basePack.sections)) : []
-          });
-        }
-        detectedPack = customId;
-      }
-
-      // Extraer orden y módulos activos si vienen en el JSON
-      try {
-        const parsed = JSON.parse(rawBadgeStr);
-        if (Array.isArray(parsed?.rules) && parsed.rules.length > 0) {
-          const ruleIds = parsed.rules.map(r => r.id).filter(Boolean);
-          if (ruleIds.length > 0) {
-            orderModules = ruleIds;
-            activeModules = ruleIds;
-          }
-        }
-      } catch (_) {}
-    }
-
     accountState.settings = {
       enrichment_enabled: tmdb.tmdb_enabled?.value !== false,
       ratings_enabled: mdblist.mdblist_enabled?.value !== false,
       tmdb_language: tmdb.tmdb_language?.value || 'es-MX',
       tmdb_api_key: resolvedTmdbKey,
-      mdblist_api_key: resolvedMdblistKey,
-      badgesEnabled: hasBadges,
-      selectedBadgePack: detectedPack,
-      activeBadgeModules: activeModules,
-      badgeModulesOrder: orderModules,
-      stream_badge_rules: rawBadgeStr
+      mdblist_api_key: resolvedMdblistKey
     };
     accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));
     accountState.dirty.settings = false;
@@ -1667,13 +1273,6 @@ export async function loadProfileOverview() {
       }).catch(() => [])
     ]);
 
-    const calcCollectionsCount = () => {
-      if (Array.isArray(accountState.collections) && accountState.collections.length > 0) {
-        return accountState.collections.length;
-      }
-      return 0;
-    };
-
     // 1. Filtrar watchedItems estrictamente por profile_id
     const filteredWatched = (Array.isArray(watchedItems) ? watchedItems : []).filter(item => 
       item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))
@@ -1747,7 +1346,6 @@ export async function loadProfileOverview() {
       addonsCount: (accountState.installedAddons || []).length,
       progressCount,
       libraryCount,
-      collectionsCount: calcCollectionsCount(),
       watchedCount,
       currentlyWatching,
       recentlyWatched: uniqueWatchedItems.slice(0, 6)
@@ -1763,25 +1361,17 @@ export async function renderOverviewSection() {
   const data = accountState.overviewData;
   if (!data) return;
 
-  // Actualizar las 6 tarjetas de métricas (coherencia 100% con SYNC DATA de Nuvio)
+  // Actualizar las 5 tarjetas de métricas (coherencia con Nuvio)
   const elPlugins = document.getElementById('metricPluginsCount');
   const elAddons = document.getElementById('metricAddonsCount');
   const elProgress = document.getElementById('metricProgressCount');
   const elLibrary = document.getElementById('metricLibraryCount');
-  const elCollections = document.getElementById('metricCollectionsCount');
   const elWatched = document.getElementById('metricWatchedCount');
 
   if (elPlugins) elPlugins.textContent = data.pluginsCount;
   if (elAddons) elAddons.textContent = (accountState.installedAddons || []).length || data.addonsCount;
   if (elProgress) elProgress.textContent = data.progressCount;
   if (elLibrary) elLibrary.textContent = data.libraryCount;
-  if (elCollections) {
-    let colCount = data.collectionsCount;
-    if (colCount === undefined && Array.isArray(accountState.collections)) {
-      colCount = accountState.collections.length;
-    }
-    elCollections.textContent = colCount ?? 0;
-  }
   if (elWatched) elWatched.textContent = data.watchedCount;
 
   // Condición de seguridad requerida:
@@ -2706,24 +2296,6 @@ export function renderAioSection() {
           </div>
         </div>
       </div>
-
-      <!-- 3. Sincronización de Catálogos con Colecciones de Nuvio -->
-      <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="space-y-1">
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold text-white">Catálogos de AIOMetadata sincronizados:</span>
-            <span class="text-xs font-mono text-emerald-400 font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              ${catalogsCount} activos
-            </span>
-          </div>
-          <p class="text-xs text-white/50">
-            Al sincronizar, AIOMetadata activará en segundo plano exactamente los catálogos correspondientes a tus colecciones de Nuvio.
-          </p>
-        </div>
-        <button type="button" id="btnSyncAioWithCollections" class="lat-capsule-btn glass text-xs py-2 px-4 shrink-0 font-medium">
-          <i class="fa-solid fa-arrows-rotate text-[#ffd479] mr-1.5"></i> Sincronizar con Colecciones
-        </button>
-      </div>
     </div>
   `;
 
@@ -2734,7 +2306,6 @@ export function renderAioSection() {
   const inputUuid = document.getElementById('inputAioUuid');
   const inputPass = document.getElementById('inputAioPassword');
   const btnCopy = document.getElementById('btnCopyAioManifest');
-  const btnSync = document.getElementById('btnSyncAioWithCollections');
 
   const inputExt = document.getElementById('inputCustomExternalUrl');
   const btnResetTmdb = document.getElementById('btnResetToDefaultTmdb');
@@ -2850,81 +2421,22 @@ export function renderAioSection() {
     });
   }
 
-  // Sincronizar catálogos con colecciones activas del perfil
-  if (btnSync) {
-    btnSync.addEventListener('click', () => {
-      if (!accountState.aioConfig) {
-        showToast('Primero carga la configuración del addon AIOMetadata.', 'warning');
-        return;
-      }
-
-      const activeCatalogIds = new Set();
-      (accountState.collections || []).forEach(sec => {
-        if (sec.enabled === false) return;
-        (sec.folders || []).forEach(f => {
-          if (f.enabled === false) return;
-          (f.catalogSources || f.sources || []).forEach(s => {
-            if (s && s.catalogId) activeCatalogIds.add(s.catalogId);
-          });
-          if (f.id) activeCatalogIds.add(f.id);
-        });
-      });
-
-      const cfg = accountState.aioConfig.config || accountState.aioConfig;
-      const currentCatalogs = cfg.catalogs || [];
-      let matchedCount = 0;
-
-      currentCatalogs.forEach(cat => {
-        const isAct = activeCatalogIds.has(cat.id);
-        cat.showInHome = false;
-        cat.enableRatingPosters = (accountState.posterEngine !== 'default');
-        if (isAct) matchedCount++;
-      });
-
-      markDirty('aiometadata', true);
-      renderAioSection();
-      showToast(`✓ Catálogos alineados con ${matchedCount} filas activas de tus colecciones. Pulsa "Guardar Cambios".`, 'success');
-    });
-  }
 }
 
 export function renderSettingsSection() {
   const container = document.getElementById('accountSettingsContainer');
   if (!container) return;
 
-  const isBadgesActive = Boolean(accountState.settings.badgesEnabled);
-  const selectedPackId = accountState.settings.selectedBadgePack || 'tinted';
-  const activeIds = accountState.settings.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-  const orderIds = accountState.settings.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-  const activeSet = new Set(activeIds);
-  const currentPack = getBadgePackById(selectedPackId);
-
-  // Módulos disponibles combinando catálogo base con módulos del pack actual
-  const allModulesMap = new Map();
-  BADGE_MODULE_DEFINITIONS.forEach(def => allModulesMap.set(def.id, def));
-  if (currentPack && currentPack.sections) {
-    currentPack.sections.forEach(sec => {
-      const canonId = getCanonicalModuleId(sec.id);
-      if (!allModulesMap.has(canonId) && !allModulesMap.has(sec.id)) {
-        allModulesMap.set(sec.id, {
-          id: sec.id,
-          labelEs: getBadgeModuleLabel(sec.id, sec.name),
-          defaultActive: true
-        });
-      }
-    });
-  }
-  const moduleDefs = Array.from(allModulesMap.values());
-  const activeOrdered = orderIds.filter(id => isSectionActive(id, activeSet));
-
   container.innerHTML = `
     <div class="space-y-6">
-      <!-- 1. Credenciales y Enriquecimiento de Nuvio -->
+      <!-- Credenciales y Enriquecimiento de Nuvio (TMDB & MDBList) -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
+        <!-- 1. TMDB API Key -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3.5">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-white flex items-center gap-2">
-              <i class="fa-solid fa-film text-amber-300"></i> TMDB API Key & Enriquecimiento
+              <i class="fa-solid fa-film text-amber-300"></i>
+              <span>TMDB API Key & Enriquecimiento</span>
             </label>
             <label class="lat-switch" title="Activar/desactivar enriquecimiento oficial">
               <input type="checkbox" id="chkEnrichment" ${accountState.settings.enrichment_enabled ? 'checked' : ''}>
@@ -2940,16 +2452,18 @@ export function renderSettingsSection() {
                 <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
               </button>
             </div>
-            <p class="text-[11px] text-white/40 mt-1">
+            <p class="text-[11px] text-white/40 mt-1.5 leading-relaxed">
               Utilizada por Nuvio para sinopsis, actores y pósters oficiales en español latino.
             </p>
           </div>
         </div>
 
-        <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-3">
+        <!-- 2. MDBList API Key -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3.5">
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-white flex items-center gap-2">
-              <i class="fa-solid fa-star text-amber-400"></i> MDBList API Key & Calificaciones
+              <i class="fa-solid fa-star text-amber-400"></i>
+              <span>MDBList API Key & Calificaciones</span>
             </label>
             <label class="lat-switch" title="Activar/desactivar calificaciones">
               <input type="checkbox" id="chkRatings" ${accountState.settings.ratings_enabled ? 'checked' : ''}>
@@ -2965,210 +2479,10 @@ export function renderSettingsSection() {
                 <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
               </button>
             </div>
-            <p class="text-[11px] text-white/40 mt-1">
+            <p class="text-[11px] text-white/40 mt-1.5 leading-relaxed">
               Proporciona calificaciones agregadas (IMDb, Rotten Tomatoes, Trakt) en las carátulas de Nuvio.
             </p>
           </div>
-        </div>
-      </div>
-
-      <!-- 2. Fusion Badges de Nuvio (Stream Badges) -->
-      <div class="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-5">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <h4 class="text-sm font-semibold text-white flex items-center gap-2">
-              <i class="fa-solid fa-layer-group text-indigo-400"></i>
-              <span>Fusion Badges de Nuvio (Stream Badges)</span>
-            </h4>
-            <p class="text-xs text-white/60 mt-0.5">
-              Inyecta insignias híbridas personalizadas en el reproductor de Nuvio (resolución, audio, códec y subtítulos).
-            </p>
-          </div>
-          <label class="lat-switch" title="Activar/desactivar Fusion Badges en Nuvio">
-            <input type="checkbox" id="chkBadgesEnabled" ${isBadgesActive ? 'checked' : ''}>
-            <span class="lat-switch-track"><span class="lat-switch-thumb"></span></span>
-          </label>
-        </div>
-
-        <!-- Contenedor Completo de Personalización de Badges -->
-        <div id="badgesPackSelectorContainer" class="${isBadgesActive ? '' : 'hidden'} space-y-5 pt-1">
-          
-          <!-- Módulos / Categorías Activas con Checkboxes -->
-          <div class="space-y-2 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-            <div class="flex items-center justify-between">
-              <label class="text-xs text-white/80 font-semibold flex items-center gap-1.5">
-                <i class="fa-solid fa-toggle-on text-[#ffd479] text-xs"></i>
-                <span>Categorías de Insignias Activas</span>
-              </label>
-              <span class="text-[10px] text-white/40 font-mono">${activeIds.length} activadas</span>
-            </div>
-            <div id="badgeModulesCheckboxes" class="flex flex-wrap gap-2 pt-1">
-              ${moduleDefs.map(def => {
-                const isChecked = isSectionActive(def.id, activeSet);
-                return `
-                  <label class="badge-module-pill flex items-center gap-2 px-3 py-1.5 rounded-xl border ${isChecked ? 'border-[#ffd479]/40 bg-[#ffd479]/10 text-white' : 'border-white/[0.08] bg-white/[0.02] text-white/60'} hover:border-white/20 cursor-pointer text-xs transition-all select-none">
-                    <input type="checkbox" ${isChecked ? 'checked' : ''} class="sr-only chk-badge-module" data-module-id="${def.id}">
-                    <div class="w-4 h-4 rounded-md border ${isChecked ? 'border-[#ffd479] bg-[#ffd479] text-black' : 'border-white/30 bg-transparent text-transparent'} flex items-center justify-center transition-all check-indicator">
-                      <i class="fa-solid fa-check text-[10px]"></i>
-                    </div>
-                    <span class="font-medium">+ ${def.labelEs}</span>
-                  </label>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
-          <!-- Barra de Reordenamiento Secuencial con Flechas < y > -->
-          <div class="space-y-2 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-            <div class="flex items-center justify-between">
-              <label class="text-xs text-white/80 font-semibold flex items-center gap-1.5">
-                <i class="fa-solid fa-arrows-left-right text-[#ffd479] text-xs"></i>
-                <span>Orden de Visualización en el Reproductor</span>
-              </label>
-              <span class="text-[10px] text-white/40">Usa las flechas para mover</span>
-            </div>
-            <div id="badgeModulesOrderBar" class="flex flex-wrap items-center gap-2 p-2.5 rounded-xl bg-black/40 border border-white/10 min-h-[46px]">
-              ${activeOrdered.length === 0 ? `
-                <span class="text-[11px] text-white/40 italic">Ningún módulo activado. Marca categorías arriba para incluirlas y ordenarlas.</span>
-              ` : activeOrdered.map((id, idx) => {
-                const isFirst = (idx === 0);
-                const isLast = (idx === activeOrdered.length - 1);
-                const label = getBadgeModuleLabel(id);
-                return `
-                  <div class="badge-order-chip inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.06] border border-white/10 text-xs text-white">
-                    <span class="font-mono text-[10px] text-[#ffd479] font-bold">${idx + 1}.</span>
-                    <span>${label}</span>
-                    <div class="flex items-center gap-1 ml-1">
-                      <button type="button" ${isFirst ? 'disabled' : ''} data-module-id="${id}" data-delta="-1" class="btn-move-badge-module w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-[10px] text-white/60 hover:text-white disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed" title="Mover a la izquierda / antes">
-                        <i class="fa-solid fa-chevron-left"></i>
-                      </button>
-                      <button type="button" ${isLast ? 'disabled' : ''} data-module-id="${id}" data-delta="1" class="btn-move-badge-module w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-[10px] text-white/60 hover:text-white disabled:opacity-20 cursor-pointer disabled:cursor-not-allowed" title="Mover a la derecha / después">
-                        <i class="fa-solid fa-chevron-right"></i>
-                      </button>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
-          <!-- Acciones de Importación y Exportación JSON -->
-          <div class="flex flex-wrap items-center justify-between gap-2.5 pt-1">
-            <button type="button" id="btnToggleImportBadge" class="lat-capsule-btn glass text-xs py-2 px-3.5 flex items-center gap-1.5">
-              <i class="fa-solid fa-file-import text-indigo-400"></i>
-              <span>Importar Pack Personalizado</span>
-            </button>
-            <div class="flex items-center gap-2">
-              <button type="button" id="btnCopyBadgeRulesJson" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5" title="Copiar configuración JSON compilada al portapapeles">
-                <i class="fa-regular fa-copy text-[#ffd479]"></i>
-                <span>Copiar JSON</span>
-              </button>
-              <button type="button" id="btnDownloadBadgeRulesJson" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5" title="Descargar archivo JSON listo para Nuvio">
-                <i class="fa-solid fa-download text-emerald-400"></i>
-                <span>Descargar JSON</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Cajón de Importación de Pack Personalizado (Oculto por defecto) -->
-          <div id="accountImportBadgeDrawer" class="hidden p-4 rounded-2xl bg-white/[0.03] border border-white/12 space-y-3">
-            <div class="flex items-center justify-between">
-              <h5 class="text-xs font-semibold text-white flex items-center gap-1.5">
-                <i class="fa-solid fa-code text-[#ffd479]"></i>
-                <span>Importar Pack de Badges por URL o JSON</span>
-              </h5>
-              <button type="button" id="btnCancelImportBadge" class="text-white/40 hover:text-white text-xs">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-            <div>
-              <textarea id="inputAccountCustomBadge" rows="3" placeholder="Pega el enlace directo a tu archivo badges.json (ej: https://raw.githubusercontent.com/.../badges.json) o el código JSON completo..." class="lat-field w-full text-xs font-mono"></textarea>
-            </div>
-            <div class="flex items-center justify-end gap-2">
-              <button type="button" id="btnConfirmImportBadge" class="lat-capsule-btn solid text-xs py-1.5 px-4 text-black bg-[#ffd479] hover:bg-[#ffe099] font-semibold">
-                Importar y Seleccionar
-              </button>
-            </div>
-          </div>
-
-          <!-- Galería de Packs de Badges Disponibles -->
-          <div class="space-y-3 pt-2">
-            <label class="text-xs text-white/80 font-semibold block">Galería de Estilos de Badges</label>
-            <div class="space-y-4">
-              ${BADGE_PACKS.map(pack => {
-                const isSelected = pack.id === selectedPackId;
-                const borderClass = isSelected
-                  ? 'border-[#ffd479] bg-white/[0.07] shadow-[0_0_25px_rgba(255,212,121,0.22)]'
-                  : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20';
-
-                const checkIcon = isSelected
-                  ? `<div class="w-5 h-5 rounded-full border-2 border-[#ffd479] bg-[#ffd479] flex items-center justify-center text-[10px] text-[#08090c] font-bold shadow-sm"><i class="fa-solid fa-check"></i></div>`
-                  : `<div class="w-5 h-5 rounded-full border-2 border-white/20 bg-transparent flex items-center justify-center text-[10px] text-transparent"><i class="fa-solid fa-check"></i></div>`;
-
-                const visibleSections = getPackSectionsOrdered(pack, activeIds, orderIds);
-
-                const sectionsHtml = visibleSections.map(sec => {
-                  const titleEs = getBadgeModuleLabel(sec.id, sec.name).toUpperCase();
-                  const totalItemsCount = sec.total || (sec.items ? sec.items.length : 0);
-                  const badgesHtml = (sec.items || []).map(b => {
-                    const isFlag = (sec.id === 'glang' || sec.id === 'gl' || sec.id === 'lang');
-                    const isSub = (sec.id === 'gsub' || sec.id === 'sub');
-                    const imgClass = isFlag
-                      ? 'badge-flag-img h-3.5 max-h-[15px] w-[21px] object-contain block shrink-0'
-                      : (isSub ? 'badge-sub-img h-3.5 max-h-[15px] min-w-[28px] w-auto object-contain block shrink-0' : 'h-3.5 max-h-[15px] w-auto object-contain block shrink-0');
-                    const widthAttr = isFlag ? 'width="21"' : '';
-                    const heightAttr = 'height="14"';
-
-                    return `
-                      <span class="badge-chip inline-flex items-center justify-center px-2 py-1 rounded-md text-[10.5px] font-bold font-mono tracking-wide border shadow-sm transition-transform hover:scale-105 shrink-0"
-                            style="background-color: ${b.bg}; border-color: ${b.border}; color: ${b.text};"
-                            title="${b.name}">
-                        ${b.img ? `<img src="${b.img}" alt="${b.name}" ${widthAttr} ${heightAttr} class="${imgClass}" loading="eager" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span style="display:none;">${b.name}</span>` : `<span>${b.name}</span>`}
-                      </span>
-                    `;
-                  }).join('');
-
-                  return `
-                    <div class="badge-section-box bg-black/50 border border-white/[0.06] rounded-xl p-2.5 flex flex-col justify-start gap-1.5 flex-1 min-w-[190px] sm:min-w-[210px]">
-                      <div class="flex items-center justify-between text-[10px] font-mono uppercase text-white/50 font-semibold shrink-0">
-                        <span class="truncate">${titleEs}</span>
-                        <span class="badge-hidden-counter text-[9px] text-[#ffd479] font-bold font-mono shrink-0 ml-1" data-total="${totalItemsCount}">${sec.hiddenCount > 0 ? `+${sec.hiddenCount}` : ''}</span>
-                      </div>
-                      <div class="badges-flow-container relative flex flex-wrap items-center gap-1.5 content-start">
-                        ${badgesHtml}
-                      </div>
-                    </div>
-                  `;
-                }).join('');
-
-                return `
-                  <div class="badge-pack-card relative p-5 rounded-[24px] border-2 ${borderClass} cursor-pointer transition-all flex flex-col justify-between gap-3.5 group shadow-[var(--shadow-lift)]" data-pack-id="${pack.id}">
-                    <div class="space-y-3">
-                      <div class="flex items-start justify-between gap-3">
-                        <div>
-                          <div class="flex items-center gap-2">
-                            <h4 class="text-sm font-semibold text-white tracking-wide">${pack.name}</h4>
-                            ${isSelected ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#ffd479]/20 text-[#ffd479] border border-[#ffd479]/30">Activo</span>' : ''}
-                            ${pack.isCustom ? '<span class="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Personalizado</span>' : ''}
-                          </div>
-                          <div class="flex items-center gap-1.5 text-[11px] text-white/50 pt-0.5">
-                            <i class="fa-brands fa-github text-[#ffd479]"></i>
-                            <span>Hecho por ${pack.authorUrl && pack.authorUrl !== '#' ? `<a href="${pack.authorUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-[#ffd479] hover:underline font-medium">${pack.author}</a>` : `<span class="text-[#ffd479] font-medium">${pack.author}</span>`}</span>
-                          </div>
-                        </div>
-                        ${checkIcon}
-                      </div>
-
-                      <div class="flex flex-wrap gap-2 pt-0.5">
-                        ${sectionsHtml}
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-
         </div>
       </div>
     </div>
@@ -3180,7 +2494,6 @@ export function renderSettingsSection() {
   const chkR = document.getElementById('chkRatings');
   const inTmdb = document.getElementById('inputTmdbKey');
   const inMdb = document.getElementById('inputMdblistKey');
-  const chkBadges = document.getElementById('chkBadgesEnabled');
 
   const onSettingsChange = () => {
     if (chkE) accountState.settings.enrichment_enabled = chkE.checked;
@@ -3194,189 +2507,6 @@ export function renderSettingsSection() {
   if (chkR) chkR.addEventListener('change', onSettingsChange);
   if (inTmdb) inTmdb.addEventListener('input', onSettingsChange);
   if (inMdb) inMdb.addEventListener('input', onSettingsChange);
-
-  if (chkBadges) {
-    chkBadges.addEventListener('change', () => {
-      accountState.settings.badgesEnabled = chkBadges.checked;
-      markDirty('settings', true);
-      renderSettingsSection();
-    });
-  }
-
-  // Checkboxes de módulos de categorías
-  container.querySelectorAll('.chk-badge-module').forEach(chk => {
-    chk.addEventListener('change', () => {
-      const modId = chk.dataset.moduleId;
-      const isChecked = chk.checked;
-      let active = accountState.settings.activeBadgeModules || [];
-      const canon = getCanonicalModuleId(modId);
-
-      if (isChecked) {
-        if (!active.includes(modId)) active.push(modId);
-        if (canon && canon !== modId && !active.includes(canon)) active.push(canon);
-      } else {
-        active = active.filter(x => x !== modId && getCanonicalModuleId(x) !== canon);
-      }
-      accountState.settings.activeBadgeModules = active;
-      markDirty('settings', true);
-      renderSettingsSection();
-    });
-  });
-
-  // Reordenar módulos con flechas < y >
-  container.querySelectorAll('.btn-move-badge-module').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const modId = btn.dataset.moduleId;
-      const delta = parseInt(btn.dataset.delta, 10);
-      const active = accountState.settings.activeBadgeModules || [];
-      const order = [...(accountState.settings.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'])];
-      const activeSet = new Set(active);
-      const activeOrdered = order.filter(x => isSectionActive(x, activeSet));
-      const curIdx = activeOrdered.indexOf(modId);
-      const targetIdx = curIdx + delta;
-
-      if (curIdx < 0 || targetIdx < 0 || targetIdx >= activeOrdered.length) return;
-
-      const targetId = activeOrdered[targetIdx];
-      const gCurIdx = order.indexOf(modId);
-      const gTargetIdx = order.indexOf(targetId);
-
-      if (gCurIdx >= 0 && gTargetIdx >= 0) {
-        order[gCurIdx] = targetId;
-        order[gTargetIdx] = modId;
-        accountState.settings.badgeModulesOrder = order;
-        markDirty('settings', true);
-        renderSettingsSection();
-      }
-    });
-  });
-
-  // Selector de packs
-  container.querySelectorAll('.badge-pack-card').forEach(cardEl => {
-    cardEl.addEventListener('click', () => {
-      const pId = cardEl.dataset.packId;
-      if (pId) {
-        accountState.settings.selectedBadgePack = pId;
-        markDirty('settings', true);
-        renderSettingsSection();
-      }
-    });
-  });
-
-  // Botón Copiar JSON compilado
-  const btnCopy = document.getElementById('btnCopyBadgeRulesJson');
-  if (btnCopy) {
-    btnCopy.addEventListener('click', async () => {
-      try {
-        const pId = accountState.settings.selectedBadgePack || 'tinted';
-        const pObj = getBadgePackById(pId);
-        const rules = await compileUniversalBadgeRules(pObj, activeIds, orderIds);
-        await navigator.clipboard.writeText(JSON.stringify(rules, null, 2));
-        showToast('✓ Reglas JSON de Fusion Badges copiadas al portapapeles.', 'success');
-      } catch (err) {
-        showToast('No se pudo copiar automáticamente: ' + err.message, 'warning');
-      }
-    });
-  }
-
-  // Botón Descargar JSON compilado
-  const btnDownload = document.getElementById('btnDownloadBadgeRulesJson');
-  if (btnDownload) {
-    btnDownload.addEventListener('click', async () => {
-      try {
-        const pId = accountState.settings.selectedBadgePack || 'tinted';
-        const pObj = getBadgePackById(pId);
-        const rules = await compileUniversalBadgeRules(pObj, activeIds, orderIds);
-        const jsonStr = JSON.stringify(rules, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `nuvio-badges-${pId}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast('✓ Archivo JSON de Fusion Badges descargado con éxito.', 'success');
-      } catch (err) {
-        showToast('Error al descargar JSON: ' + err.message, 'error');
-      }
-    });
-  }
-
-  // Botón Toggle Importador
-  const btnToggleImport = document.getElementById('btnToggleImportBadge');
-  const importDrawer = document.getElementById('accountImportBadgeDrawer');
-  const btnCancelImport = document.getElementById('btnCancelImportBadge');
-  const btnConfirmImport = document.getElementById('btnConfirmImportBadge');
-
-  if (btnToggleImport && importDrawer) {
-    btnToggleImport.addEventListener('click', () => {
-      importDrawer.classList.toggle('hidden');
-      if (!importDrawer.classList.contains('hidden')) {
-        document.getElementById('inputAccountCustomBadge')?.focus();
-      }
-    });
-  }
-  if (btnCancelImport && importDrawer) {
-    btnCancelImport.addEventListener('click', () => {
-      importDrawer.classList.add('hidden');
-    });
-  }
-  if (btnConfirmImport && importDrawer) {
-    btnConfirmImport.addEventListener('click', async () => {
-      const inputEl = document.getElementById('inputAccountCustomBadge');
-      const val = (inputEl?.value || '').trim();
-      if (!val) {
-        showToast('Ingresa una URL o código JSON de tu pack.', 'warning');
-        return;
-      }
-
-      let parsedData = null;
-      let isUrl = false;
-
-      if (val.startsWith('http://') || val.startsWith('https://')) {
-        isUrl = true;
-        try {
-          const res = await fetch(val);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          parsedData = await res.json();
-        } catch (fetchErr) {
-          showToast(`Error al obtener el JSON desde la URL: ${fetchErr.message}`, 'error');
-          return;
-        }
-      } else {
-        try {
-          parsedData = JSON.parse(val);
-        } catch (jsonErr) {
-          showToast('El texto ingresado no es un JSON válido ni una URL accesible.', 'error');
-          return;
-        }
-      }
-
-      const customId = `custom-${Date.now()}`;
-      const customAuthor = isUrl ? val.replace(/^https?:\/\//, '').split('/')[0] : 'Personalizado';
-
-      addCustomBadgePack({
-        id: customId,
-        name: parsedData.name || 'Pack Personalizado',
-        author: customAuthor,
-        authorUrl: isUrl ? val : '#',
-        description: parsedData.description || 'Pack de badges importado manualmente en tu cuenta.',
-        isCustom: true,
-        customJson: parsedData,
-        tags: ['Personalizado'],
-        accentColor: '#10b981',
-        sections: parsedData.sections || BADGE_PACKS[0].sections
-      });
-
-      accountState.settings.selectedBadgePack = customId;
-      markDirty('settings', true);
-      renderSettingsSection();
-      showToast('✓ Pack personalizado importado y seleccionado con éxito.', 'success');
-    });
-  }
 }
 
 export async function saveAllChanges() {
@@ -3425,28 +2555,7 @@ export async function saveAllChanges() {
       if (modifiedBadge) modifiedBadge.classList.add('hidden');
     }
 
-    // 1. Guardar Colecciones de Nuvio si cambiaron
-    if (accountState.dirty.collections) {
-      const synchronizedCollections = (accountState.collections || [])
-        .filter(sec => sec.enabled !== false && (sec.folders || []).some(f => f.enabled !== false))
-        .map(sec => ({
-          ...sec,
-          pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
-          folders: (sec.folders || []).filter(f => f.enabled !== false)
-        }));
-
-      await NuvioClient.pushCollections({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        profileId: profId,
-        collectionsJson: synchronizedCollections
-      });
-
-      accountState.dirty.collections = false;
-    }
-
-    // 2. Guardar Ajustes de Nuvio, Credenciales & Fusion Badges
+    // 1. Guardar Ajustes de Nuvio & Credenciales (TMDB / MDBList)
     if (accountState.dirty.settings) {
       // Regla de Oro: Preservar credenciales existentes si el input está vacío
       const tmdbKeyToSave = (accountState.settings.tmdb_api_key || accountState.originalSettings.tmdb_api_key || '').trim();
@@ -3461,45 +2570,9 @@ export async function saveAllChanges() {
         mdblist_api_key: mdblistKeyToSave
       };
 
-      if (accountState.settings.badgesEnabled) {
-        const selectedPack = getBadgePackById(accountState.settings.selectedBadgePack) || BADGE_PACKS[0];
-        const activeIds = accountState.settings.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-        const orderIds = accountState.settings.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
-        let compiled = { groups: [], filters: [] };
-        try {
-          compiled = await compileUniversalBadgeRules(selectedPack, activeIds, orderIds);
-        } catch (compileErr) {
-          console.warn('[AccountManager] Error compilando badges:', compileErr);
-        }
-
-        const sourceUrl = (selectedPack.isCustom && selectedPack.authorUrl && selectedPack.authorUrl !== '#')
-          ? selectedPack.authorUrl
-          : 'custom://nuvio-badges-latino';
-
-        const badgeRulesJson = {
-          imports: [
-            {
-              sourceUrl,
-              filters: compiled.filters,
-              groups: compiled.groups,
-              isActive: true
-            }
-          ]
-        };
-
-        profileSettingsPayload.stream_badge_settings = {
-          stream_badge_rules: { type: 'string', value: JSON.stringify(badgeRulesJson) },
-          show_file_size_badges: { type: 'boolean', value: true },
-          stream_badge_placement: { type: 'string', value: 'BOTTOM' },
-          show_addon_logo: { type: 'boolean', value: false }
-        };
-      } else {
-        profileSettingsPayload.stream_badge_settings = {
-          stream_badge_rules: { type: 'string', value: '' },
-          stream_badge_placement: { type: 'string', value: 'BOTTOM' },
-          show_file_size_badges: { type: 'boolean', value: false },
-          show_addon_logo: { type: 'boolean', value: false }
-        };
+      // Preservar badges existentes en la TV del usuario si los tenía configurados
+      if (accountState._rawStreamBadgeSettings) {
+        profileSettingsPayload.stream_badge_settings = accountState._rawStreamBadgeSettings;
       }
 
       for (const platform of ['tv', 'mobile', 'desktop']) {
@@ -3679,8 +2752,6 @@ export function switchSection(sectionId) {
     renderOverviewSection();
   } else if (sectionId === 'avatars') {
     renderAvatarsSection();
-  } else if (sectionId === 'collections') {
-    renderMiniNuvio();
   } else if (sectionId === 'aiometadata') {
     setupPasswordToggles();
   } else if (sectionId === 'settings') {
@@ -3732,13 +2803,6 @@ export async function initAccountPage() {
     btnSave.dataset.bound = 'true';
     btnSave.addEventListener('click', saveAllChanges);
   }
-
-  // Suscribirse a cambios en colecciones para marcar dirty (solo cuando el usuario realiza cambios interactivos)
-  state.subscribe((s, eventType) => {
-    if (eventType === 'COLLECTIONS_UPDATED' && !isInternalUpdating) {
-      markDirty('collections', true);
-    }
-  });
 
   // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
   loadAvatarsCatalog().catch(() => null);

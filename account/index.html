@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mi Cuenta & Perfil | Nuvio Metadata Latino</title>
-  <meta name="description" content="Gestor integral de perfiles, colecciones y addons AIOMetadata para tu cuenta de Nuvio." />
+  <meta name="description" content="Gestor integral de perfiles, avatares y addons AIOMetadata para tu cuenta de Nuvio." />
   
   <!-- Favicon e Iconos -->
   <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
@@ -152,7 +152,7 @@
         <div>
           <h2 class="text-2xl sm:text-3xl font-serif text-white tracking-tight">Gestor de Cuenta & Perfil</h2>
           <p class="text-xs sm:text-sm text-white/60 mt-2">
-            Ingresa con tus credenciales de Nuvio para administrar tus perfiles, colecciones y tu addon AIOMetadata en tiempo real.
+            Ingresa con tus credenciales de Nuvio para administrar tus perfiles, avatares y tu addon AIOMetadata en tiempo real.
           </p>
         </div>
 
@@ -222,17 +222,13 @@
               <i class="fa-solid fa-masks-theater text-xs sm:text-sm"></i>
               <span>Avatares</span>
             </button>
-            <button type="button" class="account-nav-btn shrink-0" data-section="collections" title="Colecciones">
-              <i class="fa-solid fa-layer-group text-xs sm:text-sm"></i>
-              <span>Colecciones</span>
-            </button>
             <button type="button" class="account-nav-btn shrink-0" data-section="aiometadata" title="AIOMetadata Addon">
               <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
               <span>AIOMetadata Addon</span>
             </button>
-            <button type="button" class="account-nav-btn shrink-0" data-section="settings" title="Ajustes & Badges">
+            <button type="button" class="account-nav-btn shrink-0" data-section="settings" title="Ajustes">
               <i class="fa-solid fa-sliders text-xs sm:text-sm"></i>
-              <span>Ajustes & Badges</span>
+              <span>Ajustes</span>
             </button>
           </nav>
         </div>
@@ -274,8 +270,8 @@
             </div>
           </div>
 
-          <!-- Cuadrícula de 6 Métricas Traducidas (Exactas a SYNC DATA de Nuvio) -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-3.5">
+          <!-- Cuadrícula de 5 Métricas Traducidas (Exactas a SYNC DATA de Nuvio) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-3.5">
             
             <!-- 1. Plugins -->
             <div class="p-3.5 sm:p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
@@ -333,21 +329,7 @@
               </div>
             </div>
 
-            <!-- 5. Colecciones -->
-            <div class="p-3.5 sm:p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs text-white/60 font-medium">Colecciones</span>
-                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-xs">
-                  <i class="fa-solid fa-layer-group"></i>
-                </div>
-              </div>
-              <div>
-                <span id="metricCollectionsCount" class="text-xl sm:text-2xl font-bold text-white font-mono">-</span>
-                <span class="block text-[10px] text-white/40 mt-0.5">Filas activas</span>
-              </div>
-            </div>
-
-            <!-- 6. Vistos (Watched) -->
+            <!-- 5. Vistos (Watched) -->
             <div class="p-3.5 sm:p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex flex-col justify-between gap-2 shadow-sm">
               <div class="flex items-center justify-between">
                 <span class="text-xs text-white/60 font-medium">Vistos</span>
@@ -397,7 +379,7 @@
           <!-- Mensaje alternativo si TMDB enrichment no está configurado -->
           <div id="overviewTmdbNotice" class="hidden p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs text-white/50 flex items-center gap-3">
             <i class="fa-solid fa-info-circle text-amber-400/80 text-sm shrink-0"></i>
-            <span>Para visualizar tus carátulas y títulos en Español Latino en "Actualmente Viendo" y "Últimas Vistas", habilita TMDB Enrichment con tu API Key en la pestaña <strong>Ajustes & Badges</strong>.</span>
+            <span>Para visualizar tus carátulas y títulos en Español Latino en "Actualmente Viendo" y "Últimas Vistas", habilita TMDB Enrichment con tu API Key en la pestaña <strong>Ajustes</strong>.</span>
           </div>
 
         </div>
@@ -476,25 +458,6 @@
 
         </div>
 
-        <!-- SECCIÓN 3: COLECCIONES -->
-        <div id="sectionPane-collections" class="account-section-pane space-y-6">
-          <div class="flex items-center justify-between flex-wrap gap-2">
-            <div>
-              <h3 class="text-base font-semibold text-white">Colecciones de Nuvio</h3>
-              <p class="text-xs text-white/60">Visualiza, activa/desactiva y reordena las colecciones en vivo de tu perfil de Nuvio.</p>
-            </div>
-            <div id="collectionsToolbarActions" class="flex items-center gap-2"></div>
-          </div>
-
-          <!-- Estado o mensaje para colecciones vacías -->
-          <div id="accountCollectionsEmptyState" class="hidden"></div>
-
-          <!-- Contenedor interactivo del Mini Nuvio -->
-          <div id="miniNuvioContainer">
-            <!-- Renderizado dinámico por js/mini-nuvio.js -->
-          </div>
-        </div>
-
         <!-- SECCIÓN 3: AIOMETADATA -->
         <div id="sectionPane-aiometadata" class="account-section-pane space-y-6">
           <div>
@@ -510,12 +473,12 @@
         <!-- SECCIÓN 4: AJUSTES & API KEYS -->
         <div id="sectionPane-settings" class="account-section-pane space-y-6">
           <div>
-            <h3 class="text-base font-semibold text-white">Ajustes de Nuvio & Fusion Badges</h3>
-            <p class="text-xs text-white/60">Configura tus API Keys de TMDB, MDBList, enriquecimiento oficial y Fusion Badges en tu reproductor.</p>
+            <h3 class="text-base font-semibold text-white">Ajustes de Nuvio (API Keys)</h3>
+            <p class="text-xs text-white/60">Configura tus API Keys de TMDB, MDBList y enriquecimiento oficial de metadatos.</p>
           </div>
 
           <div id="accountSettingsContainer">
-            <!-- Inputs protegidos de API Keys y Fusion Badges -->
+            <!-- Inputs protegidos de API Keys de TMDB y MDBList -->
           </div>
         </div>
 
