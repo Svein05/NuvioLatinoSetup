@@ -2258,8 +2258,8 @@ export function renderAioSection() {
                 <i class="fa-solid fa-sliders text-[9px]"></i>
                 <span>URL Propia</span>
               </button>
-              <div id="containerCustomBetter" class="${(currentEngine === 'betterposter' && customUrl) ? '' : 'hidden'} pt-1" onclick="event.stopPropagation()">
-                <input id="inputCustomBetterUrl" type="text" value="${currentEngine === 'betterposter' ? customUrl : ''}" placeholder="https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM" class="lat-field w-full text-[10px] font-mono">
+              <div id="containerCustomBetter" class="${(currentEngine === 'betterposter' && customUrl && customUrl.includes('btttr.cc')) ? '' : 'hidden'} pt-1" onclick="event.stopPropagation()">
+                <input id="inputCustomBetterUrl" type="text" value="${(currentEngine === 'betterposter' && customUrl && customUrl.includes('btttr.cc')) ? customUrl : ''}" placeholder="https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM" class="lat-field w-full text-[10px] font-mono">
               </div>
             </div>
           </div>
@@ -2286,8 +2286,8 @@ export function renderAioSection() {
                 <i class="fa-solid fa-sliders text-[9px]"></i>
                 <span>URL Propia</span>
               </button>
-              <div id="containerCustomPlus" class="${(currentEngine === 'postersplus' && customUrl) ? '' : 'hidden'} pt-1" onclick="event.stopPropagation()">
-                <input id="inputCustomPlusUrl" type="text" value="${currentEngine === 'postersplus' ? customUrl : ''}" placeholder="https://postersplus.stremio.ru/poster?..." class="lat-field w-full text-[10px] font-mono">
+              <div id="containerCustomPlus" class="${(currentEngine === 'postersplus' && customUrl && customUrl.includes('postersplus.stremio.ru')) ? '' : 'hidden'} pt-1" onclick="event.stopPropagation()">
+                <input id="inputCustomPlusUrl" type="text" value="${(currentEngine === 'postersplus' && customUrl && customUrl.includes('postersplus.stremio.ru')) ? customUrl : ''}" placeholder="https://postersplus.stremio.ru/poster?..." class="lat-field w-full text-[10px] font-mono">
               </div>
             </div>
           </div>
@@ -2368,6 +2368,9 @@ export function renderAioSection() {
   if (cardBet) {
     cardBet.addEventListener('click', () => {
       accountState.posterEngine = 'betterposter';
+      if (accountState.customPosterUrl && !accountState.customPosterUrl.includes('btttr.cc')) {
+        accountState.customPosterUrl = '';
+      }
       markDirty('aiometadata', true);
       renderAioSection();
     });
@@ -2376,6 +2379,9 @@ export function renderAioSection() {
   if (cardPlu) {
     cardPlu.addEventListener('click', () => {
       accountState.posterEngine = 'postersplus';
+      if (accountState.customPosterUrl && !accountState.customPosterUrl.includes('postersplus.stremio.ru')) {
+        accountState.customPosterUrl = '';
+      }
       markDirty('aiometadata', true);
       renderAioSection();
     });
@@ -2622,16 +2628,23 @@ export async function saveAllChanges() {
         cfg.usePosterProxy = false;
       } else if (engine === 'betterposter') {
         cfg.posterRatingProvider = "custom";
-        cfg.customPosterUrlPattern = (accountState.customPosterUrl || '').trim() ||
-          "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM";
+        const isBtttr = accountState.customPosterUrl && accountState.customPosterUrl.includes('btttr.cc');
+        cfg.customPosterUrlPattern = isBtttr
+          ? accountState.customPosterUrl.trim()
+          : "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM";
         cfg.enableRatingPostersForLibrary = true;
         cfg.usePosterProxy = true;
       } else if (engine === 'postersplus') {
         cfg.posterRatingProvider = "custom";
-        const tmdbEnc = encodeURIComponent(tmdbKeyToSave);
-        const mdbEnc = encodeURIComponent(mdblistKeyToSave);
+        const tmdbKey = tmdbKeyToSave || cfg.apiKeys?.tmdb || state.apiKeys?.tmdb || '';
+        const mdblistKey = mdblistKeyToSave || cfg.apiKeys?.mdblist || state.apiKeys?.mdblist || '';
+        const tmdbEnc = encodeURIComponent(tmdbKey);
+        const mdbEnc = encodeURIComponent(mdblistKey);
         const defaultPostersPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbEnc}&mdblist_key=${mdbEnc}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
-        cfg.customPosterUrlPattern = (accountState.customPosterUrl || '').trim() || defaultPostersPlusPattern;
+        const isPlus = accountState.customPosterUrl && accountState.customPosterUrl.includes('postersplus.stremio.ru');
+        cfg.customPosterUrlPattern = isPlus
+          ? accountState.customPosterUrl.trim()
+          : defaultPostersPlusPattern;
         cfg.enableRatingPostersForLibrary = true;
         cfg.usePosterProxy = true;
       } else if (engine === 'custom_external') {
@@ -2651,6 +2664,8 @@ export async function saveAllChanges() {
       );
       accountState.originalAioConfig = JSON.parse(JSON.stringify(accountState.aioConfig));
       accountState.dirty.aiometadata = false;
+      accountState.customPosterUrl = cfg.customPosterUrlPattern || '';
+      renderAioSection();
     }
 
     showToast('✓ Cambios guardados exitosamente con equivalencia total.', 'success');
