@@ -831,6 +831,39 @@ export class NuvioClient {
   }
 
   /**
+   * Actualiza los datos de un addon existente (nombre, url de manifiesto, sort_order)
+   */
+  static async updateAddon({ apiUrl, apikey, accessToken, addonId, name, manifestUrl, sortOrder }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const updateBody = {};
+    if (name !== undefined) updateBody.name = name;
+    if (manifestUrl !== undefined) {
+      updateBody.manifest_url = manifestUrl;
+      updateBody.url = manifestUrl;
+      updateBody.transport_url = manifestUrl;
+    }
+    if (sortOrder !== undefined) updateBody.sort_order = Number(sortOrder);
+
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}`;
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(updateBody)
+      });
+      return response.ok;
+    } catch (err) {
+      console.warn(`[NuvioClient] Error actualizando addon ${addonId}:`, err);
+      return false;
+    }
+  }
+
+  /**
    * Instala o actualiza el addon principal AIOMetadata en la posición #1,
    * garantizando que cualquier duplicado previo en Nuvio sea eliminado para que
    * nunca coexistan dos addons de metadatos en la cuenta.

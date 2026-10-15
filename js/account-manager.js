@@ -5,7 +5,8 @@
 import { CONFIG } from './config.js';
 import { NuvioClient } from './nuvio-client.js';
 import { AIOMetadataClient } from './aiometadata-client.js';
-import { state, isAioMetadataAddon } from './state.js';
+import { AIOStreamsClient } from './aiostreams-client.js';
+import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
 import { 
   getCompiledAvatars, 
   getStylesSummary, 
@@ -50,6 +51,11 @@ export const accountState = {
   },
 
   installedAddons: [],
+  originalInstalledAddons: [],
+  _editingAddonIndex: null,
+  _deletingAddonIndex: null,
+  _aioStreamsDraft: { debrids: {}, validatedKeys: {} },
+  manifestCache: new Map(),
 
   // AIOMetadata vinculado y opciones exclusivas del addon
   aioAddon: null,
@@ -76,7 +82,8 @@ export const accountState = {
   dirty: {
     aiometadata: false,
     settings: false,
-    avatar: false
+    avatar: false,
+    addons: false
   },
 
   isSaving: false
@@ -256,7 +263,7 @@ export async function selectProfile(profileId) {
   renderProfilePopover();
 
   // Reset de estados dirty ante cambio de perfil
-  accountState.dirty = { aiometadata: false, settings: false, avatar: false };
+  accountState.dirty = { aiometadata: false, settings: false, avatar: false, addons: false };
   updateSaveButton();
 
   // Respetar la sección actualmente activa o activar Resumen por defecto
@@ -288,12 +295,21 @@ async function loadProfileAddonsAndAio() {
       profileId: profId
     });
 
-    accountState.installedAddons = addons;
+    accountState.installedAddons = JSON.parse(JSON.stringify(addons));
+    accountState.originalInstalledAddons = JSON.parse(JSON.stringify(addons));
+    accountState.dirty.addons = false;
+    updateSaveButton();
+
     if (accountState.overviewData) {
       accountState.overviewData.addonsCount = addons.length;
       const elAddons = document.getElementById('metricAddonsCount');
       if (elAddons) elAddons.textContent = addons.length;
     }
+
+    if (accountState.activeSection === 'addons') {
+      renderAddonsSection();
+    }
+    enrichInstalledAddonsManifests();
 
     // Buscar addon de AIOMetadata en la lista instalada
     const aio = addons.find(a => isAioMetadataAddon(a));
@@ -2027,6 +2043,980 @@ function renderAvatarsCatalog() {
   });
 }
 
+// ============================================================
+// GESTOR DE ADDONS DEL PERFIL (REORDENAR, EDITAR, AGREGAR, AIOSTREAMS)
+// ============================================================
+
+let addonsSortableInstance = null;
+
+export function normalizeManifestUrl(rawUrl = '') {
+  let url = String(rawUrl || '').trim();
+  if (!url) return '';
+  if (url.startsWith('stremio://')) {
+    url = 'https://' + url.slice(10);
+  }
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    url = 'https://' + url;
+  }
+  url = url.replace(/\/+$/, '');
+  if (!url.endsWith('/manifest.json') && !url.endsWith('.json')) {
+    url = url + '/manifest.json';
+  }
+  return url.toLowerCase();
+}
+
+export function isDuplicateManifestUrl(targetUrl, excludeIndex = -1) {
+  const norm = normalizeManifestUrl(targetUrl);
+  if (!norm) return false;
+  return (accountState.installedAddons || []).some((addon, idx) => {
+    if (excludeIndex >= 0 && idx === excludeIndex) return false;
+    const existingNorm = normalizeManifestUrl(addon.manifest_url || addon.url);
+    return existingNorm === norm;
+  });
+}
+
+export function hasOurAioStreamsInstalled() {
+  const ourHost = (CONFIG.AIOSTREAMS_INSTANCE || 'midnightignite.me')
+    .replace(/^https?:\/\//i, '')
+    .replace(/\/+$/, '')
+    .toLowerCase();
+
+  return (accountState.installedAddons || []).some(addon => {
+    const url = String(addon.manifest_url || addon.url || '').toLowerCase();
+    const name = String(addon.name || '').toLowerCase();
+    const isOurHost = url.includes('midnightignite.me') || (ourHost && url.includes(ourHost));
+    const isAio = isAioStreamsAddon(addon) || name.includes('aiostreams') || url.includes('aiostreams');
+    return isOurHost && isAio;
+  });
+}
+
+export function getAddonFallbackLogo(url = '', name = '') {
+  const lowerUrl = String(url || '').toLowerCase();
+  const lowerName = String(name || '').toLowerCase();
+
+  if (lowerUrl.includes('aiostreams') || lowerName.includes('aiostreams')) {
+    return 'https://numb3rs.stream/assets/images/aiostreams.svg';
+  }
+  if (lowerUrl.includes('lat-add') || lowerUrl.includes('latadd') || lowerName.includes('lat-add') || lowerName.includes('latadd')) {
+    return 'https://lat-add.midnightignite.me/logo.png';
+  }
+  if (lowerUrl.includes('aiometadata') || lowerName.includes('aiometadata')) {
+    return 'https://raw.githubusercontent.com/cedya77/aiometadata/main/assets/logo.png';
+  }
+  if (lowerUrl.includes('torrentio') || lowerName.includes('torrentio')) {
+    return 'https://torrentio.strem.fun/images/logo.png';
+  }
+  if (lowerUrl.includes('torbox') || lowerName.includes('torbox')) {
+    return 'https://stremio.torbox.app/logo.png';
+  }
+  if (lowerUrl.includes('subtitles') || lowerName.includes('opensubtitles')) {
+    return 'https://www.opensubtitles.com/favicon.ico';
+  }
+  return null;
+}
+
+export async function fetchAddonManifestInfo(rawUrl) {
+  if (!accountState.manifestCache) accountState.manifestCache = new Map();
+  const cleanUrl = normalizeManifestUrl(rawUrl);
+  if (!cleanUrl) return null;
+
+  if (accountState.manifestCache.has(cleanUrl)) {
+    return accountState.manifestCache.get(cleanUrl);
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+    const res = await fetch(cleanUrl, {
+      signal: controller.signal,
+      headers: { 'Accept': 'application/json' }
+    });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const isConfigurable = Boolean(data.behaviorHints?.configurable || data.behaviorHints?.configurationRequired);
+    const info = {
+      name: data.name || data.id || null,
+      logo: data.logo || data.icon || null,
+      description: data.description || null,
+      configurable: isConfigurable
+    };
+    accountState.manifestCache.set(cleanUrl, info);
+    return info;
+  } catch (_) {
+    return null;
+  }
+}
+
+export async function enrichInstalledAddonsManifests() {
+  const addons = accountState.installedAddons || [];
+  let updatedAny = false;
+
+  await Promise.allSettled(addons.map(async (addon) => {
+    const rawUrl = addon.manifest_url || addon.url;
+    if (!rawUrl || addon._manifestEnriched) return;
+
+    try {
+      const info = await fetchAddonManifestInfo(rawUrl);
+      if (info) {
+        addon._manifestEnriched = true;
+        if (info.configurable !== undefined && addon.configurable === undefined) {
+          addon.configurable = info.configurable;
+          updatedAny = true;
+        }
+        if (info.name && (!addon.name || addon.name.startsWith('Addon '))) {
+          addon.name = info.name;
+          updatedAny = true;
+        }
+        if (info.logo && !addon.logo) {
+          addon.logo = info.logo;
+          updatedAny = true;
+        }
+      }
+    } catch (_) {}
+  }));
+
+  if (updatedAny && accountState.activeSection === 'addons') {
+    renderAddonsSection();
+  }
+}
+
+export function getAddonConfigureUrl(addon) {
+  if (!addon) return null;
+  const rawUrl = addon.manifest_url || addon.url || '';
+  if (!rawUrl) return null;
+
+  if (addon.configurable === true) {
+    return rawUrl.replace(/\/manifest\.json$/i, '/configure');
+  }
+
+  const lowerUrl = rawUrl.toLowerCase();
+  const lowerName = String(addon.name || '').toLowerCase();
+  const knownConfigurable = [
+    'aiometadata',
+    'aiostreams',
+    'torrentio',
+    'animesub',
+    'opensubtitles',
+    'cinetorrent',
+    'torbox',
+    'comet',
+    'mediafusion',
+    'easynews',
+    'stremthru',
+    'jackettio'
+  ];
+
+  const isKnown = knownConfigurable.some(k => lowerUrl.includes(k) || lowerName.includes(k));
+  if (isKnown && rawUrl.includes('/manifest.json')) {
+    return rawUrl.replace(/\/manifest\.json$/i, '/configure');
+  }
+
+  return null;
+}
+
+export function setupAddonsSortable() {
+  const container = document.getElementById('accountAddonsListContainer');
+  if (!container || typeof Sortable === 'undefined') return;
+
+  if (addonsSortableInstance) {
+    addonsSortableInstance.destroy();
+    addonsSortableInstance = null;
+  }
+
+  // Activar únicamente en pantallas de escritorio (>= 768px)
+  if (window.innerWidth >= 768) {
+    addonsSortableInstance = new Sortable(container, {
+      animation: 180,
+      handle: '.drag-handle',
+      ghostClass: 'opacity-40',
+      chosenClass: 'bg-white/[0.08]',
+      onEnd: (evt) => {
+        const { oldIndex, newIndex } = evt;
+        if (oldIndex === newIndex || oldIndex === undefined || newIndex === undefined) return;
+        const item = accountState.installedAddons.splice(oldIndex, 1)[0];
+        accountState.installedAddons.splice(newIndex, 0, item);
+        markDirty('addons', true);
+        renderAddonsSection();
+      }
+    });
+  }
+}
+
+export function renderAddonsSection() {
+  const container = document.getElementById('accountAddonsListContainer');
+  const countLabel = document.getElementById('accountAddonsCountLabel');
+  const btnAio = document.getElementById('btnAccountOpenAddAioStreams');
+
+  const addons = accountState.installedAddons || [];
+
+  if (countLabel) {
+    countLabel.textContent = `${addons.length} ${addons.length === 1 ? 'addon instalado' : 'addons instalados'}`;
+  }
+
+  // Verificación estricta de nuestra plantilla oficial de AIOStreams
+  const ourAioInstalled = hasOurAioStreamsInstalled();
+  if (btnAio) {
+    if (ourAioInstalled) {
+      btnAio.classList.add('opacity-40', 'grayscale', 'cursor-not-allowed');
+      btnAio.classList.remove('hover:border-emerald-500/60', 'hover:bg-emerald-500/[0.14]', 'text-emerald-300');
+      btnAio.classList.add('border-white/10', 'text-white/40');
+      btnAio.title = 'Nuestra plantilla oficial de AIOStreams Latino ya se encuentra instalada en este perfil.';
+    } else {
+      btnAio.classList.remove('opacity-40', 'grayscale', 'cursor-not-allowed', 'border-white/10', 'text-white/40');
+      btnAio.classList.add('hover:border-emerald-500/60', 'hover:bg-emerald-500/[0.14]', 'text-emerald-300');
+      btnAio.title = 'Configurar e instalar AIOStreams Latino';
+    }
+  }
+
+  if (!container) return;
+
+  const escapeHtml = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  };
+
+  if (addons.length === 0) {
+    container.innerHTML = `
+      <div class="py-12 px-4 rounded-[20px] bg-white/[0.02] border border-dashed border-white/10 text-center space-y-2.5">
+        <i class="fa-solid fa-puzzle-piece text-3xl text-white/20"></i>
+        <p class="text-xs text-white/60">No hay addons instalados en este perfil.</p>
+        <p class="text-[11px] text-white/40 max-w-sm mx-auto">
+          Puedes agregar tus addons pulsando <strong class="text-white">"Agregar Addon"</strong> o <strong class="text-emerald-300">"Agregar AIOStreams"</strong>.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  addons.forEach((addon, idx) => {
+    const isFirst = idx === 0;
+    const isLast = idx === addons.length - 1;
+    const name = addon.name || `Addon ${idx + 1}`;
+    const url = addon.manifest_url || addon.url || '';
+    const configureUrl = getAddonConfigureUrl(addon);
+
+    const configureBtnHtml = configureUrl ? `
+      <a href="${escapeHtml(configureUrl)}" target="_blank" rel="noopener noreferrer" 
+         class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 transition-all flex items-center gap-1.5" 
+         title="Abrir página oficial de configuración del addon">
+        <span>Configurar</span>
+        <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i>
+      </a>
+    ` : '';
+
+    html += `
+      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150 select-none" data-addon-index="${idx}">
+        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+          <!-- Handle arrastre (solo escritorio) -->
+          <div class="hidden md:flex items-center text-white/30 hover:text-white/80 cursor-grab active:cursor-grabbing p-1 drag-handle" title="Arrastrar para reordenar prioridad">
+            <i class="fa-solid fa-grip-vertical text-xs"></i>
+          </div>
+
+          <!-- Viñeta verde de estado idéntica a Nuvio Oficial -->
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.7)]" title="Addon activo"></span>
+
+          <!-- Información y Manifiesto -->
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-xs sm:text-sm text-white truncate">${escapeHtml(name)}</span>
+            </div>
+            <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeHtml(url)}">
+              ${escapeHtml(url || 'Sin URL de manifiesto')}
+            </p>
+          </div>
+        </div>
+
+        <!-- Botones de Acción a la derecha idénticos a Nuvio Oficial -->
+        <div class="shrink-0 flex items-center gap-1.5 sm:gap-2">
+          ${configureBtnHtml}
+
+          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 btn-edit-addon" data-index="${idx}" title="Modificar nombre o enlace del manifiesto">
+            Editar
+          </button>
+
+          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/70 hover:text-rose-400 border-white/10 hover:border-rose-500/30 hover:bg-rose-500/10 btn-delete-addon" data-index="${idx}" title="Eliminar addon de este perfil">
+            Eliminar
+          </button>
+
+          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 ${isFirst ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-up" data-index="${idx}" title="Subir orden">
+            Subir
+          </button>
+
+          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 ${isLast ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-down" data-index="${idx}" title="Bajar orden">
+            Bajar
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  // Registrar listeners para botones de acción por fila
+  container.querySelectorAll('.btn-edit-addon').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = Number(btn.dataset.index);
+      openAccountEditAddonModal(idx);
+    });
+  });
+
+  container.querySelectorAll('.btn-delete-addon').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = Number(btn.dataset.index);
+      openAccountDeleteAddonModal(idx);
+    });
+  });
+
+  container.querySelectorAll('.btn-move-up').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = Number(btn.dataset.index);
+      moveAddon(idx, -1);
+    });
+  });
+
+  container.querySelectorAll('.btn-move-down').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const idx = Number(btn.dataset.index);
+      moveAddon(idx, 1);
+    });
+  });
+
+  setupAddonsSortable();
+}
+
+export function moveAddon(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= accountState.installedAddons.length) return;
+
+  const item = accountState.installedAddons.splice(index, 1)[0];
+  accountState.installedAddons.splice(newIndex, 0, item);
+
+  markDirty('addons', true);
+  renderAddonsSection();
+}
+
+// ------------------------------------------------------------
+// MODAL: EDITAR ADDON (NOMBRE Y MANIFEST URL)
+// ------------------------------------------------------------
+
+export function openAccountEditAddonModal(index) {
+  const addon = accountState.installedAddons[index];
+  if (!addon) return;
+
+  accountState._editingAddonIndex = index;
+  const modal = document.getElementById('modalAccountEditAddon');
+  const nameInput = document.getElementById('inputAccountEditAddonName');
+  const urlInput = document.getElementById('inputAccountEditAddonUrl');
+
+  if (nameInput) nameInput.value = addon.name || '';
+  if (urlInput) urlInput.value = addon.manifest_url || addon.url || '';
+
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    nameInput?.focus();
+  }
+}
+
+export function closeAccountEditAddonModal() {
+  accountState._editingAddonIndex = null;
+  const modal = document.getElementById('modalAccountEditAddon');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+export function saveAccountEditAddon() {
+  const idx = accountState._editingAddonIndex;
+  if (idx === null || idx === undefined || !accountState.installedAddons[idx]) return;
+
+  const nameInput = document.getElementById('inputAccountEditAddonName');
+  const urlInput = document.getElementById('inputAccountEditAddonUrl');
+
+  const newName = (nameInput ? nameInput.value : '').trim();
+  let newUrl = (urlInput ? urlInput.value : '').trim();
+
+  if (!newUrl) {
+    showToast('Por favor ingresa la URL del manifiesto.', 'warning');
+    urlInput?.focus();
+    return;
+  }
+
+  // Prevenir duplicados de manifiesto estrictamente por URL
+  if (isDuplicateManifestUrl(newUrl, idx)) {
+    showToast('Ya existe otro addon en la lista con este mismo enlace de manifiesto.', 'warning');
+    urlInput?.focus();
+    return;
+  }
+
+  if (newUrl.startsWith('stremio://')) {
+    newUrl = 'https://' + newUrl.slice(10);
+  }
+
+  const addon = accountState.installedAddons[idx];
+  addon.name = newName || addon.name || `Addon ${idx + 1}`;
+  addon.manifest_url = newUrl;
+  addon.url = newUrl;
+  addon.transport_url = newUrl;
+  addon._manifestEnriched = false;
+
+  closeAccountEditAddonModal();
+  markDirty('addons', true);
+  renderAddonsSection();
+  enrichInstalledAddonsManifests();
+  showToast('✓ Addon modificado correctamente.', 'success');
+}
+
+// ------------------------------------------------------------
+// MODAL: AGREGAR ADDON (URL DE MANIFIESTO)
+// ------------------------------------------------------------
+
+export function openAccountAddAddonModal() {
+  const modal = document.getElementById('modalAccountAddAddon');
+  const urlInput = document.getElementById('inputAccountAddonManifestUrl');
+
+  if (urlInput) urlInput.value = '';
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    urlInput?.focus();
+  }
+}
+
+export function closeAccountAddAddonModal() {
+  const modal = document.getElementById('modalAccountAddAddon');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+export async function confirmAccountAddAddon() {
+  const urlInput = document.getElementById('inputAccountAddonManifestUrl');
+  const btnConfirm = document.getElementById('btnConfirmAccountAddAddon');
+  let rawUrl = (urlInput ? urlInput.value : '').trim();
+
+  if (!rawUrl) {
+    showToast('Por favor ingresa la URL del manifiesto (.json).', 'warning');
+    urlInput?.focus();
+    return;
+  }
+
+  // Validación estricta de manifiestos duplicados por URL
+  if (isDuplicateManifestUrl(rawUrl)) {
+    showToast('Este enlace de manifiesto ya se encuentra agregado en tu perfil.', 'warning');
+    urlInput?.focus();
+    return;
+  }
+
+  if (rawUrl.startsWith('stremio://')) {
+    rawUrl = 'https://' + rawUrl.slice(10);
+  }
+  if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+    rawUrl = 'https://' + rawUrl;
+  }
+
+  const originalBtnHtml = btnConfirm ? btnConfirm.innerHTML : '';
+  if (btnConfirm) {
+    btnConfirm.disabled = true;
+    btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando manifest...';
+  }
+
+  let manifestInfo = null;
+  try {
+    manifestInfo = await fetchAddonManifestInfo(rawUrl);
+  } catch (_) {}
+
+  let finalName = manifestInfo?.name || '';
+  if (!finalName) {
+    try {
+      const u = new URL(rawUrl);
+      finalName = u.hostname.replace(/^(www\.|stremio\.)/, '').split('.')[0];
+      finalName = finalName.charAt(0).toUpperCase() + finalName.slice(1);
+    } catch (_) {
+      finalName = `Addon ${accountState.installedAddons.length + 1}`;
+    }
+  }
+
+  const newAddon = {
+    name: finalName,
+    manifest_url: rawUrl,
+    url: rawUrl,
+    transport_url: rawUrl,
+    logo: manifestInfo?.logo || getAddonFallbackLogo(rawUrl, finalName),
+    configurable: manifestInfo?.configurable,
+    sort_order: accountState.installedAddons.length + 1
+  };
+
+  accountState.installedAddons.push(newAddon);
+
+  if (btnConfirm) {
+    btnConfirm.disabled = false;
+    btnConfirm.innerHTML = originalBtnHtml;
+  }
+
+  closeAccountAddAddonModal();
+  markDirty('addons', true);
+  renderAddonsSection();
+  showToast(`✓ Addon "${finalName}" agregado a la lista.`, 'success');
+}
+
+// ------------------------------------------------------------
+// MODAL: ELIMINAR ADDON INDIVIDUAL
+// ------------------------------------------------------------
+
+export function openAccountDeleteAddonModal(index) {
+  const addon = accountState.installedAddons[index];
+  if (!addon) return;
+
+  accountState._deletingAddonIndex = index;
+  const modal = document.getElementById('modalAccountDeleteAddon');
+  const nameEl = document.getElementById('accountDeleteAddonTargetName');
+
+  if (nameEl) nameEl.textContent = `"${addon.name || 'Addon ' + (index + 1)}"`;
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+
+export function closeAccountDeleteAddonModal() {
+  accountState._deletingAddonIndex = null;
+  const modal = document.getElementById('modalAccountDeleteAddon');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+export function confirmAccountDeleteAddon() {
+  const idx = accountState._deletingAddonIndex;
+  if (idx === null || idx === undefined || !accountState.installedAddons[idx]) return;
+
+  const addon = accountState.installedAddons[idx];
+  const name = addon?.name || 'este addon';
+
+  accountState.installedAddons.splice(idx, 1);
+  closeAccountDeleteAddonModal();
+  markDirty('addons', true);
+  renderAddonsSection();
+  showToast(`✓ Addon "${name}" removido de la lista.`, 'info');
+}
+
+// ------------------------------------------------------------
+// MODAL: ELIMINAR TODOS LOS ADDONS
+// ------------------------------------------------------------
+
+export function openAccountDeleteAllAddonsModal() {
+  if (!accountState.installedAddons || accountState.installedAddons.length === 0) {
+    showToast('No hay addons que eliminar.', 'info');
+    return;
+  }
+  const modal = document.getElementById('modalAccountDeleteAllAddons');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+
+export function closeAccountDeleteAllAddonsModal() {
+  const modal = document.getElementById('modalAccountDeleteAllAddons');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+export function confirmAccountDeleteAllAddons() {
+  accountState.installedAddons = [];
+  closeAccountDeleteAllAddonsModal();
+  markDirty('addons', true);
+  renderAddonsSection();
+  showToast('✓ Se han vaciado todos los addons de la lista.', 'info');
+}
+
+// ------------------------------------------------------------
+// REFRESCO DIRECTO DE ADDONS DESDE NUVIO
+// ------------------------------------------------------------
+
+export async function refreshAccountAddons() {
+  if (accountState.dirty.addons) {
+    if (!confirm('Tienes cambios de addons no guardados. ¿Deseas descartarlos y recargar la lista real desde Nuvio?')) {
+      return;
+    }
+  }
+
+  const btn = document.getElementById('btnAccountRefreshAddons');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-[11px]"></i> <span>Cargando...</span>';
+  }
+
+  try {
+    await loadProfileAddonsAndAio();
+    showToast('✓ Lista de addons sincronizada desde Nuvio.', 'success');
+  } catch (err) {
+    showToast(`Error al refrescar addons: ${err.message}`, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    }
+  }
+}
+
+// ------------------------------------------------------------
+// INTEGRACIÓN DE LA PLANTILLA OFICIAL DE AIOSTREAMS (DEBRIDS)
+// ------------------------------------------------------------
+
+export function openAccountAioStreamsDebridsModal() {
+  // Verificación estricta: deshabilitar si ya tiene nuestra plantilla oficial
+  if (hasOurAioStreamsInstalled()) {
+    showToast('Nuestra plantilla oficial de AIOStreams Latino ya se encuentra instalada en este perfil.', 'info');
+    return;
+  }
+
+  accountState._aioStreamsDraft = { debrids: {}, validatedKeys: {} };
+  const modal = document.getElementById('modalAccountAioStreamsDebrids');
+
+  // Limpiar campos y estados
+  const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+  debridIds.forEach(id => {
+    const input = document.getElementById(`inputAccountDebrid${id}`);
+    const status = document.getElementById(`statusAccountDebrid${id}`);
+    if (input) input.value = '';
+    if (status) {
+      if (id === 'Torbox') {
+        status.innerHTML = `<a href="https://torbox.app/settings" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+      } else if (id === 'Alldebrid') {
+        status.innerHTML = `<a href="https://alldebrid.com/apikeys" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+      } else if (id === 'Realdebrid') {
+        status.innerHTML = `<a href="https://real-debrid.com/apitoken" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+      } else if (id === 'Premiumize') {
+        status.innerHTML = `<a href="https://www.premiumize.me/account" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+      } else if (id === 'Debridlink') {
+        status.innerHTML = `<a href="https://debrid-link.com/webapp/apikey" target="_blank" rel="noopener noreferrer" class="text-white/50 hover:text-white underline flex items-center gap-1"><span class="hidden sm:inline">Obtener clave</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>`;
+      }
+    }
+  });
+
+  const btnInstall = document.getElementById('btnAccountInstallAioStreams');
+  if (btnInstall) {
+    btnInstall.disabled = true;
+    btnInstall.classList.add('opacity-40', 'cursor-not-allowed');
+  }
+
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    const firstInput = document.getElementById('inputAccountDebridTorbox');
+    firstInput?.focus();
+  }
+}
+
+export function closeAccountAioStreamsDebridsModal() {
+  const modal = document.getElementById('modalAccountAioStreamsDebrids');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+}
+
+export async function validateAccountDebridKeys() {
+  const debridIds = ['Torbox', 'Alldebrid', 'Realdebrid', 'Premiumize', 'Debridlink', 'Easydebrid', 'Debrider', 'Torrin', 'Offcloud'];
+  const entriesToValidate = [];
+
+  debridIds.forEach(id => {
+    const input = document.getElementById(`inputAccountDebrid${id}`);
+    const val = (input ? input.value : '').trim();
+    if (val) {
+      entriesToValidate.push({ id, key: id.toLowerCase(), val });
+    }
+  });
+
+  if (entriesToValidate.length === 0) {
+    showToast('Ingresa la clave API de al menos un proveedor Debrid para validar.', 'warning');
+    const firstInput = document.getElementById('inputAccountDebridTorbox');
+    firstInput?.focus();
+    return;
+  }
+
+  const btnValidate = document.getElementById('btnAccountValidateDebridKeys');
+  const btnText = document.getElementById('btnAccountValidateDebridKeysText');
+  const btnInstall = document.getElementById('btnAccountInstallAioStreams');
+
+  if (btnValidate) btnValidate.disabled = true;
+  if (btnText) btnText.textContent = 'Validando...';
+
+  let validatedCount = 0;
+  let failedCount = 0;
+
+  for (const item of entriesToValidate) {
+    const statusEl = document.getElementById(`statusAccountDebrid${item.id}`);
+    if (statusEl) {
+      statusEl.innerHTML = `<span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Verificando...</span>`;
+    }
+
+    try {
+      const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
+      if (res.valid) {
+        validatedCount++;
+        accountState._aioStreamsDraft.validatedKeys[item.key] = true;
+        accountState._aioStreamsDraft.debrids[item.key] = item.val;
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
+        }
+      } else {
+        failedCount++;
+        delete accountState._aioStreamsDraft.validatedKeys[item.key];
+        delete accountState._aioStreamsDraft.debrids[item.key];
+        if (statusEl) {
+          const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
+          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
+        }
+      }
+    } catch (err) {
+      failedCount++;
+      delete accountState._aioStreamsDraft.validatedKeys[item.key];
+      delete accountState._aioStreamsDraft.debrids[item.key];
+      if (statusEl) {
+        statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message || 'Error'}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
+      }
+    }
+  }
+
+  if (btnValidate) btnValidate.disabled = false;
+  if (btnText) btnText.textContent = 'Validar Claves';
+
+  if (btnInstall) {
+    const hasAtLeastOneValid = Object.keys(accountState._aioStreamsDraft.validatedKeys).length > 0;
+    btnInstall.disabled = !hasAtLeastOneValid || failedCount > 0;
+    if (btnInstall.disabled) {
+      btnInstall.classList.add('opacity-40', 'cursor-not-allowed');
+    } else {
+      btnInstall.classList.remove('opacity-40', 'cursor-not-allowed');
+    }
+  }
+
+  if (validatedCount > 0 && failedCount === 0) {
+    showToast(`✓ ${validatedCount} clave(s) Debrid verificada(s) con éxito. Pulsa "Instalar Addon".`, 'success');
+  } else if (validatedCount > 0 && failedCount > 0) {
+    showToast(`Se verificaron ${validatedCount} clave(s), pero ${failedCount} falló. Corrige o borra la clave errónea.`, 'warning');
+  } else {
+    showToast('No se pudo validar ninguna de las claves ingresadas.', 'error');
+  }
+}
+
+export async function installAccountAioStreams() {
+  const draft = accountState._aioStreamsDraft || { debrids: {}, validatedKeys: {} };
+  const activeDebrids = draft.debrids || {};
+
+  if (Object.keys(activeDebrids).length === 0) {
+    showToast('Debes validar al menos una clave Debrid antes de instalar.', 'warning');
+    return;
+  }
+
+  const btnInstall = document.getElementById('btnAccountInstallAioStreams');
+  const btnText = document.getElementById('textAccountInstallAioStreams');
+  const btnIcon = document.getElementById('iconAccountInstallAioStreams');
+
+  if (btnInstall) btnInstall.disabled = true;
+  if (btnText) btnText.textContent = 'Compilando...';
+  if (btnIcon) btnIcon.className = 'fa-solid fa-spinner fa-spin text-[10px]';
+
+  try {
+    // 1. Cargar la plantilla JSON de AIOStreams
+    const res = await fetch('../templates/Aiostream.json');
+    if (!res.ok) throw new Error('No se pudo cargar la plantilla base de AIOStreams.');
+    const template = await res.json();
+
+    // 2. Compilar configuración con claves Debrid
+    const aioConfig = AIOStreamsClient.compileConfig(template, activeDebrids);
+
+    // 3. Crear usuario en la instancia oficial de MidnightIgnite
+    const masterPass = accountState.aioPassword || 'NuvioSetupMaster2026';
+    const userRes = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
+
+    if (!userRes?.manifestUrl) {
+      throw new Error('No se recibió la URL del manifiesto de AIOStreams.');
+    }
+
+    // Verificar que no sea duplicado por URL
+    if (isDuplicateManifestUrl(userRes.manifestUrl)) {
+      showToast('Esta instancia de AIOStreams ya se encuentra en tu lista.', 'warning');
+      closeAccountAioStreamsDebridsModal();
+      return;
+    }
+
+    // 4. Agregar a la lista de addons
+    const newAddon = {
+      name: 'AIOStreams',
+      manifest_url: userRes.manifestUrl,
+      url: userRes.manifestUrl,
+      transport_url: userRes.manifestUrl,
+      logo: 'https://numb3rs.stream/assets/images/aiostreams.svg',
+      configurable: true,
+      isAioStreams: true,
+      sort_order: accountState.installedAddons.length + 1
+    };
+
+    accountState.installedAddons.push(newAddon);
+    closeAccountAioStreamsDebridsModal();
+    markDirty('addons', true);
+    renderAddonsSection();
+    showToast('✓ AIOStreams Latino compilado y agregado a tus addons.', 'success');
+  } catch (err) {
+    console.error('[AccountManager] Error instalando AIOStreams:', err);
+    showToast(`Error al instalar AIOStreams: ${err.message}`, 'error');
+  } finally {
+    if (btnInstall) btnInstall.disabled = false;
+    if (btnText) btnText.textContent = 'Instalar Addon';
+    if (btnIcon) btnIcon.className = 'fa-solid fa-plus text-[10px]';
+  }
+}
+
+export function setupAddonModals() {
+  // Botones de la barra superior de Addons
+  const btnRefresh = document.getElementById('btnAccountRefreshAddons');
+  const btnDeleteAll = document.getElementById('btnAccountDeleteAllAddons');
+  const btnOpenAio = document.getElementById('btnAccountOpenAddAioStreams');
+  const btnOpenAdd = document.getElementById('btnAccountOpenAddAddon');
+
+  if (btnRefresh && !btnRefresh.dataset.bound) {
+    btnRefresh.dataset.bound = 'true';
+    btnRefresh.addEventListener('click', refreshAccountAddons);
+  }
+
+  if (btnDeleteAll && !btnDeleteAll.dataset.bound) {
+    btnDeleteAll.dataset.bound = 'true';
+    btnDeleteAll.addEventListener('click', openAccountDeleteAllAddonsModal);
+  }
+
+  if (btnOpenAio && !btnOpenAio.dataset.bound) {
+    btnOpenAio.dataset.bound = 'true';
+    btnOpenAio.addEventListener('click', openAccountAioStreamsDebridsModal);
+  }
+
+  if (btnOpenAdd && !btnOpenAdd.dataset.bound) {
+    btnOpenAdd.dataset.bound = 'true';
+    btnOpenAdd.addEventListener('click', openAccountAddAddonModal);
+  }
+
+  // Modal: Agregar Addon
+  const btnCloseAdd = document.getElementById('btnCloseAccountAddAddonModal');
+  const btnCancelAdd = document.getElementById('btnCancelAccountAddAddon');
+  const btnConfirmAdd = document.getElementById('btnConfirmAccountAddAddon');
+
+  if (btnCloseAdd && !btnCloseAdd.dataset.bound) {
+    btnCloseAdd.dataset.bound = 'true';
+    btnCloseAdd.addEventListener('click', closeAccountAddAddonModal);
+  }
+  if (btnCancelAdd && !btnCancelAdd.dataset.bound) {
+    btnCancelAdd.dataset.bound = 'true';
+    btnCancelAdd.addEventListener('click', closeAccountAddAddonModal);
+  }
+  if (btnConfirmAdd && !btnConfirmAdd.dataset.bound) {
+    btnConfirmAdd.dataset.bound = 'true';
+    btnConfirmAdd.addEventListener('click', confirmAccountAddAddon);
+  }
+
+  // Modal: Editar Addon
+  const btnCloseEdit = document.getElementById('btnCloseAccountEditAddonModal');
+  const btnCancelEdit = document.getElementById('btnCancelAccountEditAddon');
+  const btnConfirmEdit = document.getElementById('btnConfirmAccountEditAddon');
+
+  if (btnCloseEdit && !btnCloseEdit.dataset.bound) {
+    btnCloseEdit.dataset.bound = 'true';
+    btnCloseEdit.addEventListener('click', closeAccountEditAddonModal);
+  }
+  if (btnCancelEdit && !btnCancelEdit.dataset.bound) {
+    btnCancelEdit.dataset.bound = 'true';
+    btnCancelEdit.addEventListener('click', closeAccountEditAddonModal);
+  }
+  if (btnConfirmEdit && !btnConfirmEdit.dataset.bound) {
+    btnConfirmEdit.dataset.bound = 'true';
+    btnConfirmEdit.addEventListener('click', saveAccountEditAddon);
+  }
+
+  // Modal: Eliminar Addon Individual
+  const btnCloseDel = document.getElementById('btnCloseAccountDeleteAddonModal');
+  const btnCancelDel = document.getElementById('btnCancelAccountDeleteAddon');
+  const btnConfirmDel = document.getElementById('btnConfirmAccountDeleteAddon');
+
+  if (btnCloseDel && !btnCloseDel.dataset.bound) {
+    btnCloseDel.dataset.bound = 'true';
+    btnCloseDel.addEventListener('click', closeAccountDeleteAddonModal);
+  }
+  if (btnCancelDel && !btnCancelDel.dataset.bound) {
+    btnCancelDel.dataset.bound = 'true';
+    btnCancelDel.addEventListener('click', closeAccountDeleteAddonModal);
+  }
+  if (btnConfirmDel && !btnConfirmDel.dataset.bound) {
+    btnConfirmDel.dataset.bound = 'true';
+    btnConfirmDel.addEventListener('click', confirmAccountDeleteAddon);
+  }
+
+  // Modal: Eliminar Todos los Addons
+  const btnCloseDelAll = document.getElementById('btnCloseAccountDeleteAllAddonsModal');
+  const btnCancelDelAll = document.getElementById('btnCancelAccountDeleteAllAddons');
+  const btnConfirmDelAll = document.getElementById('btnConfirmAccountDeleteAllAddons');
+
+  if (btnCloseDelAll && !btnCloseDelAll.dataset.bound) {
+    btnCloseDelAll.dataset.bound = 'true';
+    btnCloseDelAll.addEventListener('click', closeAccountDeleteAllAddonsModal);
+  }
+  if (btnCancelDelAll && !btnCancelDelAll.dataset.bound) {
+    btnCancelDelAll.dataset.bound = 'true';
+    btnCancelDelAll.addEventListener('click', closeAccountDeleteAllAddonsModal);
+  }
+  if (btnConfirmDelAll && !btnConfirmDelAll.dataset.bound) {
+    btnConfirmDelAll.dataset.bound = 'true';
+    btnConfirmDelAll.addEventListener('click', confirmAccountDeleteAllAddons);
+  }
+
+  // Modal: AIOStreams Debrids
+  const btnCloseAioModal = document.getElementById('btnCloseAccountAioStreamsDebridsModal');
+  const btnCancelAioModal = document.getElementById('btnCancelAccountAioStreamsDebrids');
+  const btnValidateKeys = document.getElementById('btnAccountValidateDebridKeys');
+  const btnInstallAio = document.getElementById('btnAccountInstallAioStreams');
+
+  if (btnCloseAioModal && !btnCloseAioModal.dataset.bound) {
+    btnCloseAioModal.dataset.bound = 'true';
+    btnCloseAioModal.addEventListener('click', closeAccountAioStreamsDebridsModal);
+  }
+  if (btnCancelAioModal && !btnCancelAioModal.dataset.bound) {
+    btnCancelAioModal.dataset.bound = 'true';
+    btnCancelAioModal.addEventListener('click', closeAccountAioStreamsDebridsModal);
+  }
+  if (btnValidateKeys && !btnValidateKeys.dataset.bound) {
+    btnValidateKeys.dataset.bound = 'true';
+    btnValidateKeys.addEventListener('click', validateAccountDebridKeys);
+  }
+  if (btnInstallAio && !btnInstallAio.dataset.bound) {
+    btnInstallAio.dataset.bound = 'true';
+    btnInstallAio.addEventListener('click', installAccountAioStreams);
+  }
+
+  // Resize listener para reajustar SortableJS
+  window.addEventListener('resize', () => {
+    if (accountState.activeSection === 'addons') {
+      setupAddonsSortable();
+    }
+  });
+}
+
 export function renderAioSection() {
   const card = document.getElementById('accountAioCard');
   if (!card) return;
@@ -2668,6 +3658,99 @@ export async function saveAllChanges() {
       renderAioSection();
     }
 
+    // 4. Guardar Addons del Perfil (Reordenar, agregar, editar y eliminar)
+    if (accountState.dirty.addons) {
+      const currentAddons = accountState.installedAddons || [];
+      const origAddons = accountState.originalInstalledAddons || [];
+
+      // A. Eliminar en Nuvio los addons removidos
+      const currentIds = new Set(currentAddons.filter(a => a.id).map(a => String(a.id)));
+      const toDelete = origAddons.filter(a => a.id && !currentIds.has(String(a.id)));
+      for (const delAddon of toDelete) {
+        await NuvioClient.deleteAddon({
+          apiUrl: CONFIG.NUVIO_API_URL,
+          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          accessToken: accountState.session.accessToken,
+          addonId: delAddon.id,
+          profileId: profId
+        }).catch(err => console.warn('[AccountManager] Error borrando addon:', err));
+      }
+
+      // B. Instalar o actualizar addons en Nuvio
+      for (let i = 0; i < currentAddons.length; i++) {
+        const addon = currentAddons[i];
+        const rawUrl = addon.manifest_url || addon.url;
+        if (!addon.id) {
+          const installedRes = await NuvioClient.installAddon({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken: accountState.session.accessToken,
+            userId: accountState.session.userId,
+            addonData: {
+              profile_id: profId,
+              name: addon.name,
+              manifest_url: rawUrl,
+              url: rawUrl,
+              sort_order: i + 1
+            }
+          }).catch(err => console.warn('[AccountManager] Error instalando addon:', err));
+
+          if (installedRes?.addonId) {
+            addon.id = installedRes.addonId;
+          }
+        } else {
+          // Actualizar si cambió nombre o url
+          const orig = origAddons.find(o => String(o.id) === String(addon.id));
+          if (orig && (orig.name !== addon.name || (orig.manifest_url || orig.url) !== rawUrl)) {
+            await NuvioClient.updateAddon({
+              apiUrl: CONFIG.NUVIO_API_URL,
+              apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+              accessToken: accountState.session.accessToken,
+              addonId: addon.id,
+              name: addon.name,
+              manifestUrl: rawUrl,
+              sortOrder: i + 1
+            }).catch(err => console.warn('[AccountManager] Error actualizando addon:', err));
+          }
+        }
+      }
+
+      // C. Sincronizar orden global de todos los addons
+      const orderedAddonsWithSort = currentAddons.map((a, idx) => ({
+        ...a,
+        sort_order: idx + 1
+      }));
+      await NuvioClient.syncAddonsOrder({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        userId: accountState.session.userId,
+        profileId: profId,
+        addons: orderedAddonsWithSort
+      }).catch(err => console.warn('[AccountManager] Error sincronizando orden de addons:', err));
+
+      // D. Recargar lista limpia desde Nuvio para mantener IDs y estado exactos
+      const freshAddons = await NuvioClient.listAddons({
+        apiUrl: CONFIG.NUVIO_API_URL,
+        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+        accessToken: accountState.session.accessToken,
+        userId: accountState.session.userId,
+        profileId: profId
+      }).catch(() => currentAddons);
+
+      accountState.installedAddons = JSON.parse(JSON.stringify(freshAddons));
+      accountState.originalInstalledAddons = JSON.parse(JSON.stringify(freshAddons));
+      accountState.dirty.addons = false;
+
+      if (accountState.overviewData) {
+        accountState.overviewData.addonsCount = freshAddons.length;
+        const elAddons = document.getElementById('metricAddonsCount');
+        if (elAddons) elAddons.textContent = freshAddons.length;
+      }
+
+      renderAddonsSection();
+    }
+
     showToast('✓ Cambios guardados exitosamente con equivalencia total.', 'success');
   } catch (err) {
     console.error('[AccountManager] Error guardando cambios:', err);
@@ -2763,6 +3846,8 @@ export function switchSection(sectionId) {
     renderOverviewSection();
   } else if (sectionId === 'avatars') {
     renderAvatarsSection();
+  } else if (sectionId === 'addons') {
+    renderAddonsSection();
   } else if (sectionId === 'aiometadata') {
     setupPasswordToggles();
   } else if (sectionId === 'settings') {
@@ -2786,6 +3871,7 @@ export async function initAccountPage() {
   setupScrollableTabs();
   setupProfilePopover();
   setupProfileModals();
+  setupAddonModals();
 
   // Navegación por tabs en la sub-barra horizontal (registrado de inmediato)
   document.querySelectorAll('.account-nav-btn').forEach(btn => {
