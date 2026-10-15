@@ -389,19 +389,19 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
 
 /**
  * Comparador universal de avatares con ordenamiento coherente:
- * 1. Compara por nombre base de personaje (A-Z)
- * 2. Si es el mismo personaje, AGRUPA Y ORDENA POR OBRA / FRANQUICIA (A-Z) para dar sentido
- * 3. Dentro de la misma obra, ordena por número de variación (1, 2, 3...)
+ * 1. Compara por nombre de obra / franquicia (A-Z)
+ * 2. Compara por nombre base de personaje (A-Z)
+ * 3. Dentro de la misma obra y personaje, ordena por número de variación (1, 2, 3...)
  * 4. Si aún coinciden, ordena por estilo
  */
 export function compareAvatars(a, b) {
+  const franComp = a.franchiseName.localeCompare(b.franchiseName, 'es', { sensitivity: 'base' });
+  if (franComp !== 0) return franComp;
+
   const baseA = a.baseCharacter || a.character;
   const baseB = b.baseCharacter || b.character;
   const charComp = baseA.localeCompare(baseB, 'es', { sensitivity: 'base' });
   if (charComp !== 0) return charComp;
-
-  const franComp = a.franchiseName.localeCompare(b.franchiseName, 'es', { sensitivity: 'base' });
-  if (franComp !== 0) return franComp;
 
   const numA = a.variationNumber || 0;
   const numB = b.variationNumber || 0;

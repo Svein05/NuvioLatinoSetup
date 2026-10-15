@@ -1475,8 +1475,12 @@ class AppController {
         groups.get(av.franchise).items.push(av);
       }
 
+      const sortedGroups = Array.from(groups.entries()).sort((a, b) => 
+        a[1].name.localeCompare(b[1].name, 'es', { sensitivity: 'base' })
+      );
+
       let html = '';
-      for (const [fId, group] of groups.entries()) {
+      for (const [fId, group] of sortedGroups) {
         const previewItems = group.items.slice(0, 8);
         const previewCardsHtml = previewItems.map((av, idx) => {
           let responsiveClass = '';
