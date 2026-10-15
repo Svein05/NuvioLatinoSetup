@@ -857,14 +857,9 @@ export function renderCreateProfileAvatarsCatalog() {
       html += `
         <div class="avatar-collection-block space-y-3.5">
           <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-7 h-7 rounded-lg bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] flex items-center justify-center text-xs shrink-0">
-                <i class="fa-solid fa-masks-theater"></i>
-              </div>
-              <div class="min-w-0">
-                <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
-                <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
-              </div>
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
+              <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
             </div>
             <button type="button" class="btn-create-profile-open-franchise text-xs text-[#ffd479] hover:underline flex items-center gap-1 cursor-pointer" data-open-franchise="${fId}">
               <span>Ver todos</span>
@@ -1958,14 +1953,9 @@ function renderAvatarsCatalog() {
       html += `
         <div class="avatar-collection-block space-y-3.5">
           <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <div class="w-7 h-7 rounded-lg bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] flex items-center justify-center text-xs shrink-0">
-                <i class="fa-solid fa-masks-theater"></i>
-              </div>
-              <div class="min-w-0">
-                <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
-                <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
-              </div>
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
+              <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
             </div>
             <button type="button" class="btn-open-avatar-collection" data-open-franchise="${fId}" title="Ver todos los avatares de ${group.name}">
               <span>Abrir colección de avatares</span>
@@ -2007,7 +1997,6 @@ function renderAvatarsCatalog() {
             </button>
             <div class="h-4 w-px bg-white/10 hidden sm:block"></div>
             <h4 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-masks-theater text-[#ffd479] text-xs"></i>
               <span>${currentFranchiseName}</span>
             </h4>
           </div>
