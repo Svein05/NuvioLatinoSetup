@@ -7,6 +7,23 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.6.0] - 2026-10-15
+
+### ✨ Añadido
+- **Nuevo Panel de Cuenta y Perfil (`/account`):**
+  - Permite gestionar tu cuenta de Nuvio directamente desde la web sin necesidad de volver a pasar por todo el asistente de configuración.
+  - **Resumen de Perfil:** Visualiza tus estadísticas principales (Plugins, Addons instalados, progreso de reproducción, biblioteca y visualizaciones).
+  - **Catálogo de Avatares estilo Netflix:** Elige tu foto de perfil entre decenas de personajes organizados por series y animes (incluyendo la nueva colección de Soul Eater, One Piece, Naruto, Dragon Ball y X-Men '97) o añade tu propia imagen con enlace directo.
+  - **Gestor Visual de Addons:** Organiza tus complementos arrastrándolos de forma fluida y suave en pantalla, sube o baja su prioridad, edita sus datos, actívalos o desactívalos, y elimínalos con confirmación de seguridad.
+  - **Botón Deshacer paso a paso:** Permite revertir fácilmente cualquier cambio, reordenación o eliminación de addons si te equivocas antes de guardar.
+  - **Plantilla de AIOStreams con Servicios Debrid:** Agrega o reconfigura fácilmente la plantilla recomendada de AIOStreams con tus proveedores Debrid preferidos.
+  - **Personalización de Carátulas:** Ajusta el estilo de tus pósters (TMDB, BetterPoster o PostersPlus) y tus claves de API directamente desde tu perfil.
+  - **Gestión de Perfiles:** Cambia de perfil en cualquier momento o crea nuevos perfiles para tu familia.
+- **Contador de Estrellas de GitHub:**
+  - Nueva cápsula en la barra de navegación que muestra las estrellas de la comunidad en tiempo real.
+
+---
+
 ## [1.5.0] - 2026-10-04
 
 ### ✨ Añadido

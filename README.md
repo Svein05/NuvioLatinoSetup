@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.5.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.5.0" /></a>
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.6.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.6.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -65,6 +65,8 @@ La instalación estándar de catálogos masivos suele poblar la pantalla princip
   - Selección entre **AioMetadata** (nativo TMDB), **BetterPoster** (minimalista con logotipos en español) y **Poster+** (calificaciones ponderadas y estética de cine), con previsualización sincronizada en proporción 2:3.
 - **Gestor Visual de Addons:**
   - Reordenamiento visual (▲ / ▼), adición mediante enlaces manifest URL y eliminación selectiva de addons de streaming (AIOStreams, ADD-LAT, Torbox, Torrentio, CineTorrent) manteniendo AIOMetadata anclado en la cabecera.
+- **Pestaña y Gestor Integral de Cuenta y Perfil (/account):**
+  - Panel autónomo para administrar perfiles en vivo de Nuvio sin reiniciar el asistente: métricas de sincronización en tiempo real, catálogo de avatares estilo Netflix por franquicia/obra (One Piece, Naruto, Dragon Ball, X-Men '97, Soul Eater), gestor de addons con arrastre físico SortableJS FLIP y botón Deshacer (Undo) paso a paso, editor in-place de AIOMetadata vinculado y ajuste de credenciales TMDB/MDBList.
 
 ---
 
@@ -147,6 +149,8 @@ Para ejecutar el proyecto en un entorno local:
 ```
 NuvioLatinoSetup/
 ├── index.html                  # Portada y presentación general
+├── account/
+│   └── index.html              # Gestor integral de cuenta, perfil, avatares y addons
 ├── configuration/
 │   └── index.html              # Asistente de configuración en 7 pasos
 ├── documentation/
@@ -155,23 +159,29 @@ NuvioLatinoSetup/
 │   ├── collections/            # Recursos gráficos locales de colecciones
 │   ├── fonts/                  # Fuentes tipográficas Instrument Sans y Serif
 │   ├── logo/                   # Identidad visual y logotipos
-│   └── preview/                # Imágenes de muestra e incrustación
+│   ├── preview/                # Imágenes de muestra e incrustación
+│   └── profile_icons/          # Catálogo local de avatares estilo Netflix
 ├── css/
 │   └── styles.css              # Sistema de diseño, temas y utilidades
 ├── js/
 │   ├── vendor/                 # Bibliotecas externas (SortableJS)
+│   ├── account-manager.js      # Controlador de cuenta, perfiles, avatares y addons
 │   ├── aiometadata-client.js   # Comunicación con la API de AIOMetadata
 │   ├── aiostreams-client.js    # Cifrado y generación de manifiestos AIOStreams
 │   ├── app.js                  # Controlador principal del asistente
+│   ├── avatars-data.js         # Catálogo reactivo y resolvedor de avatares
 │   ├── badge-packs.js          # Catálogo de estilos Fusion Badges (kingsizew)
 │   ├── config.js               # Parámetros y constantes de versión
 │   ├── counter.js              # Odómetro visual y telemetría de configuraciones
+│   ├── github-stars.js         # Sincronizador en tiempo real de estrellas GitHub
 │   ├── injector.js             # Pipeline de aprovisionamiento de perfiles
 │   ├── mini-nuvio.js           # Simulador visual interactivo
 │   ├── nav-indicator.js        # Indicador deslizante de barra flotante
 │   ├── nuvio-client.js         # Cliente para las APIs de Nuvio
 │   ├── state.js                # Gestión reactiva del estado de la aplicación
 │   └── version.js              # Sincronización de badges de versión
+├── scripts/
+│   └── sync_avatars.js         # Sincronizador e indexador de avatares
 ├── templates/
 │   ├── Aiostream.json          # Plantilla curada de AIOStreams con prioridad Latina
 │   ├── MetadataLatino.json     # Plantilla base de catálogos AIOMetadata
