@@ -52,6 +52,7 @@ export const accountState = {
 
   installedAddons: [],
   originalInstalledAddons: [],
+  addonHistory: [],
   _editingAddonIndex: null,
   _deletingAddonIndex: null,
   _aioStreamsDraft: { debrids: {}, validatedKeys: {} },
@@ -264,6 +265,8 @@ export async function selectProfile(profileId) {
 
   // Reset de estados dirty ante cambio de perfil
   accountState.dirty = { aiometadata: false, settings: false, avatar: false, addons: false };
+  accountState.addonHistory = [];
+  updateUndoButton();
   updateSaveButton();
 
   // Respetar la sección actualmente activa o activar Resumen por defecto
@@ -2049,6 +2052,50 @@ function renderAvatarsCatalog() {
 
 let addonsSortableInstance = null;
 
+// ============================================================
+// SISTEMA DE HISTORIAL DESHACER (UNDO) PASO A PASO
+// ============================================================
+
+export function pushAddonsHistory() {
+  if (!accountState.addonHistory) accountState.addonHistory = [];
+  accountState.addonHistory.push(JSON.parse(JSON.stringify(accountState.installedAddons)));
+  if (accountState.addonHistory.length > 30) {
+    accountState.addonHistory.shift();
+  }
+  updateUndoButton();
+}
+
+export function updateUndoButton() {
+  const btn = document.getElementById('btnAccountUndo');
+  const btnSection = document.getElementById('btnAccountUndoAddons');
+  const canUndo = (accountState.addonHistory || []).length > 0;
+
+  [btn, btnSection].forEach(b => {
+    if (!b) return;
+    b.disabled = !canUndo;
+    if (canUndo) {
+      b.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      b.classList.add('opacity-100', 'cursor-pointer');
+    } else {
+      b.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      b.classList.remove('opacity-100', 'cursor-pointer');
+    }
+  });
+}
+
+export function undoAddonsChange() {
+  if (!accountState.addonHistory || accountState.addonHistory.length === 0) return;
+  const previousState = accountState.addonHistory.pop();
+  accountState.installedAddons = previousState;
+
+  const isBackToOriginal = JSON.stringify(accountState.installedAddons) === JSON.stringify(accountState.originalInstalledAddons);
+  markDirty('addons', !isBackToOriginal);
+
+  updateUndoButton();
+  renderAddonsSection();
+  showToast('Cambio deshecho.', 'info');
+}
+
 export function normalizeManifestUrl(rawUrl = '') {
   let url = String(rawUrl || '').trim();
   if (!url) return '';
@@ -2062,7 +2109,7 @@ export function normalizeManifestUrl(rawUrl = '') {
   if (!url.endsWith('/manifest.json') && !url.endsWith('.json')) {
     url = url + '/manifest.json';
   }
-  return url.toLowerCase();
+  return url;
 }
 
 export function isDuplicateManifestUrl(targetUrl, excludeIndex = -1) {
@@ -2109,8 +2156,14 @@ export function getAddonFallbackLogo(url = '', name = '') {
   if (lowerUrl.includes('torbox') || lowerName.includes('torbox')) {
     return 'https://stremio.torbox.app/logo.png';
   }
+  if (lowerUrl.includes('cinetorrent') || lowerName.includes('cinetorrent')) {
+    return 'https://cinetorrent.midnightignite.me/logo.png';
+  }
+  if (lowerUrl.includes('animesub') || lowerName.includes('animesub')) {
+    return 'https://animesub.midnightignite.me/logo.png';
+  }
   if (lowerUrl.includes('subtitles') || lowerName.includes('opensubtitles')) {
-    return 'https://www.opensubtitles.com/favicon.ico';
+    return 'https://www.strem.io/images/addons/opensubtitles-logo.png';
   }
   return null;
 }
@@ -2126,7 +2179,7 @@ export async function fetchAddonManifestInfo(rawUrl) {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3500);
+    const timeout = setTimeout(() => controller.abort(), 4000);
     const res = await fetch(cleanUrl, {
       signal: controller.signal,
       headers: { 'Accept': 'application/json' }
@@ -2135,9 +2188,15 @@ export async function fetchAddonManifestInfo(rawUrl) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const isConfigurable = Boolean(data.behaviorHints?.configurable || data.behaviorHints?.configurationRequired);
+    let logo = data.logo || data.icon || null;
+    if (logo && typeof logo === 'string') {
+      try {
+        logo = new URL(logo, cleanUrl).href;
+      } catch (_) {}
+    }
     const info = {
       name: data.name || data.id || null,
-      logo: data.logo || data.icon || null,
+      logo,
       description: data.description || null,
       configurable: isConfigurable
     };
@@ -2154,7 +2213,15 @@ export async function enrichInstalledAddonsManifests() {
 
   await Promise.allSettled(addons.map(async (addon) => {
     const rawUrl = addon.manifest_url || addon.url;
-    if (!rawUrl || addon._manifestEnriched) return;
+    if (!rawUrl) return;
+
+    const fallbackLogo = getAddonFallbackLogo(rawUrl, addon.name);
+    if (fallbackLogo && !addon.logo) {
+      addon.logo = fallbackLogo;
+      updatedAny = true;
+    }
+
+    if (addon._manifestEnriched) return;
 
     try {
       const info = await fetchAddonManifestInfo(rawUrl);
@@ -2168,7 +2235,7 @@ export async function enrichInstalledAddonsManifests() {
           addon.name = info.name;
           updatedAny = true;
         }
-        if (info.logo && !addon.logo) {
+        if (info.logo && addon.logo !== info.logo) {
           addon.logo = info.logo;
           updatedAny = true;
         }
@@ -2227,15 +2294,19 @@ export function setupAddonsSortable() {
   // Activar únicamente en pantallas de escritorio (>= 768px)
   if (window.innerWidth >= 768) {
     addonsSortableInstance = new Sortable(container, {
-      animation: 260,
-      easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
+      animation: 280,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
       handle: '.drag-handle',
       ghostClass: 'addon-sortable-ghost',
       chosenClass: 'addon-sortable-chosen',
       dragClass: 'addon-sortable-drag',
+      swapThreshold: 0.65,
+      invertSwap: true,
+      forceFallback: false,
       onEnd: (evt) => {
         const { oldIndex, newIndex } = evt;
         if (oldIndex === newIndex || oldIndex === undefined || newIndex === undefined) return;
+        pushAddonsHistory();
         const item = accountState.installedAddons.splice(oldIndex, 1)[0];
         accountState.installedAddons.splice(newIndex, 0, item);
         markDirty('addons', true);
@@ -2316,7 +2387,7 @@ export function renderAddonsSection() {
     ` : '';
 
     html += `
-      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
+      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-colors duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
         <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
           <!-- Handle arrastre fluido (solo escritorio) -->
           <div class="hidden md:flex items-center text-white/30 hover:text-white/80 cursor-grab active:cursor-grabbing p-1 drag-handle" title="Arrastrar para reordenar prioridad">
@@ -2413,6 +2484,7 @@ export function moveAddon(index, direction) {
   const newIndex = index + direction;
   if (newIndex < 0 || newIndex >= accountState.installedAddons.length) return;
 
+  pushAddonsHistory();
   const item = accountState.installedAddons.splice(index, 1)[0];
   accountState.installedAddons.splice(newIndex, 0, item);
 
@@ -2496,6 +2568,7 @@ export function saveAccountEditAddon() {
     newUrl = 'https://' + newUrl.slice(10);
   }
 
+  pushAddonsHistory();
   const addon = accountState.installedAddons[idx];
   addon.name = newName || addon.name || `Addon ${idx + 1}`;
   addon.manifest_url = newUrl;
@@ -2592,6 +2665,7 @@ export async function confirmAccountAddAddon() {
     sort_order: accountState.installedAddons.length + 1
   };
 
+  pushAddonsHistory();
   accountState.installedAddons.push(newAddon);
 
   if (btnConfirm) {
@@ -2640,6 +2714,7 @@ export function confirmAccountDeleteAddon() {
   const addon = accountState.installedAddons[idx];
   const name = addon?.name || 'este addon';
 
+  pushAddonsHistory();
   accountState.installedAddons.splice(idx, 1);
   closeAccountDeleteAddonModal();
   markDirty('addons', true);
@@ -2672,6 +2747,7 @@ export function closeAccountDeleteAllAddonsModal() {
 }
 
 export function confirmAccountDeleteAllAddons() {
+  pushAddonsHistory();
   accountState.installedAddons = [];
   closeAccountDeleteAllAddonsModal();
   markDirty('addons', true);
@@ -2905,6 +2981,7 @@ export async function installAccountAioStreams() {
       sort_order: accountState.installedAddons.length + 1
     };
 
+    pushAddonsHistory();
     accountState.installedAddons.push(newAddon);
     closeAccountAioStreamsDebridsModal();
     markDirty('addons', true);
@@ -2924,12 +3001,18 @@ export function setupAddonModals() {
   // Botones de la barra superior de Addons
   const btnRefresh = document.getElementById('btnAccountRefreshAddons');
   const btnDeleteAll = document.getElementById('btnAccountDeleteAllAddons');
+  const btnUndoAddons = document.getElementById('btnAccountUndoAddons');
   const btnOpenAio = document.getElementById('btnAccountOpenAddAioStreams');
   const btnOpenAdd = document.getElementById('btnAccountOpenAddAddon');
 
   if (btnRefresh && !btnRefresh.dataset.bound) {
     btnRefresh.dataset.bound = 'true';
     btnRefresh.addEventListener('click', refreshAccountAddons);
+  }
+
+  if (btnUndoAddons && !btnUndoAddons.dataset.bound) {
+    btnUndoAddons.dataset.bound = 'true';
+    btnUndoAddons.addEventListener('click', undoAddonsChange);
   }
 
   if (btnDeleteAll && !btnDeleteAll.dataset.bound) {
@@ -3789,6 +3872,8 @@ export async function saveAllChanges() {
       accountState.installedAddons = JSON.parse(JSON.stringify(freshAddons));
       accountState.originalInstalledAddons = JSON.parse(JSON.stringify(freshAddons));
       accountState.dirty.addons = false;
+      accountState.addonHistory = [];
+      updateUndoButton();
 
       if (accountState.overviewData) {
         accountState.overviewData.addonsCount = freshAddons.length;
@@ -3896,6 +3981,8 @@ export function switchSection(sectionId) {
     renderAvatarsSection();
   } else if (sectionId === 'addons') {
     renderAddonsSection();
+    enrichInstalledAddonsManifests();
+    updateUndoButton();
   } else if (sectionId === 'aiometadata') {
     setupPasswordToggles();
   } else if (sectionId === 'settings') {
@@ -3942,6 +4029,14 @@ export async function initAccountPage() {
       showToast('Sesión cerrada correctamente.', 'info');
     });
   }
+
+  // Botón de deshacer cambios
+  const btnUndo = document.getElementById('btnAccountUndo');
+  if (btnUndo && !btnUndo.dataset.bound) {
+    btnUndo.dataset.bound = 'true';
+    btnUndo.addEventListener('click', undoAddonsChange);
+  }
+  updateUndoButton();
 
   // Botón de guardar cambios
   if (btnSave && !btnSave.dataset.bound) {

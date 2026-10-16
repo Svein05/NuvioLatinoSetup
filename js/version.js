@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import './github-stars.js';
 
 /**
  * Inicializa y sincroniza los badges de versión en todas las páginas web.
