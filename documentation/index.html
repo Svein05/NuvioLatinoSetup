@@ -61,7 +61,7 @@
   <!-- Barra de Navegación Flotante LAT-ADD -->
   <header class="lat-floating-nav">
     <!-- Cápsula Izquierda: Marca (Compacta en móvil/tablet < 1080px, extendida en desktop >= 1080px) -->
-    <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 py-2 sm:py-2.5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
+    <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
       <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
       <span class="lat-brand-badge app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">v1.5.0</span>
@@ -77,6 +77,10 @@
         <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Asistente</span>
       </a>
+      <a href="../account/" class="lat-nav-tab" aria-label="Cuenta" title="Cuenta">
+        <i class="fa-solid fa-circle-user text-xs sm:text-sm"></i>
+        <span class="hidden sm:inline">Cuenta</span>
+      </a>
       <a href="./" class="lat-nav-tab is-active" aria-label="Documentación" title="Documentación">
         <i class="fa-solid fa-book-open text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Documentación</span>
@@ -87,7 +91,7 @@
     <div class="relative pointer-events-auto shrink-0 lat-mobile-nav-cluster">
       <button id="btnMobileHeaderMenu"
               type="button"
-              class="lat-floating-pill px-3 py-2 sm:py-2.5 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
+              class="lat-floating-pill flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
               title="Enlaces Rápidos y Contador"
               aria-label="Abrir enlaces rápidos">
         <i class="fa-solid fa-layer-group text-sm"></i>
@@ -114,7 +118,7 @@
     <div class="lat-desktop-nav-cluster items-center gap-1.5 sm:gap-2 pointer-events-auto shrink-0">
       <!-- Pastilla Dinámica: Contador de Setups Completados -->
       <div id="completionsCounterPill"
-           class="lat-floating-pill completions-counter-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer group select-none text-emerald-400 shrink-0 hover:bg-white/[0.12] transition-all"
+           class="lat-floating-pill completions-counter-pill px-2.5 sm:px-4 text-xs sm:text-sm font-medium flex items-center gap-1.5 cursor-pointer group select-none text-emerald-400 shrink-0 hover:bg-white/[0.12] transition-all"
            title="Setups Completados">
         <i class="fa-solid fa-users text-sm sm:text-base text-emerald-400 group-hover:scale-105 transition-all duration-200 shrink-0"></i>
         
@@ -131,15 +135,22 @@
       </div>
 
       <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" 
-         class="lat-floating-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
+         class="lat-floating-pill px-2.5 sm:px-4 text-xs sm:text-sm font-medium text-[#a5b4fc] hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Comunidad Discord LAT-ADD">
         <i class="fa-brands fa-discord text-sm sm:text-base text-[#5865F2]"></i>
         <span class="hidden sm:inline">LAT-ADD</span>
       </a>
 
       <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" 
-         class="lat-floating-pill px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-1.5" title="Repositorio en GitHub">
-        <i class="fa-brands fa-github text-sm sm:text-base"></i>
-        <span class="hidden sm:inline">GitHub</span>
+         class="lat-floating-pill px-2.5 sm:px-3.5 text-xs sm:text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.12] transition-all flex items-center gap-2 group select-none" title="Repositorio en GitHub • Ver estrellas">
+        <div class="flex items-center gap-1.5">
+          <i class="fa-brands fa-github text-sm sm:text-base"></i>
+          <span class="hidden sm:inline">GitHub</span>
+        </div>
+        <span class="h-3.5 w-px bg-white/20 my-auto shrink-0" aria-hidden="true"></span>
+        <div class="flex items-center gap-1 font-mono text-[11px] sm:text-xs text-amber-300/90 group-hover:text-amber-200">
+          <i class="fa-solid fa-star text-[10px] text-[#ffd479]"></i>
+          <span class="github-stars-count font-semibold">3</span>
+        </div>
       </a>
     </div>
   </header>
@@ -593,7 +604,7 @@
           <li>
             <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-solid fa-server text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>AIOMetadata Addon</span>
+              <span>AIOMetadata</span>
             </a>
           </li>
           <li>
@@ -622,6 +633,12 @@
             <a href="./" class="hover:text-white transition-colors flex items-center gap-1.5 group text-white">
               <i class="fa-solid fa-book-open text-[10px] text-[#ffd479]"></i>
               <span>Documentación & Guías</span>
+            </a>
+          </li>
+          <li>
+            <a href="../account/" class="hover:text-white transition-colors flex items-center gap-1.5 group">
+              <i class="fa-solid fa-user-gear text-[10px] text-white/40 group-hover:text-white"></i>
+              <span>Gestor de Perfil y Cuenta</span>
             </a>
           </li>
           <li>
