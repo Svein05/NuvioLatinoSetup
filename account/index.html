@@ -226,9 +226,9 @@
               <i class="fa-solid fa-puzzle-piece text-xs sm:text-sm"></i>
               <span>Addons</span>
             </button>
-            <button type="button" class="account-nav-btn shrink-0" data-section="aiometadata" title="AIOMetadata Addon">
+            <button type="button" class="account-nav-btn shrink-0" data-section="aiometadata" title="AIOMetadata">
               <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
-              <span>AIOMetadata Addon</span>
+              <span>AIOMetadata</span>
             </button>
             <button type="button" class="account-nav-btn shrink-0" data-section="settings" title="Ajustes">
               <i class="fa-solid fa-sliders text-xs sm:text-sm"></i>
@@ -505,14 +505,6 @@
           <div id="accountAddonsListContainer" class="space-y-2.5 max-w-4xl mx-auto py-1 min-h-[120px]">
             <!-- Inyectado dinámicamente por js/account-manager.js -->
           </div>
-
-          <!-- Nota informativa inferior -->
-          <div class="p-3.5 sm:p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex items-start gap-3 max-w-4xl mx-auto text-xs text-white/50 leading-relaxed">
-            <i class="fa-solid fa-circle-info text-[#ffd479] text-sm shrink-0 mt-0.5"></i>
-            <div>
-              <strong class="text-white font-medium">Prioridad de Addons:</strong> En escritorio puedes arrastrar cualquier fila para reordenar libremente su prioridad. Recuerda pulsar <strong class="text-[#ffd479] font-medium">"Guardar Cambios"</strong> en la cabecera para sincronizar el nuevo orden o modificaciones con tu cuenta de Nuvio.
-            </div>
-          </div>
         </div>
 
         <!-- SECCIÓN 4: AIOMETADATA -->
@@ -615,7 +607,7 @@
           <li>
             <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
               <i class="fa-solid fa-server text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>AIOMetadata Addon</span>
+              <span>AIOMetadata</span>
             </a>
           </li>
           <li>
@@ -920,7 +912,7 @@
   <!-- ======================================================== -->
   <!-- MODAL 6: AGREGAR ADDON (URL DE MANIFIESTO)               -->
   <!-- ======================================================== -->
-  <div id="modalAccountAddAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+  <div id="modalAccountAddAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
     <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div class="flex items-center gap-2.5">
@@ -957,9 +949,9 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- MODAL 7: EDITAR ADDON (NOMBRE Y MANIFEST URL)            -->
+  <!-- MODAL 7: EDITAR ADDON (NOMBRE, MANIFEST URL Y ESTADO)     -->
   <!-- ======================================================== -->
-  <div id="modalAccountEditAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+  <div id="modalAccountEditAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
     <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div class="flex items-center gap-2.5">
@@ -968,7 +960,7 @@
           </div>
           <div>
             <h3 class="text-sm font-semibold text-white">Editar Addon</h3>
-            <span class="text-[11px] text-white/50">Modifica el nombre y la URL del manifiesto</span>
+            <span class="text-[11px] text-white/50">Modifica el nombre, estado y enlace de manifiesto</span>
           </div>
         </div>
         <button type="button" id="btnCloseAccountEditAddonModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
@@ -977,6 +969,21 @@
       </div>
 
       <div class="space-y-3.5 pt-1">
+        <!-- Toggle de Estado Activo / Desactivado (Estilo iOS / Switch Nuvio) -->
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] transition-all">
+          <div class="flex items-center gap-2.5">
+            <span id="accountEditAddonStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 transition-colors"></span>
+            <div>
+              <span class="text-xs font-medium text-white block">Estado del Addon</span>
+              <span id="accountEditAddonStatusLabel" class="text-[11px] text-white/50 block">Activo en este perfil</span>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="inputAccountEditAddonEnabled" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+
         <div>
           <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Addon</label>
           <input type="text" id="inputAccountEditAddonName" maxlength="40" placeholder="Ej. AIOStreams, AnimeSub..." class="lat-field w-full text-xs">
@@ -1001,7 +1008,7 @@
   <!-- ======================================================== -->
   <!-- MODAL 8: CONFIRMAR ELIMINAR ADDON INDIVIDUAL             -->
   <!-- ======================================================== -->
-  <div id="modalAccountDeleteAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+  <div id="modalAccountDeleteAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
     <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-sm w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div class="flex items-center gap-2.5">
@@ -1019,8 +1026,8 @@
       </div>
 
       <div class="space-y-2 pt-1 text-xs text-white/70 leading-relaxed">
-        <p>¿Deseas remover el addon <strong id="accountDeleteAddonTargetName" class="text-white"></strong> de este perfil?</p>
-        <p class="text-[11px] text-white/40">Se eliminará al pulsar "Guardar Cambios" en la cabecera.</p>
+        <p>¿Estás seguro de que deseas eliminar el addon <strong id="accountDeleteAddonTargetName" class="text-white"></strong> de este perfil?</p>
+        <p class="text-[11px] text-white/40">Se removerá de tu lista y se aplicará al pulsar "Guardar Cambios" en la cabecera.</p>
       </div>
 
       <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
@@ -1037,7 +1044,7 @@
   <!-- ======================================================== -->
   <!-- MODAL 9: CONFIRMAR ELIMINAR TODOS LOS ADDONS            -->
   <!-- ======================================================== -->
-  <div id="modalAccountDeleteAllAddons" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+  <div id="modalAccountDeleteAllAddons" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
     <div class="bg-[#0b0d12]/98 border border-rose-500/30 rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div class="flex items-center gap-2.5">
@@ -1057,7 +1064,7 @@
       <div class="space-y-2.5 pt-1 text-xs text-white/70 leading-relaxed">
         <p>¿Estás seguro de que deseas eliminar <strong class="text-white">TODOS</strong> los addons de este perfil?</p>
         <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-300">
-          Esta acción vaciará la lista de addons. Se aplicará de forma definitiva en Nuvio cuando pulses <strong class="text-white">"Guardar Cambios"</strong>.
+          Esta acción vaciará la lista completa de addons de tu perfil. Se aplicará de forma definitiva en Nuvio cuando pulses <strong class="text-white">"Guardar Cambios"</strong>.
         </div>
       </div>
 
@@ -1075,7 +1082,7 @@
   <!-- ======================================================== -->
   <!-- MODAL 10: PROVEEDORES DEBRID DE AIOSTREAMS               -->
   <!-- ======================================================== -->
-  <div id="modalAccountAioStreamsDebrids" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5 transition-all duration-200 overflow-y-auto">
+  <div id="modalAccountAioStreamsDebrids" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-3 sm:p-5 transition-all duration-200 overflow-y-auto">
     <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[24px] sm:rounded-[26px] max-w-xl w-full p-4 sm:p-5 shadow-[var(--shadow-lift)] relative text-white flex flex-col max-h-[88vh] my-auto overflow-hidden">
       
       <!-- Cabecera Anclada -->

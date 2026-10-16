@@ -2227,10 +2227,12 @@ export function setupAddonsSortable() {
   // Activar únicamente en pantallas de escritorio (>= 768px)
   if (window.innerWidth >= 768) {
     addonsSortableInstance = new Sortable(container, {
-      animation: 180,
+      animation: 260,
+      easing: 'cubic-bezier(0.2, 0.9, 0.3, 1)',
       handle: '.drag-handle',
-      ghostClass: 'opacity-40',
-      chosenClass: 'bg-white/[0.08]',
+      ghostClass: 'addon-sortable-ghost',
+      chosenClass: 'addon-sortable-chosen',
+      dragClass: 'addon-sortable-drag',
       onEnd: (evt) => {
         const { oldIndex, newIndex } = evt;
         if (oldIndex === newIndex || oldIndex === undefined || newIndex === undefined) return;
@@ -2299,7 +2301,10 @@ export function renderAddonsSection() {
     const isLast = idx === addons.length - 1;
     const name = addon.name || `Addon ${idx + 1}`;
     const url = addon.manifest_url || addon.url || '';
+    const isEnabled = addon.enabled !== false;
     const configureUrl = getAddonConfigureUrl(addon);
+    const logoSrc = addon.logo || getAddonFallbackLogo(url, name);
+    const initials = (name || 'AD').trim().slice(0, 2).toUpperCase();
 
     const configureBtnHtml = configureUrl ? `
       <a href="${escapeHtml(configureUrl)}" target="_blank" rel="noopener noreferrer" 
@@ -2311,20 +2316,30 @@ export function renderAddonsSection() {
     ` : '';
 
     html += `
-      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150 select-none" data-addon-index="${idx}">
+      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-all duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
         <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
-          <!-- Handle arrastre (solo escritorio) -->
+          <!-- Handle arrastre fluido (solo escritorio) -->
           <div class="hidden md:flex items-center text-white/30 hover:text-white/80 cursor-grab active:cursor-grabbing p-1 drag-handle" title="Arrastrar para reordenar prioridad">
             <i class="fa-solid fa-grip-vertical text-xs"></i>
           </div>
 
-          <!-- Viñeta verde de estado idéntica a Nuvio Oficial -->
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-[0_0_8px_rgba(52,211,153,0.7)]" title="Addon activo"></span>
+          <!-- Viñeta sólida de estado (verde si activo, roja si desactivado, mate sin brillo) -->
+          <span class="w-2.5 h-2.5 rounded-full shrink-0 transition-colors ${isEnabled ? 'bg-emerald-400' : 'bg-rose-500'}" title="${isEnabled ? 'Addon activo' : 'Addon desactivado'}"></span>
+
+          <!-- Icono / Logo oficial del addon con monograma de respaldo -->
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden shadow-sm" title="${escapeHtml(name)}">
+            ${logoSrc ? `
+              <img src="${escapeHtml(logoSrc)}" class="w-full h-full object-contain p-1" alt="${escapeHtml(name)}" onerror="this.parentElement.innerHTML='<span class=\\'text-[11px] font-bold text-white/60 uppercase tracking-wider\\'>${escapeHtml(initials)}</span>'">
+            ` : `
+              <span class="text-[11px] font-bold text-white/60 uppercase tracking-wider">${escapeHtml(initials)}</span>
+            `}
+          </div>
 
           <!-- Información y Manifiesto -->
           <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="font-semibold text-xs sm:text-sm text-white truncate">${escapeHtml(name)}</span>
+              ${!isEnabled ? '<span class="text-[9px] font-mono font-medium px-1.5 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/25 shrink-0">Desactivado</span>' : ''}
             </div>
             <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeHtml(url)}">
               ${escapeHtml(url || 'Sin URL de manifiesto')}
@@ -2336,7 +2351,7 @@ export function renderAddonsSection() {
         <div class="shrink-0 flex items-center gap-1.5 sm:gap-2">
           ${configureBtnHtml}
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 btn-edit-addon" data-index="${idx}" title="Modificar nombre o enlace del manifiesto">
+          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 btn-edit-addon" data-index="${idx}" title="Modificar nombre, estado o enlace del manifiesto">
             Editar
           </button>
 
@@ -2406,8 +2421,19 @@ export function moveAddon(index, direction) {
 }
 
 // ------------------------------------------------------------
-// MODAL: EDITAR ADDON (NOMBRE Y MANIFEST URL)
+// MODAL: EDITAR ADDON (NOMBRE, ESTADO Y MANIFEST URL)
 // ------------------------------------------------------------
+
+export function updateEditAddonStatusUI(isEnabled) {
+  const dot = document.getElementById('accountEditAddonStatusDot');
+  const label = document.getElementById('accountEditAddonStatusLabel');
+  if (dot) {
+    dot.className = `w-2.5 h-2.5 rounded-full shrink-0 transition-colors ${isEnabled ? 'bg-emerald-400' : 'bg-rose-500'}`;
+  }
+  if (label) {
+    label.textContent = isEnabled ? 'Activo en este perfil' : 'Desactivado en este perfil';
+  }
+}
 
 export function openAccountEditAddonModal(index) {
   const addon = accountState.installedAddons[index];
@@ -2417,9 +2443,13 @@ export function openAccountEditAddonModal(index) {
   const modal = document.getElementById('modalAccountEditAddon');
   const nameInput = document.getElementById('inputAccountEditAddonName');
   const urlInput = document.getElementById('inputAccountEditAddonUrl');
+  const enabledInput = document.getElementById('inputAccountEditAddonEnabled');
 
   if (nameInput) nameInput.value = addon.name || '';
   if (urlInput) urlInput.value = addon.manifest_url || addon.url || '';
+  const isEnabled = addon.enabled !== false;
+  if (enabledInput) enabledInput.checked = isEnabled;
+  updateEditAddonStatusUI(isEnabled);
 
   if (modal) {
     modal.classList.remove('hidden');
@@ -2443,9 +2473,11 @@ export function saveAccountEditAddon() {
 
   const nameInput = document.getElementById('inputAccountEditAddonName');
   const urlInput = document.getElementById('inputAccountEditAddonUrl');
+  const enabledInput = document.getElementById('inputAccountEditAddonEnabled');
 
   const newName = (nameInput ? nameInput.value : '').trim();
   let newUrl = (urlInput ? urlInput.value : '').trim();
+  const isEnabled = enabledInput ? enabledInput.checked : true;
 
   if (!newUrl) {
     showToast('Por favor ingresa la URL del manifiesto.', 'warning');
@@ -2469,6 +2501,7 @@ export function saveAccountEditAddon() {
   addon.manifest_url = newUrl;
   addon.url = newUrl;
   addon.transport_url = newUrl;
+  addon.enabled = isEnabled;
   addon._manifestEnriched = false;
 
   closeAccountEditAddonModal();
@@ -2948,6 +2981,14 @@ export function setupAddonModals() {
   if (btnConfirmEdit && !btnConfirmEdit.dataset.bound) {
     btnConfirmEdit.dataset.bound = 'true';
     btnConfirmEdit.addEventListener('click', saveAccountEditAddon);
+  }
+
+  const inputEditEnabled = document.getElementById('inputAccountEditAddonEnabled');
+  if (inputEditEnabled && !inputEditEnabled.dataset.bound) {
+    inputEditEnabled.dataset.bound = 'true';
+    inputEditEnabled.addEventListener('change', () => {
+      updateEditAddonStatusUI(inputEditEnabled.checked);
+    });
   }
 
   // Modal: Eliminar Addon Individual
@@ -3691,6 +3732,7 @@ export async function saveAllChanges() {
               name: addon.name,
               manifest_url: rawUrl,
               url: rawUrl,
+              enabled: addon.enabled !== false,
               sort_order: i + 1
             }
           }).catch(err => console.warn('[AccountManager] Error instalando addon:', err));
@@ -3699,9 +3741,13 @@ export async function saveAllChanges() {
             addon.id = installedRes.addonId;
           }
         } else {
-          // Actualizar si cambió nombre o url
+          // Actualizar si cambió nombre, url o estado
           const orig = origAddons.find(o => String(o.id) === String(addon.id));
-          if (orig && (orig.name !== addon.name || (orig.manifest_url || orig.url) !== rawUrl)) {
+          const hasEnabledChanged = orig && (Boolean(orig.enabled !== false) !== Boolean(addon.enabled !== false));
+          const hasNameChanged = orig && (orig.name !== addon.name);
+          const hasUrlChanged = orig && ((orig.manifest_url || orig.url) !== rawUrl);
+
+          if (orig && (hasNameChanged || hasUrlChanged || hasEnabledChanged)) {
             await NuvioClient.updateAddon({
               apiUrl: CONFIG.NUVIO_API_URL,
               apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -3709,6 +3755,7 @@ export async function saveAllChanges() {
               addonId: addon.id,
               name: addon.name,
               manifestUrl: rawUrl,
+              enabled: addon.enabled !== false,
               sortOrder: i + 1
             }).catch(err => console.warn('[AccountManager] Error actualizando addon:', err));
           }
@@ -3718,6 +3765,7 @@ export async function saveAllChanges() {
       // C. Sincronizar orden global de todos los addons
       const orderedAddonsWithSort = currentAddons.map((a, idx) => ({
         ...a,
+        enabled: a.enabled !== false,
         sort_order: idx + 1
       }));
       await NuvioClient.syncAddonsOrder({

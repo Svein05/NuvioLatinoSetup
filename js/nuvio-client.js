@@ -515,7 +515,7 @@ export class NuvioClient {
       profile_id: addonData.profile_id,
       url: addonData.manifest_url || addonData.url,
       name: addonData.name || 'AIOMetadata',
-      enabled: true,
+      enabled: addonData.enabled !== undefined ? Boolean(addonData.enabled) : true,
       sort_order: addonData.sort_order ?? 1
     }];
 
@@ -548,7 +548,8 @@ export class NuvioClient {
             transport_url: addonData.manifest_url,
             url: addonData.manifest_url,
             name: addonData.name || 'AIOMetadata',
-            enabled: true
+            enabled: addonData.enabled !== undefined ? Boolean(addonData.enabled) : true,
+            sort_order: addonData.sort_order ?? 1
           })
         });
 
@@ -831,9 +832,9 @@ export class NuvioClient {
   }
 
   /**
-   * Actualiza los datos de un addon existente (nombre, url de manifiesto, sort_order)
+   * Actualiza los datos de un addon existente (nombre, url de manifiesto, sort_order, enabled)
    */
-  static async updateAddon({ apiUrl, apikey, accessToken, addonId, name, manifestUrl, sortOrder }) {
+  static async updateAddon({ apiUrl, apikey, accessToken, addonId, name, manifestUrl, sortOrder, enabled }) {
     const cleanUrl = apiUrl.replace(/\/+$/, '');
     const updateBody = {};
     if (name !== undefined) updateBody.name = name;
@@ -843,6 +844,7 @@ export class NuvioClient {
       updateBody.transport_url = manifestUrl;
     }
     if (sortOrder !== undefined) updateBody.sort_order = Number(sortOrder);
+    if (enabled !== undefined) updateBody.enabled = Boolean(enabled);
 
     try {
       const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}`;
