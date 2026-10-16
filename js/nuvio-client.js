@@ -515,7 +515,7 @@ export class NuvioClient {
       profile_id: addonData.profile_id,
       url: addonData.manifest_url || addonData.url,
       name: addonData.name || 'AIOMetadata',
-      enabled: true,
+      enabled: addonData.enabled !== undefined ? Boolean(addonData.enabled) : true,
       sort_order: addonData.sort_order ?? 1
     }];
 
@@ -548,7 +548,8 @@ export class NuvioClient {
             transport_url: addonData.manifest_url,
             url: addonData.manifest_url,
             name: addonData.name || 'AIOMetadata',
-            enabled: true
+            enabled: addonData.enabled !== undefined ? Boolean(addonData.enabled) : true,
+            sort_order: addonData.sort_order ?? 1
           })
         });
 
@@ -616,6 +617,135 @@ export class NuvioClient {
         throw rpcErr;
       }
     }
+  }
+
+  /**
+   * Obtiene las colecciones del perfil desde Nuvio (vía RPC sync_pull_collections o fallback PostgREST)
+   */
+  static async pullCollections({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+
+    // 1. Intentar RPC sync_pull_collections
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_collections',
+        body: {
+          p_profile_id: profId
+        }
+      });
+      if (data) {
+        if (Array.isArray(data)) return data;
+        if (Array.isArray(data.collections)) return data.collections;
+        if (typeof data === 'object') return data;
+      }
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_pull_collections RPC falló, probando fallback REST:', rpcErr.message);
+    }
+
+    // 2. Fallback REST a /rest/v1/collections
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/collections?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc,id.desc`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0) return rows;
+      }
+    } catch (_) {}
+
+    // 3. Fallback adicional a /rest/v1/profile_collections
+    try {
+      const endpoint2 = `${cleanUrl}/rest/v1/profile_collections?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc,id.desc`;
+      const response2 = await fetch(endpoint2, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response2.ok) {
+        const rows2 = await response2.json();
+        if (Array.isArray(rows2) && rows2.length > 0) return rows2;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene la configuración de enriquecimiento y carátulas del perfil (vía RPC sync_pull_profile_settings_blob o fallback PostgREST)
+   */
+  static async pullProfileSettings({ apiUrl, apikey, accessToken, profileId, platform = 'tv' }) {
+    const profId = Number(profileId) || profileId;
+
+    // 1. Intentar RPC sync_pull_profile_settings_blob
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_profile_settings_blob',
+        body: {
+          p_profile_id: profId,
+          p_platform: platform
+        }
+      });
+      if (data) return data;
+    } catch (rpcErr) {
+      console.warn(`[NuvioClient] sync_pull_profile_settings_blob (${platform}) falló:`, rpcErr.message);
+    }
+
+    // 2. Fallback REST con plataforma específica
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/profile_settings?profile_id=eq.${encodeURIComponent(profId)}&platform=eq.${encodeURIComponent(platform)}&select=*&order=updated_at.desc,id.desc`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0) {
+          return rows[0].settings || rows[0].settings_json || rows[0];
+        }
+      }
+    } catch (_) {}
+
+    // 3. Fallback REST sin filtro exclusivo de plataforma (cualquiera guardada en Nuvio)
+    try {
+      const endpointAll = `${cleanUrl}/rest/v1/profile_settings?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=updated_at.desc,id.desc`;
+      const responseAll = await fetch(endpointAll, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (responseAll.ok) {
+        const rowsAll = await responseAll.json();
+        if (Array.isArray(rowsAll) && rowsAll.length > 0) {
+          return rowsAll[0].settings || rowsAll[0].settings_json || rowsAll[0];
+        }
+      }
+    } catch (_) {}
+
+    return null;
   }
 
   /**
@@ -697,6 +827,40 @@ export class NuvioClient {
       return response.ok;
     } catch (err) {
       console.warn(`[NuvioClient] Error actualizando sort_order de addon ${addonId}:`, err);
+      return false;
+    }
+  }
+
+  /**
+   * Actualiza los datos de un addon existente (nombre, url de manifiesto, sort_order, enabled)
+   */
+  static async updateAddon({ apiUrl, apikey, accessToken, addonId, name, manifestUrl, sortOrder, enabled }) {
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const updateBody = {};
+    if (name !== undefined) updateBody.name = name;
+    if (manifestUrl !== undefined) {
+      updateBody.manifest_url = manifestUrl;
+      updateBody.url = manifestUrl;
+      updateBody.transport_url = manifestUrl;
+    }
+    if (sortOrder !== undefined) updateBody.sort_order = Number(sortOrder);
+    if (enabled !== undefined) updateBody.enabled = Boolean(enabled);
+
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/addons?id=eq.${encodeURIComponent(addonId)}`;
+      const response = await fetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(updateBody)
+      });
+      return response.ok;
+    } catch (err) {
+      console.warn(`[NuvioClient] Error actualizando addon ${addonId}:`, err);
       return false;
     }
   }
@@ -995,6 +1159,53 @@ export class NuvioClient {
   }
 
   /**
+   * Obtiene las credenciales de proveedores (TMDB, MDBList, etc.) asociadas al perfil en Nuvio.
+   *
+   * @param {Object} params
+   * @param {string} params.apiUrl
+   * @param {string} params.apikey
+   * @param {string} params.accessToken
+   * @param {number|string} params.profileId
+   * @returns {Promise<Array<{provider: string, credential_json: Object}>>}
+   */
+  static async pullProviderCredentials({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    // 1. Intentar RPC sync_pull_provider_credentials
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_provider_credentials',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data) && data.length > 0) return data;
+      if (Array.isArray(data?.credentials)) return data.credentials;
+    } catch (_) {}
+
+    // 2. Consultar directamente tabla REST provider_credentials
+    try {
+      const endpoint = `${cleanUrl}/rest/v1/provider_credentials?profile_id=eq.${encodeURIComponent(profId)}&select=*`;
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (response.ok) {
+        const rows = await response.json();
+        if (Array.isArray(rows) && rows.length > 0) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
    * Configura las opciones del perfil para activar TMDB Enrichment y MDBList Ratings
    * en Español Latino (es-MX) tanto para plataforma 'tv' como 'mobile'.
    */
@@ -1120,5 +1331,375 @@ export class NuvioClient {
     } catch (_) {}
 
     return { success: true, method: 'attempted' };
+  }
+
+  /**
+   * Actualiza el nombre de un perfil existente en la cuenta de Nuvio
+   */
+  static async updateProfile({ apiUrl, apikey, accessToken, userId, profileId, name }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const cleanName = String(name || '').trim();
+
+    if (!cleanName) {
+      throw new Error('El nombre del perfil no puede estar vacío.');
+    }
+
+    // 1. Obtener lista viva de perfiles
+    let existing = [];
+    try {
+      existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const target = existing.find(p => Number(p.profile_index ?? p.id) === Number(profId));
+    const targetUuid = target?.uuid || null;
+
+    // Actualizar nombre en la lista para sync_push_profiles
+    const updatedList = existing.map(p => {
+      if (Number(p.profile_index ?? p.id) === Number(profId)) {
+        return {
+          profile_index: Number(p.profile_index ?? p.id),
+          name: cleanName,
+          avatar_color_hex: p.avatar_color_hex || '#6366F1',
+          uses_primary_addons: Boolean(p.uses_primary_addons),
+          uses_primary_plugins: Boolean(p.uses_primary_plugins),
+          avatar_id: p.avatar_id ?? null,
+          avatar_url: p.avatar_url
+        };
+      }
+      return {
+        profile_index: Number(p.profile_index ?? p.id),
+        name: p.name,
+        avatar_color_hex: p.avatar_color_hex || '#6366F1',
+        uses_primary_addons: Boolean(p.uses_primary_addons),
+        uses_primary_plugins: Boolean(p.uses_primary_plugins),
+        avatar_id: p.avatar_id ?? null,
+        avatar_url: p.avatar_url
+      };
+    });
+
+    // Vector 1: RPC sync_push_profiles
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profiles',
+        body: {
+          p_profiles: updatedList,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+    } catch (rpcErr) {
+      console.warn('[NuvioClient] sync_push_profiles al actualizar perfil falló:', rpcErr.message);
+    }
+
+    // Vector 2: PATCH en /rest/v1/profiles
+    const patchFilters = [];
+    if (targetUuid) patchFilters.push(`id=eq.${encodeURIComponent(targetUuid)}`);
+    patchFilters.push(`profile_index=eq.${encodeURIComponent(profId)}`);
+    patchFilters.push(`profile_id=eq.${encodeURIComponent(profId)}`);
+
+    for (const filter of patchFilters) {
+      try {
+        await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({ name: cleanName })
+        });
+      } catch (_) {}
+    }
+
+    return { success: true, name: cleanName };
+  }
+
+  /**
+   * Actualiza el avatar de un perfil existente en Nuvio (sync_push_profiles + PATCH REST)
+   */
+  static async updateProfileAvatar({ apiUrl, apikey, accessToken, userId, profileId, avatarUrl }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+    const cleanAvatar = String(avatarUrl || '').trim();
+
+    if (!cleanAvatar) {
+      throw new Error('La URL del avatar no puede estar vacía.');
+    }
+
+    // 1. Obtener lista viva de perfiles
+    let existing = [];
+    try {
+      existing = await this.getProfiles({ apiUrl, apikey, accessToken, userId });
+    } catch (_) {}
+
+    const target = existing.find(p => Number(p.profile_index ?? p.id) === Number(profId));
+    const targetUuid = target?.uuid || null;
+
+    // Actualizar avatar en la lista para sync_push_profiles
+    const updatedList = existing.map(p => {
+      const isTarget = Number(p.profile_index ?? p.id) === Number(profId);
+      return {
+        profile_index: Number(p.profile_index ?? p.id),
+        name: p.name,
+        avatar_color_hex: p.avatar_color_hex || '#6366F1',
+        uses_primary_addons: Boolean(p.uses_primary_addons),
+        uses_primary_plugins: Boolean(p.uses_primary_plugins),
+        avatar_id: p.avatar_id ?? null,
+        avatar_url: isTarget ? cleanAvatar : p.avatar_url
+      };
+    });
+
+    // Vector 1: RPC sync_push_profiles
+    let rpcSuccess = false;
+    let rpcErrorMsg = null;
+    try {
+      await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_push_profiles',
+        body: {
+          p_profiles: updatedList,
+          p_client_max_profiles: 6,
+          p_origin_client_id: 'nuvio-setup-web'
+        }
+      });
+      rpcSuccess = true;
+    } catch (rpcErr) {
+      rpcErrorMsg = rpcErr.message;
+      console.warn('[NuvioClient] sync_push_profiles al actualizar avatar falló:', rpcErr.message);
+    }
+
+    // Vector 2: PATCH en /rest/v1/profiles
+    const patchFilters = [];
+    if (targetUuid) patchFilters.push(`id=eq.${encodeURIComponent(targetUuid)}`);
+    patchFilters.push(`profile_index=eq.${encodeURIComponent(profId)}`);
+    patchFilters.push(`profile_id=eq.${encodeURIComponent(profId)}`);
+
+    let patchSuccess = false;
+    let patchErrorMsg = null;
+    for (const filter of patchFilters) {
+      try {
+        const patchRes = await fetch(`${cleanUrl}/rest/v1/profiles?${filter}`, {
+          method: 'PATCH',
+          headers: {
+            'apikey': apikey,
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify({ avatar_url: cleanAvatar })
+        });
+        if (patchRes.ok) {
+          patchSuccess = true;
+        } else {
+          const errBody = await patchRes.text().catch(() => '');
+          patchErrorMsg = `HTTP ${patchRes.status}: ${errBody}`;
+        }
+      } catch (patchErr) {
+        patchErrorMsg = patchErr.message;
+      }
+    }
+
+    if (!rpcSuccess && !patchSuccess) {
+      throw new Error(`No se pudo actualizar el avatar en Nuvio: ${patchErrorMsg || rpcErrorMsg || 'Error de sincronización'}`);
+    }
+
+    return { success: true, avatar_url: cleanAvatar };
+  }
+
+  /**
+   * Obtiene la lista de plugins instalados en el perfil
+   */
+  static async listPlugins({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_plugins',
+        body: { p_profile_id: profId }
+      });
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data?.plugins)) return data.plugins;
+    } catch (_) {}
+
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/plugins?profile_id=eq.${encodeURIComponent(profId)}&select=*`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) return rows;
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene el progreso de visualización (Watch Progress) de un perfil
+   */
+  static async pullWatchProgress({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    // 1. Intentar RPC sync_pull_watch_progress
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_watch_progress',
+        body: {
+          p_profile_id: profId,
+          p_limit: 100,
+          p_since_last_watched: '1970-01-01T00:00:00Z'
+        }
+      });
+      const list = Array.isArray(data) ? data : (data?.items || data?.progress || []);
+      if (Array.isArray(list) && list.length > 0) {
+        // Filtrar por profile_id estrictamente
+        const filtered = list.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId)));
+        const resList = filtered.length > 0 ? filtered : list;
+        resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
+        return resList;
+      }
+    } catch (_) {}
+
+    // 2. Fallback REST directo a /rest/v1/watch_progress con order por last_watched
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/watch_progress?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=last_watched.desc&limit=100`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json',
+          'Prefer': 'count=exact'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) {
+          const contentRange = res.headers.get('content-range');
+          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
+          const total = totalMatch ? parseInt(totalMatch[1], 10) : rows.length;
+          rows.totalCount = total;
+          return rows;
+        }
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene los elementos guardados en la biblioteca del perfil (library_items)
+   */
+  static async pullLibrary({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_library',
+        body: { p_profile_id: profId }
+      });
+      const list = Array.isArray(data) ? data : (data?.items || data?.library || []);
+      if (Array.isArray(list) && list.length > 0) {
+        list.totalCount = data?.total ?? data?.total_count ?? data?.count ?? list.length;
+        return list;
+      }
+    } catch (_) {}
+
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/library_items?profile_id=eq.${encodeURIComponent(profId)}&select=*&limit=100`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json',
+          'Prefer': 'count=exact'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) {
+          const contentRange = res.headers.get('content-range');
+          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
+          if (totalMatch) rows.totalCount = parseInt(totalMatch[1], 10);
+          return rows;
+        }
+      }
+    } catch (_) {}
+
+    return [];
+  }
+
+  /**
+   * Obtiene el historial de contenidos vistos (Watched) del perfil (watched_items)
+   */
+  static async pullWatched({ apiUrl, apikey, accessToken, profileId }) {
+    const profId = Number(profileId) || profileId;
+    const cleanUrl = apiUrl.replace(/\/+$/, '');
+
+    // 1. Intentar RPC sync_pull_watched_items
+    try {
+      const data = await this.rpc({
+        apiUrl,
+        apikey,
+        accessToken,
+        path: 'sync_pull_watched_items',
+        body: {
+          p_profile_id: profId,
+          p_page: 1,
+          p_page_size: 100
+        }
+      });
+      const list = Array.isArray(data) ? data : (data?.items || data?.watched || []);
+      if (Array.isArray(list) && list.length > 0) {
+        const filtered = list.filter(item => item.profile_id === undefined || Number(item.profile_id) === Number(profId));
+        const resList = filtered.length > 0 ? filtered : list;
+        resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
+        return resList;
+      }
+    } catch (_) {}
+
+    // 2. Fallback REST directo a /rest/v1/watched_items con order por watched_at
+    try {
+      const res = await fetch(`${cleanUrl}/rest/v1/watched_items?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=watched_at.desc&limit=100`, {
+        headers: {
+          'apikey': apikey,
+          'Authorization': `Bearer ${accessToken}`,
+          'Accept': 'application/json',
+          'Prefer': 'count=exact'
+        }
+      });
+      if (res.ok) {
+        const rows = await res.json();
+        if (Array.isArray(rows)) {
+          const contentRange = res.headers.get('content-range');
+          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
+          const total = totalMatch ? parseInt(totalMatch[1], 10) : rows.length;
+          rows.totalCount = total;
+          return rows;
+        }
+      }
+    } catch (_) {}
+
+    return [];
   }
 }

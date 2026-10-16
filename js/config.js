@@ -2,7 +2,7 @@
 const getBasePath = () => {
   if (typeof window === 'undefined' || !window.location) return './';
   const p = window.location.pathname.toLowerCase();
-  if (p.includes('/configuration') || p.includes('/documentation') || p.includes('/home')) {
+  if (p.includes('/configuration') || p.includes('/documentation') || p.includes('/account') || p.includes('/cuenta') || p.includes('/home')) {
     return '../';
   }
   return './';
@@ -10,7 +10,7 @@ const getBasePath = () => {
 
 export const CONFIG = {
   // Versión oficial de la aplicación (sincronizada con version.json y GitHub Releases)
-  VERSION: "1.5.0",
+  VERSION: "1.6.0",
   GITHUB_REPO: "Svein05/NuvioLatinoSetup",
   RELEASE_URL: "https://github.com/Svein05/NuvioLatinoSetup/releases",
 

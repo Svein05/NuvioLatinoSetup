@@ -131,4 +131,153 @@ export class AIOMetadataClient {
       clearTimeout(timeoutId);
     }
   }
+
+  /**
+   * Carga la configuración guardada de un usuario en AIOMetadata a partir de su UUID
+   * @param {string} instanceUrl URL base de la instancia
+   * @param {string} userUUID UUID de configuración del usuario
+   * @param {string} [password] Contraseña de configuración (default canónico: 'NuvioSetupMaster2026')
+   * @returns {Promise<{ config: object, hasPassword: boolean, instanceUrl: string, raw: object }>}
+   */
+  static async loadConfiguration(instanceUrl, userUUID, password = 'NuvioSetupMaster2026') {
+    const cleanUrl = instanceUrl.replace(/\/+$/, '');
+    const endpoint = `${cleanUrl}/api/config/load/${encodeURIComponent(userUUID)}`;
+
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ password })
+      });
+    } catch (fetchErr) {
+      throw new Error(`Inalcanzable (${cleanUrl}): ${fetchErr.message || fetchErr}`);
+    }
+
+    if (!response.ok) {
+      let detail = '';
+      try {
+        const errorJson = await response.json();
+        detail = errorJson.error || errorJson.message || JSON.stringify(errorJson);
+      } catch (_) {
+        detail = await response.text().catch(() => '');
+      }
+      throw new Error(`Rechazó la lectura (HTTP ${response.status}): ${detail || response.statusText}`);
+    }
+
+    const data = await response.json();
+    return {
+      config: data.config || data,
+      hasPassword: Boolean(data.hasPassword),
+      instanceUrl: cleanUrl,
+      raw: data
+    };
+  }
+
+  /**
+   * Intenta cargar la configuración de AIOMetadata recorriendo el pool de instancias con fallback automático
+   * @param {string[]} instanceList Lista ordenada de instancias de AIOMetadata
+   * @param {string} userUUID UUID de configuración
+   * @param {string} [password]
+   * @returns {Promise<{ config: object, hasPassword: boolean, instanceUrl: string, raw: object }>}
+   */
+  static async loadWithFallbacks(instanceList, userUUID, password = 'NuvioSetupMaster2026') {
+    const list = Array.isArray(instanceList) && instanceList.length > 0
+      ? instanceList
+      : ['https://aiometadatafortheweebs.midnightignite.me'];
+
+    const warnings = [];
+
+    for (let i = 0; i < list.length; i++) {
+      const instance = list[i];
+      try {
+        return await this.loadConfiguration(instance, userUUID, password);
+      } catch (err) {
+        const warningMsg = `Instancia ${instance} falló al cargar config: ${err.message}`;
+        console.warn(`[AIOMetadataClient] ${warningMsg}`);
+        warnings.push(warningMsg);
+      }
+    }
+
+    throw new Error(`No se pudo cargar la configuración de AIOMetadata (${userUUID}) desde ninguna instancia:\n${warnings.join('\n')}`);
+  }
+
+  /**
+   * Actualiza in-place la configuración existente en AIOMetadata sin alterar el UUID
+   * @param {string} instanceUrl URL base de la instancia
+   * @param {string} userUUID UUID de configuración a actualizar
+   * @param {object} payload Objeto con { password, config }
+   * @returns {Promise<{ success: boolean, uuid: string, instanceUrl: string }>}
+   */
+  static async updateConfiguration(instanceUrl, userUUID, payload) {
+    const cleanUrl = instanceUrl.replace(/\/+$/, '');
+    const endpoint = `${cleanUrl}/api/config/update/${encodeURIComponent(userUUID)}`;
+
+    const requestBody = {
+      password: payload.password || 'NuvioSetupMaster2026',
+      config: payload.config || payload
+    };
+
+    let response;
+    try {
+      response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+    } catch (fetchErr) {
+      throw new Error(`Inalcanzable (${cleanUrl}): ${fetchErr.message || fetchErr}`);
+    }
+
+    if (!response.ok) {
+      let detail = '';
+      try {
+        const errorJson = await response.json();
+        detail = errorJson.error || errorJson.message || JSON.stringify(errorJson);
+      } catch (_) {
+        detail = await response.text().catch(() => '');
+      }
+      throw new Error(`Rechazó la actualización in-place (HTTP ${response.status}): ${detail || response.statusText}`);
+    }
+
+    return {
+      success: true,
+      uuid: userUUID,
+      instanceUrl: cleanUrl
+    };
+  }
+
+  /**
+   * Actualiza la configuración intentando secuencialmente sobre el pool de instancias
+   * @param {string[]} instanceList Lista ordenada de instancias de AIOMetadata
+   * @param {string} userUUID UUID de configuración
+   * @param {object} payload Objeto con { password, config }
+   * @returns {Promise<{ success: boolean, uuid: string, instanceUrl: string }>}
+   */
+  static async updateWithFallbacks(instanceList, userUUID, payload) {
+    const list = Array.isArray(instanceList) && instanceList.length > 0
+      ? instanceList
+      : ['https://aiometadatafortheweebs.midnightignite.me'];
+
+    const warnings = [];
+
+    for (let i = 0; i < list.length; i++) {
+      const instance = list[i];
+      try {
+        return await this.updateConfiguration(instance, userUUID, payload);
+      } catch (err) {
+        const warningMsg = `Instancia ${instance} falló al actualizar config in-place: ${err.message}`;
+        console.warn(`[AIOMetadataClient] ${warningMsg}`);
+        warnings.push(warningMsg);
+      }
+    }
+
+    throw new Error(`No se pudo actualizar la configuración de AIOMetadata (${userUUID}) en ninguna instancia:\n${warnings.join('\n')}`);
+  }
 }
