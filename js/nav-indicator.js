@@ -96,7 +96,7 @@ export function initNavIndicator() {
   const counterPills = header ? header.querySelectorAll('.completions-counter-pill') : [];
 
   let trackingId = null;
-  function trackIndicatorTransition(duration = 420) {
+  function trackIndicatorTransition(duration = 340) {
     if (trackingId) {
       cancelAnimationFrame(trackingId);
       trackingId = null;
@@ -127,12 +127,12 @@ export function initNavIndicator() {
   counterPills.forEach(pill => {
     pill.addEventListener('mouseenter', () => {
       if (header) header.classList.add('is-counter-expanded');
-      trackIndicatorTransition(420);
+      trackIndicatorTransition(340);
     });
 
     pill.addEventListener('mouseleave', () => {
       if (header) header.classList.remove('is-counter-expanded');
-      trackIndicatorTransition(420);
+      trackIndicatorTransition(340);
     });
   });
 
