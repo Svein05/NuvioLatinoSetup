@@ -44,7 +44,11 @@ function safeDecode(str) {
 
 export function formatStyleName(rawStyle) {
   if (!rawStyle || rawStyle === 'all') return 'Todos los estilos';
-  return safeDecode(rawStyle).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+  const clean = safeDecode(rawStyle)
+    .replace(/[_-]/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim();
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
 }
 
 export function formatFranchiseName(rawFranchise) {
@@ -113,6 +117,17 @@ async function crawlLocalAvatars() {
           }
         } catch (_) {}
       }
+
+      // Archivos directos colocados en la raíz del estilo (ej: MangaStyle/Personaje.png)
+      const directFiles = franchiseLinks.filter(f => /\.(jpe?g|png|webp|svg)$/i.test(f) && !f.startsWith('.') && !/desktop\.ini$/i.test(f));
+      if (directFiles.length > 0) {
+        registry.push({
+          style,
+          franchise: 'General',
+          files: directFiles,
+          isDirect: true
+        });
+      }
     } catch (_) {}
   }
 
@@ -169,6 +184,16 @@ function parseGitHubTree(tree) {
       if (/\.(jpe?g|png|webp|svg)$/i.test(file) && !file.startsWith('.') && !/desktop\.ini$/i.test(file)) {
         const key = `${style}::${franchise}`;
         if (!map.has(key)) map.set(key, { style, franchise, files: [] });
+        map.get(key).files.push(file);
+      }
+    } else if (parts.length === 4) {
+      // Archivo directo bajo la carpeta de estilo (assets/profile_icons/{style}/{file})
+      const style = safeDecode(parts[2]);
+      const franchise = 'General';
+      const file = safeDecode(parts[3]);
+      if (/\.(jpe?g|png|webp|svg)$/i.test(file) && !file.startsWith('.') && !/desktop\.ini$/i.test(file)) {
+        const key = `${style}::${franchise}`;
+        if (!map.has(key)) map.set(key, { style, franchise, files: [], isDirect: true });
         map.get(key).files.push(file);
       }
     }
@@ -242,7 +267,9 @@ export function compileRegistry(registry) {
         baseChar,
         variationNum,
         extension,
-        relativePath: `${relPrefix}assets/profile_icons/${encodeURI(style)}/${encodeURI(franchise)}/${encodeURI(fileName)}`
+        relativePath: group.isDirect
+          ? `${relPrefix}assets/profile_icons/${encodeURI(style)}/${encodeURI(fileName)}`
+          : `${relPrefix}assets/profile_icons/${encodeURI(style)}/${encodeURI(franchise)}/${encodeURI(fileName)}`
       });
     }
 
@@ -432,6 +459,12 @@ export function getCompiledAvatars() {
 export function getStylesSummary(avatarsList = null) {
   const avatars = avatarsList || getCompiledAvatars();
   const map = new Map();
+
+  // Estilos canónicos pre-registrados para garantizar su disponibilidad inmediata en filtros
+  const canonicalStyles = ['NetflixStyle', 'IconsStyle', 'MangaStyle'];
+  for (const s of canonicalStyles) {
+    map.set(s, 0);
+  }
 
   for (const av of avatars) {
     map.set(av.style, (map.get(av.style) || 0) + 1);
