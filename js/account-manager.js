@@ -18,6 +18,7 @@ import {
   resolveAvatarCdnUrl,
   loadAvatarsCatalog
 } from './avatars-data.js';
+import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const SESSION_KEY = 'nuvio_account_session_v1';
@@ -4248,6 +4249,9 @@ export async function initAccountPage() {
 
   // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
   loadAvatarsCatalog().catch(() => null);
+
+  // Inicializar listeners del módulo de sugerencias de avatares (Discord)
+  initAvatarSuggestionsUI();
 
   // 2. Revisar si hay sesión activa en sessionStorage
   const session = loadSession();
