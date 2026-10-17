@@ -136,18 +136,18 @@ def run_sync_avatars():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Convierte imágenes JPEG a WebP recursivamente.")
+    parser = argparse.ArgumentParser(description="Convierte imágenes JPEG y PNG a WebP recursivamente.")
     parser.add_argument("--quality", type=int, default=90, help="Calidad WebP (1-100, defecto: 90)")
-    parser.add_argument("--keep-originals", action="store_true", help="No eliminar las imágenes JPEG originales")
+    parser.add_argument("--keep-originals", action="store_true", help="No eliminar las imágenes originales")
     parser.add_argument("--dry-run", action="store_true", help="Simular sin modificar archivos")
     args = parser.parse_args()
 
     print("============================================================")
     print(" NUVIO LATINO SETUP - CONVERSOR AUTOMÁTICO A WEBP")
-    print(f" Calidad: {args.quality} | Eliminar JPEGs: {not args.keep_originals}")
+    print(f" Calidad: {args.quality} | Eliminar originales: {not args.keep_originals}")
     print("============================================================\n")
 
-    target_extensions = {".jpg", ".jpeg"}
+    target_extensions = {".jpg", ".jpeg", ".png"}
     converted_files = []
     failed_files = []
     total_orig_bytes = 0

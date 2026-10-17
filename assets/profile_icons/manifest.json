@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-17T21:34:22.430Z",
+  "updatedAt": "2026-10-17T21:40:52.211Z",
   "styles": [
     {
       "style": "IconsStyle",
@@ -7,8 +7,8 @@
         {
           "franchise": "Black Clover",
           "files": [
-            "Asta (Berserker).png",
-            "Asta (Unite).png"
+            "Asta (Berserker).webp",
+            "Asta (Unite).webp"
           ]
         },
         {
@@ -66,7 +66,7 @@
         {
           "franchise": "Naruto",
           "files": [
-            "Naruto Uzumaki (Color).png"
+            "Naruto Uzumaki (Color).webp"
           ]
         }
       ]
@@ -77,55 +77,55 @@
         {
           "franchise": "Naruto Shippuden",
           "files": [
-            "NarutoShippuden_AnkoMitarashi.png",
-            "NarutoShippuden_AsumaSarutobi.png",
-            "NarutoShippuden_Baki.png",
-            "NarutoShippuden_ChojiAkimichi.png",
-            "NarutoShippuden_Deidara.png",
-            "NarutoShippuden_Gaara.png",
-            "NarutoShippuden_Hidan.png",
-            "NarutoShippuden_HinataHyuga.png",
-            "NarutoShippuden_InoYamanaka.png",
-            "NarutoShippuden_ItachiUchiha.png",
-            "NarutoShippuden_Jiraiya.png",
-            "NarutoShippuden_KabutoYakushi.png",
-            "NarutoShippuden_KakashiHatake.png",
-            "NarutoShippuden_Kankuro.png",
-            "NarutoShippuden_KibaInuzuka.png",
-            "NarutoShippuden_KisameHoshigaki.png",
-            "NarutoShippuden_KurenaiYuhi.png",
-            "NarutoShippuden_MightGuy.png",
-            "NarutoShippuden_NarutoUzumaki.png",
-            "NarutoShippuden_NejiHyuga.png",
-            "NarutoShippuden_Orochimaru.png",
-            "NarutoShippuden_RockLee.png",
-            "NarutoShippuden_Sai.png",
-            "NarutoShippuden_SakuraHaruno.png",
-            "NarutoShippuden_Sasori1.png",
-            "NarutoShippuden_Sasori2.png",
-            "NarutoShippuden_SasukeUchiha.png",
-            "NarutoShippuden_ShikamaruNara.png",
-            "NarutoShippuden_ShinoAburame.png",
-            "NarutoShippuden_Temari.png",
-            "NarutoShippuden_Tsunade.png",
-            "NarutoShippuden_Yamato.png"
+            "NarutoShippuden_AnkoMitarashi.webp",
+            "NarutoShippuden_AsumaSarutobi.webp",
+            "NarutoShippuden_Baki.webp",
+            "NarutoShippuden_ChojiAkimichi.webp",
+            "NarutoShippuden_Deidara.webp",
+            "NarutoShippuden_Gaara.webp",
+            "NarutoShippuden_Hidan.webp",
+            "NarutoShippuden_HinataHyuga.webp",
+            "NarutoShippuden_InoYamanaka.webp",
+            "NarutoShippuden_ItachiUchiha.webp",
+            "NarutoShippuden_Jiraiya.webp",
+            "NarutoShippuden_KabutoYakushi.webp",
+            "NarutoShippuden_KakashiHatake.webp",
+            "NarutoShippuden_Kankuro.webp",
+            "NarutoShippuden_KibaInuzuka.webp",
+            "NarutoShippuden_KisameHoshigaki.webp",
+            "NarutoShippuden_KurenaiYuhi.webp",
+            "NarutoShippuden_MightGuy.webp",
+            "NarutoShippuden_NarutoUzumaki.webp",
+            "NarutoShippuden_NejiHyuga.webp",
+            "NarutoShippuden_Orochimaru.webp",
+            "NarutoShippuden_RockLee.webp",
+            "NarutoShippuden_Sai.webp",
+            "NarutoShippuden_SakuraHaruno.webp",
+            "NarutoShippuden_Sasori1.webp",
+            "NarutoShippuden_Sasori2.webp",
+            "NarutoShippuden_SasukeUchiha.webp",
+            "NarutoShippuden_ShikamaruNara.webp",
+            "NarutoShippuden_ShinoAburame.webp",
+            "NarutoShippuden_Temari.webp",
+            "NarutoShippuden_Tsunade.webp",
+            "NarutoShippuden_Yamato.webp"
           ]
         },
         {
           "franchise": "One Piece",
           "files": [
-            "OnePiece_Brook.png",
-            "OnePiece_Franky.png",
+            "OnePiece_Brook.webp",
+            "OnePiece_Franky.webp",
             "OnePiece_GoingMerry.webp",
-            "OnePiece_Jinbe.png",
-            "OnePiece_MonkeyDLuffy1.png",
-            "OnePiece_MonkeyDLuffy2.png",
-            "OnePiece_Nami.png",
-            "OnePiece_NicoRobin.png",
-            "OnePiece_RoronoaZoro.png",
-            "OnePiece_Sanji.png",
+            "OnePiece_Jinbe.webp",
+            "OnePiece_MonkeyDLuffy1.webp",
+            "OnePiece_MonkeyDLuffy2.webp",
+            "OnePiece_Nami.webp",
+            "OnePiece_NicoRobin.webp",
+            "OnePiece_RoronoaZoro.webp",
+            "OnePiece_Sanji.webp",
             "OnePiece_ThousandSunny.webp",
-            "OnePiece_TonyTonyChopper.png",
+            "OnePiece_TonyTonyChopper.webp",
             "OnePiece_Usopp.webp"
           ]
         },
