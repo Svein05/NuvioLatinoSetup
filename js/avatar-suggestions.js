@@ -453,7 +453,7 @@ async function sendSuggestionToDiscord() {
 
       const embedPayload = {
         username: 'Nuvio Avatar Bot',
-        avatar_url: 'https://nuviosetup.lat/assets/logo/logo.webp',
+        avatar_url: 'https://raw.githubusercontent.com/Svein05/NuvioLatinoSetup/develop/assets/logo/logo.webp',
         embeds: [
           {
             title: '🎨 Nueva Sugerencia de Avatar',
@@ -492,7 +492,7 @@ async function sendSuggestionToDiscord() {
       const imageUrl = suggestionState.urlValue.trim();
       const payload = {
         username: 'Nuvio Avatar Bot',
-        avatar_url: 'https://nuviosetup.lat/assets/logo/logo.webp',
+        avatar_url: 'https://raw.githubusercontent.com/Svein05/NuvioLatinoSetup/develop/assets/logo/logo.webp',
         embeds: [
           {
             title: '🎨 Nueva Sugerencia de Avatar',
