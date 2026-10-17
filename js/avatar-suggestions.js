@@ -74,8 +74,24 @@ export function openAvatarSuggestionModal() {
   const modal = document.getElementById('modalAvatarSuggestion');
   if (!modal) return;
 
-  resetSuggestionForm();
+  hideFormError();
   switchView('form');
+
+  // Si la última interacción fue mediante URL y tiene datos, mantenerlos y permanecer en modo 'url'
+  if (suggestionState.mode === 'url' && (suggestionState.urlValue || suggestionState.characterName || suggestionState.seriesName)) {
+    setMode('url');
+    const urlInput = document.getElementById('inputAvatarSuggestionUrl');
+    const charInput = document.getElementById('inputAvatarSuggestionCharName');
+    const seriesInput = document.getElementById('inputAvatarSuggestionSeriesName');
+
+    if (urlInput) urlInput.value = suggestionState.urlValue;
+    if (charInput) charInput.value = suggestionState.characterName;
+    if (seriesInput) seriesInput.value = suggestionState.seriesName;
+    updateLivePreview();
+  } else {
+    // Si fue subida directa de archivo (o primera vez), resetear completamente a estado inicial limpio
+    resetSuggestionForm();
+  }
 
   modal.classList.remove('hidden');
   modal.classList.add('flex');
@@ -89,10 +105,12 @@ export function closeAvatarSuggestionModal() {
   const modal = document.getElementById('modalAvatarSuggestion');
   if (!modal) return;
 
-  // Limpiar blob URL en memoria si existe
-  if (suggestionState.selectedFileObjectUrl) {
-    URL.revokeObjectURL(suggestionState.selectedFileObjectUrl);
-    suggestionState.selectedFileObjectUrl = null;
+  // Si estaba en modo 'file' (subida directa), no mantener ningún dato, archivo ni opción
+  if (suggestionState.mode === 'file') {
+    resetSuggestionForm();
+  } else {
+    // En modo URL, asegurar que cualquier archivo residual sea removido de memoria/DOM
+    removeSelectedFile();
   }
 
   modal.classList.add('hidden');
@@ -114,13 +132,10 @@ function switchView(viewName) {
 }
 
 /**
- * Restablece todo el formulario a su estado inicial.
+ * Restablece todo el formulario a su estado inicial limpio.
  */
 function resetSuggestionForm() {
-  if (suggestionState.selectedFileObjectUrl) {
-    URL.revokeObjectURL(suggestionState.selectedFileObjectUrl);
-    suggestionState.selectedFileObjectUrl = null;
-  }
+  removeSelectedFile();
 
   suggestionState.mode = 'file';
   suggestionState.selectedFile = null;
@@ -175,6 +190,7 @@ function setMode(mode) {
     }
     if (urlWrap) urlWrap.classList.remove('hidden');
     if (dropzoneWrap) dropzoneWrap.classList.add('hidden');
+    removeSelectedFile();
   }
 
   updateLivePreview();
@@ -529,6 +545,9 @@ async function sendSuggestionToDiscord() {
     try {
       localStorage.setItem(STORAGE_KEY_COOLDOWN, Date.now().toString());
     } catch (_) {}
+
+    // Limpiar formulario tras envío exitoso
+    resetSuggestionForm();
 
     // Mostrar pantalla de éxito
     switchView('success');
