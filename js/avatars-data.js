@@ -226,7 +226,7 @@ export function compileRegistry(registry) {
       const baseName = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName;
       const extension = dotIndex !== -1 ? fileName.substring(dotIndex + 1).toLowerCase() : '';
 
-      // Quitar prefijo de franquicia si el archivo fue nombrado {Franquicia}_{Personaje}
+      // Quitar prefijo de franquicia ÚNICAMENTE si está explícitamente separado por guion bajo (_)
       let rawChar = baseName;
       const underscoreIdx = baseName.indexOf('_');
       const normFranchise = franchise.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -235,16 +235,9 @@ export function compileRegistry(registry) {
         const prefix = baseName.substring(0, underscoreIdx);
         const normPrefix = prefix.toLowerCase().replace(/[^a-z0-9]/g, '');
         if (normPrefix === normFranchise) {
-          rawChar = baseName.substring(underscoreIdx + 1);
-        }
-      } else {
-        const cleanBase = baseName.trim();
-        const normBase = cleanBase.toLowerCase().replace(/[^a-z0-9]/g, '');
-        if (normBase.startsWith(normFranchise)) {
-          const escaped = franchise.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const regex = new RegExp(`^${escaped}[_\\-\\s]*`, 'i');
-          if (regex.test(cleanBase)) {
-            rawChar = cleanBase.replace(regex, '');
+          const stripped = baseName.substring(underscoreIdx + 1).trim();
+          if (stripped.length > 0) {
+            rawChar = stripped;
           }
         }
       }
