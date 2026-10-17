@@ -7,11 +7,8 @@
   <meta name="description" content="Gestor integral de perfiles, avatares y addons AIOMetadata para tu cuenta de Nuvio." />
   
   <!-- Favicon e Iconos -->
-  <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
-  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16x16.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png" />
-  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="icon" type="image/jpeg" href="../assets/logo/logo.jpg" />
+  <link rel="apple-touch-icon" href="../assets/logo/logo.jpg" />
 
   <!-- Preload de Fuentes Instrument Sans & Serif -->
   <link rel="preload" href="../assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -409,7 +406,7 @@
           <!-- Encabezado de la Sección con Comparación de Avatar y Enlace Directo -->
           <div class="p-5 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
             <!-- Izquierda: Avatar Actual y Comparativa Dinámica [Actual -> Nuevo] -->
-            <div class="flex items-center gap-4 sm:gap-5 w-full md:w-auto">
+            <div id="avatarHeaderMainWrap" class="flex items-center gap-4 sm:gap-5 w-full md:w-auto">
               <div id="avatarComparisonContainer" class="flex items-center gap-2.5 sm:gap-3 shrink-0">
                 <!-- Avatar Original / Actual -->
                 <div class="relative group" title="Avatar actual en Nuvio">
@@ -429,7 +426,7 @@
                 </div>
               </div>
 
-              <div class="min-w-0">
+              <div id="avatarHeaderTextWrap" class="min-w-0">
                 <span class="lat-label text-[#ffd479]">Avatar del Perfil</span>
                 <h3 id="avatarCurrentProfileName" class="text-lg sm:text-xl font-bold text-white truncate mt-0.5">Cargando...</h3>
                 <p class="text-xs text-white/50 mt-0.5">Elige un avatar de la colección o introduce un enlace de imagen directo.</p>
@@ -438,12 +435,12 @@
 
             <!-- Derecha: Selector Rápido de Enlace URL Directo -->
             <div class="w-full md:w-auto flex items-center gap-2.5">
-              <div class="relative flex-1 sm:w-72">
-                <input type="url" id="inputAvatarUrlDirect" placeholder="Pega un enlace URL de imagen..." class="lat-field w-full text-xs pr-8 py-2.5">
-                <button type="button" id="btnApplyAvatarUrl" class="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-[#ffd479] transition-colors p-1" title="Verificar y aplicar URL">
+              <form id="formAvatarUrlDirect" class="relative flex-1 sm:w-72" onsubmit="return false;">
+                <input type="url" id="inputAvatarUrlDirect" enterkeyhint="go" placeholder="Pega un enlace URL de imagen..." class="lat-field w-full text-xs pr-8 py-2.5">
+                <button type="submit" id="btnApplyAvatarUrl" class="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-[#ffd479] transition-colors p-1" title="Verificar y aplicar URL">
                   <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>
-              </div>
+              </form>
             </div>
           </div>
 
@@ -584,27 +581,28 @@
         </h4>
         <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-white/40 group-hover:text-white"></i>
-              <span class="font-medium text-white/80 group-hover:text-white">Colección DonPuercoTroll</span>
+            <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Colección DonPuercoTroll
             </a>
           </li>
           <li>
-            <a href="https://github.com/kingsizew/badges" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-tags text-[10px] text-indigo-400 group-hover:text-white"></i>
-              <span class="font-medium text-white/80 group-hover:text-white">Badges kingsizew</span>
+            <a href="https://github.com/kingsizew/badges" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Badges kingsizew
             </a>
           </li>
           <li>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-brands fa-discord text-[11px] text-[#5865F2]"></i>
-              <span>Discord Comunidad Latina</span>
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Discord Comunidad Latina
             </a>
           </li>
           <li>
-            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-puzzle-piece text-[11px] text-emerald-400"></i>
-              <span>Addon LAT-ADD</span>
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Addon LAT-ADD
+            </a>
+          </li>
+          <li>
+            <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Colección de Avatares por 'Holy'
             </a>
           </li>
         </ul>
@@ -618,21 +616,18 @@
         </h4>
         <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-tv text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>Nuvio TV Oficial</span>
+            <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Nuvio TV Oficial
             </a>
           </li>
           <li>
-            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-server text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>AIOMetadata</span>
+            <a href="https://github.com/cedya77/aiometadata" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              AIOMetadata
             </a>
           </li>
           <li>
-            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-film text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>The Movie Database (TMDB)</span>
+            <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              The Movie Database (TMDB)
             </a>
           </li>
         </ul>
@@ -646,33 +641,28 @@
         </h4>
         <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="../configuration/" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-wand-magic-sparkles text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>Asistente de Configuración</span>
+            <a href="../configuration/" class="hover:text-white transition-colors">
+              Asistente de Configuración
             </a>
           </li>
           <li>
-            <a href="../documentation/" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-book-open text-[10px] text-white/40 group-hover:text-white"></i>
-              <span>Documentación & Guías</span>
+            <a href="../documentation/" class="hover:text-white transition-colors">
+              Documentación & Guías
             </a>
           </li>
           <li>
-            <a href="./" class="hover:text-white transition-colors flex items-center gap-1.5 group text-white">
-              <i class="fa-solid fa-user-gear text-[10px] text-[#ffd479]"></i>
-              <span>Gestor de Perfil y Cuenta</span>
+            <a href="./" class="text-[#ffd479] font-medium transition-colors">
+              Gestor de Perfil y Cuenta
             </a>
           </li>
           <li>
-            <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-brands fa-github text-[11px] text-white/60"></i>
-              <span>Repositorio en GitHub</span>
+            <a href="https://github.com/Svein05/NuvioLatinoSetup" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+              Repositorio en GitHub
             </a>
           </li>
           <li>
-            <a href="https://github.com/Svein05/NuvioLatinoSetup/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors flex items-center gap-1.5 group">
-              <i class="fa-solid fa-circle-exclamation text-[10px] text-amber-400"></i>
-              <span>Reportar un problema (Issues)</span>
+            <a href="https://github.com/Svein05/NuvioLatinoSetup/issues" target="_blank" rel="noopener noreferrer" class="text-rose-400 hover:text-rose-300 transition-colors">
+              Reportar un problema (Issues)
             </a>
           </li>
         </ul>

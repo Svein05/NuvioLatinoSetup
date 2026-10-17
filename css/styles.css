@@ -2298,5 +2298,28 @@ header.lat-floating-nav nav {
   -webkit-backdrop-filter: blur(16px);
 }
 
+/* ============================================================
+   RESPONSIVE AVATAR COMPARISON (MOBILE VERTICAL STACKING)
+   ============================================================ */
+@media (max-width: 639px) {
+  #avatarHeaderMainWrap.has-comparison {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.15rem;
+  }
+
+  #avatarHeaderMainWrap.has-comparison #avatarComparisonContainer {
+    justify-content: center;
+    width: 100%;
+  }
+
+  #avatarHeaderMainWrap.has-comparison #avatarHeaderTextWrap {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+
 
 

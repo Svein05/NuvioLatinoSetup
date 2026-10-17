@@ -67,6 +67,8 @@ export const accountState = {
   aioProtected: false, // Flag si requiere contraseña personalizada
   posterEngine: 'default', // 'default' | 'betterposter' | 'postersplus' | 'custom_external'
   customPosterUrl: '',
+  originalPosterEngine: 'default',
+  originalCustomPosterUrl: '',
 
   // Ajustes de Nuvio & Credenciales (TMDB / MDBList)
   settings: {
@@ -221,6 +223,7 @@ export function markDirty(moduleName, isDirty = true) {
   if (accountState.dirty.hasOwnProperty(moduleName)) {
     accountState.dirty[moduleName] = isDirty;
     updateSaveButton();
+    updateUndoButton();
   }
 }
 
@@ -389,6 +392,8 @@ export async function loadAioConfigByUuid(uuid, password = null) {
       accountState.posterEngine = 'default';
       accountState.customPosterUrl = customPattern;
     }
+    accountState.originalPosterEngine = accountState.posterEngine;
+    accountState.originalCustomPosterUrl = accountState.customPosterUrl;
 
     // Hidratar API keys si estaban vacías en los ajustes
     const aioKeys = cfg.apiKeys || {};
@@ -1532,6 +1537,13 @@ export function resolvePublicAvatarUrl(rawUrl) {
   return trimmed;
 }
 
+export function areAvatarUrlsEqual(urlA, urlB) {
+  if (!urlA && !urlB) return true;
+  if (!urlA || !urlB) return false;
+  if (urlA === urlB) return true;
+  return resolvePublicAvatarUrl(urlA) === resolvePublicAvatarUrl(urlB);
+}
+
 export function updateAvatarComparisonUI() {
   const origPreview = document.getElementById('avatarOriginalPreview');
   const currentPreview = document.getElementById('avatarCurrentPreview');
@@ -1539,12 +1551,17 @@ export function updateAvatarComparisonUI() {
   const newWrap = document.getElementById('avatarNewWrap');
   const origBadge = document.getElementById('avatarOriginalBadge');
   const modBadge = document.getElementById('avatarModifiedBadge');
+  const headerMainWrap = document.getElementById('avatarHeaderMainWrap');
 
   const origUrl = accountState.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio';
   const selectedUrl = accountState.selectedAvatarUrl || origUrl;
-  const isChanged = Boolean(accountState.selectedAvatarUrl && accountState.selectedAvatarUrl !== accountState.originalAvatarUrl);
+  const isChanged = Boolean(accountState.selectedAvatarUrl && !areAvatarUrlsEqual(accountState.selectedAvatarUrl, accountState.originalAvatarUrl));
 
   if (origPreview) origPreview.src = origUrl;
+
+  if (headerMainWrap) {
+    headerMainWrap.classList.toggle('has-comparison', isChanged);
+  }
 
   if (isChanged) {
     if (arrow) {
@@ -1568,18 +1585,39 @@ export function updateAvatarComparisonUI() {
 
 export function setNewSelectedAvatar(newUrl) {
   if (!newUrl) return;
-  accountState.selectedAvatarUrl = newUrl;
 
-  const isChanged = accountState.selectedAvatarUrl !== accountState.originalAvatarUrl;
-  markDirty('avatar', isChanged);
+  const isEqualToOriginal = areAvatarUrlsEqual(newUrl, accountState.originalAvatarUrl);
+
+  if (isEqualToOriginal) {
+    // Si ya estamos en el original y no está sucio, no hacer nada
+    if (!accountState.dirty.avatar) {
+      return;
+    }
+    // Si estaba modificado y vuelve a seleccionar el original, se cancela el cambio limpiamente
+    accountState.selectedAvatarUrl = accountState.originalAvatarUrl;
+    markDirty('avatar', false);
+    updateAvatarComparisonUI();
+    updateUndoButton();
+
+    document.querySelectorAll('.netflix-avatar-card').forEach(card => {
+      const cardPath = card.dataset.avatarPath;
+      const isSelected = areAvatarUrlsEqual(cardPath, accountState.originalAvatarUrl);
+      card.classList.toggle('is-selected', isSelected);
+    });
+    return;
+  }
+
+  // Es un avatar diferente al original
+  accountState.selectedAvatarUrl = newUrl;
+  markDirty('avatar', true);
 
   updateAvatarComparisonUI();
+  updateUndoButton();
 
   // Actualizar tarjeta seleccionada en el catálogo
   document.querySelectorAll('.netflix-avatar-card').forEach(card => {
     const cardPath = card.dataset.avatarPath;
-    const isSelected = cardPath === newUrl || 
-      resolvePublicAvatarUrl(cardPath) === resolvePublicAvatarUrl(newUrl);
+    const isSelected = areAvatarUrlsEqual(cardPath, newUrl);
     card.classList.toggle('is-selected', isSelected);
   });
 }
@@ -1661,9 +1699,19 @@ export function setupAvatarUrlConfirmModal() {
     testImg.src = trimmed;
   };
 
+  const formAvatarUrl = document.getElementById('formAvatarUrlDirect');
+  if (formAvatarUrl && formAvatarUrl.dataset.bound !== 'true') {
+    formAvatarUrl.dataset.bound = 'true';
+    formAvatarUrl.addEventListener('submit', (e) => {
+      e.preventDefault();
+      openModalWithUrl(urlInput?.value);
+    });
+  }
+
   if (btnApplyUrl && btnApplyUrl.dataset.bound !== 'true') {
     btnApplyUrl.dataset.bound = 'true';
-    btnApplyUrl.addEventListener('click', () => {
+    btnApplyUrl.addEventListener('click', (e) => {
+      e.preventDefault();
       openModalWithUrl(urlInput?.value);
     });
   }
@@ -1671,7 +1719,7 @@ export function setupAvatarUrlConfirmModal() {
   if (urlInput && urlInput.dataset.bound !== 'true') {
     urlInput.dataset.bound = 'true';
     urlInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
+      if (e.key === 'Enter' || e.keyCode === 13) {
         e.preventDefault();
         openModalWithUrl(urlInput.value);
       }
@@ -2059,22 +2107,169 @@ export function pushAddonsHistory() {
   updateUndoButton();
 }
 
+export function canAccountUndo() {
+  const currentSec = accountState.activeSection;
+
+  if (currentSec === 'avatars') {
+    return Boolean(accountState.dirty.avatar);
+  }
+  if (currentSec === 'settings') {
+    return Boolean(accountState.dirty.settings);
+  }
+  if (currentSec === 'addons') {
+    return Boolean((accountState.addonHistory && accountState.addonHistory.length > 0) || accountState.dirty.addons);
+  }
+  if (currentSec === 'aiometadata') {
+    return Boolean(accountState.dirty.aiometadata);
+  }
+
+  return Boolean(
+    accountState.dirty.avatar ||
+    accountState.dirty.settings ||
+    accountState.dirty.addons ||
+    accountState.dirty.aiometadata ||
+    (accountState.addonHistory && accountState.addonHistory.length > 0)
+  );
+}
+
 export function updateUndoButton() {
   const btn = document.getElementById('btnAccountUndo');
   const btnSection = document.getElementById('btnAccountUndoAddons');
-  const canUndo = (accountState.addonHistory || []).length > 0;
+  const canUndo = canAccountUndo();
 
-  [btn, btnSection].forEach(b => {
-    if (!b) return;
-    b.disabled = !canUndo;
+  if (btn) {
+    btn.disabled = !canUndo;
     if (canUndo) {
-      b.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-      b.classList.add('opacity-100', 'cursor-pointer');
+      btn.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      btn.classList.add('opacity-100', 'cursor-pointer');
     } else {
-      b.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-      b.classList.remove('opacity-100', 'cursor-pointer');
+      btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      btn.classList.remove('opacity-100', 'cursor-pointer');
     }
-  });
+  }
+
+  if (btnSection) {
+    const canUndoAddons = Boolean((accountState.addonHistory && accountState.addonHistory.length > 0) || accountState.dirty.addons);
+    btnSection.disabled = !canUndoAddons;
+    if (canUndoAddons) {
+      btnSection.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      btnSection.classList.add('opacity-100', 'cursor-pointer');
+    } else {
+      btnSection.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
+      btnSection.classList.remove('opacity-100', 'cursor-pointer');
+    }
+  }
+}
+
+export function performAccountUndo() {
+  const currentSec = accountState.activeSection;
+
+  // 1. Sección Avatares (o si solo avatar está sucio)
+  if (currentSec === 'avatars' || (accountState.dirty.avatar && !accountState.dirty.settings && !accountState.dirty.addons && !accountState.dirty.aiometadata)) {
+    if (accountState.dirty.avatar) {
+      accountState.selectedAvatarUrl = accountState.originalAvatarUrl;
+      markDirty('avatar', false);
+      updateAvatarComparisonUI();
+      document.querySelectorAll('.netflix-avatar-card').forEach(card => {
+        const cardPath = card.dataset.avatarPath;
+        const isSelected = areAvatarUrlsEqual(cardPath, accountState.originalAvatarUrl);
+        card.classList.toggle('is-selected', isSelected);
+      });
+      updateUndoButton();
+      updateSaveButton();
+      showToast('Avatar revertido al original.', 'info');
+      return;
+    }
+  }
+
+  // 2. Sección Ajustes (o solo settings está sucio)
+  if (currentSec === 'settings' || (accountState.dirty.settings && !accountState.dirty.avatar && !accountState.dirty.addons && !accountState.dirty.aiometadata)) {
+    if (accountState.dirty.settings) {
+      if (accountState.originalSettings) {
+        accountState.settings = JSON.parse(JSON.stringify(accountState.originalSettings));
+      }
+      markDirty('settings', false);
+      renderSettingsSection();
+      updateUndoButton();
+      updateSaveButton();
+      showToast('Ajustes revertidos a los valores por defecto.', 'info');
+      return;
+    }
+  }
+
+  // 3. Sección Addons
+  if (currentSec === 'addons' || (accountState.dirty.addons && !accountState.dirty.avatar && !accountState.dirty.settings && !accountState.dirty.aiometadata)) {
+    if (accountState.addonHistory && accountState.addonHistory.length > 0) {
+      undoAddonsChange();
+      return;
+    } else if (accountState.dirty.addons && accountState.originalInstalledAddons) {
+      accountState.installedAddons = JSON.parse(JSON.stringify(accountState.originalInstalledAddons));
+      markDirty('addons', false);
+      renderAddonsSection();
+      updateUndoButton();
+      updateSaveButton();
+      showToast('Addons restaurados a la lista original.', 'info');
+      return;
+    }
+  }
+
+  // 4. Sección AIOMetadata
+  if (currentSec === 'aiometadata' || (accountState.dirty.aiometadata && !accountState.dirty.avatar && !accountState.dirty.settings && !accountState.dirty.addons)) {
+    if (accountState.dirty.aiometadata) {
+      if (accountState.originalAioConfig) {
+        accountState.aioConfig = JSON.parse(JSON.stringify(accountState.originalAioConfig));
+      }
+      if (accountState.originalPosterEngine !== undefined) {
+        accountState.posterEngine = accountState.originalPosterEngine;
+      }
+      if (accountState.originalCustomPosterUrl !== undefined) {
+        accountState.customPosterUrl = accountState.originalCustomPosterUrl;
+      }
+      markDirty('aiometadata', false);
+      renderAioSection();
+      updateUndoButton();
+      updateSaveButton();
+      showToast('Configuración de AIOMetadata restaurada.', 'info');
+      return;
+    }
+  }
+
+  // 5. Fallback general: si estamos en overview u otra pestaña con cambios acumulados
+  if (accountState.dirty.avatar) {
+    accountState.selectedAvatarUrl = accountState.originalAvatarUrl;
+    markDirty('avatar', false);
+    updateAvatarComparisonUI();
+    document.querySelectorAll('.netflix-avatar-card').forEach(card => {
+      const cardPath = card.dataset.avatarPath;
+      const isSelected = areAvatarUrlsEqual(cardPath, accountState.originalAvatarUrl);
+      card.classList.toggle('is-selected', isSelected);
+    });
+  } else if (accountState.dirty.settings) {
+    if (accountState.originalSettings) {
+      accountState.settings = JSON.parse(JSON.stringify(accountState.originalSettings));
+    }
+    markDirty('settings', false);
+    renderSettingsSection();
+  } else if (accountState.addonHistory && accountState.addonHistory.length > 0) {
+    undoAddonsChange();
+    return;
+  } else if (accountState.dirty.addons && accountState.originalInstalledAddons) {
+    accountState.installedAddons = JSON.parse(JSON.stringify(accountState.originalInstalledAddons));
+    markDirty('addons', false);
+    renderAddonsSection();
+  } else if (accountState.dirty.aiometadata) {
+    if (accountState.originalAioConfig) {
+      accountState.aioConfig = JSON.parse(JSON.stringify(accountState.originalAioConfig));
+    }
+    accountState.posterEngine = accountState.originalPosterEngine || 'default';
+    accountState.customPosterUrl = accountState.originalCustomPosterUrl || '';
+    markDirty('aiometadata', false);
+    renderAioSection();
+  }
+
+  updateUndoButton();
+  updateSaveButton();
+  showToast('Cambios revertidos.', 'info');
 }
 
 export function undoAddonsChange() {
@@ -2086,6 +2281,7 @@ export function undoAddonsChange() {
   markDirty('addons', !isBackToOriginal);
 
   updateUndoButton();
+  updateSaveButton();
   renderAddonsSection();
   showToast('Cambio deshecho.', 'info');
 }
@@ -3611,7 +3807,16 @@ export function renderSettingsSection() {
     if (chkR) accountState.settings.ratings_enabled = chkR.checked;
     if (inTmdb) accountState.settings.tmdb_api_key = inTmdb.value.trim();
     if (inMdb) accountState.settings.mdblist_api_key = inMdb.value.trim();
-    markDirty('settings', true);
+
+    const orig = accountState.originalSettings || {};
+    const isDiff = Boolean(
+      Boolean(accountState.settings.enrichment_enabled) !== Boolean(orig.enrichment_enabled) ||
+      Boolean(accountState.settings.ratings_enabled) !== Boolean(orig.ratings_enabled) ||
+      (accountState.settings.tmdb_api_key || '') !== (orig.tmdb_api_key || '') ||
+      (accountState.settings.mdblist_api_key || '') !== (orig.mdblist_api_key || '')
+    );
+    markDirty('settings', isDiff);
+    updateUndoButton();
   };
 
   if (chkE) chkE.addEventListener('change', onSettingsChange);
@@ -3771,6 +3976,8 @@ export async function saveAllChanges() {
         }
       );
       accountState.originalAioConfig = JSON.parse(JSON.stringify(accountState.aioConfig));
+      accountState.originalPosterEngine = accountState.posterEngine;
+      accountState.originalCustomPosterUrl = cfg.customPosterUrlPattern || '';
       accountState.dirty.aiometadata = false;
       accountState.customPosterUrl = cfg.customPosterUrlPattern || '';
       renderAioSection();
@@ -3976,12 +4183,13 @@ export function switchSection(sectionId) {
   } else if (sectionId === 'addons') {
     renderAddonsSection();
     enrichInstalledAddonsManifests();
-    updateUndoButton();
   } else if (sectionId === 'aiometadata') {
     setupPasswordToggles();
   } else if (sectionId === 'settings') {
     setupPasswordToggles();
   }
+
+  updateUndoButton();
 }
 
 // ============================================================
@@ -4028,7 +4236,7 @@ export async function initAccountPage() {
   const btnUndo = document.getElementById('btnAccountUndo');
   if (btnUndo && !btnUndo.dataset.bound) {
     btnUndo.dataset.bound = 'true';
-    btnUndo.addEventListener('click', undoAddonsChange);
+    btnUndo.addEventListener('click', performAccountUndo);
   }
   updateUndoButton();
 
