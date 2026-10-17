@@ -2304,15 +2304,45 @@ header.lat-floating-nav nav {
 @media (max-width: 639px) {
   #avatarHeaderMainWrap.has-comparison {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     text-align: left;
-    gap: 1rem;
+    gap: 1.25rem;
     width: 100%;
   }
 
   #avatarHeaderMainWrap.has-comparison #avatarComparisonContainer {
-    justify-content: flex-start;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
+    gap: 0.75rem;
+  }
+
+  #avatarHeaderMainWrap.has-comparison #avatarComparisonContainer .group,
+  #avatarHeaderMainWrap.has-comparison #avatarComparisonContainer #avatarNewWrap {
+    position: relative;
+    flex: 1;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 135px;
+  }
+
+  #avatarHeaderMainWrap.has-comparison #avatarOriginalPreview,
+  #avatarHeaderMainWrap.has-comparison #avatarCurrentPreview {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1;
+    max-width: 130px;
+    max-height: 130px;
+    min-width: 90px;
+    min-height: 90px;
+  }
+
+  #avatarHeaderMainWrap.has-comparison #avatarTransitionArrow {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    padding: 0 0.25rem;
   }
 
   #avatarHeaderMainWrap.has-comparison #avatarHeaderTextWrap {
