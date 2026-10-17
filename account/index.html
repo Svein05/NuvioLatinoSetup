@@ -1036,19 +1036,9 @@
 
         <!-- VISTA 2: CONFIRMACIÓN EXPLICITA ANTES DE ENVIAR -->
         <div id="avatarSuggestionConfirmView" class="hidden space-y-4">
-          <div class="text-center space-y-2 py-2">
-            <div class="w-12 h-12 rounded-full bg-[#ffd479]/15 border border-[#ffd479]/30 flex items-center justify-center text-[#ffd479] text-xl mx-auto shadow-sm">
-              <i class="fa-solid fa-shield-check"></i>
-            </div>
-            <h4 class="text-base font-bold text-white">¿Esta es la imagen y datos que se enviarán?</h4>
-            <p class="text-xs text-white/60 max-w-sm mx-auto">
-              Confirma que la información sea correcta antes de enviarla al canal de Discord de Nuvio.
-            </p>
-          </div>
-
-          <!-- Tarjeta de Confirmación Estilo Embed -->
-          <div class="p-4 rounded-2xl bg-[#0e1118] border-l-4 border-l-[#ffd479] border-y border-r border-white/[0.08] shadow-md space-y-3">
-            <div class="flex items-center gap-3">
+          <!-- Tarjeta de Confirmación y Previsualización Arriba -->
+          <div class="p-4 rounded-2xl bg-[#0e1118] border border-white/[0.08] shadow-md space-y-3">
+            <div class="flex items-center gap-3.5">
               <img id="avatarConfirmFinalImg" src="" alt="Avatar Confirmación" class="w-16 h-16 rounded-full border border-white/20 object-cover bg-black/50 shrink-0">
               <div class="min-w-0">
                 <span class="text-[10px] text-[#ffd479] uppercase font-bold tracking-wider block">🎨 Sugerencia de la comunidad</span>
@@ -1058,8 +1048,15 @@
             </div>
             <div class="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-white/40">
               <span id="avatarConfirmFinalOrigin">Subida directa</span>
-              <span class="flex items-center gap-1 text-[#5865F2]"><i class="fa-brands fa-discord"></i> Discord Webhook</span>
             </div>
+          </div>
+
+          <!-- Mensaje de Confirmación Abajo -->
+          <div class="text-center space-y-1 py-1">
+            <h4 class="text-base font-bold text-white">¿Esta es la imagen y datos que se enviarán?</h4>
+            <p class="text-xs text-white/60 max-w-sm mx-auto">
+              Confirma que la información sea correcta antes de enviarla al canal de Discord de Nuvio.
+            </p>
           </div>
 
           <!-- Alerta de envío / Cooldown si existe -->
