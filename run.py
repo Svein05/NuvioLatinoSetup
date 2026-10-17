@@ -14,6 +14,7 @@ import sys
 import urllib.request
 import urllib.parse
 import urllib.error
+import json
 
 # Asegurar codificación UTF-8 en terminales Windows
 if hasattr(sys.stdout, 'reconfigure'):
@@ -26,6 +27,25 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 os.chdir(BASE_DIR)
 
 DEFAULT_PORT = 8080
+
+def sync_local_webhook_config():
+    """Sincroniza DISCORD_WEBHOOK_URL de .env a js/webhook-config.local.js (en .gitignore)"""
+    if not os.path.exists('.env'):
+        return
+    webhook_url = ""
+    try:
+        with open('.env', 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('DISCORD_WEBHOOK_URL='):
+                    webhook_url = line.split('=', 1)[1].strip().strip('\'"')
+                    break
+        if webhook_url:
+            os.makedirs('js', exist_ok=True)
+            with open('js/webhook-config.local.js', 'w', encoding='utf-8') as f:
+                f.write(f'export const LOCAL_WEBHOOK_CONFIG = {{\n  webhookUrl: "{webhook_url}"\n}};\n')
+    except Exception:
+        pass
 
 class NoCacheHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Manejador HTTP que deshabilita caché y provee proxy local para llamadas externas con CORS"""
@@ -41,6 +61,24 @@ class NoCacheHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(204)
         self.end_headers()
+
+    def do_GET(self):
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == '/api/env':
+            env_vars = {}
+            if os.path.exists('.env'):
+                with open('.env', 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            k, v = line.split('=', 1)
+                            env_vars[k.strip()] = v.strip().strip('\'"')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps(env_vars).encode('utf-8'))
+            return
+        super().do_GET()
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -96,6 +134,7 @@ def open_browser(port):
     webbrowser.open(url)
 
 def start_server():
+    sync_local_webhook_config()
     port = DEFAULT_PORT
     server = None
 

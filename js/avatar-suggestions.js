@@ -23,18 +23,56 @@ const suggestionState = {
   isSending: false
 };
 
+let cachedWebhookUrl = '';
+
 /**
  * Obtiene la URL del webhook disponible.
  * Prioriza la inyectada por GitHub Actions en producción.
- * Si está en local/dev, permite override opcional desde localStorage ('nuvio_dev_webhook_url').
+ * Si está en local/dev, lee desde:
+ * 1. js/webhook-config.local.js (sincronizado con .env y excluido en .gitignore)
+ * 2. localStorage ('nuvio_dev_webhook_url')
+ * 3. endpoint local /api/env (si corre vía python run.py)
  */
-function getWebhookUrl() {
-  const injected = INJECTED_WEBHOOK_CONFIG?.webhookUrl?.trim();
-  if (injected) return injected;
+async function getWebhookUrl() {
+  if (cachedWebhookUrl) return cachedWebhookUrl;
 
+  const injected = INJECTED_WEBHOOK_CONFIG?.webhookUrl?.trim();
+  if (injected) {
+    cachedWebhookUrl = injected;
+    return injected;
+  }
+
+  // 1. Cargar archivo local no versionado js/webhook-config.local.js (proveniente de .env)
+  try {
+    const localMod = await import('./webhook-config.local.js').catch(() => null);
+    if (localMod?.LOCAL_WEBHOOK_CONFIG?.webhookUrl?.trim()) {
+      cachedWebhookUrl = localMod.LOCAL_WEBHOOK_CONFIG.webhookUrl.trim();
+      return cachedWebhookUrl;
+    }
+  } catch (_) {}
+
+  // 2. localStorage
   try {
     const devUrl = localStorage.getItem('nuvio_dev_webhook_url')?.trim();
-    if (devUrl) return devUrl;
+    if (devUrl) {
+      cachedWebhookUrl = devUrl;
+      return devUrl;
+    }
+  } catch (_) {}
+
+  // 3. Endpoint /api/env si se ejecuta con run.py
+  try {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocal) {
+      const res = await fetch('/api/env').catch(() => null);
+      if (res?.ok) {
+        const data = await res.json().catch(() => null);
+        if (data?.DISCORD_WEBHOOK_URL) {
+          cachedWebhookUrl = data.DISCORD_WEBHOOK_URL.trim();
+          return cachedWebhookUrl;
+        }
+      }
+    }
   } catch (_) {}
 
   return '';
@@ -425,7 +463,7 @@ function proceedToConfirmation() {
 async function sendSuggestionToDiscord() {
   if (suggestionState.isSending) return;
 
-  const webhookUrl = getWebhookUrl();
+  const webhookUrl = await getWebhookUrl();
   const remainingCooldown = getRemainingCooldownSeconds();
 
   if (remainingCooldown > 0) {
@@ -571,6 +609,9 @@ async function sendSuggestionToDiscord() {
  * Inicializa todos los event listeners del módulo de sugerencias de avatares.
  */
 export function initAvatarSuggestionsUI() {
+  // Precargar webhook URL en segundo plano si está disponible (.env local o producción)
+  getWebhookUrl().catch(() => '');
+
   const triggers = document.querySelectorAll('.btn-open-avatar-suggestion, #btnOpenAvatarSuggestionModal');
   const btnClose = document.getElementById('btnCloseAvatarSuggestionModal');
   const btnCancel = document.getElementById('btnCancelAvatarSuggestion');
