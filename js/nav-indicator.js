@@ -95,44 +95,23 @@ export function initNavIndicator() {
   const header = document.querySelector('header.lat-floating-nav');
   const counterPills = header ? header.querySelectorAll('.completions-counter-pill') : [];
 
-  let trackingId = null;
-  function trackIndicatorTransition(duration = 340) {
-    if (trackingId) {
-      cancelAnimationFrame(trackingId);
-      trackingId = null;
-    }
-    const start = performance.now();
-
-    function step(now) {
-      const elapsed = now - start;
-      const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-      if (target) {
-        updateIndicator(target, false);
-      }
-      if (elapsed < duration) {
-        trackingId = requestAnimationFrame(step);
-      } else {
-        trackingId = null;
-        const finalTarget = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-        if (finalTarget) updateIndicator(finalTarget, false);
-        requestAnimationFrame(() => {
-          indicator.style.transition = 'all 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
-        });
-      }
-    }
-    trackingId = requestAnimationFrame(step);
+  // Coordinar expansión del contador con compresión de las pestañas sin forzar layout thrashing
+  function refreshIndicatorAfterNavResize() {
+    const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
+    if (target) updateIndicator(target, true);
   }
 
-  // Coordinar expansión del contador con compresión de las pestañas
   counterPills.forEach(pill => {
     pill.addEventListener('mouseenter', () => {
       if (header) header.classList.add('is-counter-expanded');
-      trackIndicatorTransition(340);
+      setTimeout(refreshIndicatorAfterNavResize, 60);
+      setTimeout(refreshIndicatorAfterNavResize, 340);
     });
 
     pill.addEventListener('mouseleave', () => {
       if (header) header.classList.remove('is-counter-expanded');
-      trackIndicatorTransition(340);
+      setTimeout(refreshIndicatorAfterNavResize, 60);
+      setTimeout(refreshIndicatorAfterNavResize, 340);
     });
   });
 
@@ -147,7 +126,8 @@ export function initNavIndicator() {
             } else if (!pill.matches(':hover')) {
               if (header) header.classList.remove('is-counter-expanded');
             }
-            trackIndicatorTransition(420);
+            setTimeout(refreshIndicatorAfterNavResize, 60);
+            setTimeout(refreshIndicatorAfterNavResize, 380);
           }
         }
       });
