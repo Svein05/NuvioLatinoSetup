@@ -2075,29 +2075,8 @@ header.lat-floating-nav nav {
 
 .netflix-avatar-card.is-selected .avatar-circle-wrap {
   border-color: #ffd479 !important;
-  box-shadow: 0 0 24px rgba(255, 212, 121, 0.5), inset 0 0 10px rgba(255, 212, 121, 0.2) !important;
-}
-
-.netflix-avatar-card .avatar-selected-badge {
-  display: none;
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 20px;
-  height: 20px;
-  border-radius: 9999px;
-  background: #ffd479;
-  color: #08090c;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6rem;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-  z-index: 10;
-}
-
-.netflix-avatar-card.is-selected .avatar-selected-badge {
-  display: flex;
+  box-shadow: 0 0 0 2px #ffd479, 0 0 24px rgba(255, 212, 121, 0.55), inset 0 0 12px rgba(255, 212, 121, 0.25) !important;
+  transform: scale(1.04);
 }
 
 .netflix-avatar-card .avatar-card-name-label {
