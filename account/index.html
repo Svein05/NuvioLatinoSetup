@@ -479,6 +479,25 @@
             <!-- Inyectado dinámicamente por js/account-manager.js -->
           </div>
 
+          <!-- Banner Inferior de Sugerencias de Avatares (Discord & Subida Directa) en la Vista General -->
+          <div class="border-t border-white/[0.08] pt-4 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] shadow-[var(--shadow-lift)]">
+            <div class="flex items-center gap-3 min-w-0 text-left">
+              <div class="w-10 h-10 rounded-full bg-[#5865F2]/15 border border-[#5865F2]/30 flex items-center justify-center text-lg text-[#5865F2] shrink-0">
+                <i class="fa-brands fa-discord"></i>
+              </div>
+              <div class="space-y-0.5">
+                <p class="text-xs sm:text-sm font-semibold text-white">¿Quieres sugerir o ayudar con imágenes png o iconos no png?</p>
+                <p class="text-xs text-white/60 leading-snug">
+                  Puedes enviarle un mensaje en discord al usuario <strong class="text-white font-medium inline-flex items-center gap-1.5"><i class="fa-brands fa-discord text-[#5865F2] text-xs"></i> svein._</strong> o en el siguiente botón:
+                </p>
+              </div>
+            </div>
+            <button type="button" class="btn-open-avatar-suggestion lat-capsule-btn solid text-xs sm:text-sm py-2.5 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099] flex items-center gap-2 shrink-0 shadow-[var(--shadow-lift)] transition-all cursor-pointer" title="Sugerir avatar para la colección">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Subir</span>
+            </button>
+          </div>
+
         </div>
 
         <!-- SECCIÓN 3: GESTOR DE ADDONS -->
@@ -832,6 +851,22 @@
       <!-- Grid de Avatares Scrolleable -->
       <div id="createProfileAvatarsCatalogContainer" class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-6">
         <!-- Renderizado dinámico -->
+      </div>
+
+      <!-- Banner Inferior de Sugerencias en Selector de Avatar para Crear Perfil -->
+      <div class="border-t border-white/[0.08] p-3 sm:p-4 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0 text-left">
+          <div class="w-8 h-8 rounded-full bg-[#5865F2]/15 border border-[#5865F2]/30 flex items-center justify-center text-sm text-[#5865F2] shrink-0">
+            <i class="fa-brands fa-discord"></i>
+          </div>
+          <p class="text-[11px] text-white/70 leading-snug">
+            ¿Quieres sugerir personajes? Escribe en discord a <strong class="text-white font-medium inline-flex items-center gap-1"><i class="fa-brands fa-discord text-[#5865F2] text-xs"></i> svein._</strong> o pulsa en:
+          </p>
+        </div>
+        <button type="button" class="btn-open-avatar-suggestion lat-capsule-btn solid text-xs py-1.5 px-3 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099] flex items-center gap-1.5 shrink-0 shadow-[var(--shadow-lift)] transition-all cursor-pointer" title="Sugerir avatar para la colección">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>Subir</span>
+        </button>
       </div>
     </div>
   </div>

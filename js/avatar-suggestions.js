@@ -552,24 +552,26 @@ async function sendSuggestionToDiscord() {
  * Inicializa todos los event listeners del módulo de sugerencias de avatares.
  */
 export function initAvatarSuggestionsUI() {
-  const btnTrigger = document.getElementById('btnOpenAvatarSuggestionModal');
+  const triggers = document.querySelectorAll('.btn-open-avatar-suggestion, #btnOpenAvatarSuggestionModal');
   const btnClose = document.getElementById('btnCloseAvatarSuggestionModal');
   const btnCancel = document.getElementById('btnCancelAvatarSuggestion');
   const modal = document.getElementById('modalAvatarSuggestion');
 
-  // Trigger para abrir el modal (desde el banner de franquicias)
-  if (btnTrigger && btnTrigger.dataset.bound !== 'true') {
-    btnTrigger.dataset.bound = 'true';
-    btnTrigger.addEventListener('click', () => {
-      // Si el modal de franquicias está abierto, cerrarlo suavemente
-      const modalFranchises = document.getElementById('modalAvatarFranchises');
-      if (modalFranchises) {
-        modalFranchises.classList.add('hidden');
-        modalFranchises.classList.remove('flex');
-      }
-      openAvatarSuggestionModal();
-    });
-  }
+  // Triggers para abrir el modal (desde cualquier vista o modal de avatares)
+  triggers.forEach(btn => {
+    if (btn && btn.dataset.bound !== 'true') {
+      btn.dataset.bound = 'true';
+      btn.addEventListener('click', () => {
+        // Si el modal de franquicias está abierto, cerrarlo suavemente
+        const modalFranchises = document.getElementById('modalAvatarFranchises');
+        if (modalFranchises) {
+          modalFranchises.classList.add('hidden');
+          modalFranchises.classList.remove('flex');
+        }
+        openAvatarSuggestionModal();
+      });
+    }
+  });
 
   // Botones de cierre
   [btnClose, btnCancel].forEach(btn => {
