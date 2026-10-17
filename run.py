@@ -47,6 +47,26 @@ def sync_local_webhook_config():
     except Exception:
         pass
 
+def sync_local_avatar_rank_config():
+    """Sincroniza UPSTASH_REDIS_REST_URL y TOKEN de .env a js/avatar-rank-config.local.js (en .gitignore)"""
+    if not os.path.exists('.env'):
+        return
+    url, token = "", ""
+    try:
+        with open('.env', 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('UPSTASH_REDIS_REST_URL='):
+                    url = line.split('=', 1)[1].strip().strip('\'"')
+                elif line.startswith('UPSTASH_REDIS_REST_TOKEN='):
+                    token = line.split('=', 1)[1].strip().strip('\'"')
+        if url and token:
+            os.makedirs('js', exist_ok=True)
+            with open('js/avatar-rank-config.local.js', 'w', encoding='utf-8') as f:
+                f.write(f'export const LOCAL_AVATAR_RANK_CONFIG = {{\n  url: "{url}",\n  token: "{token}"\n}};\n')
+    except Exception:
+        pass
+
 class NoCacheHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Manejador HTTP que deshabilita caché y provee proxy local para llamadas externas con CORS"""
     def end_headers(self):
@@ -135,6 +155,7 @@ def open_browser(port):
 
 def start_server():
     sync_local_webhook_config()
+    sync_local_avatar_rank_config()
     port = DEFAULT_PORT
     server = None
 

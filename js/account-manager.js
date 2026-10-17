@@ -19,6 +19,12 @@ import {
   loadAvatarsCatalog
 } from './avatars-data.js';
 import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
+import { 
+  BASELINE_TOP_AVATARS,
+  fetchTopAvatarKeys, 
+  recordAvatarUsage, 
+  normalizeAvatarStorageKey 
+} from './avatar-rank-client.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const SESSION_KEY = 'nuvio_account_session_v1';
@@ -34,6 +40,8 @@ export const accountState = {
   // Avatar del perfil seleccionado y filtros de catálogo
   selectedAvatarUrl: null,
   originalAvatarUrl: null,
+  mostUsedKeys: null,
+  _isLoadingMostUsed: false,
   avatarFilters: {
     style: 'all',
     franchise: 'all',
@@ -804,6 +812,53 @@ function updateCreateProfileFranchiseTriggerLabel() {
   if (count) count.textContent = cur?.count ?? 0;
 }
 
+/**
+ * Obtiene los avatares más usados para el bloque inicial (hasta 8 para 1 fila responsiva)
+ * Si hay un estilo seleccionado diferente a 'all', filtra o prioriza avatares de ese estilo.
+ */
+function getMostUsedAvatarItems(selectedStyle = 'all') {
+  const allAvatars = getCompiledAvatars();
+  if (!allAvatars || allAvatars.length === 0) return [];
+
+  const keys = (accountState.mostUsedKeys && accountState.mostUsedKeys.length > 0)
+    ? accountState.mostUsedKeys
+    : BASELINE_TOP_AVATARS;
+
+  const avatarMap = new Map();
+  for (const av of allAvatars) {
+    const norm = normalizeAvatarStorageKey(av.path);
+    if (norm && !avatarMap.has(norm)) {
+      avatarMap.set(norm, av);
+    }
+  }
+
+  const matched = [];
+  for (const key of keys) {
+    const normKey = normalizeAvatarStorageKey(key);
+    const item = avatarMap.get(normKey);
+    if (item) {
+      if (selectedStyle === 'all' || item.style === selectedStyle) {
+        if (!matched.some(m => m.path === item.path)) {
+          matched.push(item);
+        }
+      }
+    }
+  }
+
+  // Rellenar hasta 8 si quedan menos tras el filtro de estilo
+  if (matched.length < 8) {
+    for (const av of allAvatars) {
+      if (selectedStyle !== 'all' && av.style !== selectedStyle) continue;
+      if (!matched.some(m => m.path === av.path)) {
+        matched.push(av);
+        if (matched.length >= 8) break;
+      }
+    }
+  }
+
+  return matched.slice(0, 8);
+}
+
 export function renderCreateProfileAvatarsCatalog() {
   const container = document.getElementById('createProfileAvatarsCatalogContainer');
   if (!container) return;
@@ -866,6 +921,32 @@ export function renderCreateProfileAvatarsCatalog() {
     );
 
     let html = '';
+
+    // Colección especial inicial "Más usados": solo 1 fila responsiva (3 mobile, 4 sm, 6 md, 8 lg)
+    const mostUsedItems = getMostUsedAvatarItems('all');
+    if (mostUsedItems.length > 0) {
+      const mostUsedCardsHtml = mostUsedItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+        return renderCard(av, responsiveClass);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5" id="createProfileBlockMostUsedAvatars">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">Más usados</h4>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${mostUsedCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     for (const [fId, group] of sortedGroups) {
       const previewItems = group.items.slice(0, 8);
       const previewCardsHtml = previewItems.map((av, idx) => {
@@ -1121,6 +1202,9 @@ export function setupProfileModals() {
         });
 
         showToast('✓ Perfil creado con éxito.', 'success');
+        if (createProfileAvatarUrl) {
+          recordAvatarUsage(createProfileAvatarUrl).catch(() => null);
+        }
         closeCreateProfileModal();
 
         await fetchProfiles();
@@ -1796,6 +1880,19 @@ export function renderAvatarsSection() {
   setupFranchisesModal();
   renderAvatarStylePills();
   renderModalFranchisesList();
+
+  // Precargar ranking global de avatares más usados si aún no está disponible
+  if (!accountState.mostUsedKeys && !accountState._isLoadingMostUsed) {
+    accountState._isLoadingMostUsed = true;
+    fetchTopAvatarKeys(8).then(keys => {
+      accountState.mostUsedKeys = keys;
+      accountState._isLoadingMostUsed = false;
+      renderAvatarsCatalog();
+    }).catch(() => {
+      accountState._isLoadingMostUsed = false;
+    });
+  }
+
   renderAvatarsCatalog();
 }
 
@@ -2001,6 +2098,33 @@ function renderAvatarsCatalog() {
     );
 
     let html = '';
+
+    // Colección especial inicial "Más usados": exactamente 1 fila responsiva (3 mobile, 4 sm, 6 md, 8 lg)
+    // Sin botón "Abrir colección" ni contador, solo título "Más usados"
+    const mostUsedItems = getMostUsedAvatarItems(accountState.avatarFilters.style);
+    if (mostUsedItems.length > 0) {
+      const mostUsedCardsHtml = mostUsedItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+        return renderCard(av, responsiveClass);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5" id="blockMostUsedAvatars">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">Más usados</h4>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${mostUsedCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     for (const [fId, group] of sortedGroups) {
       // Previsualización adaptativa de 1 fila (3 en mobile, 4 en sm, 6 en md, 8 en lg)
       const previewItems = group.items.slice(0, 8);
@@ -3845,6 +3969,7 @@ export async function saveAllChanges() {
     // 0. Guardar Avatar de Perfil si cambió
     if (accountState.dirty.avatar && accountState.selectedAvatarUrl) {
       const avatarUrlToSave = resolvePublicAvatarUrl(accountState.selectedAvatarUrl);
+      recordAvatarUsage(accountState.selectedAvatarUrl).catch(() => null);
       await NuvioClient.updateProfileAvatar({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -4249,6 +4374,14 @@ export async function initAccountPage() {
 
   // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
   loadAvatarsCatalog().catch(() => null);
+
+  // Precargar ranking global de avatares más usados desde Upstash Redis
+  fetchTopAvatarKeys(8).then(keys => {
+    accountState.mostUsedKeys = keys;
+    if (accountState.activeSection === 'avatars') {
+      renderAvatarsCatalog();
+    }
+  }).catch(() => null);
 
   // Inicializar listeners del módulo de sugerencias de avatares (Discord)
   initAvatarSuggestionsUI();

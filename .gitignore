@@ -21,6 +21,7 @@ env/
 .env
 .env.*
 js/webhook-config.local.js
+js/avatar-rank-config.local.js
 
 # Local user scripts (not uploaded to GitHub)
 scripts/generate_github_preview.py
