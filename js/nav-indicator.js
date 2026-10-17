@@ -95,23 +95,54 @@ export function initNavIndicator() {
   const header = document.querySelector('header.lat-floating-nav');
   const counterPills = header ? header.querySelectorAll('.completions-counter-pill') : [];
 
-  // Coordinar expansión del contador con compresión de las pestañas sin forzar layout thrashing
-  function refreshIndicatorAfterNavResize() {
-    const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-    if (target) updateIndicator(target, true);
+  let trackingId = null;
+  function trackIndicatorTransition(duration = 340) {
+    if (trackingId) {
+      cancelAnimationFrame(trackingId);
+      trackingId = null;
+    }
+    const start = performance.now();
+
+    function step(now) {
+      const elapsed = now - start;
+      if (activeLink) {
+        updateIndicator(activeLink, false);
+      }
+      if (elapsed < duration) {
+        trackingId = requestAnimationFrame(step);
+      } else {
+        trackingId = null;
+        if (activeLink) updateIndicator(activeLink, false);
+        requestAnimationFrame(() => {
+          indicator.style.transition = 'all 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
+        });
+      }
+    }
+    trackingId = requestAnimationFrame(step);
+  }
+
+  function triggerNavContractTransition() {
+    links.forEach(l => {
+      l.classList.remove('is-hovered');
+      if (l === activeLink) {
+        l.classList.add('is-active');
+      } else {
+        l.classList.remove('is-active');
+      }
+    });
+    if (activeLink) updateIndicator(activeLink, false);
+    trackIndicatorTransition(340);
   }
 
   counterPills.forEach(pill => {
     pill.addEventListener('mouseenter', () => {
       if (header) header.classList.add('is-counter-expanded');
-      setTimeout(refreshIndicatorAfterNavResize, 60);
-      setTimeout(refreshIndicatorAfterNavResize, 340);
+      triggerNavContractTransition();
     });
 
     pill.addEventListener('mouseleave', () => {
       if (header) header.classList.remove('is-counter-expanded');
-      setTimeout(refreshIndicatorAfterNavResize, 60);
-      setTimeout(refreshIndicatorAfterNavResize, 340);
+      triggerNavContractTransition();
     });
   });
 
@@ -123,11 +154,11 @@ export function initNavIndicator() {
           if (m.type === 'attributes' && m.attributeName === 'class') {
             if (pill.classList.contains('is-celebrating')) {
               if (header) header.classList.add('is-counter-expanded');
+              triggerNavContractTransition();
             } else if (!pill.matches(':hover')) {
               if (header) header.classList.remove('is-counter-expanded');
+              triggerNavContractTransition();
             }
-            setTimeout(refreshIndicatorAfterNavResize, 60);
-            setTimeout(refreshIndicatorAfterNavResize, 380);
           }
         }
       });

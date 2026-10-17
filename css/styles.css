@@ -1335,6 +1335,7 @@ option, optgroup {
 /* Pestañas de la barra de navegación flotante LAT-ADD */
 header.lat-floating-nav nav {
   position: relative;
+  overflow: hidden;
   height: var(--lat-capsule-height-mobile, 42px);
   min-height: var(--lat-capsule-height-mobile, 42px);
   box-sizing: border-box;
