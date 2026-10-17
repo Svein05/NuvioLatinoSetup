@@ -478,6 +478,12 @@ option, optgroup {
   .lat-floating-nav:not(.force-compact) .lat-brand-badge {
     display: inline !important;
   }
+  .lat-floating-nav:not(.force-compact) nav {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
   .lat-floating-nav:not(.force-compact) .lat-desktop-nav-cluster {
     position: absolute;
     right: 1.25rem;
