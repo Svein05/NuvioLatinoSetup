@@ -96,7 +96,7 @@ export function initNavIndicator() {
   const counterPills = header ? header.querySelectorAll('.completions-counter-pill') : [];
 
   let trackingId = null;
-  function trackIndicatorTransition(duration = 420) {
+  function trackIndicatorTransition(duration = 340) {
     if (trackingId) {
       cancelAnimationFrame(trackingId);
       trackingId = null;
@@ -105,16 +105,14 @@ export function initNavIndicator() {
 
     function step(now) {
       const elapsed = now - start;
-      const target = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-      if (target) {
-        updateIndicator(target, false);
+      if (activeLink) {
+        updateIndicator(activeLink, false);
       }
       if (elapsed < duration) {
         trackingId = requestAnimationFrame(step);
       } else {
         trackingId = null;
-        const finalTarget = nav.querySelector('.lat-nav-tab.is-hovered') || activeLink;
-        if (finalTarget) updateIndicator(finalTarget, false);
+        if (activeLink) updateIndicator(activeLink, false);
         requestAnimationFrame(() => {
           indicator.style.transition = 'all 0.28s cubic-bezier(0.32, 0.72, 0, 1)';
         });
@@ -123,16 +121,28 @@ export function initNavIndicator() {
     trackingId = requestAnimationFrame(step);
   }
 
-  // Coordinar expansión del contador con compresión de las pestañas
+  function triggerNavContractTransition() {
+    links.forEach(l => {
+      l.classList.remove('is-hovered');
+      if (l === activeLink) {
+        l.classList.add('is-active');
+      } else {
+        l.classList.remove('is-active');
+      }
+    });
+    if (activeLink) updateIndicator(activeLink, false);
+    trackIndicatorTransition(340);
+  }
+
   counterPills.forEach(pill => {
     pill.addEventListener('mouseenter', () => {
       if (header) header.classList.add('is-counter-expanded');
-      trackIndicatorTransition(420);
+      triggerNavContractTransition();
     });
 
     pill.addEventListener('mouseleave', () => {
       if (header) header.classList.remove('is-counter-expanded');
-      trackIndicatorTransition(420);
+      triggerNavContractTransition();
     });
   });
 
@@ -144,10 +154,11 @@ export function initNavIndicator() {
           if (m.type === 'attributes' && m.attributeName === 'class') {
             if (pill.classList.contains('is-celebrating')) {
               if (header) header.classList.add('is-counter-expanded');
+              triggerNavContractTransition();
             } else if (!pill.matches(':hover')) {
               if (header) header.classList.remove('is-counter-expanded');
+              triggerNavContractTransition();
             }
-            trackIndicatorTransition(420);
           }
         }
       });

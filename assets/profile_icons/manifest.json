@@ -1,9 +1,16 @@
 {
-  "updatedAt": "2026-10-14T23:30:00Z",
+  "updatedAt": "2026-10-17T20:31:17.949Z",
   "styles": [
     {
       "style": "IconsStyle",
       "franchises": [
+        {
+          "franchise": "Black Clover",
+          "files": [
+            "Asta (Berserker).png",
+            "Asta (Unite).png"
+          ]
+        },
         {
           "franchise": "Naruto",
           "files": [
@@ -12,9 +19,33 @@
           ]
         },
         {
-          "franchise": "NarutoShippuden",
+          "franchise": "Naruto Shippuden",
           "files": [
             "NarutoShippuden_NarutoUzumaki.jpg"
+          ]
+        }
+      ]
+    },
+    {
+      "style": "MangaStyle",
+      "franchises": [
+        {
+          "franchise": "Black Clover",
+          "files": [
+            "Asta (Berserker).jpg",
+            "Asta (Berserker)2.jpg",
+            "Asta (Demon).jpg",
+            "Asta (Unite).jpg",
+            "Asta2.jpg",
+            "Asta3.jpg",
+            "Asta4.jpg",
+            "Noelle (Valkyrie).jpg",
+            "Noelle (Valkyrie)2.jpg",
+            "Noelle.jpg",
+            "Noelle2.jpg",
+            "Yuno (Elf).jpg",
+            "Yuno.jpg",
+            "Yuno2.jpg"
           ]
         }
       ]
@@ -23,7 +54,7 @@
       "style": "NetflixStyle",
       "franchises": [
         {
-          "franchise": "NarutoShippuden",
+          "franchise": "Naruto Shippuden",
           "files": [
             "NarutoShippuden_AnkoMitarashi.png",
             "NarutoShippuden_AsumaSarutobi.png",
@@ -60,7 +91,7 @@
           ]
         },
         {
-          "franchise": "OnePiece",
+          "franchise": "One Piece",
           "files": [
             "OnePiece_Brook.png",
             "OnePiece_Franky.png",
@@ -78,7 +109,38 @@
           ]
         },
         {
-          "franchise": "X-men97",
+          "franchise": "Soul Eater",
+          "files": [
+            "Blair (gato).jpeg",
+            "Blair.jpeg",
+            "Crona.jpeg",
+            "Death the Kid .jpeg",
+            "Eruka (rana).jpeg",
+            "Eruka.jpeg",
+            "Excalibur.jpeg",
+            "Franken Stein (1).jpeg",
+            "Franken Stein (2).jpeg",
+            "Jack the Ripper.jpeg",
+            "Liz Thompson.jpeg",
+            "Maka Albarn (1).jpeg",
+            "Maka Albarn (2).jpeg",
+            "Medusa Gorgon (1).jpeg",
+            "Medusa Gorgon (2).jpeg",
+            "Mizune (fusión 3 cuerpos).jpeg",
+            "Mizune (fusión 5 cuerpos).jpeg",
+            "Ox Ford.jpeg",
+            "Patricia Thompson.jpeg",
+            "Shinigami.jpeg",
+            "Sid Barrett (1).jpeg",
+            "Sid Barrett (2).jpeg",
+            "Soul Evans (1).jpeg",
+            "Soul Evans (2).jpeg",
+            "Spirit Albarn.jpeg",
+            "Tsubaki.jpeg"
+          ]
+        },
+        {
+          "franchise": "X-Men 97",
           "files": [
             "X-men97_Archangel.jpeg",
             "X-men97_Banshee.jpeg",
