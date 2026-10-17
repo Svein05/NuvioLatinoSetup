@@ -32,6 +32,7 @@ jobs:
           COUNTER_FALLBACK_GET: ${{ secrets.COUNTER_FALLBACK_GET }}
           COUNTER_FALLBACK_HIT: ${{ secrets.COUNTER_FALLBACK_HIT }}
           COUNTER_API_URL: ${{ secrets.COUNTER_API_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           node -e '
             const fs = require("fs");
@@ -62,6 +63,16 @@ jobs:
               fs.writeFileSync("js/counter-config.js", content, "utf8");
             } else {
               console.log("Sin secretos de contador definidos.");
+            }
+
+            const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+            if (webhookUrl) {
+              console.log("Inyectando configuración de Webhook de Discord para producción...");
+              const webhookCfg = { webhookUrl };
+              const webhookContent = "export const INJECTED_WEBHOOK_CONFIG = " + JSON.stringify(webhookCfg, null, 2) + ";\n";
+              fs.writeFileSync("js/webhook-config.js", webhookContent, "utf8");
+            } else {
+              console.log("Sin secreto DISCORD_WEBHOOK_URL definido.");
             }
           '
 
