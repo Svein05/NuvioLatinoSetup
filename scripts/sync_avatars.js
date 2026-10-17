@@ -61,58 +61,76 @@ function syncAvatars() {
 
   console.log(`[sync_avatars] Escaneados ${totalFiles} archivos en ${registry.length} grupos (${styles.length} estilos, ${foundFranchises.size} obras).`);
 
-  if (!fs.existsSync(TARGET_FILE)) {
-    console.error(`[sync_avatars] Archivo destino no encontrado: ${TARGET_FILE}`);
-    process.exit(1);
-  }
-
-  let content = fs.readFileSync(TARGET_FILE, 'utf-8');
-
-  // 1. Actualizar AVATAR_FRANCHISE_LABELS asegurando que todas las obras tengan label
-  const franchiseMatch = content.match(/export const AVATAR_FRANCHISE_LABELS = {([\s\S]*?)};/);
-  if (franchiseMatch) {
-    const existingLabels = {};
-    const lines = franchiseMatch[1].split('\n');
-    for (const line of lines) {
-      const m = line.match(/^\s*([A-Za-z0-9_]+)\s*:\s*['"](.*)['"]/);
-      if (m) {
-        existingLabels[m[1]] = m[2];
-      }
-    }
-
-    existingLabels['all'] = existingLabels['all'] || 'Todas las obras';
-    for (const f of foundFranchises) {
-      if (!existingLabels[f]) {
-        existingLabels[f] = f.replace(/([a-z])([A-Z])/g, '$1 $2').trim();
-      }
-    }
-
-    const sortedKeys = Object.keys(existingLabels).sort((a, b) => {
-      if (a === 'all') return -1;
-      if (b === 'all') return 1;
-      return a.localeCompare(b);
+  // Actualizar assets/profile_icons/manifest.json
+  const manifestPath = path.join(ICONS_DIR, 'manifest.json');
+  const manifestStyles = [];
+  for (const style of styles) {
+    const styleGroups = registry.filter(r => r.style === style);
+    manifestStyles.push({
+      style,
+      franchises: styleGroups.map(g => ({
+        franchise: g.franchise,
+        files: g.files
+      }))
     });
-
-    const newLabelsBlock = `export const AVATAR_FRANCHISE_LABELS = {\n` +
-      sortedKeys.map(k => `  ${k}: '${existingLabels[k]}'`).join(',\n') +
-      `\n};`;
-
-    content = content.replace(/export const AVATAR_FRANCHISE_LABELS = {[\s\S]*?};/, newLabelsBlock);
   }
+  const manifestData = {
+    updatedAt: new Date().toISOString(),
+    styles: manifestStyles
+  };
+  fs.writeFileSync(manifestPath, JSON.stringify(manifestData, null, 2), 'utf-8');
+  console.log(`[sync_avatars] ✓ ${manifestPath} actualizado.`);
 
-  // 2. Actualizar RAW_AVATAR_REGISTRY
-  const registryJsonFormatted = JSON.stringify(registry, null, 2)
-    .replace(/"style":/g, 'style:')
-    .replace(/"franchise":/g, 'franchise:')
-    .replace(/"files":/g, 'files:')
-    .replace(/"([^"]+)":/g, '$1:');
+  if (fs.existsSync(TARGET_FILE)) {
+    let content = fs.readFileSync(TARGET_FILE, 'utf-8');
 
-  const newRegistryBlock = `export const RAW_AVATAR_REGISTRY = ${registryJsonFormatted};`;
+    // 1. Actualizar AVATAR_FRANCHISE_LABELS si existe en TARGET_FILE
+    const franchiseMatch = content.match(/export const AVATAR_FRANCHISE_LABELS = {([\s\S]*?)};/);
+    if (franchiseMatch) {
+      const existingLabels = {};
+      const lines = franchiseMatch[1].split('\n');
+      for (const line of lines) {
+        const m = line.match(/^\s*([A-Za-z0-9_]+)\s*:\s*['"](.*)['"]/);
+        if (m) {
+          existingLabels[m[1]] = m[2];
+        }
+      }
 
-  content = content.replace(/export const RAW_AVATAR_REGISTRY = \[[\s\S]*?\];/, newRegistryBlock);
+      existingLabels['all'] = existingLabels['all'] || 'Todas las obras';
+      for (const f of foundFranchises) {
+        if (!existingLabels[f]) {
+          existingLabels[f] = f.replace(/([a-z])([A-Z])/g, '$1 $2').trim();
+        }
+      }
 
-  fs.writeFileSync(TARGET_FILE, content, 'utf-8');
-  console.log(`[sync_avatars] ✓ ${TARGET_FILE} sincronizado con éxito.`);
+      const sortedKeys = Object.keys(existingLabels).sort((a, b) => {
+        if (a === 'all') return -1;
+        if (b === 'all') return 1;
+        return a.localeCompare(b);
+      });
+
+      const newLabelsBlock = `export const AVATAR_FRANCHISE_LABELS = {\n` +
+        sortedKeys.map(k => `  ${k}: '${existingLabels[k]}'`).join(',\n') +
+        `\n};`;
+
+      content = content.replace(/export const AVATAR_FRANCHISE_LABELS = {[\s\S]*?};/, newLabelsBlock);
+    }
+
+    // 2. Actualizar RAW_AVATAR_REGISTRY si existe en TARGET_FILE
+    if (content.includes('export const RAW_AVATAR_REGISTRY =')) {
+      const registryJsonFormatted = JSON.stringify(registry, null, 2)
+        .replace(/"style":/g, 'style:')
+        .replace(/"franchise":/g, 'franchise:')
+        .replace(/"files":/g, 'files:')
+        .replace(/"([^"]+)":/g, '$1:');
+
+      const newRegistryBlock = `export const RAW_AVATAR_REGISTRY = ${registryJsonFormatted};`;
+      content = content.replace(/export const RAW_AVATAR_REGISTRY = \[[\s\S]*?\];/, newRegistryBlock);
+    }
+
+    fs.writeFileSync(TARGET_FILE, content, 'utf-8');
+    console.log(`[sync_avatars] ✓ ${TARGET_FILE} sincronizado con éxito.`);
+  }
 }
 
 syncAvatars();

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.6.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.6.0" /></a>
+  <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.7.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.7.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
   <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
@@ -66,7 +66,7 @@ La instalación estándar de catálogos masivos suele poblar la pantalla princip
 - **Gestor Visual de Addons:**
   - Reordenamiento visual (▲ / ▼), adición mediante enlaces manifest URL y eliminación selectiva de addons de streaming (AIOStreams, ADD-LAT, Torbox, Torrentio, CineTorrent) manteniendo AIOMetadata anclado en la cabecera.
 - **Pestaña y Gestor Integral de Cuenta y Perfil (/account):**
-  - Panel autónomo para administrar perfiles en vivo de Nuvio sin reiniciar el asistente: métricas de sincronización en tiempo real, catálogo de avatares estilo Netflix por franquicia/obra (One Piece, Naruto, Dragon Ball, X-Men '97, Soul Eater), gestor de addons con arrastre físico SortableJS FLIP y botón Deshacer (Undo) paso a paso, editor in-place de AIOMetadata vinculado y ajuste de credenciales TMDB/MDBList.
+  - Panel autónomo para administrar perfiles en vivo de Nuvio sin reiniciar el asistente: métricas de sincronización en tiempo real, catálogo de avatares estilo Netflix optimizado al 100% en WebP (-85% en peso), módulo comunitario de sugerencias de avatares con despacho automatizado vía Discord Webhook y previsualización interactiva, gestor de addons con arrastre físico SortableJS FLIP y botón Deshacer (Undo) paso a paso, editor in-place de AIOMetadata vinculado y ajuste de credenciales TMDB/MDBList.
 
 ---
 

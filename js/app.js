@@ -1445,9 +1445,6 @@ class AppController {
              title="${av.character} (${av.franchiseName})">
           <div class="avatar-circle-wrap">
             <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
-            <div class="avatar-selected-badge">
-              <i class="fa-solid fa-check"></i>
-            </div>
           </div>
           <span class="avatar-card-name-label">${av.character}</span>
         </div>

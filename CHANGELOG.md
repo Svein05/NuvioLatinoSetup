@@ -7,6 +7,32 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.7.0] - 2026-10-17
+
+### ✨ Añadido
+- **Módulo de Sugerencias Comunitarias de Avatares (Discord Webhook):**
+  - Sistema interactivo integrado en el panel de cuenta (`/account`), en el modal de catálogo por franquicia y en el selector de avatares para nuevos perfiles.
+  - Soporte dual de subida: carga directa de archivos de imagen desde el dispositivo (con soporte de arrastrar y soltar hasta 8 MB) o ingreso de enlace directo (URL web).
+  - Previsualización circular reactiva a escala real con actualización instantánea de metadatos (nombre del personaje y obra/franquicia).
+  - Modal de confirmación con previsualización destacada antes del envío definitivo.
+  - Despacho directo a canal privado de Discord mediante webhook oficial con Rich Embeds dorados (`#ffd479`), campos ordenados y visualización de imagen en tamaño completo.
+  - Persistencia inteligente de formulario (conservación de datos y modo URL tras cerrar el modal; purga segura en modo archivo por privacidad) y limitador de frecuencia (*rate limit*) para prevenir envíos accidentales consecutivos.
+  - Integración del pipeline de despliegue en GitHub Actions con inyección segura de secretos para producción.
+
+### ⚡ Rendimiento y Optimización
+- **Conversión Integral de Recursos a Formato WebP (-85% en peso):**
+  - Migración y recompresión de más de 145 activos gráficos (avatares oficiales, logotipos e iconografía) de JPEG y PNG hacia el formato moderno WebP de alta fidelidad con preservación del canal alfa y transparencias.
+  - Reducción masiva de más de 138 MB del tamaño del repositorio, acelerando significativamente los tiempos de carga, respuesta y consumo de datos en la web y dispositivos móviles.
+  - Actualización completa del catálogo de avatares (`manifest.json`) hacia las nuevas extensiones `.webp`.
+
+### 🔧 Modificado y Perfeccionado
+- **Estabilidad y Fluidez de la Barra de Navegación:**
+  - Sincronización mediante `requestAnimationFrame` del indicador flotante deslizante en la barra superior.
+  - Desacoplamiento de las cápsulas laterales de botones y contador para suprimir micro-oscilaciones (*jitter*) y saltos de layout durante el hover.
+  - Contención estricta de desbordamiento en el contenedor de navegación para una transición fluida y visualmente impecable.
+
+---
+
 ## [1.6.0] - 2026-10-15
 
 ### ✨ Añadido

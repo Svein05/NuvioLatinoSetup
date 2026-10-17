@@ -20,6 +20,7 @@ venv/
 env/
 .env
 .env.*
+js/webhook-config.local.js
 
 # Local user scripts (not uploaded to GitHub)
 scripts/generate_github_preview.py
