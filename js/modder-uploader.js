@@ -180,9 +180,9 @@ export async function verifyPassword(password, email = '') {
 // ============================================================
 
 export async function populateSelects(forceRefresh = false) {
-  await loadAvatarsCatalog(forceRefresh);
-  const styles = getStylesSummary() || [];
-  const franchises = getFranchisesSummary() || [];
+  const allStyles = getStylesSummary() || [];
+  const styles = allStyles.filter(s => s.id !== 'all');
+  const franchises = (getFranchisesSummary() || []).filter(f => f.id !== 'all');
 
   // 1. Selects del cargador por lote
   const styleSelect = document.getElementById('selectStyle');
@@ -190,9 +190,8 @@ export async function populateSelects(forceRefresh = false) {
 
   if (styleSelect) {
     styleSelect.innerHTML = `
-      <option value="">-- Selecciona un estilo existente --</option>
+      <option value="">-- Selecciona un estilo --</option>
       ${styles.map(s => `<option value="${s.id}">${s.name} (${s.count} avatares)</option>`).join('')}
-      <option value="__NEW__">➕ Crear nuevo estilo...</option>
     `;
   }
 
@@ -329,10 +328,6 @@ export function renderQueue() {
 }
 
 function getActiveStyleName() {
-  if (modderState.isNewStyle) {
-    const input = document.getElementById('inputNewStyle');
-    return input ? input.value.trim().replace(/[^a-zA-Z0-9_-]/g, '') : '';
-  }
   return modderState.selectedStyle;
 }
 

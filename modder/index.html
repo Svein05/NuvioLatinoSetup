@@ -110,7 +110,6 @@
               <select id="selectStyle" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
                 <option value="">Cargando estilos...</option>
               </select>
-              <input type="text" id="inputNewStyle" placeholder="Nombre del nuevo estilo (ej: MangaStyle)" class="lat-field w-full text-xs mt-2 hidden">
             </div>
 
             <div class="space-y-1.5 text-left">
@@ -363,28 +362,11 @@
       renderCatalogGrid();
     }
 
-    // Logout
-    if (btnLogout) {
-      btnLogout.addEventListener('click', () => {
-        clearModderSession();
-        location.reload();
-      });
-    }
-
     // Selección de Estilos y Franquicias en Uploader
     const selectStyle = document.getElementById('selectStyle');
-    const inputNewStyle = document.getElementById('inputNewStyle');
-    if (selectStyle && inputNewStyle) {
+    if (selectStyle) {
       selectStyle.addEventListener('change', () => {
-        if (selectStyle.value === '__NEW__') {
-          inputNewStyle.classList.remove('hidden');
-          inputNewStyle.focus();
-          modderState.isNewStyle = true;
-        } else {
-          inputNewStyle.classList.add('hidden');
-          modderState.isNewStyle = false;
-          modderState.selectedStyle = selectStyle.value;
-        }
+        modderState.selectedStyle = selectStyle.value;
         renderQueue();
       });
     }
