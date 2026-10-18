@@ -68,17 +68,38 @@
     <!-- Panel de Trabajo (Pestañas de Lote y Gestión) -->
     <div id="modderPanelView" class="w-full space-y-6">
       
-      <!-- Selector de Pestañas Principales -->
-      <div class="flex items-center gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-fit">
-        <button id="tabBtnUpload" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white">
-          <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
-          <span>Subir Nuevos (Lote)</span>
-        </button>
-        <button id="tabBtnManage" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white">
-          <i class="fa-solid fa-boxes-stacked"></i>
-          <span>Gestionar Existentes</span>
-          <span id="manageTotalBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/10 text-white/80">0</span>
-        </button>
+      <!-- Selector de Pestañas Principales + Botones de Acción Global (Deshacer / Guardar) -->
+      <!-- En móvil (flex-col-reverse): los botones de acción quedan arriba de las pestañas; en PC (sm:flex-row): pestañas a la izquierda y botones a la derecha -->
+      <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <!-- Pestañas Izquierda (En móvil abajo, en PC izquierda) -->
+        <div class="flex items-center gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-fit max-w-full overflow-x-auto">
+          <button id="tabBtnUpload" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+            <span>Subir Nuevos (Lote)</span>
+          </button>
+          <button id="tabBtnManage" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Gestionar Existentes</span>
+            <span id="manageTotalBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/10 text-white/80">0</span>
+          </button>
+        </div>
+
+        <!-- Botones de Acción Global: Deshacer y Guardar Cambios (En móvil arriba, en PC derecha) -->
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+          <!-- Botón Deshacer -->
+          <button id="btnUndoChange" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all" disabled title="Deshacer último cambio">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Deshacer</span>
+            <span id="undoCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/80 font-bold">0</span>
+          </button>
+
+          <!-- Botón Guardar Cambios -->
+          <button id="btnSaveAllChanges" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 flex items-center gap-2 font-semibold opacity-40 cursor-not-allowed shadow-lg transition-all" disabled title="Publicar todos los cambios acumulados en un solo commit">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Guardar Cambios</span>
+            <span id="stagedCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400 text-black font-bold">0</span>
+          </button>
+        </div>
       </div>
 
       <!-- ======================================================== -->
@@ -153,12 +174,12 @@
 
           <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div id="uploadStatusText" class="text-xs text-white/70 text-center sm:text-left flex-1">
-              Listo para crear el commit atómico en GitHub.
+              Añade este lote a la lista de cambios pendientes para guardarlo junto con tus otras ediciones.
             </div>
 
-            <button id="btnSubmitBatch" type="button" class="lat-capsule-btn solid px-6 py-2.5 font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-500/20">
-              <i class="fa-solid fa-code-commit"></i>
-              <span>Publicar Lote en GitHub (1 Commit)</span>
+            <button id="btnSubmitBatch" type="button" class="lat-capsule-btn solid px-6 py-2.5 font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-500/20" title="Añadir esta tanda a los cambios pendientes a guardar">
+              <i class="fa-solid fa-layer-group text-amber-300"></i>
+              <span>Añadir Lote a Cambios Pendientes</span>
             </button>
           </div>
         </div>
@@ -265,17 +286,18 @@
 
         <!-- Botones de Acción -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/10">
-          <button id="btnModalDelete" type="button" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
+          <button id="btnModalDelete" type="button" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer" title="Marcar este avatar para eliminar en los cambios pendientes">
             <i class="fa-solid fa-trash-can"></i>
-            <span>Eliminar del Repo</span>
+            <span>Marcar para Eliminar</span>
           </button>
 
           <div class="flex items-center gap-2 w-full sm:w-auto">
             <button id="btnModalCancel" type="button" class="lat-capsule-btn outline text-xs px-4 py-2 flex-1 sm:flex-none">
               Cancelar
             </button>
-            <button id="btnModalSave" type="button" class="lat-capsule-btn solid text-xs px-5 py-2 flex-1 sm:flex-none font-semibold">
-              Guardar Cambios
+            <button id="btnModalSave" type="button" class="lat-capsule-btn solid text-xs px-5 py-2 flex-1 sm:flex-none font-semibold flex items-center justify-center gap-1.5" title="Guardar edición en la lista de cambios pendientes">
+              <i class="fa-solid fa-check text-emerald-400"></i>
+              <span>Aplicar a Cambios Pendientes</span>
             </button>
           </div>
         </div>
@@ -289,17 +311,21 @@
   <script type="module">
     import { 
       modderState, 
+      stagedState,
       getModderSession, 
       clearModderSession, 
       populateSelects, 
       handleFiles, 
       renderQueue, 
-      submitBatchUpload,
+      stageBatchUpload,
       renderCatalogGrid,
       closeEditModal,
       handleReplacementImage,
-      submitAvatarUpdate,
-      submitAvatarDelete
+      stageAvatarUpdate,
+      stageAvatarDelete,
+      undoLastChange,
+      commitAllStagedChanges,
+      updateStagedUI
     } from '../js/modder-uploader.js';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
@@ -322,13 +348,13 @@
     function switchTab(tab) {
       modderState.activeTab = tab;
       if (tab === 'upload') {
-        tabBtnUpload.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white';
-        tabBtnManage.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white';
+        tabBtnUpload.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
+        tabBtnManage.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
         sectionUpload.classList.remove('hidden');
         sectionManage.classList.add('hidden');
       } else {
-        tabBtnManage.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white';
-        tabBtnUpload.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white';
+        tabBtnManage.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
+        tabBtnUpload.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
         sectionManage.classList.remove('hidden');
         sectionUpload.classList.add('hidden');
         renderCatalogGrid();
@@ -349,6 +375,7 @@
     async function init() {
       await populateSelects();
       renderCatalogGrid();
+      updateStagedUI();
     }
 
     // Selección de Estilos y Franquicias en Uploader
@@ -386,19 +413,31 @@
       });
     }
 
-    // Vaciar cola
+    // Vaciar cola temporal
     const btnClearQueue = document.getElementById('btnClearQueue');
     if (btnClearQueue) {
       btnClearQueue.addEventListener('click', () => {
         modderState.filesQueue = [];
         renderQueue();
+        updateStagedUI();
       });
     }
 
-    // Enviar lote
+    // Añadir tanda a cambios pendientes
     const btnSubmit = document.getElementById('btnSubmitBatch');
     if (btnSubmit) {
-      btnSubmit.addEventListener('click', submitBatchUpload);
+      btnSubmit.addEventListener('click', stageBatchUpload);
+    }
+
+    // Botones Globales: Deshacer y Guardar Cambios
+    const btnUndo = document.getElementById('btnUndoChange');
+    if (btnUndo) {
+      btnUndo.addEventListener('click', undoLastChange);
+    }
+
+    const btnSaveAll = document.getElementById('btnSaveAllChanges');
+    if (btnSaveAll) {
+      btnSaveAll.addEventListener('click', commitAllStagedChanges);
     }
 
     // Filtros de Catálogo Existente
@@ -451,10 +490,10 @@
     }
 
     const btnModalSave = document.getElementById('btnModalSave');
-    if (btnModalSave) btnModalSave.addEventListener('click', submitAvatarUpdate);
+    if (btnModalSave) btnModalSave.addEventListener('click', stageAvatarUpdate);
 
     const btnModalDelete = document.getElementById('btnModalDelete');
-    if (btnModalDelete) btnModalDelete.addEventListener('click', submitAvatarDelete);
+    if (btnModalDelete) btnModalDelete.addEventListener('click', stageAvatarDelete);
 
     init();
   </script>
