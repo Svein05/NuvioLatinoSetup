@@ -130,6 +130,29 @@ export default {
         const commitData = await commitRes.json();
         const baseTreeSha = commitData.tree.sha;
 
+        // Validación de unicidad de rutas en el lote recibido
+        const targetPaths = new Set();
+        for (const f of addedFiles) {
+          const lower = f.path.toLowerCase();
+          if (targetPaths.has(lower)) {
+            return new Response(JSON.stringify({ error: `Ruta duplicada detectada en el lote: ${f.path}` }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          targetPaths.add(lower);
+        }
+        for (const rf of renamedFiles) {
+          const lower = rf.newPath.toLowerCase();
+          if (targetPaths.has(lower)) {
+            return new Response(JSON.stringify({ error: `Conflicto de nombre: la ruta destino ya está asignada en el lote: ${rf.newPath}` }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+          targetPaths.add(lower);
+        }
+
         const treeEntries = [];
 
         // 3. Crear Blobs para archivos añadidos y reemplazados

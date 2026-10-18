@@ -475,11 +475,12 @@ export function renderQueue() {
   }
 
   if (queueSection) queueSection.classList.remove('hidden');
-  if (btnSubmit) btnSubmit.disabled = false;
   if (countBadge) countBadge.textContent = `${modderState.filesQueue.length}`;
 
   const currentFranchise = getActiveFranchiseName();
   const currentStyle = getActiveStyleName();
+
+  let hasAnyCollision = false;
 
   container.innerHTML = modderState.filesQueue.map((item, index) => {
     const savings = item.originalSize > 0 
@@ -492,9 +493,36 @@ export function renderQueue() {
     const rawCharName = (item.characterName || (item.fileName ? item.fileName.replace(/\.webp$/i, '') : 'avatar')).trim().replace(/\.webp$/i, '');
     const finalFilename = `${rawCharName}.webp`;
 
+    // 1. Verificar duplicados dentro de la misma cola
+    const duplicateInQueue = modderState.filesQueue.some((other, oIdx) => {
+      if (oIdx === index) return false;
+      const otherRaw = (other.characterName || (other.fileName ? other.fileName.replace(/\.webp$/i, '') : 'avatar')).trim().replace(/\.webp$/i, '');
+      return otherRaw.toLowerCase() === rawCharName.toLowerCase();
+    });
+
+    // 2. Verificar colisión en la carpeta destino exacta (style + franchise)
+    const folderCollision = (currentStyle && currentFranchise)
+      ? checkAvatarFilenameCollision(currentStyle, currentFranchise, finalFilename)
+      : { hasCollision: false };
+
+    let collisionError = null;
+    if (duplicateInQueue) {
+      collisionError = 'Nombre repetido en esta cola';
+    } else if (folderCollision.hasCollision) {
+      collisionError = `Ya existe en ${currentStyle}/${currentFranchise}`;
+    }
+
+    if (collisionError) {
+      hasAnyCollision = true;
+    }
+
+    const conflictBadge = collisionError
+      ? `<span class="text-[10px] text-rose-300 font-mono bg-rose-500/20 px-1.5 py-0.5 rounded border border-rose-500/30 flex items-center gap-1 font-semibold shrink-0" title="${collisionError}"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> ${collisionError}</span>`
+      : '';
+
     return `
-      <div class="lat-card p-3 sm:p-4 flex flex-row items-start sm:items-center gap-3 sm:gap-4 relative group" data-queue-id="${item.id}">
-        <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
+      <div class="lat-card p-3 sm:p-4 flex flex-row items-start sm:items-center gap-3 sm:gap-4 relative group ${collisionError ? 'border-rose-500/50 bg-rose-950/10' : ''}" data-queue-id="${item.id}">
+        <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden bg-white/5 border ${collisionError ? 'border-rose-500/50' : 'border-white/10'} flex items-center justify-center">
           <img src="${item.previewUrl}" alt="${finalFilename}" class="w-full h-full object-cover">
         </div>
 
@@ -503,7 +531,8 @@ export function renderQueue() {
             <span class="text-[11px] sm:text-xs text-white/50 truncate max-w-[130px] sm:max-w-[200px]" title="${item.originalName}">
               Original: ${item.originalName}
             </span>
-            <div class="flex items-center gap-1.5 shrink-0">
+            <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
+              ${conflictBadge}
               <span class="text-[10px] sm:text-[11px] font-mono text-white/60">
                 ${formatBytes(item.originalSize)} ➔ <strong class="text-emerald-400">${formatBytes(item.webpSize)}</strong>
               </span>
@@ -516,7 +545,7 @@ export function renderQueue() {
             <div class="flex items-center gap-1 flex-1 min-w-0">
               <input type="text" 
                      value="${rawCharName}" 
-                     class="lat-field text-xs py-1 px-2 flex-1 min-w-0 font-mono input-character-name" 
+                     class="lat-field text-xs py-1 px-2 flex-1 min-w-0 font-mono input-character-name ${collisionError ? 'border-rose-500/80 bg-rose-950/20 text-rose-200' : ''}" 
                      data-index="${index}"
                      placeholder="ej: Asta_Demon">
               <span class="text-[10px] sm:text-xs font-mono text-white/40 shrink-0 px-2 py-1 bg-white/[0.05] border border-white/10 rounded-lg">.webp</span>
@@ -538,6 +567,18 @@ export function renderQueue() {
     `;
   }).join('');
 
+  if (btnSubmit) {
+    if (hasAnyCollision) {
+      btnSubmit.disabled = true;
+      btnSubmit.classList.add('opacity-40', 'cursor-not-allowed');
+      btnSubmit.title = 'Corrige los nombres duplicados antes de añadir el lote';
+    } else {
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-40', 'cursor-not-allowed');
+      btnSubmit.title = 'Añadir lote a cambios pendientes';
+    }
+  }
+
   container.querySelectorAll('.input-character-name').forEach(input => {
     input.addEventListener('input', (e) => {
       const idx = parseInt(e.target.dataset.index, 10);
@@ -552,6 +593,10 @@ export function renderQueue() {
           destSpan.textContent = `profile_icons/${getActiveStyleName() || 'Estilo'}/${getActiveFranchiseName() || 'Obra'}/${cleanFileName}`;
         }
       }
+    });
+
+    input.addEventListener('change', () => {
+      renderQueue();
     });
   });
 
@@ -635,6 +680,36 @@ export function stageBatchUpload() {
   if (modderState.filesQueue.length === 0) {
     alert('No hay imágenes en la cola para añadir.');
     return;
+  }
+
+  // Validación exhaustiva de colisiones antes de encolar en cambios pendientes
+  for (let i = 0; i < modderState.filesQueue.length; i++) {
+    const item = modderState.filesQueue[i];
+    const rawCharName = (item.characterName || (item.fileName ? item.fileName.replace(/\.webp$/i, '') : 'avatar')).trim().replace(/\.webp$/i, '');
+    if (!rawCharName) {
+      alert(`El archivo #${i + 1} (${item.originalName}) no tiene un nombre válido.`);
+      return;
+    }
+    const finalFilename = `${rawCharName}.webp`;
+
+    const duplicateInQueue = modderState.filesQueue.some((other, oIdx) => {
+      if (oIdx === i) return false;
+      const otherRaw = (other.characterName || (other.fileName ? other.fileName.replace(/\.webp$/i, '') : 'avatar')).trim().replace(/\.webp$/i, '');
+      return otherRaw.toLowerCase() === rawCharName.toLowerCase();
+    });
+
+    if (duplicateInQueue) {
+      showModderToast(`Conflicto de nombre: hay varios archivos en la cola llamados "${finalFilename}".`, 'error');
+      alert(`Conflicto de nombre: hay varios archivos en la cola con el nombre "${finalFilename}". Cambia el nombre de alguno antes de añadir.`);
+      return;
+    }
+
+    const collision = checkAvatarFilenameCollision(style, franchise, finalFilename);
+    if (collision.hasCollision) {
+      showModderToast(`Ya existe un archivo llamado "${collision.conflictingFileName}" en "${style}/${franchise}".`, 'error');
+      alert(`Conflicto de nombre: ya existe un archivo llamado "${collision.conflictingFileName}" en la carpeta "${style}/${franchise}". Cambia el nombre para continuar.`);
+      return;
+    }
   }
 
   const filesPayload = modderState.filesQueue.map(item => {
@@ -1112,6 +1187,71 @@ export function renderCatalogGrid() {
 }
 
 // ============================================================
+// VALIDACIÓN Y PREVENCIÓN DE DUPLICADOS EN LA MISMA CARPETA
+// ============================================================
+
+/**
+ * Verifica si ya existe un archivo con el mismo nombre dentro de la misma carpeta (mismo estilo y misma obra).
+ * Permite usar el mismo nombre en estilos u obras diferentes (ej: Asta en MangaStyle y Asta en IconsStyle es válido).
+ *
+ * @param {string} style - Estilo de avatar (ej: MangaStyle)
+ * @param {string} franchise - Franquicia u obra (ej: Black Clover)
+ * @param {string} targetFilename - Nombre de archivo candidato (ej: Asta.webp o Asta)
+ * @param {string|null} excludeAvatarId - ID del avatar actual para excluirlo de la colisión consigo mismo
+ * @returns {{ hasCollision: boolean, conflictingFileName?: string, isStagedBatch?: boolean }}
+ */
+export function checkAvatarFilenameCollision(style, franchise, targetFilename, excludeAvatarId = null) {
+  if (!targetFilename || !style || !franchise) return { hasCollision: false };
+
+  let cleanTarget = targetFilename.trim().toLowerCase();
+  if (!cleanTarget.endsWith('.webp')) {
+    cleanTarget = `${cleanTarget}.webp`;
+  }
+
+  // 1. Validar contra el catálogo en memoria (filtrando estrictamente por style + franchise)
+  const allAvatars = getCompiledAvatars();
+  for (const av of allAvatars) {
+    if (excludeAvatarId && av.id === excludeAvatarId) continue;
+    // Si no está en la misma carpeta exacta (mismo estilo y misma obra), no colisiona
+    if (av.style !== style || av.franchise !== franchise) continue;
+
+    const override = stagedState.avatarOverrides.get(av.id);
+    // Si el avatar original fue marcado para eliminar en staging, su nombre queda libre
+    if (override?.isDeleted) continue;
+
+    const currentName = (override?.newFilename || av.fileName).trim().toLowerCase();
+    const normalizedCurrent = currentName.endsWith('.webp') ? currentName : `${currentName}.webp`;
+
+    if (normalizedCurrent === cleanTarget) {
+      return {
+        hasCollision: true,
+        conflictingFileName: override?.newFilename || av.fileName,
+        isStagedBatch: false
+      };
+    }
+  }
+
+  // 2. Validar contra archivos pendientes en lotes de subida para esa misma carpeta exacta
+  for (const action of stagedState.history) {
+    if (action.type === 'BATCH_UPLOAD' && action.style === style && action.franchise === franchise) {
+      for (const f of action.files) {
+        const stagedName = f.filename.trim().toLowerCase();
+        const normalizedStaged = stagedName.endsWith('.webp') ? stagedName : `${stagedName}.webp`;
+        if (normalizedStaged === cleanTarget) {
+          return {
+            hasCollision: true,
+            conflictingFileName: f.filename,
+            isStagedBatch: true
+          };
+        }
+      }
+    }
+  }
+
+  return { hasCollision: false };
+}
+
+// ============================================================
 // MODAL DE EDICIÓN, REEMPLAZO Y BORRADO (STAGING)
 // ============================================================
 
@@ -1127,6 +1267,7 @@ export function openEditModal(avatar) {
   const modalInfoPath = document.getElementById('modalInfoPath');
   const replacementPreview = document.getElementById('modalReplacementPreview');
   const modalStatus = document.getElementById('modalEditStatus');
+  const btnSave = document.getElementById('btnModalSave');
 
   if (!modal) return;
 
@@ -1136,24 +1277,82 @@ export function openEditModal(avatar) {
   const activeImgUrl = currentOverride?.previewImgUrl || resolveAvatarCdnUrl(avatar.path);
 
   if (imgPreview) imgPreview.src = activeImgUrl;
-  if (modalCharInput) modalCharInput.value = activeCharName;
+  if (modalCharInput) {
+    modalCharInput.value = activeCharName;
+    modalCharInput.classList.remove('border-rose-500/80');
+  }
   if (modalInfoStyle) modalInfoStyle.textContent = avatar.style;
   if (modalInfoFranchise) modalInfoFranchise.textContent = avatar.franchise;
   if (modalInfoPath) modalInfoPath.textContent = avatar.path;
   if (replacementPreview) replacementPreview.classList.add('hidden');
 
-  if (modalStatus) {
-    if (currentOverride?.isModified) {
-      modalStatus.innerHTML = '<span class="text-amber-300 font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Este archivo ya tiene cambios pendientes. Puedes seguir editándolo.</span>';
-    } else {
-      modalStatus.innerHTML = '';
+  // Validación reactiva en tiempo real mientras el usuario escribe
+  const validateModalInput = () => {
+    const rawVal = (modalCharInput?.value || '').trim().replace(/\.webp$/i, '');
+    const candidateFilename = rawVal ? `${rawVal}.webp` : '';
+
+    if (!rawVal) {
+      if (modalStatus) modalStatus.innerHTML = '<span class="text-rose-400 font-medium">El nombre no puede estar vacío.</span>';
+      if (btnSave) {
+        btnSave.disabled = true;
+        btnSave.classList.add('opacity-40', 'cursor-not-allowed');
+      }
+      return false;
     }
+
+    // Verificar colisión estricta en la misma carpeta (style + franchise)
+    const collision = checkAvatarFilenameCollision(avatar.style, avatar.franchise, candidateFilename, avatar.id);
+    if (collision.hasCollision) {
+      if (modalStatus) {
+        modalStatus.innerHTML = `<span class="text-rose-400 font-medium flex items-center justify-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Ya existe un archivo llamado "${collision.conflictingFileName}" en esta carpeta (${avatar.style}/${avatar.franchise}). Elige otro nombre.</span>`;
+      }
+      if (modalCharInput) {
+        modalCharInput.classList.add('border-rose-500/80');
+      }
+      if (btnSave) {
+        btnSave.disabled = true;
+        btnSave.classList.add('opacity-40', 'cursor-not-allowed');
+      }
+      return false;
+    }
+
+    // Sin conflicto: habilitar guardado
+    if (modalCharInput) {
+      modalCharInput.classList.remove('border-rose-500/80');
+    }
+    if (btnSave) {
+      btnSave.disabled = false;
+      btnSave.classList.remove('opacity-40', 'cursor-not-allowed');
+    }
+    if (modalStatus) {
+      if (currentOverride?.isModified) {
+        modalStatus.innerHTML = '<span class="text-amber-300 font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Este archivo ya tiene cambios pendientes. Puedes seguir editándolo.</span>';
+      } else {
+        modalStatus.innerHTML = '';
+      }
+    }
+    return true;
+  };
+
+  if (modalCharInput) {
+    modalCharInput.oninput = validateModalInput;
   }
+  validateModalInput();
 
   modal.classList.remove('hidden');
 }
 
 export function closeEditModal() {
+  const modalCharInput = document.getElementById('modalCharacterInput');
+  const btnSave = document.getElementById('btnModalSave');
+  if (modalCharInput) {
+    modalCharInput.oninput = null;
+    modalCharInput.classList.remove('border-rose-500/80');
+  }
+  if (btnSave) {
+    btnSave.disabled = false;
+    btnSave.classList.remove('opacity-40', 'cursor-not-allowed');
+  }
   modderState.selectedAvatarForEdit = null;
   modderState.editReplacementWebp = null;
   const modal = document.getElementById('editAvatarModal');
@@ -1204,6 +1403,17 @@ export function stageAvatarUpdate() {
 
   if (!hasNameChange && !hasImageChange) {
     closeEditModal();
+    return;
+  }
+
+  // Comprobar colisión antes de registrar
+  const collision = checkAvatarFilenameCollision(avatar.style, avatar.franchise, newFilename, avatar.id);
+  if (collision.hasCollision) {
+    showModderToast(`Ya existe un archivo llamado "${collision.conflictingFileName}" en "${avatar.style}/${avatar.franchise}".`, 'error');
+    const modalStatus = document.getElementById('modalEditStatus');
+    if (modalStatus) {
+      modalStatus.innerHTML = `<span class="text-rose-400 font-medium flex items-center justify-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Ya existe un archivo llamado "${collision.conflictingFileName}" en esta carpeta (${avatar.style}/${avatar.franchise}). Elige otro nombre.</span>`;
+    }
     return;
   }
 
