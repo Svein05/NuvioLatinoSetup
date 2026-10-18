@@ -450,7 +450,7 @@ export function renderQueue() {
           </div>
 
           <div class="text-[10px] font-mono text-white/40 truncate">
-            Destino: <span class="text-amber-300/80">assets/profile_icons/${currentStyle || 'Estilo'}/${currentFranchise || 'Obra'}/${finalFilename}</span>
+            Destino: <span class="text-amber-300/80 font-mono queue-destination-path" data-index="${index}">profile_icons/${currentStyle || 'Estilo'}/${currentFranchise || 'Obra'}/${finalFilename}</span>
           </div>
         </div>
 
@@ -471,6 +471,14 @@ export function renderQueue() {
         let val = e.target.value.trim();
         modderState.filesQueue[idx].fileName = val;
         modderState.filesQueue[idx].characterName = val.replace(/\.webp$/i, '');
+
+        let displayFn = val || 'avatar.webp';
+        if (!displayFn.toLowerCase().endsWith('.webp')) displayFn += '.webp';
+
+        const destSpan = container.querySelector(`.queue-destination-path[data-index="${idx}"]`);
+        if (destSpan) {
+          destSpan.textContent = `profile_icons/${getActiveStyleName() || 'Estilo'}/${getActiveFranchiseName() || 'Obra'}/${displayFn}`;
+        }
       }
     });
   });
