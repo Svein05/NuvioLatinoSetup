@@ -1530,6 +1530,7 @@ export async function executePublishStagedChanges() {
     const payload = {
       password: token,
       email: modderState.email || session?.email || '',
+      skipCi: true,
       addedFiles: ops.addedFiles.map(f => ({ path: f.path, base64: f.base64 })),
       replacedFiles: ops.replacedFiles.map(f => ({ path: f.path, base64: f.base64 })),
       renamedFiles: ops.renamedFiles.map(f => ({ oldPath: f.oldPath, newPath: f.newPath, newBase64: f.newBase64 })),

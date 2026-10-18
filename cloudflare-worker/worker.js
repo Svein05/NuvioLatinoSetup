@@ -85,7 +85,7 @@ export default {
     // ========================================================
     if (url.pathname === '/api/save-staged-changes' && request.method === 'POST') {
       try {
-        const { password, email, addedFiles = [], replacedFiles = [], renamedFiles = [], deletedFiles = [] } = await request.json();
+        const { password, email, skipCi = true, customCommitMessage = '', addedFiles = [], replacedFiles = [], renamedFiles = [], deletedFiles = [] } = await request.json();
 
         const role = checkAuth(password, email);
         if (!role) {
@@ -232,7 +232,9 @@ export default {
 
         // 7. Crear el commit atómico
         const totalOps = treeEntries.length;
-        const commitMsg = `feat(avatars): save modder changes (${totalOps} files staged)`;
+        const baseMsg = customCommitMessage ? customCommitMessage.trim() : `feat(avatars): save modder changes (${totalOps} files staged)`;
+        const ciSuffix = skipCi ? ' [skip ci]' : '';
+        const commitMsg = `${baseMsg}${ciSuffix}`;
         const createCommitRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/git/commits`, {
           method: 'POST',
           headers: { ...ghHeaders, 'Content-Type': 'application/json' },
