@@ -1,13 +1,18 @@
 /**
- * Modder Assets Uploader - Nuvio Latino
- * Gestión de subida por lote con conversión universal a WebP y commit atómico en GitHub.
+ * Modder Assets Uploader & Catalog Manager - Nuvio Latino
+ * Gestión integral para colaboradores:
+ * 1. Subida por lote con conversión universal a WebP y commit atómico en GitHub.
+ * 2. Exploración, previsualización, edición, reemplazo y borrado de assets existentes.
  */
 
 import { CONFIG } from './config.js';
 import { 
   loadAvatarsCatalog, 
+  getCompiledAvatars,
   getStylesSummary, 
   getFranchisesSummary,
+  filterAvatars,
+  resolveAvatarCdnUrl,
   formatStyleName,
   formatFranchiseName,
   formatCharacterName
@@ -15,17 +20,29 @@ import {
 
 const MODDER_SESSION_KEY = 'nuvio_modder_session';
 
-// Estado reactivo local del uploader
+// Estado reactivo local del uploader y gestor
 export const modderState = {
   token: null,
+  activeTab: 'upload', // 'upload' | 'manage'
+  
+  // Estado del uploader por lote
   selectedStyle: '',
   selectedFranchise: '',
   isNewStyle: false,
   isNewFranchise: false,
-  filesQueue: [], // Array de { id, originalFile, webpBlob, base64, originalSize, webpSize, previewUrl, characterName }
+  filesQueue: [],
   isConverting: false,
   isUploading: false,
-  uploadProgress: ''
+  uploadProgress: '',
+
+  // Estado del gestor de catálogo existente
+  catalogFilters: {
+    style: 'all',
+    franchise: 'all',
+    query: ''
+  },
+  selectedAvatarForEdit: null,
+  editReplacementWebp: null // { blob, base64, previewUrl, size }
 };
 
 // ============================================================
@@ -66,7 +83,7 @@ export async function convertToWebp(file, quality = 0.90) {
         canvas.height = height;
         const ctx = canvas.getContext('2d');
 
-        // Limpiar fondo
+        // Fondo transparente limpio
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
 
@@ -104,7 +121,6 @@ export async function convertToWebp(file, quality = 0.90) {
   });
 }
 
-// Formatear bytes a KB / MB
 export function formatBytes(bytes, decimals = 1) {
   if (!+bytes) return '0 B';
   const k = 1024;
@@ -115,7 +131,7 @@ export function formatBytes(bytes, decimals = 1) {
 }
 
 // ============================================================
-// GESTIÓN DE SESIÓN Y AUTENTICACIÓN MODDER
+// GESTIÓN DE SESIÓN Y AUTENTICACIÓN
 // ============================================================
 
 export function getModderSession() {
@@ -157,14 +173,15 @@ export async function verifyPassword(password) {
 }
 
 // ============================================================
-// CARGA DE METADATOS Y CATÁLOGO EXISTENTE
+// POBLADO DE SELECTS Y FILTROS
 // ============================================================
 
-export async function populateSelects() {
-  await loadAvatarsCatalog();
+export async function populateSelects(forceRefresh = false) {
+  await loadAvatarsCatalog(forceRefresh);
   const styles = getStylesSummary() || [];
   const franchises = getFranchisesSummary() || [];
 
+  // 1. Selects del cargador por lote
   const styleSelect = document.getElementById('selectStyle');
   const franchiseSelect = document.getElementById('selectFranchise');
 
@@ -183,10 +200,37 @@ export async function populateSelects() {
       <option value="__NEW__">➕ Crear nueva franquicia...</option>
     `;
   }
+
+  // 2. Selects del explorador de catálogo existente
+  const manageStyleSelect = document.getElementById('manageStyleSelect');
+  const manageFranchiseSelect = document.getElementById('manageFranchiseSelect');
+
+  if (manageStyleSelect) {
+    manageStyleSelect.innerHTML = styles.map(s => `
+      <option value="${s.id}" ${modderState.catalogFilters.style === s.id ? 'selected' : ''}>
+        ${s.name} (${s.count})
+      </option>
+    `).join('');
+  }
+
+  if (manageFranchiseSelect) {
+    const franchisesFiltered = getFranchisesSummary(modderState.catalogFilters.style);
+    manageFranchiseSelect.innerHTML = franchisesFiltered.map(f => `
+      <option value="${f.id}" ${modderState.catalogFilters.franchise === f.id ? 'selected' : ''}>
+        ${f.name} (${f.count})
+      </option>
+    `).join('');
+  }
+
+  const totalBadge = document.getElementById('manageTotalBadge');
+  if (totalBadge) {
+    const all = getCompiledAvatars();
+    totalBadge.textContent = `${all.length}`;
+  }
 }
 
 // ============================================================
-// COLA DE ARCHIVOS Y RENDERIZADO
+// RENDERIZADO DE LA COLA DE SUBIDA POR LOTE
 // ============================================================
 
 export function renderQueue() {
@@ -221,13 +265,11 @@ export function renderQueue() {
 
     return `
       <div class="lat-card p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 relative group" data-queue-id="${item.id}">
-        <!-- Miniatura WebP -->
         <div class="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
           <img src="${item.previewUrl}" alt="${item.characterName}" class="w-full h-full object-cover">
           <span class="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white/80">.webp</span>
         </div>
 
-        <!-- Información y Edición de Nombre -->
         <div class="flex-1 w-full text-left space-y-1.5">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs text-white/50 truncate max-w-[200px]" title="${item.originalName}">
@@ -255,7 +297,6 @@ export function renderQueue() {
           </div>
         </div>
 
-        <!-- Botón Eliminar -->
         <button type="button" 
                 class="btn-remove-item p-2 text-white/40 hover:text-rose-400 transition-colors cursor-pointer self-end sm:self-center"
                 data-index="${index}"
@@ -266,7 +307,6 @@ export function renderQueue() {
     `;
   }).join('');
 
-  // Event Listeners para editar nombre de personaje
   container.querySelectorAll('.input-character-name').forEach(input => {
     input.addEventListener('input', (e) => {
       const idx = parseInt(e.target.dataset.index, 10);
@@ -276,7 +316,6 @@ export function renderQueue() {
     });
   });
 
-  // Event Listeners para eliminar de la cola
   container.querySelectorAll('.btn-remove-item').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const idx = parseInt(btn.dataset.index, 10);
@@ -302,10 +341,6 @@ function getActiveFranchiseName() {
   return modderState.selectedFranchise;
 }
 
-// ============================================================
-// PROCESAMIENTO DE ARCHIVOS ENTRANTES
-// ============================================================
-
 export async function handleFiles(files) {
   if (!files || files.length === 0) return;
 
@@ -318,14 +353,9 @@ export async function handleFiles(files) {
     return;
   }
 
-  const dropOverlay = document.getElementById('dropOverlay');
-  if (dropOverlay) dropOverlay.classList.remove('hidden');
-
   for (const file of validFiles) {
     try {
       const converted = await convertToWebp(file, 0.90);
-
-      // Extraer nombre del personaje a partir del nombre original
       const dotIdx = file.name.lastIndexOf('.');
       const rawName = dotIdx !== -1 ? file.name.substring(0, dotIdx) : file.name;
       const cleanCharacter = formatCharacterName(rawName);
@@ -346,13 +376,8 @@ export async function handleFiles(files) {
     }
   }
 
-  if (dropOverlay) dropOverlay.classList.add('hidden');
   renderQueue();
 }
-
-// ============================================================
-// ENVÍO DEL LOTE AL WORKER (1 SOLO COMMIT)
-// ============================================================
 
 export async function submitBatchUpload() {
   const style = getActiveStyleName();
@@ -360,21 +385,19 @@ export async function submitBatchUpload() {
   const token = modderState.token || getModderSession();
 
   if (!token) {
-    alert('Sesión no válida o expirada. Por favor reingresa con tu contraseña de Modder.');
+    alert('Sesión no válida o expirada.');
     return;
   }
 
   if (!style) {
     alert('Por favor selecciona o define un Estilo.');
-    const s = document.getElementById('selectStyle');
-    if (s) s.focus();
+    document.getElementById('selectStyle')?.focus();
     return;
   }
 
   if (!franchise) {
     alert('Por favor selecciona o define una Franquicia / Obra.');
-    const f = document.getElementById('selectFranchise');
-    if (f) f.focus();
+    document.getElementById('selectFranchise')?.focus();
     return;
   }
 
@@ -391,7 +414,6 @@ export async function submitBatchUpload() {
     statusEl.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Preparando lote de ${modderState.filesQueue.length} avatares...`;
   }
 
-  // Empaquetar payload
   const filesPayload = modderState.filesQueue.map(item => {
     const finalFilename = `${franchise}_${item.characterName}.webp`;
     return {
@@ -425,7 +447,6 @@ export async function submitBatchUpload() {
       throw new Error(data.error || 'Error al procesar el lote en el servidor.');
     }
 
-    // Éxito: Limpiar cola y notificar
     modderState.filesQueue = [];
     renderQueue();
 
@@ -438,9 +459,10 @@ export async function submitBatchUpload() {
       `;
     }
 
-    // Recargar catálogo para actualizar selects
+    // Refrescar el catálogo en segundo plano
     setTimeout(() => {
-      populateSelects();
+      populateSelects(true);
+      renderCatalogGrid();
     }, 1500);
 
   } catch (err) {
@@ -450,5 +472,230 @@ export async function submitBatchUpload() {
     }
   } finally {
     if (btnSubmit) btnSubmit.disabled = false;
+  }
+}
+
+// ============================================================
+// EXPLORADOR Y GESTIÓN DE CATÁLOGO EXISTENTE
+// ============================================================
+
+export function renderCatalogGrid() {
+  const grid = document.getElementById('catalogGrid');
+  const countLabel = document.getElementById('catalogFilterCount');
+  if (!grid) return;
+
+  const filtered = filterAvatars(modderState.catalogFilters);
+
+  if (countLabel) {
+    countLabel.textContent = `${filtered.length} avatares encontrados`;
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full py-16 text-center text-white/50 space-y-2">
+        <i class="fa-solid fa-folder-open text-3xl text-white/20"></i>
+        <p class="text-sm">No se encontraron avatares con los filtros actuales.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(av => {
+    const imgUrl = resolveAvatarCdnUrl(av.path);
+    const ext = av.extension ? `.${av.extension.toLowerCase()}` : '';
+
+    return `
+      <div class="lat-card p-3 flex flex-col items-center text-center gap-2 group hover:border-amber-400/40 transition-all cursor-pointer relative"
+           data-avatar-id="${av.id}">
+        
+        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative flex items-center justify-center group-hover:scale-105 transition-transform">
+          <img src="${imgUrl}" alt="${av.character}" class="w-full h-full object-cover" loading="lazy">
+          <span class="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white/70">${ext}</span>
+        </div>
+
+        <div class="w-full space-y-0.5">
+          <h4 class="text-xs font-semibold text-white truncate max-w-full" title="${av.character}">${av.character}</h4>
+          <p class="text-[10px] text-white/50 truncate" title="${av.franchiseName}">${av.franchiseName}</p>
+          <span class="inline-block text-[9px] text-amber-300/80 bg-amber-400/10 px-1.5 py-0.5 rounded font-mono truncate max-w-full">
+            ${av.styleName}
+          </span>
+        </div>
+
+        <button type="button" class="mt-1 w-full py-1 text-[11px] rounded-lg bg-white/5 hover:bg-amber-400 hover:text-black text-white/70 font-medium transition-colors flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+          <span>Editar</span>
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  // Vincular clics de edición a cada tarjeta
+  grid.querySelectorAll('[data-avatar-id]').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.avatarId;
+      const avatar = filtered.find(a => a.id === id);
+      if (avatar) {
+        openEditModal(avatar);
+      }
+    });
+  });
+}
+
+// ============================================================
+// MODAL DE EDICIÓN, REEMPLAZO Y BORRADO
+// ============================================================
+
+export function openEditModal(avatar) {
+  modderState.selectedAvatarForEdit = avatar;
+  modderState.editReplacementWebp = null;
+
+  const modal = document.getElementById('editAvatarModal');
+  const imgPreview = document.getElementById('modalAvatarPreview');
+  const modalCharInput = document.getElementById('modalCharacterInput');
+  const modalInfoStyle = document.getElementById('modalInfoStyle');
+  const modalInfoFranchise = document.getElementById('modalInfoFranchise');
+  const modalInfoPath = document.getElementById('modalInfoPath');
+  const replacementPreview = document.getElementById('modalReplacementPreview');
+  const modalStatus = document.getElementById('modalEditStatus');
+
+  if (!modal) return;
+
+  if (imgPreview) imgPreview.src = resolveAvatarCdnUrl(avatar.path);
+  if (modalCharInput) modalCharInput.value = avatar.baseCharacter || avatar.character;
+  if (modalInfoStyle) modalInfoStyle.textContent = avatar.style;
+  if (modalInfoFranchise) modalInfoFranchise.textContent = avatar.franchise;
+  if (modalInfoPath) modalInfoPath.textContent = avatar.path;
+  if (replacementPreview) replacementPreview.classList.add('hidden');
+  if (modalStatus) modalStatus.innerHTML = '';
+
+  modal.classList.remove('hidden');
+}
+
+export function closeEditModal() {
+  modderState.selectedAvatarForEdit = null;
+  modderState.editReplacementWebp = null;
+  const modal = document.getElementById('editAvatarModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+export async function handleReplacementImage(file) {
+  if (!file) return;
+  const modalStatus = document.getElementById('modalEditStatus');
+  const replacementPreview = document.getElementById('modalReplacementPreview');
+  const replacementImg = document.getElementById('modalReplacementImg');
+
+  try {
+    if (modalStatus) modalStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Convirtiendo reemplazo a WebP...';
+    const converted = await convertToWebp(file, 0.90);
+    modderState.editReplacementWebp = converted;
+
+    if (replacementImg) replacementImg.src = converted.previewUrl;
+    if (replacementPreview) replacementPreview.classList.remove('hidden');
+    if (modalStatus) modalStatus.innerHTML = '<span class="text-emerald-400">✓ Nueva imagen lista en WebP (' + formatBytes(converted.webpSize) + '). Haz clic en "Guardar Cambios" para subirla.</span>';
+  } catch (err) {
+    if (modalStatus) modalStatus.innerHTML = `<span class="text-rose-400">Error: ${err.message}</span>`;
+  }
+}
+
+export async function submitAvatarUpdate() {
+  const avatar = modderState.selectedAvatarForEdit;
+  const token = modderState.token || getModderSession();
+  const modalStatus = document.getElementById('modalEditStatus');
+  const btnSave = document.getElementById('btnModalSave');
+  const newNameInput = document.getElementById('modalCharacterInput');
+
+  if (!avatar || !token) return;
+
+  const newCharacterName = formatCharacterName(newNameInput?.value.trim() || avatar.character);
+  const isReplacing = Boolean(modderState.editReplacementWebp);
+  const oldFilename = avatar.fileName;
+  const newFilename = `${avatar.franchise}_${newCharacterName}.webp`;
+
+  if (btnSave) btnSave.disabled = true;
+  if (modalStatus) modalStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Aplicando cambios en GitHub...';
+
+  try {
+    const endpoint = `${CONFIG.WORKER_API_URL.replace(/\/+$/, '')}/api/update-avatar`;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: token,
+        style: avatar.style,
+        franchise: avatar.franchise,
+        oldFilename,
+        newFilename,
+        newFileBase64: isReplacing ? modderState.editReplacementWebp.base64 : null
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Error al actualizar el avatar');
+    }
+
+    if (modalStatus) {
+      modalStatus.innerHTML = `<span class="text-emerald-400 font-semibold">✓ ¡Avatar actualizado con éxito en GitHub!</span>`;
+    }
+
+    setTimeout(() => {
+      closeEditModal();
+      populateSelects(true);
+      renderCatalogGrid();
+    }, 1200);
+
+  } catch (err) {
+    if (modalStatus) modalStatus.innerHTML = `<span class="text-rose-400 font-semibold">Error: ${err.message}</span>`;
+  } finally {
+    if (btnSave) btnSave.disabled = false;
+  }
+}
+
+export async function submitAvatarDelete() {
+  const avatar = modderState.selectedAvatarForEdit;
+  const token = modderState.token || getModderSession();
+  const modalStatus = document.getElementById('modalEditStatus');
+  const btnDelete = document.getElementById('btnModalDelete');
+
+  if (!avatar || !token) return;
+
+  const confirmDelete = confirm(`¿Estás seguro de que deseas ELIMINAR permanentemente "${avatar.character}" del repositorio de GitHub?`);
+  if (!confirmDelete) return;
+
+  if (btnDelete) btnDelete.disabled = true;
+  if (modalStatus) modalStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando archivo en GitHub...';
+
+  try {
+    const endpoint = `${CONFIG.WORKER_API_URL.replace(/\/+$/, '')}/api/delete-avatar`;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        password: token,
+        style: avatar.style,
+        franchise: avatar.franchise,
+        filename: avatar.fileName
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.error || 'Error al eliminar el avatar');
+    }
+
+    if (modalStatus) {
+      modalStatus.innerHTML = `<span class="text-rose-400 font-semibold">✓ Avatar eliminado correctamente del repositorio.</span>`;
+    }
+
+    setTimeout(() => {
+      closeEditModal();
+      populateSelects(true);
+      renderCatalogGrid();
+    }, 1200);
+
+  } catch (err) {
+    if (modalStatus) modalStatus.innerHTML = `<span class="text-rose-400 font-semibold">Error: ${err.message}</span>`;
+  } finally {
+    if (btnDelete) btnDelete.disabled = false;
   }
 }

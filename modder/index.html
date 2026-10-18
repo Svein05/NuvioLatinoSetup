@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Modder | Nuvio Metadata Latino</title>
-  <meta name="description" content="Gestor exclusivo para modders: subida por lote de avatares con conversión universal a WebP y commit atómico en GitHub." />
+  <meta name="description" content="Gestor exclusivo para modders: subida por lote con conversión a WebP y administración integral de assets existentes en GitHub." />
   
   <!-- Favicon e Iconos -->
   <link rel="icon" type="image/webp" href="../assets/logo/logo.webp" />
@@ -48,28 +48,25 @@
 
   <!-- Barra de Navegación Flotante LAT-ADD Style -->
   <header class="lat-floating-nav">
-    <!-- Cápsula Izquierda: Marca -->
     <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Volver al Inicio">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
       <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
       <span class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 font-mono">Modder</span>
     </a>
 
-    <!-- Cápsula Central: Navegación -->
     <nav class="lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium">
       <a href="../account/" class="lat-nav-tab" aria-label="Volver a Cuenta">
         <i class="fa-solid fa-arrow-left text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Volver a Cuenta</span>
       </a>
       <div class="lat-nav-tab is-active cursor-default" title="Panel Activo">
-        <i class="fa-solid fa-cloud-arrow-up text-xs sm:text-sm text-amber-300"></i>
-        <span class="hidden sm:inline">Carga por Lote</span>
+        <i class="fa-solid fa-screwdriver-wrench text-xs sm:text-sm text-amber-300"></i>
+        <span class="hidden sm:inline">Panel Modder</span>
       </div>
     </nav>
 
-    <!-- Cápsula Derecha: Botón Cerrar Sesión Modder -->
     <div class="lat-desktop-nav-cluster items-center gap-2 shrink-0">
-      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 py-1 text-xs text-white/60 hover:text-rose-400 hover:bg-white/[0.12] flex items-center gap-1.5 hidden cursor-pointer" title="Salir del Modo Modder">
+      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 py-1 text-xs text-white/60 hover:text-rose-400 hover:bg-white/[0.12] flex items-center gap-1.5 hidden cursor-pointer" title="Cerrar Sesión Modder">
         <i class="fa-solid fa-arrow-right-from-bracket"></i>
         <span>Salir</span>
       </button>
@@ -77,18 +74,18 @@
   </header>
 
   <!-- Contenedor Principal -->
-  <main class="flex-1 flex flex-col justify-start items-center px-4 sm:px-6 w-full max-w-4xl mx-auto pt-28 pb-16">
+  <main class="flex-1 flex flex-col justify-start items-center px-4 sm:px-6 w-full max-w-5xl mx-auto pt-28 pb-16">
 
     <!-- Vista 1: Puerta de Enlace / Login de Modder -->
     <div id="modderAuthView" class="w-full max-w-md mx-auto my-auto py-12 flex flex-col items-center text-center">
       <div class="lat-card p-8 sm:p-10 w-full space-y-6">
         <div class="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center mx-auto text-amber-300 text-2xl">
-          <i class="fa-solid fa-lock"></i>
+          <i class="fa-solid fa-shield-halved"></i>
         </div>
         <div>
-          <h2 class="text-2xl sm:text-3xl font-serif text-white tracking-tight">Acceso Exclusivo Modder</h2>
+          <h2 class="text-2xl sm:text-3xl font-serif text-white tracking-tight">Acceso de Colaborador</h2>
           <p class="text-xs sm:text-sm text-white/60 mt-2">
-            Ingresa la contraseña de colaborador para habilitar el motor de subida por lote de avatares.
+            Ingresa la contraseña de Modder para gestionar, subir o editar los avatares del repositorio.
           </p>
         </div>
 
@@ -110,110 +107,228 @@
       </div>
     </div>
 
-    <!-- Vista 2: Panel de Trabajo de Subida por Lote (Oculto hasta autenticar) -->
+    <!-- Vista 2: Panel de Trabajo (Pestañas de Lote y Gestión) -->
     <div id="modderPanelView" class="w-full space-y-6 hidden">
       
-      <!-- Encabezado del Panel -->
-      <div class="lat-card p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl sm:text-3xl font-serif text-white tracking-tight flex items-center gap-2">
-            <span>Cargador de Avatares por Lote</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-sans font-medium">100% WebP</span>
-          </h1>
-          <p class="text-xs sm:text-sm text-white/60 mt-1">
-            Convierte automáticamente todas las imágenes a WebP optimizado y las publica en GitHub en un único commit atómico.
-          </p>
-        </div>
+      <!-- Selector de Pestañas Principales -->
+      <div class="flex items-center gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-fit">
+        <button id="tabBtnUpload" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white">
+          <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+          <span>Subir Nuevos (Lote)</span>
+        </button>
+        <button id="tabBtnManage" type="button" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white">
+          <i class="fa-solid fa-boxes-stacked"></i>
+          <span>Gestionar Existentes</span>
+          <span id="manageTotalBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/10 text-white/80">0</span>
+        </button>
       </div>
 
-      <!-- Paso 1: Configuración de Destino (Estilo y Franquicia) -->
-      <div class="lat-card p-6 sm:p-8 space-y-5">
-        <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
-          <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">1</span>
-          <span>Definir Destino del Lote</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Selector Estilo -->
-          <div class="space-y-1.5 text-left">
-            <label class="text-xs text-white/70 block font-medium">Estilo de Avatar</label>
-            <select id="selectStyle" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
-              <option value="">Cargando estilos...</option>
-            </select>
-            <input type="text" id="inputNewStyle" placeholder="Nombre del nuevo estilo (ej: MangaStyle)" class="lat-field w-full text-xs mt-2 hidden">
-          </div>
-
-          <!-- Selector Franquicia -->
-          <div class="space-y-1.5 text-left">
-            <label class="text-xs text-white/70 block font-medium">Franquicia / Obra</label>
-            <select id="selectFranchise" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
-              <option value="">Cargando franquicias...</option>
-            </select>
-            <input type="text" id="inputNewFranchise" placeholder="Nombre de la obra (ej: DragonBall)" class="lat-field w-full text-xs mt-2 hidden">
-          </div>
-        </div>
-      </div>
-
-      <!-- Paso 2: Zona de Arrastrar Archivos (Dropzone) -->
-      <div class="lat-card p-6 sm:p-8 space-y-4">
-        <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
-          <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">2</span>
-          <span>Seleccionar o Arrastrar Imágenes</span>
-        </div>
-
-        <div id="dropzoneBox" class="border-2 border-dashed border-white/15 hover:border-amber-400/50 rounded-2xl p-8 sm:p-12 text-center transition-all bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer relative">
-          <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
-          
-          <div class="space-y-3 pointer-events-none">
-            <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-white/70 text-2xl">
-              <i class="fa-solid fa-images"></i>
-            </div>
-            <div>
-              <p class="text-sm sm:text-base font-medium text-white">
-                Arrastra aquí tus imágenes o <span class="text-amber-300 underline underline-offset-4">haz clic para explorar</span>
-              </p>
-              <p class="text-xs text-white/50 mt-1">
-                Soporta múltiples archivos: PNG, JPG, JPEG, SVG, WebP. Todo será transformado a WebP optimizado al instante.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Paso 3: Cola de Conversión y Revisión -->
-      <div id="queueSection" class="lat-card p-6 sm:p-8 space-y-4 hidden">
-        <div class="flex items-center justify-between">
+      <!-- ======================================================== -->
+      <!-- SECCIÓN A: SUBIDA POR LOTE (UPLOAD SECTION)               -->
+      <!-- ======================================================== -->
+      <div id="sectionUpload" class="space-y-6">
+        
+        <!-- Paso 1: Configuración de Destino (Estilo y Franquicia) -->
+        <div class="lat-card p-6 sm:p-8 space-y-5">
           <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
-            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">3</span>
-            <span>Cola de Avatares Listos (<span id="queueCountBadge" class="text-emerald-400 font-mono">0</span>)</span>
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">1</span>
+            <span>Destino del Lote de Avatares</span>
           </div>
-          <button id="btnClearQueue" type="button" class="text-xs text-white/40 hover:text-rose-400 transition-colors">
-            Vaciar cola
-          </button>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5 text-left">
+              <label class="text-xs text-white/70 block font-medium">Estilo de Avatar</label>
+              <select id="selectStyle" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
+                <option value="">Cargando estilos...</option>
+              </select>
+              <input type="text" id="inputNewStyle" placeholder="Nombre del nuevo estilo (ej: MangaStyle)" class="lat-field w-full text-xs mt-2 hidden">
+            </div>
+
+            <div class="space-y-1.5 text-left">
+              <label class="text-xs text-white/70 block font-medium">Franquicia / Obra</label>
+              <select id="selectFranchise" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
+                <option value="">Cargando franquicias...</option>
+              </select>
+              <input type="text" id="inputNewFranchise" placeholder="Nombre de la obra (ej: DragonBall)" class="lat-field w-full text-xs mt-2 hidden">
+            </div>
+          </div>
         </div>
 
-        <div id="queueContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+        <!-- Paso 2: Zona Dropzone para Múltiples Imágenes -->
+        <div class="lat-card p-6 sm:p-8 space-y-4">
+          <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">2</span>
+            <span>Arrastrar y Soltar Múltiples Imágenes</span>
+          </div>
+
+          <div id="dropzoneBox" class="border-2 border-dashed border-white/15 hover:border-amber-400/50 rounded-2xl p-8 sm:p-12 text-center transition-all bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer relative">
+            <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+            
+            <div class="space-y-3 pointer-events-none">
+              <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-white/70 text-2xl">
+                <i class="fa-solid fa-images"></i>
+              </div>
+              <div>
+                <p class="text-sm sm:text-base font-medium text-white">
+                  Arrastra aquí tus imágenes o <span class="text-amber-300 underline underline-offset-4">haz clic para explorar</span>
+                </p>
+                <p class="text-xs text-white/50 mt-1">
+                  Convierte automáticamente PNG, JPG, JPEG, SVG y WebP a <strong class="text-emerald-400">WebP 100% optimizado</strong> en tu navegador.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 3: Cola de Lote y Publicación -->
+        <div id="queueSection" class="lat-card p-6 sm:p-8 space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+              <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">3</span>
+              <span>Cola de Lote (<span id="queueCountBadge" class="text-emerald-400 font-mono">0</span>)</span>
+            </div>
+            <button id="btnClearQueue" type="button" class="text-xs text-white/40 hover:text-rose-400 transition-colors">
+              Vaciar cola
+            </button>
+          </div>
+
+          <div id="queueContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1"></div>
+
+          <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div id="uploadStatusText" class="text-xs text-white/70 text-center sm:text-left flex-1">
+              Listo para crear el commit atómico en GitHub.
+            </div>
+
+            <button id="btnSubmitBatch" type="button" class="lat-capsule-btn solid px-6 py-2.5 font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-500/20">
+              <i class="fa-solid fa-code-commit"></i>
+              <span>Publicar Lote en GitHub (1 Commit)</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECCIÓN B: GESTIONAR ASSETS EXISTENTES (MANAGE SECTION)   -->
+      <!-- ======================================================== -->
+      <div id="sectionManage" class="space-y-6 hidden">
+        
+        <!-- Barra de Filtros y Búsqueda -->
+        <div class="lat-card p-4 sm:p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <!-- Buscador en tiempo real -->
+            <div class="relative flex-1">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+              <input type="text" id="manageSearchInput" placeholder="Buscar por personaje u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+            </div>
+
+            <!-- Filtro Estilo -->
+            <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer sm:w-48">
+              <option value="all">Todos los estilos</option>
+            </select>
+
+            <!-- Filtro Franquicia -->
+            <select id="manageFranchiseSelect" class="lat-field text-xs cursor-pointer sm:w-48">
+              <option value="all">Todas las obras</option>
+            </select>
+
+            <!-- Refrescar -->
+            <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline px-3 py-2 text-xs flex items-center justify-center gap-1.5 shrink-0" title="Recargar catálogo desde GitHub">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span class="hidden sm:inline">Refrescar</span>
+            </button>
+          </div>
+
+          <div class="text-xs text-white/50 text-left flex items-center justify-between">
+            <span id="catalogFilterCount">Cargando catálogo...</span>
+            <span class="text-[11px] text-white/40">Haz clic en cualquier avatar para editarlo o reemplazarlo</span>
+          </div>
+        </div>
+
+        <!-- Cuadrícula de Avatares -->
+        <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           <!-- Renderizado dinámico desde modder-uploader.js -->
         </div>
 
-        <!-- Barra de Progreso y Botón de Publicación -->
-        <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div id="uploadStatusText" class="text-xs text-white/70 text-center sm:text-left flex-1">
-            Listo para crear el commit atómico en GitHub.
-          </div>
-
-          <button id="btnSubmitBatch" type="button" class="lat-capsule-btn solid px-6 py-2.5 font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-500/20">
-            <i class="fa-solid fa-code-commit"></i>
-            <span>Publicar Lote en GitHub</span>
-          </button>
-        </div>
       </div>
 
     </div>
 
+    <!-- ======================================================== -->
+    <!-- MODAL DE EDICIÓN / REEMPLAZO / BORRADO DE AVATAR          -->
+    <!-- ======================================================== -->
+    <div id="editAvatarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="lat-card p-6 sm:p-8 w-full max-w-lg space-y-5 text-left border border-white/20 shadow-2xl relative">
+        
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 class="text-lg font-serif text-white flex items-center gap-2">
+            <i class="fa-solid fa-pen-ruler text-amber-300 text-sm"></i>
+            <span>Editar Asset Existente</span>
+          </h3>
+          <button id="btnModalClose" type="button" class="text-white/40 hover:text-white text-sm p-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Vista previa actual -->
+        <div class="flex items-center gap-4 bg-white/[0.02] border border-white/10 p-3 rounded-xl">
+          <div class="w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
+            <img id="modalAvatarPreview" src="" alt="Avatar actual" class="w-full h-full object-cover">
+          </div>
+          <div class="text-xs space-y-1 overflow-hidden">
+            <div class="text-white/50 text-[10px] font-mono truncate" id="modalInfoPath"></div>
+            <div><span class="text-white/50">Estilo:</span> <strong id="modalInfoStyle" class="text-white/90"></strong></div>
+            <div><span class="text-white/50">Obra:</span> <strong id="modalInfoFranchise" class="text-white/90"></strong></div>
+          </div>
+        </div>
+
+        <!-- Campo para Renombrar -->
+        <div class="space-y-1.5">
+          <label class="text-xs text-white/70 block font-medium">Nombre del Personaje</label>
+          <input type="text" id="modalCharacterInput" class="lat-field w-full text-xs py-2" placeholder="Nombre del personaje">
+        </div>
+
+        <!-- Reemplazo de Imagen -->
+        <div class="space-y-2">
+          <label class="text-xs text-white/70 block font-medium">Reemplazar Imagen (Opcional)</label>
+          <div class="border border-dashed border-white/20 hover:border-amber-400/50 p-3 rounded-xl text-center relative cursor-pointer bg-white/[0.01]">
+            <input type="file" id="modalFileInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+            <span class="text-xs text-white/60">Haz clic o arrastra una nueva imagen para sobreescribir</span>
+          </div>
+
+          <!-- Previsualización de Reemplazo si se selecciona -->
+          <div id="modalReplacementPreview" class="hidden flex items-center gap-3 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs">
+            <img id="modalReplacementImg" src="" alt="Nueva imagen" class="w-12 h-12 rounded-lg object-cover">
+            <span class="text-emerald-400">Nueva imagen lista en formato WebP</span>
+          </div>
+        </div>
+
+        <!-- Estado / Feedback -->
+        <div id="modalEditStatus" class="text-xs text-center min-h-[18px]"></div>
+
+        <!-- Botones de Acción -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/10">
+          <button id="btnModalDelete" type="button" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Eliminar del Repo</span>
+          </button>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button id="btnModalCancel" type="button" class="lat-capsule-btn outline text-xs px-4 py-2 flex-1 sm:flex-none">
+              Cancelar
+            </button>
+            <button id="btnModalSave" type="button" class="lat-capsule-btn solid text-xs px-5 py-2 flex-1 sm:flex-none font-semibold">
+              Guardar Cambios
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </main>
 
-  <!-- Script Principal del Panel -->
+  <!-- Script Controlador Principal -->
   <script type="module">
     import { 
       modderState, 
@@ -224,7 +339,12 @@
       populateSelects, 
       handleFiles, 
       renderQueue, 
-      submitBatchUpload 
+      submitBatchUpload,
+      renderCatalogGrid,
+      closeEditModal,
+      handleReplacementImage,
+      submitAvatarUpdate,
+      submitAvatarDelete
     } from '../js/modder-uploader.js';
 
     const authView = document.getElementById('modderAuthView');
@@ -234,7 +354,32 @@
     const passInput = document.getElementById('inputModderPassword');
     const btnTogglePass = document.getElementById('btnToggleModderPass');
 
-    // Inicializar vista según sesión previa
+    const tabBtnUpload = document.getElementById('tabBtnUpload');
+    const tabBtnManage = document.getElementById('tabBtnManage');
+    const sectionUpload = document.getElementById('sectionUpload');
+    const sectionManage = document.getElementById('sectionManage');
+
+    // Cambiar entre Pestañas Subir Lote y Gestionar Existentes
+    function switchTab(tab) {
+      modderState.activeTab = tab;
+      if (tab === 'upload') {
+        tabBtnUpload.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white';
+        tabBtnManage.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white';
+        sectionUpload.classList.remove('hidden');
+        sectionManage.classList.add('hidden');
+      } else {
+        tabBtnManage.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white';
+        tabBtnUpload.className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white';
+        sectionManage.classList.remove('hidden');
+        sectionUpload.classList.add('hidden');
+        renderCatalogGrid();
+      }
+    }
+
+    if (tabBtnUpload) tabBtnUpload.addEventListener('click', () => switchTab('upload'));
+    if (tabBtnManage) tabBtnManage.addEventListener('click', () => switchTab('manage'));
+
+    // Inicializar según sesión previa
     async function init() {
       const activeToken = getModderSession();
       if (activeToken) {
@@ -256,9 +401,10 @@
       if (panelView) panelView.classList.remove('hidden');
       if (btnLogout) btnLogout.classList.remove('hidden');
       await populateSelects();
+      renderCatalogGrid();
     }
 
-    // Toggle ver contraseña
+    // Toggle ojo contraseña
     if (btnTogglePass && passInput) {
       btnTogglePass.addEventListener('click', () => {
         passInput.type = passInput.type === 'password' ? 'text' : 'password';
@@ -301,7 +447,7 @@
       });
     }
 
-    // Selección de Estilos y Franquicias con opción personalizada
+    // Selección de Estilos y Franquicias en Uploader
     const selectStyle = document.getElementById('selectStyle');
     const inputNewStyle = document.getElementById('inputNewStyle');
     if (selectStyle && inputNewStyle) {
@@ -336,7 +482,7 @@
       });
     }
 
-    // Input de archivos y Drag & Drop
+    // File Input Uploader
     const fileInput = document.getElementById('fileInput');
     if (fileInput) {
       fileInput.addEventListener('change', (e) => {
@@ -359,6 +505,61 @@
     if (btnSubmit) {
       btnSubmit.addEventListener('click', submitBatchUpload);
     }
+
+    // Filtros de Catálogo Existente
+    const manageSearchInput = document.getElementById('manageSearchInput');
+    if (manageSearchInput) {
+      manageSearchInput.addEventListener('input', (e) => {
+        modderState.catalogFilters.query = e.target.value;
+        renderCatalogGrid();
+      });
+    }
+
+    const manageStyleSelect = document.getElementById('manageStyleSelect');
+    if (manageStyleSelect) {
+      manageStyleSelect.addEventListener('change', (e) => {
+        modderState.catalogFilters.style = e.target.value;
+        populateSelects();
+        renderCatalogGrid();
+      });
+    }
+
+    const manageFranchiseSelect = document.getElementById('manageFranchiseSelect');
+    if (manageFranchiseSelect) {
+      manageFranchiseSelect.addEventListener('change', (e) => {
+        modderState.catalogFilters.franchise = e.target.value;
+        renderCatalogGrid();
+      });
+    }
+
+    const btnRefreshCatalog = document.getElementById('btnRefreshCatalog');
+    if (btnRefreshCatalog) {
+      btnRefreshCatalog.addEventListener('click', async () => {
+        await populateSelects(true);
+        renderCatalogGrid();
+      });
+    }
+
+    // Modal Events
+    const btnModalClose = document.getElementById('btnModalClose');
+    const btnModalCancel = document.getElementById('btnModalCancel');
+    if (btnModalClose) btnModalClose.addEventListener('click', closeEditModal);
+    if (btnModalCancel) btnModalCancel.addEventListener('click', closeEditModal);
+
+    const modalFileInput = document.getElementById('modalFileInput');
+    if (modalFileInput) {
+      modalFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleReplacementImage(e.target.files[0]);
+        }
+      });
+    }
+
+    const btnModalSave = document.getElementById('btnModalSave');
+    if (btnModalSave) btnModalSave.addEventListener('click', submitAvatarUpdate);
+
+    const btnModalDelete = document.getElementById('btnModalDelete');
+    if (btnModalDelete) btnModalDelete.addEventListener('click', submitAvatarDelete);
 
     init();
   </script>
