@@ -55,20 +55,16 @@
     </a>
 
     <nav class="lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium">
-      <a href="../account/" class="lat-nav-tab" aria-label="Volver a Cuenta">
-        <i class="fa-solid fa-arrow-left text-xs sm:text-sm"></i>
-        <span class="hidden sm:inline">Volver a Cuenta</span>
-      </a>
       <div class="lat-nav-tab is-active cursor-default" title="Panel Activo">
         <i class="fa-solid fa-screwdriver-wrench text-xs sm:text-sm text-amber-300"></i>
-        <span class="hidden sm:inline">Panel Modder</span>
+        <span>Panel Modder</span>
       </div>
     </nav>
 
-    <div class="lat-desktop-nav-cluster items-center gap-2 shrink-0">
-      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 py-1 text-xs text-white/60 hover:text-rose-400 hover:bg-white/[0.12] flex items-center gap-1.5 cursor-pointer" title="Cerrar Sesión Modder">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-        <span>Salir</span>
+    <div class="flex items-center gap-2 shrink-0 pointer-events-auto">
+      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-white/80 hover:text-white hover:bg-white/[0.12] flex items-center gap-1.5 cursor-pointer transition-all" title="Cerrar sesión de modder y volver a cuenta">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+        <span>Volver a Cuenta</span>
       </button>
     </div>
   </header>
