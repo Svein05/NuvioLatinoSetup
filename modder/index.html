@@ -66,7 +66,7 @@
     </nav>
 
     <div class="lat-desktop-nav-cluster items-center gap-2 shrink-0">
-      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 py-1 text-xs text-white/60 hover:text-rose-400 hover:bg-white/[0.12] flex items-center gap-1.5 hidden cursor-pointer" title="Cerrar Sesión Modder">
+      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 py-1 text-xs text-white/60 hover:text-rose-400 hover:bg-white/[0.12] flex items-center gap-1.5 cursor-pointer" title="Cerrar Sesión Modder">
         <i class="fa-solid fa-arrow-right-from-bracket"></i>
         <span>Salir</span>
       </button>
@@ -76,43 +76,8 @@
   <!-- Contenedor Principal -->
   <main class="flex-1 flex flex-col justify-start items-center px-4 sm:px-6 w-full max-w-5xl mx-auto pt-28 pb-16">
 
-    <!-- Vista 1: Puerta de Enlace / Login de Modder -->
-    <div id="modderAuthView" class="w-full max-w-md mx-auto my-auto py-12 flex flex-col items-center text-center">
-      <div class="lat-card p-8 sm:p-10 w-full space-y-6">
-        <div class="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center mx-auto text-amber-300 text-2xl">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <div>
-          <h2 class="text-2xl sm:text-3xl font-serif text-white tracking-tight">Acceso de Colaborador</h2>
-          <p class="text-xs sm:text-sm text-white/60 mt-2">
-            Ingresa la contraseña de Modder para gestionar, subir o editar los avatares del repositorio.
-          </p>
-        </div>
-
-        <form id="modderAuthForm" class="space-y-4 text-left">
-          <div>
-            <label class="text-xs text-white/70 block mb-1 font-medium">Correo electrónico</label>
-            <input type="email" id="inputModderEmail" required placeholder="tu@correo.com" class="lat-field w-full text-sm" autocomplete="email">
-          </div>
-          <div>
-            <label class="text-xs text-white/70 block mb-1 font-medium">Contraseña de Modder</label>
-            <div class="relative">
-              <input type="password" id="inputModderPassword" required placeholder="••••••••" class="lat-field w-full text-sm pr-10" autocomplete="current-password">
-              <button id="btnToggleModderPass" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer" title="Mostrar contraseña">
-                <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
-              </button>
-            </div>
-          </div>
-          <button type="submit" class="lat-capsule-btn solid w-full mt-2 font-semibold flex items-center justify-center gap-2">
-            <i class="fa-solid fa-key"></i>
-            <span>Desbloquear Panel</span>
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Vista 2: Panel de Trabajo (Pestañas de Lote y Gestión) -->
-    <div id="modderPanelView" class="w-full space-y-6 hidden">
+    <!-- Panel de Trabajo (Pestañas de Lote y Gestión) -->
+    <div id="modderPanelView" class="w-full space-y-6">
       
       <!-- Selector de Pestañas Principales -->
       <div class="flex items-center gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-fit">
@@ -337,9 +302,7 @@
     import { 
       modderState, 
       getModderSession, 
-      saveModderSession, 
       clearModderSession, 
-      verifyPassword, 
       populateSelects, 
       handleFiles, 
       renderQueue, 
@@ -351,13 +314,17 @@
       submitAvatarDelete
     } from '../js/modder-uploader.js';
 
-    const authView = document.getElementById('modderAuthView');
-    const panelView = document.getElementById('modderPanelView');
-    const authForm = document.getElementById('modderAuthForm');
-    const btnLogout = document.getElementById('btnLogoutModder');
-    const passInput = document.getElementById('inputModderPassword');
-    const btnTogglePass = document.getElementById('btnToggleModderPass');
+    // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
+    const activeSession = getModderSession();
+    if (!activeSession || !activeSession.token) {
+      window.location.replace('../account/');
+      throw new Error('Acceso no autorizado.');
+    }
 
+    modderState.token = activeSession.token;
+    modderState.email = activeSession.email;
+
+    const btnLogout = document.getElementById('btnLogoutModder');
     const tabBtnUpload = document.getElementById('tabBtnUpload');
     const tabBtnManage = document.getElementById('tabBtnManage');
     const sectionUpload = document.getElementById('sectionUpload');
@@ -383,71 +350,17 @@
     if (tabBtnUpload) tabBtnUpload.addEventListener('click', () => switchTab('upload'));
     if (tabBtnManage) tabBtnManage.addEventListener('click', () => switchTab('manage'));
 
-    const emailInput = document.getElementById('inputModderEmail');
+    // Logout
+    if (btnLogout) {
+      btnLogout.addEventListener('click', () => {
+        clearModderSession();
+        window.location.replace('../account/');
+      });
+    }
 
-    // Inicializar según sesión previa
     async function init() {
-      const activeSession = getModderSession();
-      if (activeSession && activeSession.token) {
-        unlockPanel(activeSession.token, activeSession.email);
-      } else {
-        showAuth();
-      }
-    }
-
-    function showAuth() {
-      if (authView) authView.classList.remove('hidden');
-      if (panelView) panelView.classList.add('hidden');
-      if (btnLogout) btnLogout.classList.add('hidden');
-    }
-
-    async function unlockPanel(token, email = '') {
-      modderState.token = token;
-      modderState.email = email;
-      if (authView) authView.classList.add('hidden');
-      if (panelView) panelView.classList.remove('hidden');
-      if (btnLogout) btnLogout.classList.remove('hidden');
       await populateSelects();
       renderCatalogGrid();
-    }
-
-    // Toggle ojo contraseña
-    if (btnTogglePass && passInput) {
-      btnTogglePass.addEventListener('click', () => {
-        passInput.type = passInput.type === 'password' ? 'text' : 'password';
-      });
-    }
-
-    // Formulario de autenticación
-    if (authForm) {
-      authForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = emailInput ? emailInput.value.trim() : '';
-        const pass = passInput.value.trim();
-        if (!email || !pass) {
-          alert('Por favor ingresa tu correo y contraseña.');
-          return;
-        }
-
-        const btn = authForm.querySelector('button[type="submit"]');
-        if (btn) {
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Verificando...';
-        }
-
-        try {
-          await verifyPassword(pass, email);
-          saveModderSession(pass, email);
-          unlockPanel(pass, email);
-        } catch (err) {
-          alert(err.message || 'Credenciales de Modder incorrectas.');
-        } finally {
-          if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-key"></i> Desbloquear Panel';
-          }
-        }
-      });
     }
 
     // Logout
