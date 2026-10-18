@@ -233,26 +233,34 @@
         <!-- NIVEL 2: VISTA DE DETALLE DE COLECCIÓN (AVATARES)      -->
         <!-- ====================================================== -->
         <div id="collectionDetailContainer" class="space-y-6 hidden">
-          <!-- Cabecera de Navegación y Búsqueda Interna -->
-          <div class="lat-card p-4 sm:p-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center gap-2 hover:border-amber-300 transition-colors" title="Volver al listado de colecciones">
+          <!-- Cabecera de Navegación, Título, Filtros de Estilo y Búsqueda -->
+          <div class="lat-card p-4 sm:p-6 space-y-4">
+            
+            <!-- Fila Superior: Botón Volver (Izq) y Buscador (Der) -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center gap-2 hover:border-amber-300 transition-colors w-fit" title="Volver al listado de obras">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>Volver a Colecciones</span>
               </button>
-              <div class="space-y-0.5 text-left">
-                <div class="flex items-center gap-2">
-                  <h3 id="detailCollectionTitle" class="text-sm sm:text-base font-bold text-white">Colección</h3>
-                  <span id="detailCollectionBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20"></span>
-                </div>
-                <p id="detailCollectionCount" class="text-[11px] text-white/50">0 avatares</p>
+
+              <div class="relative w-full sm:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                <input type="text" id="detailSearchInput" placeholder="Buscar personaje o archivo..." class="lat-field w-full text-xs pl-9 pr-3">
               </div>
             </div>
 
-            <div class="relative w-full sm:w-64">
-              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
-              <input type="text" id="detailSearchInput" placeholder="Buscar archivo en esta colección..." class="lat-field w-full text-xs pl-9 pr-3">
+            <!-- Título de la Obra (Centrado) y Contador -->
+            <div class="text-center space-y-1 pt-1">
+              <h3 id="detailCollectionTitle" class="text-lg sm:text-xl font-bold text-white tracking-wide">Colección</h3>
+              <p id="detailCollectionCount" class="text-xs text-white/50 font-mono">0 avatares disponibles</p>
             </div>
+
+            <!-- Botones de Filtro para los 3 Estilos (Centrados debajo del título de la obra) -->
+            <!-- Sin botón 'todos': seleccionables individualmente, y al volver a pulsar el activo se deselecciona -->
+            <div id="detailStyleFiltersContainer" class="flex items-center justify-center gap-2 flex-wrap pt-1">
+              <!-- Renderizado dinámicamente desde modder-uploader.js -->
+            </div>
+
           </div>
 
           <!-- Cuadrícula de Avatares de la Colección Seleccionada -->
@@ -293,11 +301,14 @@
           </div>
         </div>
 
-        <!-- Campo para Renombrar Archivo Exacto -->
+        <!-- Campo para Renombrar Personaje (Sin extensión .webp editable) -->
         <div class="space-y-1.5">
-          <label class="text-xs text-white/70 block font-medium">Nombre del Archivo (en GitHub)</label>
-          <input type="text" id="modalCharacterInput" class="lat-field w-full text-xs py-2 font-mono" placeholder="ej: Noelle (Valkyrie).webp">
-          <p class="text-[11px] text-white/40">Se guardará con este nombre directo en la carpeta de la colección.</p>
+          <label class="text-xs text-white/70 block font-medium">Nombre del Personaje</label>
+          <div class="flex items-center gap-2">
+            <input type="text" id="modalCharacterInput" class="lat-field w-full text-xs py-2 font-mono" placeholder="ej: Noelle (Valkyrie)">
+            <span class="text-xs font-mono text-white/40 shrink-0 px-2.5 py-2 bg-white/[0.05] border border-white/10 rounded-xl">.webp</span>
+          </div>
+          <p class="text-[11px] text-white/40">Se guardará automáticamente como archivo .webp en la carpeta de la colección.</p>
         </div>
 
         <!-- Reemplazo de Imagen -->
@@ -362,7 +373,7 @@
       undoLastChange,
       commitAllStagedChanges,
       updateStagedUI
-    } from '../js/modder-uploader.js?v=1.7.3';
+    } from '../js/modder-uploader.js?v=1.8.0';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
     const activeSession = getModderSession();

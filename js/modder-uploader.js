@@ -42,7 +42,8 @@ export const modderState = {
     franchise: 'all',
     query: ''
   },
-  activeCollection: null, // Colección activa { id, franchise, franchiseName, style, styleName, avatars: [] }
+  activeCollection: null, // Obra activa { id, franchise, franchiseName, avatars: [], availableStyles: [] }
+  detailActiveStyle: null, // null = todos los estilos; 'NetflixStyle' | 'IconsStyle' | 'MangaStyle'
   detailSearchQuery: '',  // Búsqueda interna dentro de la colección abierta
   selectedAvatarForEdit: null,
   editReplacementWebp: null // { blob, base64, previewUrl, size }
@@ -143,6 +144,13 @@ export function formatBytes(bytes, decimals = 1) {
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+export function getStyleDisplayName(styleId) {
+  if (styleId === 'NetflixStyle') return 'Netflix Style';
+  if (styleId === 'IconsStyle') return 'Icons Style';
+  if (styleId === 'MangaStyle') return 'Manga Style';
+  return formatStyleName(styleId) || styleId;
 }
 
 // ============================================================
@@ -418,7 +426,8 @@ export function renderQueue() {
       ? `<span class="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">-${savings}%</span>`
       : `<span class="text-[10px] text-white/50 font-mono">WebP</span>`;
 
-    const finalFilename = item.fileName || `${item.characterName}.webp`;
+    const rawCharName = (item.characterName || (item.fileName ? item.fileName.replace(/\.webp$/i, '') : 'avatar')).trim().replace(/\.webp$/i, '');
+    const finalFilename = `${rawCharName}.webp`;
 
     return `
       <div class="lat-card p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 relative group" data-queue-id="${item.id}">
@@ -441,12 +450,15 @@ export function renderQueue() {
           </div>
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-            <label class="text-[11px] text-white/60 shrink-0 font-medium">Nombre de Archivo:</label>
-            <input type="text" 
-                   value="${finalFilename}" 
-                   class="lat-field text-xs py-1 px-2.5 flex-1 font-mono input-character-name" 
-                   data-index="${index}"
-                   placeholder="ej: Asta_Demon.webp">
+            <label class="text-[11px] text-white/60 shrink-0 font-medium">Nombre del Personaje:</label>
+            <div class="flex items-center gap-1.5 flex-1">
+              <input type="text" 
+                     value="${rawCharName}" 
+                     class="lat-field text-xs py-1 px-2.5 flex-1 font-mono input-character-name" 
+                     data-index="${index}"
+                     placeholder="ej: Asta_Demon">
+              <span class="text-xs font-mono text-white/40 shrink-0 px-2 py-1 bg-white/[0.05] border border-white/10 rounded-lg">.webp</span>
+            </div>
           </div>
 
           <div class="text-[10px] font-mono text-white/40 truncate">
@@ -468,16 +480,14 @@ export function renderQueue() {
     input.addEventListener('input', (e) => {
       const idx = parseInt(e.target.dataset.index, 10);
       if (modderState.filesQueue[idx]) {
-        let val = e.target.value.trim();
-        modderState.filesQueue[idx].fileName = val;
-        modderState.filesQueue[idx].characterName = val.replace(/\.webp$/i, '');
-
-        let displayFn = val || 'avatar.webp';
-        if (!displayFn.toLowerCase().endsWith('.webp')) displayFn += '.webp';
+        let val = e.target.value.trim().replace(/\.webp$/i, '');
+        modderState.filesQueue[idx].characterName = val;
+        let cleanFileName = val ? `${val}.webp` : 'avatar.webp';
+        modderState.filesQueue[idx].fileName = cleanFileName;
 
         const destSpan = container.querySelector(`.queue-destination-path[data-index="${idx}"]`);
         if (destSpan) {
-          destSpan.textContent = `profile_icons/${getActiveStyleName() || 'Estilo'}/${getActiveFranchiseName() || 'Obra'}/${displayFn}`;
+          destSpan.textContent = `profile_icons/${getActiveStyleName() || 'Estilo'}/${getActiveFranchiseName() || 'Obra'}/${cleanFileName}`;
         }
       }
     });
@@ -605,41 +615,63 @@ export function getCollectionsSummary() {
   const styleFilter = modderState.catalogFilters.style;
   const searchQuery = (modderState.catalogFilters.query || '').toLowerCase().trim();
 
-  // 1. Filtrar por estilo si no es 'all'
+  // 1. Filtrar por estilo general si se seleccionó en el selector superior
   let list = allAvatars;
   if (styleFilter && styleFilter !== 'all') {
     list = list.filter(a => a.style === styleFilter);
   }
 
-  // 2. Agrupar por franquicia + estilo
+  // 2. Agrupar estrictamente por Franquicia / Obra (una sola tarjeta por obra)
   const groupsMap = new Map();
   for (const av of list) {
-    const key = `${av.franchise}__${av.style}`;
+    const key = av.franchise;
     if (!groupsMap.has(key)) {
       groupsMap.set(key, {
         id: key,
         franchise: av.franchise,
         franchiseName: av.franchiseName,
-        style: av.style,
-        styleName: av.styleName,
-        avatars: []
+        avatars: [],
+        stylesMap: new Map()
       });
     }
-    groupsMap.get(key).avatars.push(av);
+    const group = groupsMap.get(key);
+    group.avatars.push(av);
+    group.stylesMap.set(av.style, (group.stylesMap.get(av.style) || 0) + 1);
   }
 
-  let collections = Array.from(groupsMap.values());
+  let collections = Array.from(groupsMap.values()).map(c => {
+    const availableStyles = Array.from(c.stylesMap.entries()).map(([styleKey, count]) => {
+      return {
+        id: styleKey,
+        name: getStyleDisplayName(styleKey),
+        count
+      };
+    });
+
+    // Orden canónico: NetflixStyle, IconsStyle, MangaStyle
+    const canonicalOrder = ['NetflixStyle', 'IconsStyle', 'MangaStyle'];
+    availableStyles.sort((a, b) => {
+      const idxA = canonicalOrder.indexOf(a.id);
+      const idxB = canonicalOrder.indexOf(b.id);
+      return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+    });
+
+    return {
+      ...c,
+      availableStyles
+    };
+  });
 
   // 3. Filtrar por búsqueda si hay texto
   if (searchQuery) {
     collections = collections.filter(c => 
       c.franchiseName.toLowerCase().includes(searchQuery) ||
       c.franchise.toLowerCase().includes(searchQuery) ||
-      c.styleName.toLowerCase().includes(searchQuery) ||
+      c.availableStyles.some(s => s.name.toLowerCase().includes(searchQuery)) ||
       c.avatars.some(a => {
         const ov = stagedState.avatarOverrides.get(a.id);
         const fn = ov?.newFilename || a.fileName;
-        return fn.toLowerCase().includes(searchQuery);
+        return fn.toLowerCase().includes(searchQuery) || (a.characterName && a.characterName.toLowerCase().includes(searchQuery));
       })
     );
   }
@@ -652,6 +684,7 @@ export function getCollectionsSummary() {
 export function openCollectionDetail(col) {
   modderState.activeCollection = col;
   modderState.detailSearchQuery = '';
+  modderState.detailActiveStyle = null; // null = ningún filtro activo (muestra todos los estilos)
   const detailSearchInput = document.getElementById('detailSearchInput');
   if (detailSearchInput) detailSearchInput.value = '';
 
@@ -661,24 +694,88 @@ export function openCollectionDetail(col) {
   if (detailView) detailView.classList.remove('hidden');
 
   const titleEl = document.getElementById('detailCollectionTitle');
-  const badgeEl = document.getElementById('detailCollectionBadge');
-  const countEl = document.getElementById('detailCollectionCount');
-
   if (titleEl) titleEl.textContent = col.franchiseName;
-  if (badgeEl) badgeEl.textContent = col.styleName;
-  if (countEl) countEl.textContent = `${col.avatars.length} avatares disponibles`;
 
+  renderStyleFilterButtons();
   renderCollectionAvatars();
 }
 
 export function closeCollectionDetail() {
   modderState.activeCollection = null;
   modderState.detailSearchQuery = '';
+  modderState.detailActiveStyle = null;
   const collectionsView = document.getElementById('collectionsViewContainer');
   const detailView = document.getElementById('collectionDetailContainer');
   if (collectionsView) collectionsView.classList.remove('hidden');
   if (detailView) detailView.classList.add('hidden');
   renderCollectionsGrid();
+}
+
+export function renderStyleFilterButtons() {
+  const container = document.getElementById('detailStyleFiltersContainer');
+  if (!container) return;
+
+  const col = modderState.activeCollection;
+  if (!col) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // Los 3 estilos canónicos: NetflixStyle, IconsStyle, MangaStyle
+  const CANONICAL_STYLES = [
+    { id: 'NetflixStyle', name: 'Netflix Style' },
+    { id: 'IconsStyle', name: 'Icons Style' },
+    { id: 'MangaStyle', name: 'Manga Style' }
+  ];
+
+  // Solo mostrar los estilos que realmente existen en esta obra
+  const existingStyles = CANONICAL_STYLES.map(st => {
+    const count = col.avatars.filter(a => a.style === st.id).length;
+    return { ...st, count };
+  }).filter(st => st.count > 0);
+
+  if (existingStyles.length <= 1) {
+    container.innerHTML = existingStyles.map(st => `
+      <span class="text-xs font-mono px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-white/70">
+        ${st.name} (${st.count} avatares)
+      </span>
+    `).join('');
+    return;
+  }
+
+  // Renderizar botones seleccionables individualmente con toggle
+  container.innerHTML = existingStyles.map(st => {
+    const isActive = modderState.detailActiveStyle === st.id;
+    const activeClasses = isActive
+      ? "bg-amber-400 text-black border-amber-400 font-semibold shadow-md shadow-amber-400/20"
+      : "bg-white/[0.05] hover:bg-white/[0.12] text-white/70 hover:text-white border-white/10";
+
+    return `
+      <button type="button" 
+              class="px-3.5 py-1.5 rounded-xl border text-xs flex items-center gap-1.5 transition-all cursor-pointer ${activeClasses}"
+              data-style-filter="${st.id}">
+        <span>${st.name}</span>
+        <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/20 text-black font-bold' : 'bg-white/10 text-white/70'}">
+          ${st.count}
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  container.querySelectorAll('[data-style-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const styleId = btn.dataset.styleFilter;
+      if (modderState.detailActiveStyle === styleId) {
+        // Al volver a pickear, se deselecciona!
+        modderState.detailActiveStyle = null;
+      } else {
+        // Se selecciona individualmente
+        modderState.detailActiveStyle = styleId;
+      }
+      renderStyleFilterButtons();
+      renderCollectionAvatars();
+    });
+  });
 }
 
 export function renderCollectionsGrid() {
@@ -715,8 +812,9 @@ export function renderCollectionsGrid() {
   }
 
   grid.innerHTML = collections.map(col => {
-    // Tomar hasta 4 avatares para la previsualización
-    const previewAvatars = col.avatars.slice(0, 4);
+    // Tomar hasta 8 avatares para previsualización aprovechando todo el ancho disponible
+    const maxPreviews = 8;
+    const previewAvatars = col.avatars.slice(0, maxPreviews);
     const extraCount = col.avatars.length - previewAvatars.length;
 
     // Verificar si algún avatar de esta colección tiene cambios pendientes
@@ -730,48 +828,48 @@ export function renderCollectionsGrid() {
       : '';
 
     return `
-      <div class="lat-card p-4 sm:p-5 flex flex-col justify-between gap-4 group hover:border-amber-400/50 hover:bg-white/[0.04] transition-all cursor-pointer relative" data-collection-id="${col.id}">
-        <!-- Cabecera de la Colección -->
+      <div class="lat-card p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 group hover:border-amber-400/50 hover:bg-white/[0.04] transition-all cursor-pointer relative" data-collection-id="${col.id}">
+        <!-- Cabecera de la Colección (Sin icono amarillo de carpeta) -->
         <div class="flex items-start justify-between gap-2">
-          <div class="space-y-1 text-left">
-            <h4 class="text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-2">
-              <i class="fa-solid fa-folder-closed text-amber-300 text-xs"></i>
-              <span>${col.franchiseName}</span>
+          <div class="space-y-1.5 text-left w-full">
+            <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
+              ${col.franchiseName}
             </h4>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-white/70 border border-white/10">
-                ${col.styleName}
-              </span>
-              <span class="text-xs text-white/50 font-mono">
-                <strong class="text-white/90">${col.avatars.length}</strong> avatares
+            <div class="flex items-center gap-1.5 flex-wrap">
+              ${col.availableStyles.map(st => `
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-white/70 border border-white/10">
+                  ${st.name} <strong class="text-white/90">(${st.count})</strong>
+                </span>
+              `).join('')}
+              <span class="text-xs text-white/40 font-mono ml-auto">
+                <strong class="text-white/90">${col.avatars.length}</strong> total
               </span>
             </div>
           </div>
           ${pendingBadge}
         </div>
 
-        <!-- Previsualización de Miniaturas (3 a 4 avatares) -->
-        <div class="flex items-center gap-2 overflow-hidden py-1">
+        <!-- Previsualización de Miniaturas (Aprovechando el ancho completo en móvil y escritorio) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap py-1">
           ${previewAvatars.map(av => {
             const ov = stagedState.avatarOverrides.get(av.id);
             const imgUrl = ov?.previewImgUrl || resolveAvatarCdnUrl(av.path);
             const isDel = ov?.isDeleted;
             return `
-              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} shrink-0 relative">
+              <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} shrink-0 relative group-hover:scale-105 transition-transform">
                 <img src="${imgUrl}" alt="${av.fileName}" class="w-full h-full object-cover" loading="lazy">
               </div>
             `;
           }).join('')}
           ${extraCount > 0 ? `
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-xs font-mono text-white/50 shrink-0">
+            <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-xs font-mono text-white/60 shrink-0 font-bold">
               +${extraCount}
             </div>
           ` : ''}
         </div>
 
-        <!-- Pie de tarjeta: Botón ingresar -->
-        <div class="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-white/60 group-hover:text-white">
-          <span class="text-[11px] text-white/40">Explorar y editar avatares</span>
+        <!-- Pie de tarjeta: Botón ingresar alineado a la derecha sin texto redundante -->
+        <div class="pt-2 border-t border-white/5 flex items-center justify-end text-xs text-white/60 group-hover:text-white">
           <span class="text-amber-300 font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
             <span>Ingresar</span>
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
@@ -800,20 +898,30 @@ export function renderCollectionAvatars() {
   if (!grid) return;
 
   const query = (modderState.detailSearchQuery || '').toLowerCase().trim();
+  
+  // 1. Filtrar por estilo activo si hay uno seleccionado (si es null, muestra todos)
   let avatars = col.avatars;
+  if (modderState.detailActiveStyle) {
+    avatars = avatars.filter(a => a.style === modderState.detailActiveStyle);
+  }
+
+  // 2. Filtrar por búsqueda de texto interna
   if (query) {
     avatars = avatars.filter(a => {
       const ov = stagedState.avatarOverrides.get(a.id);
       const name = ov?.newFilename || a.fileName;
-      return name.toLowerCase().includes(query);
+      return name.toLowerCase().includes(query) || (a.characterName && a.characterName.toLowerCase().includes(query));
     });
   }
 
   const countEl = document.getElementById('detailCollectionCount');
   if (countEl) {
+    const styleInfo = modderState.detailActiveStyle 
+      ? `en ${getStyleDisplayName(modderState.detailActiveStyle)}` 
+      : 'en todos los estilos';
     countEl.textContent = query 
       ? `${avatars.length} de ${col.avatars.length} avatares encontrados`
-      : `${col.avatars.length} avatares disponibles`;
+      : `${avatars.length} avatares disponibles (${styleInfo})`;
   }
 
   if (avatars.length === 0) {
@@ -930,12 +1038,12 @@ export function openEditModal(avatar) {
   if (!modal) return;
 
   const currentOverride = stagedState.avatarOverrides.get(avatar.id);
-  // EL NOMBRE DEL ARCHIVO DIRECTO
   const activeFileName = currentOverride?.newFilename || avatar.fileName;
+  const activeCharName = (currentOverride?.newCharacterName || avatar.characterName || (activeFileName ? activeFileName.replace(/\.webp$/i, '') : '')).trim().replace(/\.webp$/i, '');
   const activeImgUrl = currentOverride?.previewImgUrl || resolveAvatarCdnUrl(avatar.path);
 
   if (imgPreview) imgPreview.src = activeImgUrl;
-  if (modalCharInput) modalCharInput.value = activeFileName;
+  if (modalCharInput) modalCharInput.value = activeCharName;
   if (modalInfoStyle) modalInfoStyle.textContent = avatar.style;
   if (modalInfoFranchise) modalInfoFranchise.textContent = avatar.franchise;
   if (modalInfoPath) modalInfoPath.textContent = avatar.path;
@@ -985,10 +1093,10 @@ export function stageAvatarUpdate() {
   if (!avatar) return;
 
   const newNameInput = document.getElementById('modalCharacterInput');
-  let rawFilename = (newNameInput?.value || '').trim() || avatar.fileName;
-  if (!rawFilename.toLowerCase().endsWith('.webp')) {
-    rawFilename = `${rawFilename}.webp`;
-  }
+  let rawCharName = (newNameInput?.value || '').trim() || (avatar.characterName || avatar.fileName.replace(/\.webp$/i, ''));
+  rawCharName = rawCharName.replace(/\.webp$/i, '').trim();
+  const rawFilename = `${rawCharName}.webp`;
+
   const isReplacing = Boolean(modderState.editReplacementWebp);
   const newBase64 = isReplacing ? modderState.editReplacementWebp.base64 : null;
   const newPreviewUrl = isReplacing ? modderState.editReplacementWebp.previewUrl : null;
