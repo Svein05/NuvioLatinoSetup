@@ -130,6 +130,31 @@ export default {
         const commitData = await commitRes.json();
         const baseTreeSha = commitData.tree.sha;
 
+        // Validación de confinamiento de rutas (Path Traversal & Scope Sandbox)
+        // Solo permitir gestionar assets dentro de assets/profile_icons/
+        const isSafePath = (p) => {
+          if (typeof p !== 'string') return false;
+          const normalized = p.replace(/\\/g, '/').trim();
+          if (normalized.includes('..') || normalized.startsWith('/')) return false;
+          return normalized.startsWith('assets/profile_icons/') && /\.(webp|png|jpe?g|svg)$/i.test(normalized);
+        };
+
+        const allPathsToValidate = [
+          ...addedFiles.map(f => f.path),
+          ...replacedFiles.map(f => f.path),
+          ...renamedFiles.flatMap(rf => [rf.oldPath, rf.newPath]),
+          ...deletedFiles
+        ];
+
+        for (const p of allPathsToValidate) {
+          if (!isSafePath(p)) {
+            return new Response(JSON.stringify({ error: `Ruta no autorizada: "${p}". Solo se permite gestionar archivos de imagen en assets/profile_icons/.` }), {
+              status: 403,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            });
+          }
+        }
+
         // Validación de unicidad de rutas en el lote recibido
         const targetPaths = new Set();
         for (const f of addedFiles) {
