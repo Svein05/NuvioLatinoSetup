@@ -72,29 +72,29 @@
       <!-- En móvil (flex-col-reverse): los botones de acción quedan arriba de las pestañas; en PC (sm:flex-row): pestañas a la izquierda y botones a la derecha -->
       <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <!-- Pestañas Izquierda (En móvil abajo, en PC izquierda) -->
-        <div class="flex items-center gap-1.5 sm:gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-fit">
-          <button id="tabBtnUpload" type="button" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap">
+        <div class="flex items-center gap-1.5 sm:gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-full sm:w-fit">
+          <button id="tabBtnUpload" type="button" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap">
             <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
             <span>Subir Nuevos</span>
           </button>
-          <button id="tabBtnManage" type="button" class="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap">
+          <button id="tabBtnManage" type="button" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap">
             <i class="fa-solid fa-boxes-stacked"></i>
             <span>Gestionar Existentes</span>
             <span id="manageTotalBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/10 text-white/80">0</span>
           </button>
         </div>
 
-        <!-- Botones de Acción Global: Deshacer y Guardar Cambios (En móvil arriba, en PC derecha) -->
-        <div class="flex items-center gap-2 self-end sm:self-auto">
+        <!-- Botones de Acción Global: Deshacer y Guardar Cambios (En móvil arriba ocupando todo el ancho, en PC derecha) -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
           <!-- Botón Deshacer -->
-          <button id="btnUndoChange" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all" disabled title="Deshacer último cambio">
+          <button id="btnUndoChange" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center justify-center gap-1.5 opacity-40 cursor-not-allowed transition-all flex-1 sm:flex-initial" disabled title="Deshacer último cambio">
             <i class="fa-solid fa-rotate-left"></i>
             <span>Deshacer</span>
             <span id="undoCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/80 font-bold">0</span>
           </button>
 
           <!-- Botón Guardar Cambios -->
-          <button id="btnSaveAllChanges" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 flex items-center gap-2 font-semibold opacity-40 cursor-not-allowed shadow-lg transition-all" disabled title="Publicar todos los cambios acumulados en un solo commit">
+          <button id="btnSaveAllChanges" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 flex items-center justify-center gap-2 font-semibold opacity-40 cursor-not-allowed shadow-lg transition-all flex-1 sm:flex-initial" disabled title="Publicar todos los cambios acumulados en un solo commit">
             <i class="fa-solid fa-cloud-arrow-up"></i>
             <span>Guardar Cambios</span>
             <span id="stagedCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400 text-black font-bold">0</span>
@@ -384,13 +384,13 @@
     function switchTab(tab) {
       modderState.activeTab = tab;
       if (tab === 'upload') {
-        tabBtnUpload.className = 'flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
-        tabBtnManage.className = 'flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
+        tabBtnUpload.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
+        tabBtnManage.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
         sectionUpload.classList.remove('hidden');
         sectionManage.classList.add('hidden');
       } else {
-        tabBtnManage.className = 'flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
-        tabBtnUpload.className = 'flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
+        tabBtnManage.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
+        tabBtnUpload.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
         sectionManage.classList.remove('hidden');
         sectionUpload.classList.add('hidden');
         renderCatalogGrid();
