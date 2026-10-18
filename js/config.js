@@ -30,8 +30,9 @@ export const CONFIG = {
   // Instancia fija oficial de AIOStreams solicitada
   AIOSTREAMS_INSTANCE: "https://aiostreamsfortheweebsstable.midnightignite.me",
 
-  // Proxy CORS dedicado en Cloudflare Worker para peticiones de AIOStreams
+  // Proxy CORS y API de gestión de assets en Cloudflare Worker
   AIOSTREAMS_PROXY_URL: "https://nuvio-proxy.elias-manriquez-2005.workers.dev/",
+  WORKER_API_URL: "https://nuvio-proxy.elias-manriquez-2005.workers.dev",
 
   // URLs de plantillas locales (resolución dinámica de ruta según página)
   TEMPLATES: {

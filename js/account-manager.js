@@ -4487,6 +4487,31 @@ export async function initAccountPage() {
         btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Iniciando sesión...';
       }
 
+      // 1. Detección de Contraseña de Modder / Colaborador
+      try {
+        const workerUrl = (CONFIG.WORKER_API_URL || '').replace(/\/+$/, '');
+        if (workerUrl) {
+          const verifyRes = await fetch(`${workerUrl}/api/verify-auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password })
+          });
+          if (verifyRes.ok) {
+            const authInfo = await verifyRes.json();
+            if (authInfo.role === 'modder' || authInfo.role === 'admin') {
+              sessionStorage.setItem('nuvio_modder_session', JSON.stringify({ token: password, timestamp: Date.now() }));
+              showToast('Acceso Modder detectado. Redirigiendo al panel...', 'info');
+              setTimeout(() => {
+                window.location.href = '../modder/';
+              }, 400);
+              return;
+            }
+          }
+        }
+      } catch (_) {
+        // Continuar con login normal de Nuvio si no es modder o si falla la red
+      }
+
       try {
         const loginData = await NuvioClient.login({
           apiUrl: CONFIG.NUVIO_API_URL,
