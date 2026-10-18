@@ -36,12 +36,14 @@ export const modderState = {
   isUploading: false,
   uploadProgress: '',
 
-  // Estado del gestor de catálogo existente
+  // Estado del gestor de catálogo existente (Colecciones y Detalle)
   catalogFilters: {
     style: 'all',
     franchise: 'all',
     query: ''
   },
+  activeCollection: null, // Colección activa { id, franchise, franchiseName, style, styleName, avatars: [] }
+  detailSearchQuery: '',  // Búsqueda interna dentro de la colección abierta
   selectedAvatarForEdit: null,
   editReplacementWebp: null // { blob, base64, previewUrl, size }
 };
@@ -294,6 +296,34 @@ export function updateStagedUI() {
 }
 
 // ============================================================
+// VISIBILIDAD CONDICIONAL DE PASOS EN SUBIDA
+// ============================================================
+
+export function updateStep2Visibility() {
+  const step2 = document.getElementById('stepDropzoneCard');
+  if (!step2) return;
+
+  const styleSelected = Boolean(modderState.selectedStyle);
+  let franchiseSelected = false;
+
+  if (modderState.isNewFranchise) {
+    const input = document.getElementById('inputNewFranchise');
+    franchiseSelected = Boolean(input && input.value.trim().length > 0);
+  } else {
+    franchiseSelected = Boolean(modderState.selectedFranchise && modderState.selectedFranchise !== '__NEW__');
+  }
+
+  if (styleSelected && franchiseSelected) {
+    step2.classList.remove('hidden');
+  } else {
+    step2.classList.add('hidden');
+    if (modderState.filesQueue.length === 0) {
+      document.getElementById('queueSection')?.classList.add('hidden');
+    }
+  }
+}
+
+// ============================================================
 // POBLADO DE SELECTS Y FILTROS
 // ============================================================
 
@@ -327,11 +357,14 @@ export async function populateSelects(forceRefresh = false) {
   const manageFranchiseSelect = document.getElementById('manageFranchiseSelect');
 
   if (manageStyleSelect) {
-    manageStyleSelect.innerHTML = styles.map(s => `
-      <option value="${s.id}" ${modderState.catalogFilters.style === s.id ? 'selected' : ''}>
-        ${s.name} (${s.count})
-      </option>
-    `).join('');
+    manageStyleSelect.innerHTML = `
+      <option value="all" ${modderState.catalogFilters.style === 'all' ? 'selected' : ''}>Todos los estilos (${getCompiledAvatars().length})</option>
+      ${styles.map(s => `
+        <option value="${s.id}" ${modderState.catalogFilters.style === s.id ? 'selected' : ''}>
+          ${s.name} (${s.count})
+        </option>
+      `).join('')}
+    `;
   }
 
   if (manageFranchiseSelect) {
@@ -348,6 +381,8 @@ export async function populateSelects(forceRefresh = false) {
     const all = getCompiledAvatars();
     totalBadge.textContent = `${all.length}`;
   }
+
+  updateStep2Visibility();
 }
 
 // ============================================================
@@ -373,6 +408,7 @@ export function renderQueue() {
   if (countBadge) countBadge.textContent = `${modderState.filesQueue.length}`;
 
   const currentFranchise = getActiveFranchiseName();
+  const currentStyle = getActiveStyleName();
 
   container.innerHTML = modderState.filesQueue.map((item, index) => {
     const savings = item.originalSize > 0 
@@ -382,19 +418,19 @@ export function renderQueue() {
       ? `<span class="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">-${savings}%</span>`
       : `<span class="text-[10px] text-white/50 font-mono">WebP</span>`;
 
-    const finalFilename = `${currentFranchise || 'Obra'}_${item.characterName || 'Personaje'}.webp`;
+    const finalFilename = item.fileName || `${item.characterName}.webp`;
 
     return `
       <div class="lat-card p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 relative group" data-queue-id="${item.id}">
         <div class="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
-          <img src="${item.previewUrl}" alt="${item.characterName}" class="w-full h-full object-cover">
+          <img src="${item.previewUrl}" alt="${finalFilename}" class="w-full h-full object-cover">
           <span class="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white/80">.webp</span>
         </div>
 
         <div class="flex-1 w-full text-left space-y-1.5">
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs text-white/50 truncate max-w-[200px]" title="${item.originalName}">
-              ${item.originalName}
+              Original: ${item.originalName}
             </span>
             <div class="flex items-center gap-2">
               <span class="text-[11px] font-mono text-white/60">
@@ -405,16 +441,16 @@ export function renderQueue() {
           </div>
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-            <label class="text-[11px] text-white/60 shrink-0">Personaje:</label>
+            <label class="text-[11px] text-white/60 shrink-0 font-medium">Nombre de Archivo:</label>
             <input type="text" 
-                   value="${item.characterName}" 
-                   class="lat-field text-xs py-1 px-2.5 flex-1 input-character-name" 
+                   value="${finalFilename}" 
+                   class="lat-field text-xs py-1 px-2.5 flex-1 font-mono input-character-name" 
                    data-index="${index}"
-                   placeholder="Nombre del personaje">
+                   placeholder="ej: Asta_Demon.webp">
           </div>
 
           <div class="text-[10px] font-mono text-white/40 truncate">
-            Destino: <span class="text-amber-300/80">${finalFilename}</span>
+            Destino: <span class="text-amber-300/80">assets/profile_icons/${currentStyle || 'Estilo'}/${currentFranchise || 'Obra'}/${finalFilename}</span>
           </div>
         </div>
 
@@ -432,7 +468,9 @@ export function renderQueue() {
     input.addEventListener('input', (e) => {
       const idx = parseInt(e.target.dataset.index, 10);
       if (modderState.filesQueue[idx]) {
-        modderState.filesQueue[idx].characterName = formatCharacterName(e.target.value.trim());
+        let val = e.target.value.trim();
+        modderState.filesQueue[idx].fileName = val;
+        modderState.filesQueue[idx].characterName = val.replace(/\.webp$/i, '');
       }
     });
   });
@@ -474,8 +512,8 @@ export async function handleFiles(files) {
     try {
       const converted = await convertToWebp(file, 0.90);
       const dotIdx = file.name.lastIndexOf('.');
-      const rawName = dotIdx !== -1 ? file.name.substring(0, dotIdx) : file.name;
-      const cleanCharacter = formatCharacterName(rawName);
+      const rawBase = dotIdx !== -1 ? file.name.substring(0, dotIdx) : file.name;
+      const cleanFileName = `${rawBase}.webp`;
 
       modderState.filesQueue.push({
         id: `f_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -486,7 +524,8 @@ export async function handleFiles(files) {
         webpSize: converted.webpSize,
         previewUrl: converted.previewUrl,
         originalName: file.name,
-        characterName: cleanCharacter
+        fileName: cleanFileName,
+        characterName: rawBase
       });
     } catch (err) {
       console.error(`Error procesando ${file.name}:`, err);
@@ -519,10 +558,13 @@ export function stageBatchUpload() {
   }
 
   const filesPayload = modderState.filesQueue.map(item => {
-    const finalFilename = `${franchise}_${item.characterName}.webp`;
+    let finalFilename = (item.fileName || item.characterName || 'avatar').trim();
+    if (!finalFilename.toLowerCase().endsWith('.webp')) {
+      finalFilename = `${finalFilename}.webp`;
+    }
     return {
       filename: finalFilename,
-      characterName: item.characterName,
+      characterName: finalFilename.replace(/\.webp$/i, ''),
       base64: item.base64,
       previewUrl: item.previewUrl,
       webpSize: item.webpSize
@@ -547,38 +589,244 @@ export function stageBatchUpload() {
 }
 
 // ============================================================
-// EXPLORADOR Y GESTIÓN DE CATÁLOGO EXISTENTE
+// EXPLORADOR Y GESTIÓN DE CATÁLOGO (COLECCIONES Y AVATARES)
 // ============================================================
 
-export function renderCatalogGrid() {
-  const grid = document.getElementById('catalogGrid');
-  const countLabel = document.getElementById('catalogFilterCount');
-  if (!grid) return;
+export function getCollectionsSummary() {
+  const allAvatars = getCompiledAvatars();
+  const styleFilter = modderState.catalogFilters.style;
+  const searchQuery = (modderState.catalogFilters.query || '').toLowerCase().trim();
 
-  const filtered = filterAvatars(modderState.catalogFilters);
-
-  if (countLabel) {
-    countLabel.textContent = `${filtered.length} avatares encontrados`;
+  // 1. Filtrar por estilo si no es 'all'
+  let list = allAvatars;
+  if (styleFilter && styleFilter !== 'all') {
+    list = list.filter(a => a.style === styleFilter);
   }
 
-  if (filtered.length === 0) {
+  // 2. Agrupar por franquicia + estilo
+  const groupsMap = new Map();
+  for (const av of list) {
+    const key = `${av.franchise}__${av.style}`;
+    if (!groupsMap.has(key)) {
+      groupsMap.set(key, {
+        id: key,
+        franchise: av.franchise,
+        franchiseName: av.franchiseName,
+        style: av.style,
+        styleName: av.styleName,
+        avatars: []
+      });
+    }
+    groupsMap.get(key).avatars.push(av);
+  }
+
+  let collections = Array.from(groupsMap.values());
+
+  // 3. Filtrar por búsqueda si hay texto
+  if (searchQuery) {
+    collections = collections.filter(c => 
+      c.franchiseName.toLowerCase().includes(searchQuery) ||
+      c.franchise.toLowerCase().includes(searchQuery) ||
+      c.styleName.toLowerCase().includes(searchQuery) ||
+      c.avatars.some(a => {
+        const ov = stagedState.avatarOverrides.get(a.id);
+        const fn = ov?.newFilename || a.fileName;
+        return fn.toLowerCase().includes(searchQuery);
+      })
+    );
+  }
+
+  // 4. Ordenar alfabéticamente por nombre de franquicia
+  collections.sort((a, b) => a.franchiseName.localeCompare(b.franchiseName, 'es', { sensitivity: 'base' }));
+  return collections;
+}
+
+export function openCollectionDetail(col) {
+  modderState.activeCollection = col;
+  modderState.detailSearchQuery = '';
+  const detailSearchInput = document.getElementById('detailSearchInput');
+  if (detailSearchInput) detailSearchInput.value = '';
+
+  const collectionsView = document.getElementById('collectionsViewContainer');
+  const detailView = document.getElementById('collectionDetailContainer');
+  if (collectionsView) collectionsView.classList.add('hidden');
+  if (detailView) detailView.classList.remove('hidden');
+
+  const titleEl = document.getElementById('detailCollectionTitle');
+  const badgeEl = document.getElementById('detailCollectionBadge');
+  const countEl = document.getElementById('detailCollectionCount');
+
+  if (titleEl) titleEl.textContent = col.franchiseName;
+  if (badgeEl) badgeEl.textContent = col.styleName;
+  if (countEl) countEl.textContent = `${col.avatars.length} avatares disponibles`;
+
+  renderCollectionAvatars();
+}
+
+export function closeCollectionDetail() {
+  modderState.activeCollection = null;
+  modderState.detailSearchQuery = '';
+  const collectionsView = document.getElementById('collectionsViewContainer');
+  const detailView = document.getElementById('collectionDetailContainer');
+  if (collectionsView) collectionsView.classList.remove('hidden');
+  if (detailView) detailView.classList.add('hidden');
+  renderCollectionsGrid();
+}
+
+export function renderCollectionsGrid() {
+  const collectionsView = document.getElementById('collectionsViewContainer');
+  const detailView = document.getElementById('collectionDetailContainer');
+  const grid = document.getElementById('collectionsGrid');
+  const countLabel = document.getElementById('catalogFilterCount');
+
+  if (modderState.activeCollection) {
+    renderCollectionAvatars();
+    return;
+  }
+
+  if (collectionsView) collectionsView.classList.remove('hidden');
+  if (detailView) detailView.classList.add('hidden');
+
+  if (!grid) return;
+
+  const collections = getCollectionsSummary();
+  const totalAvatars = collections.reduce((acc, c) => acc + c.avatars.length, 0);
+
+  if (countLabel) {
+    countLabel.textContent = `${collections.length} colecciones (${totalAvatars} avatares)`;
+  }
+
+  if (collections.length === 0) {
     grid.innerHTML = `
       <div class="col-span-full py-16 text-center text-white/50 space-y-2">
         <i class="fa-solid fa-folder-open text-3xl text-white/20"></i>
-        <p class="text-sm">No se encontraron avatares con los filtros actuales.</p>
+        <p class="text-sm">No se encontraron colecciones con los filtros actuales.</p>
       </div>
     `;
     return;
   }
 
-  grid.innerHTML = filtered.map(av => {
+  grid.innerHTML = collections.map(col => {
+    // Tomar hasta 4 avatares para la previsualización
+    const previewAvatars = col.avatars.slice(0, 4);
+    const extraCount = col.avatars.length - previewAvatars.length;
+
+    // Verificar si algún avatar de esta colección tiene cambios pendientes
+    const hasPendingChanges = col.avatars.some(a => {
+      const ov = stagedState.avatarOverrides.get(a.id);
+      return ov?.isModified || ov?.isDeleted;
+    });
+
+    const pendingBadge = hasPendingChanges
+      ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-400 text-black shadow"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Cambios</span>`
+      : '';
+
+    return `
+      <div class="lat-card p-4 sm:p-5 flex flex-col justify-between gap-4 group hover:border-amber-400/50 hover:bg-white/[0.04] transition-all cursor-pointer relative" data-collection-id="${col.id}">
+        <!-- Cabecera de la Colección -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="space-y-1 text-left">
+            <h4 class="text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-2">
+              <i class="fa-solid fa-folder-closed text-amber-300 text-xs"></i>
+              <span>${col.franchiseName}</span>
+            </h4>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-white/70 border border-white/10">
+                ${col.styleName}
+              </span>
+              <span class="text-xs text-white/50 font-mono">
+                <strong class="text-white/90">${col.avatars.length}</strong> avatares
+              </span>
+            </div>
+          </div>
+          ${pendingBadge}
+        </div>
+
+        <!-- Previsualización de Miniaturas (3 a 4 avatares) -->
+        <div class="flex items-center gap-2 overflow-hidden py-1">
+          ${previewAvatars.map(av => {
+            const ov = stagedState.avatarOverrides.get(av.id);
+            const imgUrl = ov?.previewImgUrl || resolveAvatarCdnUrl(av.path);
+            const isDel = ov?.isDeleted;
+            return `
+              <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} shrink-0 relative">
+                <img src="${imgUrl}" alt="${av.fileName}" class="w-full h-full object-cover" loading="lazy">
+              </div>
+            `;
+          }).join('')}
+          ${extraCount > 0 ? `
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-xs font-mono text-white/50 shrink-0">
+              +${extraCount}
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Pie de tarjeta: Botón ingresar -->
+        <div class="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-white/60 group-hover:text-white">
+          <span class="text-[11px] text-white/40">Explorar y editar avatares</span>
+          <span class="text-amber-300 font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+            <span>Ingresar</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('[data-collection-id]').forEach(card => {
+    card.addEventListener('click', () => {
+      const colId = card.dataset.collectionId;
+      const col = collections.find(c => c.id === colId);
+      if (col) {
+        openCollectionDetail(col);
+      }
+    });
+  });
+}
+
+export function renderCollectionAvatars() {
+  const col = modderState.activeCollection;
+  if (!col) return;
+
+  const grid = document.getElementById('catalogGrid');
+  if (!grid) return;
+
+  const query = (modderState.detailSearchQuery || '').toLowerCase().trim();
+  let avatars = col.avatars;
+  if (query) {
+    avatars = avatars.filter(a => {
+      const ov = stagedState.avatarOverrides.get(a.id);
+      const name = ov?.newFilename || a.fileName;
+      return name.toLowerCase().includes(query);
+    });
+  }
+
+  const countEl = document.getElementById('detailCollectionCount');
+  if (countEl) {
+    countEl.textContent = query 
+      ? `${avatars.length} de ${col.avatars.length} avatares encontrados`
+      : `${col.avatars.length} avatares disponibles`;
+  }
+
+  if (avatars.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full py-16 text-center text-white/50 space-y-2">
+        <i class="fa-solid fa-file-image text-3xl text-white/20"></i>
+        <p class="text-sm">No hay avatares que coincidan con la búsqueda en esta colección.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = avatars.map(av => {
     const override = stagedState.avatarOverrides.get(av.id);
     const isDeleted = override?.isDeleted;
     const isModified = override?.isModified;
 
-    const displayCharacter = override?.newCharacterName || av.character;
+    // EL NOMBRE MOSTRADO ES EL NOMBRE REAL DEL ARCHIVO DIRECTAMENTE
+    const displayFilename = override?.newFilename || av.fileName;
     const displayImg = override?.previewImgUrl || resolveAvatarCdnUrl(av.path);
-    const ext = av.extension ? `.${av.extension.toLowerCase()}` : '';
+    const ext = av.extension ? `.${av.extension.toLowerCase()}` : '.webp';
 
     let cardClasses = "lat-card p-3 flex flex-col items-center text-center gap-2 group transition-all cursor-pointer relative";
     let badgeHtml = '';
@@ -598,13 +846,12 @@ export function renderCatalogGrid() {
         ${badgeHtml}
         
         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative flex items-center justify-center group-hover:scale-105 transition-transform">
-          <img src="${displayImg}" alt="${displayCharacter}" class="w-full h-full object-cover" loading="lazy">
+          <img src="${displayImg}" alt="${displayFilename}" class="w-full h-full object-cover" loading="lazy">
           <span class="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white/70">${ext}</span>
         </div>
 
         <div class="w-full space-y-0.5">
-          <h4 class="text-xs font-semibold text-white truncate max-w-full" title="${displayCharacter}">${displayCharacter}</h4>
-          <p class="text-[10px] text-white/50 truncate" title="${av.franchiseName}">${av.franchiseName}</p>
+          <h4 class="text-xs font-mono font-medium text-white truncate max-w-full" title="${displayFilename}">${displayFilename}</h4>
           <span class="inline-block text-[9px] text-amber-300/80 bg-amber-400/10 px-1.5 py-0.5 rounded font-mono truncate max-w-full">
             ${av.styleName}
           </span>
@@ -618,19 +865,17 @@ export function renderCatalogGrid() {
     `;
   }).join('');
 
-  // Vincular clics de edición / desmarcado a cada tarjeta
   grid.querySelectorAll('[data-avatar-id]').forEach(card => {
     card.addEventListener('click', () => {
       const id = card.dataset.avatarId;
-      const avatar = filtered.find(a => a.id === id);
+      const avatar = avatars.find(a => a.id === id);
       if (!avatar) return;
 
       const override = stagedState.avatarOverrides.get(id);
       if (override?.isDeleted) {
-        const confirmRestore = confirm(`"${avatar.character}" está marcado para eliminarse.\n¿Deseas desmarcarlo y cancelar su eliminación?`);
+        const confirmRestore = confirm(`El archivo "${avatar.fileName}" está marcado para eliminarse.\n¿Deseas desmarcarlo y cancelar su eliminación?`);
         if (confirmRestore) {
           stagedState.avatarOverrides.delete(id);
-          // Registrar en historial para poder deshacer si se desea
           stagedState.history.push({
             type: 'RESTORE_AVATAR',
             id: `restore_${Date.now()}`,
@@ -639,8 +884,8 @@ export function renderCatalogGrid() {
             previousOverride: override
           });
           updateStagedUI();
-          renderCatalogGrid();
-          showModderToast(`✓ Se canceló la eliminación de "${avatar.character}".`, 'info');
+          renderCollectionAvatars();
+          showModderToast(`✓ Se canceló la eliminación de "${avatar.fileName}".`, 'info');
         }
         return;
       }
@@ -648,6 +893,14 @@ export function renderCatalogGrid() {
       openEditModal(avatar);
     });
   });
+}
+
+export function renderCatalogGrid() {
+  if (modderState.activeCollection) {
+    renderCollectionAvatars();
+  } else {
+    renderCollectionsGrid();
+  }
 }
 
 // ============================================================
@@ -670,11 +923,12 @@ export function openEditModal(avatar) {
   if (!modal) return;
 
   const currentOverride = stagedState.avatarOverrides.get(avatar.id);
-  const activeCharName = currentOverride?.newCharacterName || avatar.baseCharacter || avatar.character;
+  // EL NOMBRE DEL ARCHIVO DIRECTO
+  const activeFileName = currentOverride?.newFilename || avatar.fileName;
   const activeImgUrl = currentOverride?.previewImgUrl || resolveAvatarCdnUrl(avatar.path);
 
   if (imgPreview) imgPreview.src = activeImgUrl;
-  if (modalCharInput) modalCharInput.value = activeCharName;
+  if (modalCharInput) modalCharInput.value = activeFileName;
   if (modalInfoStyle) modalInfoStyle.textContent = avatar.style;
   if (modalInfoFranchise) modalInfoFranchise.textContent = avatar.franchise;
   if (modalInfoPath) modalInfoPath.textContent = avatar.path;
@@ -682,7 +936,7 @@ export function openEditModal(avatar) {
 
   if (modalStatus) {
     if (currentOverride?.isModified) {
-      modalStatus.innerHTML = '<span class="text-amber-300 font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Este avatar ya tiene cambios pendientes. Puedes seguir editándolo.</span>';
+      modalStatus.innerHTML = '<span class="text-amber-300 font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Este archivo ya tiene cambios pendientes. Puedes seguir editándolo.</span>';
     } else {
       modalStatus.innerHTML = '';
     }
@@ -712,7 +966,7 @@ export async function handleReplacementImage(file) {
     if (replacementImg) replacementImg.src = converted.previewUrl;
     if (replacementPreview) replacementPreview.classList.remove('hidden');
     if (modalStatus) {
-      modalStatus.innerHTML = '<span class="text-emerald-400 font-medium">✓ Nueva imagen lista en WebP (' + formatBytes(converted.webpSize) + '). Pulsa "Aplicar a Cambios Pendientes".</span>';
+      modalStatus.innerHTML = '<span class="text-emerald-400 font-medium">✓ Nueva imagen lista en WebP (' + formatBytes(converted.webpSize) + '). Pulsa "Aplicar Cambios".</span>';
     }
   } catch (err) {
     if (modalStatus) modalStatus.innerHTML = `<span class="text-rose-400">Error: ${err.message}</span>`;
@@ -724,17 +978,20 @@ export function stageAvatarUpdate() {
   if (!avatar) return;
 
   const newNameInput = document.getElementById('modalCharacterInput');
-  const newCharacterName = formatCharacterName(newNameInput?.value.trim() || avatar.character);
+  let rawFilename = (newNameInput?.value || '').trim() || avatar.fileName;
+  if (!rawFilename.toLowerCase().endsWith('.webp')) {
+    rawFilename = `${rawFilename}.webp`;
+  }
   const isReplacing = Boolean(modderState.editReplacementWebp);
   const newBase64 = isReplacing ? modderState.editReplacementWebp.base64 : null;
   const newPreviewUrl = isReplacing ? modderState.editReplacementWebp.previewUrl : null;
 
   const oldFilename = avatar.fileName;
-  const newFilename = `${avatar.franchise}_${newCharacterName}.webp`;
+  const newFilename = rawFilename;
 
   const currentOverride = stagedState.avatarOverrides.get(avatar.id);
-  const currentName = currentOverride?.newCharacterName || avatar.character;
-  const hasNameChange = newCharacterName !== currentName;
+  const currentFilename = currentOverride?.newFilename || avatar.fileName;
+  const hasNameChange = newFilename !== currentFilename;
   const hasImageChange = isReplacing;
 
   if (!hasNameChange && !hasImageChange) {
@@ -747,7 +1004,7 @@ export function stageAvatarUpdate() {
   stagedState.avatarOverrides.set(avatar.id, {
     isDeleted: false,
     isModified: true,
-    newCharacterName,
+    newCharacterName: newFilename.replace(/\.webp$/i, ''),
     newFilename,
     newBase64: newBase64 || currentOverride?.newBase64 || null,
     previewImgUrl: newPreviewUrl || currentOverride?.previewImgUrl || null
@@ -760,8 +1017,8 @@ export function stageAvatarUpdate() {
     avatar,
     oldFilename,
     newFilename,
-    newCharacterName,
-    newBase64,
+    newCharacterName: newFilename.replace(/\.webp$/i, ''),
+    newBase64: newBase64 || currentOverride?.newBase64 || null,
     isReplacing,
     previousOverride
   });
@@ -769,7 +1026,7 @@ export function stageAvatarUpdate() {
   closeEditModal();
   updateStagedUI();
   renderCatalogGrid();
-  showModderToast(`✓ Avatar "${newCharacterName}" añadido a cambios pendientes (Cambio #${stagedState.history.length}).`, 'success');
+  showModderToast(`✓ Se modificó el archivo "${newFilename}" (Cambio #${stagedState.history.length}).`, 'info');
 }
 
 export function stageAvatarDelete() {
@@ -800,7 +1057,7 @@ export function stageAvatarDelete() {
   closeEditModal();
   updateStagedUI();
   renderCatalogGrid();
-  showModderToast(`✓ Avatar "${avatar.character}" marcado para eliminar (Cambio #${stagedState.history.length}).`, 'info');
+  showModderToast(`✓ Archivo "${avatar.fileName}" marcado para eliminar (Cambio #${stagedState.history.length}).`, 'info');
 }
 
 // ============================================================

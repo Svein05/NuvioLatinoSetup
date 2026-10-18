@@ -132,8 +132,8 @@
           </div>
         </div>
 
-        <!-- Paso 2: Zona Dropzone para Múltiples Imágenes -->
-        <div class="lat-card p-6 sm:p-8 space-y-4">
+        <!-- Paso 2: Zona Dropzone para Múltiples Imágenes (Visible solo tras seleccionar Estilo y Franquicia) -->
+        <div id="stepDropzoneCard" class="lat-card p-6 sm:p-8 space-y-4 hidden">
           <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
             <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">2</span>
             <span>Arrastrar y Soltar Múltiples Imágenes</span>
@@ -187,45 +187,78 @@
       </div>
 
       <!-- ======================================================== -->
+      <!-- ======================================================== -->
       <!-- SECCIÓN B: GESTIONAR ASSETS EXISTENTES (MANAGE SECTION)   -->
       <!-- ======================================================== -->
       <div id="sectionManage" class="space-y-6 hidden">
         
-        <!-- Barra de Filtros y Búsqueda -->
-        <div class="lat-card p-4 sm:p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <!-- Buscador en tiempo real -->
-            <div class="relative flex-1">
-              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
-              <input type="text" id="manageSearchInput" placeholder="Buscar por personaje u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+        <!-- ====================================================== -->
+        <!-- NIVEL 1: VISTA DE COLECCIONES (2 COLS PC, 1 COL MÓVIL) -->
+        <!-- ====================================================== -->
+        <div id="collectionsViewContainer" class="space-y-6">
+          <!-- Barra de Filtros y Búsqueda de Colecciones -->
+          <div class="lat-card p-4 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <!-- Buscador en tiempo real de Colecciones -->
+              <div class="relative flex-1">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                <input type="text" id="manageSearchInput" placeholder="Buscar colección u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+              </div>
+
+              <!-- Filtro Estilo -->
+              <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer sm:w-52">
+                <option value="all">Todos los estilos</option>
+              </select>
+
+              <!-- Refrescar -->
+              <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline px-3 py-2 text-xs flex items-center justify-center gap-1.5 shrink-0" title="Recargar catálogo desde GitHub">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span class="hidden sm:inline">Refrescar</span>
+              </button>
             </div>
 
-            <!-- Filtro Estilo -->
-            <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer sm:w-48">
-              <option value="all">Todos los estilos</option>
-            </select>
-
-            <!-- Filtro Franquicia -->
-            <select id="manageFranchiseSelect" class="lat-field text-xs cursor-pointer sm:w-48">
-              <option value="all">Todas las obras</option>
-            </select>
-
-            <!-- Refrescar -->
-            <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline px-3 py-2 text-xs flex items-center justify-center gap-1.5 shrink-0" title="Recargar catálogo desde GitHub">
-              <i class="fa-solid fa-arrows-rotate"></i>
-              <span class="hidden sm:inline">Refrescar</span>
-            </button>
+            <div class="text-xs text-white/50 text-left flex items-center justify-between">
+              <span id="catalogFilterCount">Cargando colecciones...</span>
+              <span class="text-[11px] text-white/40">Selecciona una colección para editar sus avatares</span>
+            </div>
           </div>
 
-          <div class="text-xs text-white/50 text-left flex items-center justify-between">
-            <span id="catalogFilterCount">Cargando catálogo...</span>
-            <span class="text-[11px] text-white/40">Haz clic en cualquier avatar para editarlo o reemplazarlo</span>
+          <!-- Cuadrícula de Colecciones: 2 columnas en PC/tablet, 1 en móvil -->
+          <div id="collectionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Renderizado dinámico desde modder-uploader.js -->
           </div>
         </div>
 
-        <!-- Cuadrícula de Avatares -->
-        <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-          <!-- Renderizado dinámico desde modder-uploader.js -->
+        <!-- ====================================================== -->
+        <!-- NIVEL 2: VISTA DE DETALLE DE COLECCIÓN (AVATARES)      -->
+        <!-- ====================================================== -->
+        <div id="collectionDetailContainer" class="space-y-6 hidden">
+          <!-- Cabecera de Navegación y Búsqueda Interna -->
+          <div class="lat-card p-4 sm:p-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center gap-2 hover:border-amber-300 transition-colors" title="Volver al listado de colecciones">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Volver a Colecciones</span>
+              </button>
+              <div class="space-y-0.5 text-left">
+                <div class="flex items-center gap-2">
+                  <h3 id="detailCollectionTitle" class="text-sm sm:text-base font-bold text-white">Colección</h3>
+                  <span id="detailCollectionBadge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-400/10 text-amber-300 border border-amber-400/20"></span>
+                </div>
+                <p id="detailCollectionCount" class="text-[11px] text-white/50">0 avatares</p>
+              </div>
+            </div>
+
+            <div class="relative w-full sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+              <input type="text" id="detailSearchInput" placeholder="Buscar archivo en esta colección..." class="lat-field w-full text-xs pl-9 pr-3">
+            </div>
+          </div>
+
+          <!-- Cuadrícula de Avatares de la Colección Seleccionada -->
+          <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <!-- Renderizado dinámico desde modder-uploader.js -->
+          </div>
         </div>
 
       </div>
@@ -236,7 +269,7 @@
     <!-- MODAL DE EDICIÓN / REEMPLAZO / BORRADO DE AVATAR          -->
     <!-- ======================================================== -->
     <div id="editAvatarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-      <div class="lat-card p-6 sm:p-8 w-full max-w-lg space-y-5 text-left border border-white/20 shadow-2xl relative">
+      <div class="lat-card p-6 sm:p-8 w-full max-w-xl space-y-5 text-left border border-white/20 shadow-2xl relative">
         
         <div class="flex items-center justify-between border-b border-white/10 pb-3">
           <h3 class="text-lg font-serif text-white flex items-center gap-2">
@@ -256,14 +289,15 @@
           <div class="text-xs space-y-1 overflow-hidden">
             <div class="text-white/50 text-[10px] font-mono truncate" id="modalInfoPath"></div>
             <div><span class="text-white/50">Estilo:</span> <strong id="modalInfoStyle" class="text-white/90"></strong></div>
-            <div><span class="text-white/50">Obra:</span> <strong id="modalInfoFranchise" class="text-white/90"></strong></div>
+            <div><span class="text-white/50">Obra / Colección:</span> <strong id="modalInfoFranchise" class="text-white/90"></strong></div>
           </div>
         </div>
 
-        <!-- Campo para Renombrar -->
+        <!-- Campo para Renombrar Archivo Exacto -->
         <div class="space-y-1.5">
-          <label class="text-xs text-white/70 block font-medium">Nombre del Personaje</label>
-          <input type="text" id="modalCharacterInput" class="lat-field w-full text-xs py-2" placeholder="Nombre del personaje">
+          <label class="text-xs text-white/70 block font-medium">Nombre del Archivo (en GitHub)</label>
+          <input type="text" id="modalCharacterInput" class="lat-field w-full text-xs py-2 font-mono" placeholder="ej: Noelle (Valkyrie).webp">
+          <p class="text-[11px] text-white/40">Se guardará con este nombre directo en la carpeta de la colección.</p>
         </div>
 
         <!-- Reemplazo de Imagen -->
@@ -284,20 +318,20 @@
         <!-- Estado / Feedback -->
         <div id="modalEditStatus" class="text-xs text-center min-h-[18px]"></div>
 
-        <!-- Botones de Acción -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/10">
-          <button id="btnModalDelete" type="button" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer" title="Marcar este avatar para eliminar en los cambios pendientes">
+        <!-- Botones de Acción (Contenidos estrictamente dentro de los bordes) -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+          <button id="btnModalDelete" type="button" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shrink-0" title="Marcar este avatar para eliminar en los cambios pendientes">
             <i class="fa-solid fa-trash-can"></i>
             <span>Marcar para Eliminar</span>
           </button>
 
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <button id="btnModalCancel" type="button" class="lat-capsule-btn outline text-xs px-4 py-2 flex-1 sm:flex-none">
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="btnModalCancel" type="button" class="lat-capsule-btn outline text-xs px-4 py-2">
               Cancelar
             </button>
-            <button id="btnModalSave" type="button" class="lat-capsule-btn solid text-xs px-5 py-2 flex-1 sm:flex-none font-semibold flex items-center justify-center gap-1.5" title="Guardar edición en la lista de cambios pendientes">
+            <button id="btnModalSave" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 font-semibold flex items-center justify-center gap-1.5" title="Guardar edición en la lista de cambios pendientes">
               <i class="fa-solid fa-check text-emerald-400"></i>
-              <span>Aplicar a Cambios Pendientes</span>
+              <span>Aplicar Cambios</span>
             </button>
           </div>
         </div>
@@ -318,7 +352,9 @@
       handleFiles, 
       renderQueue, 
       stageBatchUpload,
+      updateStep2Visibility,
       renderCatalogGrid,
+      closeCollectionDetail,
       closeEditModal,
       handleReplacementImage,
       stageAvatarUpdate,
@@ -378,11 +414,12 @@
       updateStagedUI();
     }
 
-    // Selección de Estilos y Franquicias en Uploader
+    // Selección de Estilos y Franquicias en Uploader (Paso 1)
     const selectStyle = document.getElementById('selectStyle');
     if (selectStyle) {
       selectStyle.addEventListener('change', () => {
         modderState.selectedStyle = selectStyle.value;
+        updateStep2Visibility();
         renderQueue();
       });
     }
@@ -400,6 +437,12 @@
           modderState.isNewFranchise = false;
           modderState.selectedFranchise = selectFranchise.value;
         }
+        updateStep2Visibility();
+        renderQueue();
+      });
+
+      inputNewFranchise.addEventListener('input', () => {
+        updateStep2Visibility();
         renderQueue();
       });
     }
@@ -440,7 +483,7 @@
       btnSaveAll.addEventListener('click', commitAllStagedChanges);
     }
 
-    // Filtros de Catálogo Existente
+    // Filtros de Catálogo Existente (Colecciones)
     const manageSearchInput = document.getElementById('manageSearchInput');
     if (manageSearchInput) {
       manageSearchInput.addEventListener('input', (e) => {
@@ -453,15 +496,8 @@
     if (manageStyleSelect) {
       manageStyleSelect.addEventListener('change', (e) => {
         modderState.catalogFilters.style = e.target.value;
+        modderState.activeCollection = null; // Regresar al nivel de colecciones
         populateSelects();
-        renderCatalogGrid();
-      });
-    }
-
-    const manageFranchiseSelect = document.getElementById('manageFranchiseSelect');
-    if (manageFranchiseSelect) {
-      manageFranchiseSelect.addEventListener('change', (e) => {
-        modderState.catalogFilters.franchise = e.target.value;
         renderCatalogGrid();
       });
     }
@@ -470,6 +506,20 @@
     if (btnRefreshCatalog) {
       btnRefreshCatalog.addEventListener('click', async () => {
         await populateSelects(true);
+        renderCatalogGrid();
+      });
+    }
+
+    // Navegación de Detalle de Colección (Nivel 2)
+    const btnBackToCollections = document.getElementById('btnBackToCollections');
+    if (btnBackToCollections) {
+      btnBackToCollections.addEventListener('click', closeCollectionDetail);
+    }
+
+    const detailSearchInput = document.getElementById('detailSearchInput');
+    if (detailSearchInput) {
+      detailSearchInput.addEventListener('input', (e) => {
+        modderState.detailSearchQuery = e.target.value;
         renderCatalogGrid();
       });
     }
