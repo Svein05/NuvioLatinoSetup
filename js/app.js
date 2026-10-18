@@ -1444,7 +1444,7 @@ class AppController {
              data-avatar-name="${av.character}" 
              title="${av.character} (${av.franchiseName})">
           <div class="avatar-circle-wrap">
-            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+            <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           </div>
           <span class="avatar-card-name-label">${av.character}</span>
         </div>

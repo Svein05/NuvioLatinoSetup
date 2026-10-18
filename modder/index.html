@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Modder | Nuvio Metadata Latino</title>
+  <meta name="description" content="Gestor exclusivo para modders: subida por lote con conversión a WebP y administración integral de assets existentes en GitHub." />
+  
+  <!-- Favicon e Iconos -->
+  <link rel="icon" type="image/webp" href="../assets/logo/logo.webp" />
+  <link rel="apple-touch-icon" href="../assets/logo/logo.webp" />
+
+  <!-- Preload de Fuentes Instrument Sans & Serif -->
+  <link rel="preload" href="../assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="../assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Instrument Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+          },
+          colors: {
+            brand: {
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="../css/styles.css?v=1.7.0" />
+</head>
+<body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white overflow-x-hidden">
+
+  <!-- Barra de Navegación Flotante LAT-ADD Style -->
+  <header class="lat-floating-nav">
+    <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Volver al Inicio">
+      <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
+      <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
+      <span class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 font-mono">Modder</span>
+    </a>
+
+    <div class="flex items-center gap-2 shrink-0 pointer-events-auto">
+      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-white/80 hover:text-white hover:bg-white/[0.12] flex items-center gap-1.5 cursor-pointer transition-all" title="Cerrar sesión de modder y volver a cuenta">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+        <span>Volver a Cuenta</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="flex-1 flex flex-col justify-start items-center px-4 sm:px-6 w-full max-w-5xl mx-auto pt-28 pb-16">
+
+    <!-- Panel de Trabajo (Pestañas de Lote y Gestión) -->
+    <div id="modderPanelView" class="w-full space-y-6">
+      
+      <!-- Selector de Pestañas Principales + Botones de Acción Global (Deshacer / Guardar) -->
+      <!-- En móvil (flex-col-reverse): los botones de acción quedan arriba de las pestañas; en PC (sm:flex-row): pestañas a la izquierda y botones a la derecha -->
+      <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <!-- Pestañas Izquierda (En móvil abajo, en PC izquierda) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-full sm:w-fit">
+          <button id="tabBtnUpload" type="button" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+            <span>Subir Nuevos</span>
+          </button>
+          <button id="tabBtnManage" type="button" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Gestionar Existentes</span>
+            <span id="manageTotalBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/10 text-white/80">0</span>
+          </button>
+        </div>
+
+        <!-- Botones de Acción Global: Deshacer y Guardar Cambios (En móvil arriba ocupando todo el ancho, en PC derecha) -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <!-- Botón Deshacer -->
+          <button id="btnUndoChange" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center justify-center gap-1.5 opacity-40 cursor-not-allowed transition-all flex-1 sm:flex-initial" disabled title="Deshacer último cambio">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Deshacer</span>
+            <span id="undoCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/80 font-bold">0</span>
+          </button>
+
+          <!-- Botón Guardar Cambios -->
+          <button id="btnSaveAllChanges" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 flex items-center justify-center gap-2 font-semibold opacity-40 cursor-not-allowed shadow-lg transition-all flex-1 sm:flex-initial" disabled title="Publicar todos los cambios acumulados en un solo commit">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Guardar Cambios</span>
+            <span id="stagedCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400 text-black font-bold">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECCIÓN A: SUBIDA POR LOTE (UPLOAD SECTION)               -->
+      <!-- ======================================================== -->
+      <div id="sectionUpload" class="space-y-6">
+        
+        <!-- Paso 1: Configuración de Destino (Estilo y Franquicia) -->
+        <div class="lat-card p-6 sm:p-8 space-y-5">
+          <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">1</span>
+            <span>Destino del Lote de Avatares</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5 text-left">
+              <label class="text-xs text-white/70 block font-medium">Estilo de Avatar</label>
+              <select id="selectStyle" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
+                <option value="">Cargando estilos...</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5 text-left">
+              <label class="text-xs text-white/70 block font-medium">Franquicia / Obra</label>
+              <select id="selectFranchise" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
+                <option value="">Cargando franquicias...</option>
+              </select>
+              <input type="text" id="inputNewFranchise" placeholder="Nombre de la obra (ej: DragonBall)" class="lat-field w-full text-xs mt-2 hidden">
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 2: Zona Dropzone para Múltiples Imágenes (Visible solo tras seleccionar Estilo y Franquicia) -->
+        <div id="stepDropzoneCard" class="lat-card p-6 sm:p-8 space-y-4 hidden">
+          <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">2</span>
+            <span>Arrastrar y Soltar Múltiples Imágenes</span>
+          </div>
+
+          <div id="dropzoneBox" class="border-2 border-dashed border-white/15 hover:border-amber-400/50 rounded-2xl p-8 sm:p-12 text-center transition-all bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer relative">
+            <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+            
+            <div class="space-y-3 pointer-events-none">
+              <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-white/70 text-2xl">
+                <i class="fa-solid fa-images"></i>
+              </div>
+              <div>
+                <p class="text-sm sm:text-base font-medium text-white">
+                  Arrastra aquí tus imágenes o <span class="text-amber-300 underline underline-offset-4">haz clic para explorar</span>
+                </p>
+                <p class="text-xs text-white/50 mt-1">
+                  Convierte automáticamente PNG, JPG, JPEG, SVG y WebP a <strong class="text-emerald-400">WebP 100% optimizado</strong> en tu navegador.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 3: Cola de Lote y Publicación -->
+        <div id="queueSection" class="lat-card p-4 sm:p-6 sm:p-8 space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+              <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">3</span>
+              <span>Cola de Lote (<span id="queueCountBadge" class="text-emerald-400 font-mono">0</span>)</span>
+            </div>
+            <button id="btnClearQueue" type="button" class="text-xs text-white/40 hover:text-rose-400 transition-colors">
+              Vaciar cola
+            </button>
+          </div>
+
+          <div id="queueContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1"></div>
+
+          <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div id="uploadStatusText" class="text-xs text-white/70 text-center sm:text-left flex-1">
+              Añade este lote a la lista de cambios pendientes para guardarlo junto con tus otras ediciones.
+            </div>
+
+            <button id="btnSubmitBatch" type="button" class="lat-capsule-btn solid px-6 py-2.5 font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-500/20" title="Añadir esta tanda a los cambios pendientes a guardar">
+              <i class="fa-solid fa-layer-group text-amber-300"></i>
+              <span>Añadir Lote a Cambios Pendientes</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECCIÓN B: GESTIONAR ASSETS EXISTENTES (MANAGE SECTION)   -->
+      <!-- ======================================================== -->
+      <div id="sectionManage" class="space-y-6 hidden">
+        
+        <!-- ====================================================== -->
+        <!-- NIVEL 1: VISTA DE COLECCIONES (2 COLS PC, 1 COL MÓVIL) -->
+        <!-- ====================================================== -->
+        <div id="collectionsViewContainer" class="space-y-6">
+          <!-- Barra de Filtros y Búsqueda de Colecciones -->
+          <div class="lat-card p-4 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <!-- Fila en móvil: Buscador + Botón compacto de refrescar a su derecha -->
+              <div class="flex items-center gap-2 flex-1">
+                <div class="relative flex-1">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                  <input type="text" id="manageSearchInput" placeholder="Buscar colección u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+                </div>
+                <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline w-10 h-10 sm:w-auto sm:h-auto sm:px-3 sm:py-2 text-xs flex items-center justify-center gap-1.5 shrink-0 rounded-xl" title="Recargar catálogo desde GitHub">
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span class="hidden sm:inline">Refrescar</span>
+                </button>
+              </div>
+
+              <!-- Filtro Estilo -->
+              <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer w-full sm:w-52">
+                <option value="all">Todos los estilos</option>
+              </select>
+            </div>
+
+            <div class="text-xs text-white/50 text-left flex items-center justify-between">
+              <span id="catalogFilterCount">Cargando colecciones...</span>
+              <span class="text-[11px] text-white/40">Selecciona una colección para editar sus avatares</span>
+            </div>
+          </div>
+
+          <!-- Cuadrícula de Colecciones: 2 columnas en PC/tablet, 1 en móvil -->
+          <div id="collectionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Renderizado dinámico desde modder-uploader.js -->
+          </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- NIVEL 2: VISTA DE DETALLE DE COLECCIÓN (AVATARES)      -->
+        <!-- ====================================================== -->
+        <div id="collectionDetailContainer" class="space-y-6 hidden">
+          <!-- Cabecera de Navegación, Título, Filtros de Estilo y Búsqueda Compacta -->
+          <div class="lat-card p-3 sm:p-4 space-y-2.5">
+            
+            <!-- Fila Superior: Botón Volver (Izq) | Título + Contador (Centro) | Buscador (Der) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-2.5 sm:gap-4">
+              <div class="flex items-center justify-start">
+                <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-1.5 flex items-center gap-2 hover:border-amber-300 transition-colors shrink-0" title="Volver al listado de obras">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Volver a Colecciones</span>
+                </button>
+              </div>
+
+              <!-- Título de la Obra (Centrado) y Contador en la fila principal superior -->
+              <div class="text-center space-y-0.5 min-w-0">
+                <h3 id="detailCollectionTitle" class="text-base sm:text-lg font-bold text-white tracking-wide truncate">Colección</h3>
+                <p id="detailCollectionCount" class="text-[11px] text-white/50 font-mono">0 avatares disponibles</p>
+              </div>
+
+              <!-- Buscador y Botón de Refrescar a la derecha -->
+              <div class="flex items-center justify-end gap-2 w-full">
+                <div class="relative flex-1 sm:w-52 sm:flex-initial">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                  <input type="text" id="detailSearchInput" placeholder="Buscar personaje o archivo..." class="lat-field w-full text-xs pl-8 pr-3 py-1.5">
+                </div>
+                <button id="btnRefreshDetailCatalog" type="button" class="lat-capsule-btn outline w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 sm:py-1.5 text-xs flex items-center justify-center gap-1.5 shrink-0 rounded-xl" title="Sincronizar catálogo con GitHub">
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span class="hidden sm:inline">Refrescar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Botones de Filtro para los 3 Estilos (Pegados inmediatamente debajo del título) -->
+            <!-- Sin botón 'todos': seleccionables individualmente, y al volver a pulsar el activo se deselecciona -->
+            <div id="detailStyleFiltersContainer" class="flex items-center justify-center gap-1.5 flex-wrap pt-0.5">
+              <!-- Renderizado dinámicamente desde modder-uploader.js -->
+            </div>
+
+          </div>
+
+          <!-- Cuadrícula de Avatares de la Colección Seleccionada -->
+          <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <!-- Renderizado dinámico desde modder-uploader.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE EDICIÓN / REEMPLAZO / BORRADO DE AVATAR          -->
+    <!-- ======================================================== -->
+    <div id="editAvatarModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="lat-card p-6 sm:p-8 w-full max-w-xl space-y-5 text-left border border-white/20 shadow-2xl relative">
+        
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 class="text-lg font-serif text-white flex items-center gap-2">
+            <i class="fa-solid fa-pen-ruler text-amber-300 text-sm"></i>
+            <span>Editar Asset Existente</span>
+          </h3>
+          <button id="btnModalClose" type="button" class="text-white/40 hover:text-white text-sm p-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Vista previa actual -->
+        <div class="flex items-center gap-4 bg-white/[0.02] border border-white/10 p-3 rounded-xl">
+          <div class="w-20 h-20 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
+            <img id="modalAvatarPreview" src="" alt="Avatar actual" class="w-full h-full object-cover">
+          </div>
+          <div class="text-xs space-y-1 overflow-hidden">
+            <div class="text-white/50 text-[10px] font-mono truncate" id="modalInfoPath"></div>
+            <div><span class="text-white/50">Estilo:</span> <strong id="modalInfoStyle" class="text-white/90"></strong></div>
+            <div><span class="text-white/50">Obra / Colección:</span> <strong id="modalInfoFranchise" class="text-white/90"></strong></div>
+          </div>
+        </div>
+
+        <!-- Campo para Renombrar Personaje (Sin extensión .webp editable) -->
+        <div class="space-y-1.5">
+          <label class="text-xs text-white/70 block font-medium">Nombre del Personaje</label>
+          <div class="flex items-center gap-2">
+            <input type="text" id="modalCharacterInput" class="lat-field w-full text-xs py-2 font-mono" placeholder="ej: Noelle (Valkyrie)">
+            <span class="text-xs font-mono text-white/40 shrink-0 px-2.5 py-2 bg-white/[0.05] border border-white/10 rounded-xl">.webp</span>
+          </div>
+          <p class="text-[11px] text-white/40">Se guardará automáticamente como archivo .webp en la carpeta de la colección.</p>
+        </div>
+
+        <!-- Reemplazo de Imagen -->
+        <div class="space-y-2">
+          <label class="text-xs text-white/70 block font-medium">Reemplazar Imagen (Opcional)</label>
+          <div class="border border-dashed border-white/20 hover:border-amber-400/50 p-3 rounded-xl text-center relative cursor-pointer bg-white/[0.01]">
+            <input type="file" id="modalFileInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+            <span class="text-xs text-white/60">Haz clic o arrastra una nueva imagen para sobreescribir</span>
+          </div>
+
+          <!-- Previsualización de Reemplazo si se selecciona -->
+          <div id="modalReplacementPreview" class="hidden flex items-center gap-3 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs">
+            <img id="modalReplacementImg" src="" alt="Nueva imagen" class="w-12 h-12 rounded-lg object-cover">
+            <span class="text-emerald-400">Nueva imagen lista en formato WebP</span>
+          </div>
+        </div>
+
+        <!-- Estado / Feedback -->
+        <div id="modalEditStatus" class="text-xs text-center min-h-[18px]"></div>
+
+        <!-- Botones de Acción (Contenidos estrictamente dentro de los bordes) -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 pt-3 border-t border-white/10">
+          <button id="btnModalDelete" type="button" class="text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shrink-0" title="Marcar este avatar para eliminar en los cambios pendientes">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Marcar para Eliminar</span>
+          </button>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button id="btnModalCancel" type="button" class="lat-capsule-btn outline text-xs px-4 py-2">
+              Cancelar
+            </button>
+            <button id="btnModalSave" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 font-semibold flex items-center justify-center gap-1.5" title="Guardar edición en la lista de cambios pendientes">
+              <i class="fa-solid fa-check text-emerald-400"></i>
+              <span>Aplicar Cambios</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE PUBLICACIÓN EN GITHUB (ESTILO NUVIO / LAT-CARD)  -->
+    <!-- ======================================================== -->
+    <div id="publishStagedModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="lat-card p-6 sm:p-7 w-full max-w-xl sm:max-w-2xl space-y-4 text-left border border-white/20 shadow-2xl relative">
+        
+        <!-- Cabecera del Modal -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-300 text-sm"></i>
+            <span>Publicar Cambios en GitHub</span>
+          </h3>
+          <button id="btnPublishModalClose" type="button" class="text-white/40 hover:text-white text-sm p-1 transition-colors" title="Cerrar ventana">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- FASE 1: CONFIRMACIÓN Y RESUMEN -->
+        <div id="publishPhaseConfirm" class="space-y-4">
+          <p class="text-xs text-white/70 leading-relaxed">
+            Se aplicarán todos los cambios acumulados directamente en el repositorio oficial de GitHub en un único commit atómico:
+          </p>
+
+          <!-- Resumen de Contadores -->
+          <div class="grid grid-cols-3 gap-2.5 py-1">
+            <div class="p-3 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 text-center space-y-1">
+              <span id="confirmAddedCount" class="text-base font-bold font-mono text-emerald-400 block">0</span>
+              <span class="text-[10px] text-white/60 uppercase tracking-wider block">Nuevos</span>
+            </div>
+            <div class="p-3 rounded-xl bg-amber-400/[0.08] border border-amber-400/20 text-center space-y-1">
+              <span id="confirmModifiedCount" class="text-base font-bold font-mono text-amber-300 block">0</span>
+              <span class="text-[10px] text-white/60 uppercase tracking-wider block">Editados</span>
+            </div>
+            <div class="p-3 rounded-xl bg-rose-500/[0.08] border border-rose-500/20 text-center space-y-1">
+              <span id="confirmDeletedCount" class="text-base font-bold font-mono text-rose-400 block">0</span>
+              <span class="text-[10px] text-white/60 uppercase tracking-wider block">Eliminados</span>
+            </div>
+          </div>
+
+          <!-- Desglose de Operaciones Pendientes con Descarte Individual -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs px-0.5">
+              <span class="text-white/80 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-list-check text-amber-300 text-xs"></i>
+                <span>Desglose de cambios pendientes</span>
+              </span>
+              <span id="confirmTotalOperationsBadge" class="text-[11px] font-mono text-white/60 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-full">
+                0 operaciones
+              </span>
+            </div>
+
+            <!-- Lista interactiva scrolleable de cambios -->
+            <div id="publishStagedItemsList" class="max-h-56 sm:max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+              <!-- Renderizado dinámicamente -->
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-[11px] text-white/60 flex items-start gap-2.5">
+            <i class="fa-solid fa-shield-halved text-emerald-400 text-xs shrink-0 mt-0.5"></i>
+            <span>Se aplicará un commit atómico con la bandera <strong class="text-emerald-400 font-mono">[skip ci]</strong> en <strong class="text-white font-mono">main</strong>, sincronizando los assets inmediatamente sin disparar deploys ni interrumpir la web en vivo.</span>
+          </div>
+
+          <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-white/10">
+            <button id="btnCancelPublish" type="button" class="lat-capsule-btn outline text-xs px-4 py-2">
+              Cancelar
+            </button>
+            <button id="btnConfirmPublish" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 font-semibold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+              <span>Confirmar y Publicar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- FASE 2: PROGRESO Y CONSOLA DE LOGS EN VIVO -->
+        <div id="publishPhaseProgress" class="space-y-3.5 hidden">
+          <!-- Título de Estado y Porcentaje -->
+          <div class="flex items-center justify-between text-xs">
+            <span id="publishProgressStatusText" class="font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-spinner fa-spin text-amber-300"></i>
+              <span>Iniciando comunicación con el Worker...</span>
+            </span>
+            <span id="publishProgressPercent" class="font-mono text-amber-300 font-bold">0%</span>
+          </div>
+
+          <!-- Barra de Progreso -->
+          <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
+            <div id="publishProgressBar" class="bg-gradient-to-r from-amber-400 to-amber-200 h-2 rounded-full transition-all duration-300 w-0 shadow-sm"></div>
+          </div>
+
+          <!-- Consola de Logs Monospace (Estilo Terminal) -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[10px] text-white/40 uppercase tracking-wider px-1">
+              <span>Registro de eventos</span>
+              <span id="publishLogCounter" class="font-mono text-[10px] text-white/40">0 eventos</span>
+            </div>
+            <div id="publishLogConsole" class="bg-black/80 border border-white/10 rounded-xl p-3 font-mono text-[11px] h-44 overflow-y-auto space-y-1 select-text scrollbar-thin">
+              <!-- Logs inyectados en tiempo real -->
+            </div>
+          </div>
+
+          <!-- Pie de Fase 2 -->
+          <div class="flex items-center justify-between pt-1 text-[11px] text-white/40">
+            <span class="italic"><i class="fa-solid fa-shield-halved mr-1"></i>No cierres la ventana mientras se publica...</span>
+          </div>
+        </div>
+
+        <!-- FASE 3: RESULTADO FINAL (ÉXITO O ERROR) -->
+        <div id="publishPhaseResult" class="space-y-4 hidden">
+          <div id="publishResultContent"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Script Controlador Principal -->
+  <script type="module">
+    import { 
+      modderState, 
+      stagedState,
+      getModderSession, 
+      clearModderSession, 
+      populateSelects, 
+      handleFiles, 
+      renderQueue, 
+      stageBatchUpload,
+      updateStep2Visibility,
+      renderCatalogGrid,
+      closeCollectionDetail,
+      closeEditModal,
+      handleReplacementImage,
+      stageAvatarUpdate,
+      stageAvatarDelete,
+      undoLastChange,
+      commitAllStagedChanges,
+      updateStagedUI,
+      openPublishModal,
+      closePublishModal,
+      executePublishStagedChanges,
+      refreshCatalogFromGitHub
+    } from '../js/modder-uploader.js?v=1.8.8';
+
+    // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
+    const activeSession = getModderSession();
+    if (!activeSession || !activeSession.token) {
+      window.location.replace('../account/');
+      throw new Error('Acceso no autorizado.');
+    }
+
+    modderState.token = activeSession.token;
+    modderState.email = activeSession.email;
+
+    const btnLogout = document.getElementById('btnLogoutModder');
+    const tabBtnUpload = document.getElementById('tabBtnUpload');
+    const tabBtnManage = document.getElementById('tabBtnManage');
+    const sectionUpload = document.getElementById('sectionUpload');
+    const sectionManage = document.getElementById('sectionManage');
+
+    // Cambiar entre Pestañas Subir Nuevos y Gestionar Existentes
+    function switchTab(tab) {
+      modderState.activeTab = tab;
+      if (tab === 'upload') {
+        tabBtnUpload.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
+        tabBtnManage.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
+        sectionUpload.classList.remove('hidden');
+        sectionManage.classList.add('hidden');
+      } else {
+        tabBtnManage.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap';
+        tabBtnUpload.className = 'flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap';
+        sectionManage.classList.remove('hidden');
+        sectionUpload.classList.add('hidden');
+        renderCatalogGrid();
+      }
+    }
+
+    if (tabBtnUpload) tabBtnUpload.addEventListener('click', () => switchTab('upload'));
+    if (tabBtnManage) tabBtnManage.addEventListener('click', () => switchTab('manage'));
+
+    // Logout
+    if (btnLogout) {
+      btnLogout.addEventListener('click', () => {
+        clearModderSession();
+        window.location.replace('../account/');
+      });
+    }
+
+    async function init() {
+      await populateSelects();
+      renderCatalogGrid();
+      updateStagedUI();
+    }
+
+    // Selección de Estilos y Franquicias en Uploader (Paso 1)
+    const selectStyle = document.getElementById('selectStyle');
+    if (selectStyle) {
+      selectStyle.addEventListener('change', () => {
+        modderState.selectedStyle = selectStyle.value;
+        updateStep2Visibility();
+        renderQueue();
+      });
+    }
+
+    const selectFranchise = document.getElementById('selectFranchise');
+    const inputNewFranchise = document.getElementById('inputNewFranchise');
+    if (selectFranchise && inputNewFranchise) {
+      selectFranchise.addEventListener('change', () => {
+        if (selectFranchise.value === '__NEW__') {
+          inputNewFranchise.classList.remove('hidden');
+          inputNewFranchise.focus();
+          modderState.isNewFranchise = true;
+        } else {
+          inputNewFranchise.classList.add('hidden');
+          modderState.isNewFranchise = false;
+          modderState.selectedFranchise = selectFranchise.value;
+        }
+        updateStep2Visibility();
+        renderQueue();
+      });
+
+      inputNewFranchise.addEventListener('input', () => {
+        updateStep2Visibility();
+        renderQueue();
+      });
+    }
+
+    // File Input Uploader
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+      fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+        fileInput.value = '';
+      });
+    }
+
+    // Vaciar cola temporal
+    const btnClearQueue = document.getElementById('btnClearQueue');
+    if (btnClearQueue) {
+      btnClearQueue.addEventListener('click', () => {
+        modderState.filesQueue = [];
+        renderQueue();
+        updateStagedUI();
+      });
+    }
+
+    // Añadir tanda a cambios pendientes
+    const btnSubmit = document.getElementById('btnSubmitBatch');
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', stageBatchUpload);
+    }
+
+    // Botones Globales: Deshacer y Guardar Cambios
+    const btnUndo = document.getElementById('btnUndoChange');
+    if (btnUndo) {
+      btnUndo.addEventListener('click', undoLastChange);
+    }
+
+    const btnSaveAll = document.getElementById('btnSaveAllChanges');
+    if (btnSaveAll) {
+      btnSaveAll.addEventListener('click', commitAllStagedChanges);
+    }
+
+    // Filtros de Catálogo Existente (Colecciones)
+    const manageSearchInput = document.getElementById('manageSearchInput');
+    if (manageSearchInput) {
+      manageSearchInput.addEventListener('input', (e) => {
+        modderState.catalogFilters.query = e.target.value;
+        renderCatalogGrid();
+      });
+    }
+
+    const manageStyleSelect = document.getElementById('manageStyleSelect');
+    if (manageStyleSelect) {
+      manageStyleSelect.addEventListener('change', (e) => {
+        modderState.catalogFilters.style = e.target.value;
+        modderState.activeCollection = null; // Regresar al nivel de colecciones
+        populateSelects();
+        renderCatalogGrid();
+      });
+    }
+
+    const btnRefreshCatalog = document.getElementById('btnRefreshCatalog');
+    if (btnRefreshCatalog) {
+      btnRefreshCatalog.addEventListener('click', refreshCatalogFromGitHub);
+    }
+
+    const btnRefreshDetailCatalog = document.getElementById('btnRefreshDetailCatalog');
+    if (btnRefreshDetailCatalog) {
+      btnRefreshDetailCatalog.addEventListener('click', refreshCatalogFromGitHub);
+    }
+
+    // Navegación de Detalle de Colección (Nivel 2)
+    const btnBackToCollections = document.getElementById('btnBackToCollections');
+    if (btnBackToCollections) {
+      btnBackToCollections.addEventListener('click', closeCollectionDetail);
+    }
+
+    const detailSearchInput = document.getElementById('detailSearchInput');
+    if (detailSearchInput) {
+      detailSearchInput.addEventListener('input', (e) => {
+        modderState.detailSearchQuery = e.target.value;
+        renderCatalogGrid();
+      });
+    }
+
+    // Modal Events
+    const btnModalClose = document.getElementById('btnModalClose');
+    const btnModalCancel = document.getElementById('btnModalCancel');
+    if (btnModalClose) btnModalClose.addEventListener('click', closeEditModal);
+    if (btnModalCancel) btnModalCancel.addEventListener('click', closeEditModal);
+
+    const modalFileInput = document.getElementById('modalFileInput');
+    if (modalFileInput) {
+      modalFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleReplacementImage(e.target.files[0]);
+        }
+      });
+    }
+
+    const btnModalSave = document.getElementById('btnModalSave');
+    if (btnModalSave) btnModalSave.addEventListener('click', stageAvatarUpdate);
+
+    const btnModalDelete = document.getElementById('btnModalDelete');
+    if (btnModalDelete) btnModalDelete.addEventListener('click', stageAvatarDelete);
+
+    // Eventos del Modal de Publicación en GitHub (Progreso y Logs)
+    const btnPublishModalClose = document.getElementById('btnPublishModalClose');
+    if (btnPublishModalClose) btnPublishModalClose.addEventListener('click', closePublishModal);
+
+    const btnCancelPublish = document.getElementById('btnCancelPublish');
+    if (btnCancelPublish) btnCancelPublish.addEventListener('click', closePublishModal);
+
+    const btnConfirmPublish = document.getElementById('btnConfirmPublish');
+    if (btnConfirmPublish) btnConfirmPublish.addEventListener('click', executePublishStagedChanges);
+
+    init();
+  </script>
+</body>
+</html>
