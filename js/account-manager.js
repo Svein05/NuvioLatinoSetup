@@ -4086,7 +4086,7 @@ export async function saveAllChanges() {
           profileId: profId,
           platform,
           settings: profileSettingsPayload
-        }).catch(() => null);
+        });
       }
 
       // Sincronizar credenciales oficiales de proveedores en Nuvio
@@ -4104,7 +4104,7 @@ export async function saveAllChanges() {
           accessToken: accountState.session.accessToken,
           profileId: profId,
           credentials: creds
-        }).catch(() => null);
+        });
       }
 
       accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));

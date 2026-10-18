@@ -27,11 +27,10 @@ let cachedWebhookUrl = '';
 
 /**
  * Obtiene la URL del webhook disponible.
- * Prioriza la inyectada por GitHub Actions en producción.
+ * Adaptador heredado, pendiente de trasladar al Worker sin secretos públicos.
  * Si está en local/dev, lee desde:
  * 1. js/webhook-config.local.js (sincronizado con .env y excluido en .gitignore)
  * 2. localStorage ('nuvio_dev_webhook_url')
- * 3. endpoint local /api/env (si corre vía python run.py)
  */
 async function getWebhookUrl() {
   if (cachedWebhookUrl) return cachedWebhookUrl;
@@ -57,21 +56,6 @@ async function getWebhookUrl() {
     if (devUrl) {
       cachedWebhookUrl = devUrl;
       return devUrl;
-    }
-  } catch (_) {}
-
-  // 3. Endpoint /api/env si se ejecuta con run.py
-  try {
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (isLocal) {
-      const res = await fetch('/api/env').catch(() => null);
-      if (res?.ok) {
-        const data = await res.json().catch(() => null);
-        if (data?.DISCORD_WEBHOOK_URL) {
-          cachedWebhookUrl = data.DISCORD_WEBHOOK_URL.trim();
-          return cachedWebhookUrl;
-        }
-      }
     }
   } catch (_) {}
 

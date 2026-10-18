@@ -1,3 +1,5 @@
+import { pushProfileSettings as saveProfileSettings } from '../src/integrations/nuvio/profile-settings.js';
+import { legacyHistory } from '../src/integrations/nuvio/profile-history.js';
 /**
  * Cliente de Integración con el Backend Supabase de Nuvio (api.nuvio.tv)
  * Maneja Autenticación, Procedimientos Almacenados (RPC), Addons y Colecciones.
@@ -1209,128 +1211,8 @@ export class NuvioClient {
    * Configura las opciones del perfil para activar TMDB Enrichment y MDBList Ratings
    * en Español Latino (es-MX) tanto para plataforma 'tv' como 'mobile'.
    */
-  static async pushProfileSettings({ apiUrl, apikey, accessToken, profileId, platform = 'tv', settings = {} }) {
-    const profId = Number(profileId) || profileId;
-
-    const isEnrichmentActive = Boolean(settings.enrichment_enabled);
-    const isRatingsActive = Boolean(settings.ratings_enabled);
-
-    // Estructura canónica oficial requerida por Nuvio para TV, Mobile y Desktop
-    const tmdbFeatures = {
-      tmdb_enabled: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_language: { type: 'string', value: settings.language || settings.tmdb_language || 'es-MX' },
-      tmdb_modern_home_enabled: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_enrich_continue_watching: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_artwork: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_basic_info: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_details: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_release_dates: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_credits: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_productions: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_networks: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_episodes: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_trailers: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_more_like_this: { type: 'boolean', value: isEnrichmentActive },
-      tmdb_use_collections: { type: 'boolean', value: isEnrichmentActive }
-    };
-
-    if (settings.tmdb_api_key && String(settings.tmdb_api_key).trim()) {
-      tmdbFeatures.tmdb_api_key = { type: 'string', value: String(settings.tmdb_api_key).trim() };
-    }
-
-    const mdblistFeatures = {
-      mdblist_enabled: { type: 'boolean', value: isRatingsActive },
-      mdblist_api_key: { type: 'string', value: isRatingsActive ? String(settings.mdblist_api_key || '').trim() : '' },
-      // Claves canónicas para Nuvio TV (prefijo mdblist_show_*)
-      mdblist_show_trakt: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_imdb: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_tmdb: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_letterboxd: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_tomatoes: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_audience: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_metacritic: { type: 'boolean', value: isRatingsActive },
-      mdblist_show_mal: { type: 'boolean', value: isRatingsActive },
-      // Claves canónicas para Nuvio Mobile y Desktop (prefijo mdblist_use_*)
-      mdblist_use_imdb: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_tmdb: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_tomatoes: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_metacritic: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_trakt: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_letterboxd: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_audience: { type: 'boolean', value: isRatingsActive },
-      mdblist_use_mal: { type: 'boolean', value: isRatingsActive }
-    };
-
-    const settingsBlob = {
-      version: platform === 'tv' ? 1 : 4,
-      features: {
-        tmdb_settings: tmdbFeatures,
-        mdblist_settings: mdblistFeatures,
-        ...(settings.stream_badge_settings ? { stream_badge_settings: settings.stream_badge_settings } : {}),
-        ...(settings.features || {})
-      },
-      // Preservar claves de nivel superior por retrocompatibilidad
-      language: settings.language || 'es-MX',
-      tmdb_language: settings.tmdb_language || 'es-MX',
-      enrichment_enabled: isEnrichmentActive,
-      ratings_enabled: isRatingsActive,
-      auto_translate: true
-    };
-
-    // 1. Intentar RPC sync_push_profile_settings_blob
-    try {
-      await this.rpc({
-        apiUrl,
-        apikey,
-        accessToken,
-        path: 'sync_push_profile_settings_blob',
-        body: {
-          p_profile_id: profId,
-          p_platform: platform,
-          p_settings_json: settingsBlob,
-          p_origin_client_id: 'nuvio-setup-web'
-        }
-      });
-      return { success: true, method: 'rpc' };
-    } catch (rpcErr) {
-      try {
-        await this.rpc({
-          apiUrl,
-          apikey,
-          accessToken,
-          path: 'sync_push_profile_settings_blob',
-          body: {
-            p_profile_id: profId,
-            p_platform: platform,
-            p_settings_json: settingsBlob
-          }
-        });
-        return { success: true, method: 'rpc_compact' };
-      } catch (err2) {
-        console.warn(`[NuvioClient] sync_push_profile_settings_blob (${platform}) falló:`, err2.message);
-      }
-    }
-
-    // 2. Fallback REST a tabla profile_settings o settings
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-    try {
-      await fetch(`${cleanUrl}/rest/v1/profile_settings`, {
-        method: 'POST',
-        headers: {
-          'apikey': apikey,
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({
-          profile_id: profId,
-          platform: platform,
-          settings: settingsBlob
-        })
-      });
-    } catch (_) {}
-
-    return { success: true, method: 'attempted' };
+  static async pushProfileSettings(context) {
+    return saveProfileSettings(context);
   }
 
   /**
@@ -1552,154 +1434,21 @@ export class NuvioClient {
   /**
    * Obtiene el progreso de visualización (Watch Progress) de un perfil
    */
-  static async pullWatchProgress({ apiUrl, apikey, accessToken, profileId }) {
-    const profId = Number(profileId) || profileId;
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-
-    // 1. Intentar RPC sync_pull_watch_progress
-    try {
-      const data = await this.rpc({
-        apiUrl,
-        apikey,
-        accessToken,
-        path: 'sync_pull_watch_progress',
-        body: {
-          p_profile_id: profId,
-          p_limit: 100,
-          p_since_last_watched: '1970-01-01T00:00:00Z'
-        }
-      });
-      const list = Array.isArray(data) ? data : (data?.items || data?.progress || []);
-      if (Array.isArray(list) && list.length > 0) {
-        // Filtrar por profile_id estrictamente
-        const filtered = list.filter(item => item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId)));
-        const resList = filtered.length > 0 ? filtered : list;
-        resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
-        return resList;
-      }
-    } catch (_) {}
-
-    // 2. Fallback REST directo a /rest/v1/watch_progress con order por last_watched
-    try {
-      const res = await fetch(`${cleanUrl}/rest/v1/watch_progress?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=last_watched.desc&limit=100`, {
-        headers: {
-          'apikey': apikey,
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
-          'Prefer': 'count=exact'
-        }
-      });
-      if (res.ok) {
-        const rows = await res.json();
-        if (Array.isArray(rows)) {
-          const contentRange = res.headers.get('content-range');
-          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
-          const total = totalMatch ? parseInt(totalMatch[1], 10) : rows.length;
-          rows.totalCount = total;
-          return rows;
-        }
-      }
-    } catch (_) {}
-
-    return [];
+  static async pullWatchProgress(context) {
+    return legacyHistory(context, 'progress');
   }
 
   /**
    * Obtiene los elementos guardados en la biblioteca del perfil (library_items)
    */
-  static async pullLibrary({ apiUrl, apikey, accessToken, profileId }) {
-    const profId = Number(profileId) || profileId;
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-
-    try {
-      const data = await this.rpc({
-        apiUrl,
-        apikey,
-        accessToken,
-        path: 'sync_pull_library',
-        body: { p_profile_id: profId }
-      });
-      const list = Array.isArray(data) ? data : (data?.items || data?.library || []);
-      if (Array.isArray(list) && list.length > 0) {
-        list.totalCount = data?.total ?? data?.total_count ?? data?.count ?? list.length;
-        return list;
-      }
-    } catch (_) {}
-
-    try {
-      const res = await fetch(`${cleanUrl}/rest/v1/library_items?profile_id=eq.${encodeURIComponent(profId)}&select=*&limit=100`, {
-        headers: {
-          'apikey': apikey,
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
-          'Prefer': 'count=exact'
-        }
-      });
-      if (res.ok) {
-        const rows = await res.json();
-        if (Array.isArray(rows)) {
-          const contentRange = res.headers.get('content-range');
-          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
-          if (totalMatch) rows.totalCount = parseInt(totalMatch[1], 10);
-          return rows;
-        }
-      }
-    } catch (_) {}
-
-    return [];
+  static async pullLibrary(context) {
+    return legacyHistory(context, 'library');
   }
 
   /**
    * Obtiene el historial de contenidos vistos (Watched) del perfil (watched_items)
    */
-  static async pullWatched({ apiUrl, apikey, accessToken, profileId }) {
-    const profId = Number(profileId) || profileId;
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-
-    // 1. Intentar RPC sync_pull_watched_items
-    try {
-      const data = await this.rpc({
-        apiUrl,
-        apikey,
-        accessToken,
-        path: 'sync_pull_watched_items',
-        body: {
-          p_profile_id: profId,
-          p_page: 1,
-          p_page_size: 100
-        }
-      });
-      const list = Array.isArray(data) ? data : (data?.items || data?.watched || []);
-      if (Array.isArray(list) && list.length > 0) {
-        const filtered = list.filter(item => item.profile_id === undefined || Number(item.profile_id) === Number(profId));
-        const resList = filtered.length > 0 ? filtered : list;
-        resList.totalCount = data?.total ?? data?.total_count ?? data?.count ?? resList.length;
-        return resList;
-      }
-    } catch (_) {}
-
-    // 2. Fallback REST directo a /rest/v1/watched_items con order por watched_at
-    try {
-      const res = await fetch(`${cleanUrl}/rest/v1/watched_items?profile_id=eq.${encodeURIComponent(profId)}&select=*&order=watched_at.desc&limit=100`, {
-        headers: {
-          'apikey': apikey,
-          'Authorization': `Bearer ${accessToken}`,
-          'Accept': 'application/json',
-          'Prefer': 'count=exact'
-        }
-      });
-      if (res.ok) {
-        const rows = await res.json();
-        if (Array.isArray(rows)) {
-          const contentRange = res.headers.get('content-range');
-          const totalMatch = contentRange ? contentRange.match(/\/(\d+)/) : null;
-          const total = totalMatch ? parseInt(totalMatch[1], 10) : rows.length;
-          rows.totalCount = total;
-          return rows;
-        }
-      }
-    } catch (_) {}
-
-    return [];
+  static async pullWatched(context) {
+    return legacyHistory(context, 'watched');
   }
 }

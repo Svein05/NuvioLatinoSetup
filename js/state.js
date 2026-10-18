@@ -4,51 +4,11 @@
  */
 import { CONFIG } from './config.js';
 
-/**
- * Determina rigurosamente si un addon u objeto representa AIOMetadata.
- * Excluye AIOStreams y otros addons de streams o catálogos.
- */
+import { isAioMetadataAddon as identifyMetadata, isAioStreamsAddon, isSameManifest } from '../src/features/addons/index.js';
+export { isAioStreamsAddon };
+
 export function isAioMetadataAddon(addon) {
-  if (!addon) return false;
-  const name = String(addon.name || '').toLowerCase().trim();
-  const url = String(addon.url || addon.manifest_url || '').toLowerCase().trim();
-
-  // Excluir terminantemente AIOStreams
-  if (name.includes('aiostreams') || url.includes('aiostreams')) {
-    return false;
-  }
-
-  // Identificar por nombre
-  if (name.includes('aiometadata') || name === 'aiometa') {
-    return true;
-  }
-
-  // Identificar por URL
-  if (url.includes('aiometadata')) {
-    return true;
-  }
-
-  // Comprobar contra instancias oficiales o conocidas de AIOMetadata
-  const instances = Array.isArray(CONFIG.AIOMETADATA_INSTANCES) ? CONFIG.AIOMETADATA_INSTANCES : [];
-  for (const inst of instances) {
-    const host = inst.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
-    if (host && url.includes(host)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Determina rigurosamente si un addon u objeto representa alguna instancia de AIOStreams
- * (sea oficial, de la comunidad o generada externamente).
- */
-export function isAioStreamsAddon(addon) {
-  if (!addon) return false;
-  const name = String(addon.name || '').toLowerCase().trim();
-  const url = String(addon.url || addon.manifest_url || '').toLowerCase().trim();
-  return name.includes('aiostreams') || url.includes('aiostreams');
+  return identifyMetadata(addon, CONFIG.AIOMETADATA_INSTANCES);
 }
 
 class WizardState {
@@ -334,12 +294,7 @@ class WizardState {
    * Comprueba si una URL de manifiesto ya se encuentra en la lista de addons
    */
   hasAddonManifest(manifestUrl) {
-    if (!manifestUrl) return false;
-    const clean = String(manifestUrl).trim().toLowerCase().replace(/\/+$/, '');
-    return this.profileAddons.some(a => {
-      const u = String(a.manifest_url || a.url || '').trim().toLowerCase().replace(/\/+$/, '');
-      return u === clean;
-    });
+    return this.profileAddons.some(addon => isSameManifest(addon.manifest_url || addon.url, manifestUrl));
   }
 
   /**
