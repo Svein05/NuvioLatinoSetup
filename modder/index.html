@@ -232,31 +232,36 @@
         <!-- NIVEL 2: VISTA DE DETALLE DE COLECCIÓN (AVATARES)      -->
         <!-- ====================================================== -->
         <div id="collectionDetailContainer" class="space-y-6 hidden">
-          <!-- Cabecera de Navegación, Título, Filtros de Estilo y Búsqueda -->
-          <div class="lat-card p-4 sm:p-6 space-y-4">
+          <!-- Cabecera de Navegación, Título, Filtros de Estilo y Búsqueda Compacta -->
+          <div class="lat-card p-3 sm:p-4 space-y-2.5">
             
-            <!-- Fila Superior: Botón Volver (Izq) y Buscador (Der) -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center gap-2 hover:border-amber-300 transition-colors w-fit" title="Volver al listado de obras">
-                <i class="fa-solid fa-arrow-left"></i>
-                <span>Volver a Colecciones</span>
-              </button>
+            <!-- Fila Superior: Botón Volver (Izq) | Título + Contador (Centro) | Buscador (Der) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-2.5 sm:gap-4">
+              <div class="flex items-center justify-start">
+                <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-1.5 flex items-center gap-2 hover:border-amber-300 transition-colors shrink-0" title="Volver al listado de obras">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Volver a Colecciones</span>
+                </button>
+              </div>
 
-              <div class="relative w-full sm:w-64">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
-                <input type="text" id="detailSearchInput" placeholder="Buscar personaje o archivo..." class="lat-field w-full text-xs pl-9 pr-3">
+              <!-- Título de la Obra (Centrado) y Contador en la fila principal superior -->
+              <div class="text-center space-y-0.5 min-w-0">
+                <h3 id="detailCollectionTitle" class="text-base sm:text-lg font-bold text-white tracking-wide truncate">Colección</h3>
+                <p id="detailCollectionCount" class="text-[11px] text-white/50 font-mono">0 avatares disponibles</p>
+              </div>
+
+              <!-- Buscador a la derecha -->
+              <div class="flex items-center justify-end w-full">
+                <div class="relative w-full sm:w-56 shrink-0">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                  <input type="text" id="detailSearchInput" placeholder="Buscar personaje o archivo..." class="lat-field w-full text-xs pl-8 pr-3 py-1.5">
+                </div>
               </div>
             </div>
 
-            <!-- Título de la Obra (Centrado) y Contador -->
-            <div class="text-center space-y-1 pt-1">
-              <h3 id="detailCollectionTitle" class="text-lg sm:text-xl font-bold text-white tracking-wide">Colección</h3>
-              <p id="detailCollectionCount" class="text-xs text-white/50 font-mono">0 avatares disponibles</p>
-            </div>
-
-            <!-- Botones de Filtro para los 3 Estilos (Centrados debajo del título de la obra) -->
+            <!-- Botones de Filtro para los 3 Estilos (Pegados inmediatamente debajo del título) -->
             <!-- Sin botón 'todos': seleccionables individualmente, y al volver a pulsar el activo se deselecciona -->
-            <div id="detailStyleFiltersContainer" class="flex items-center justify-center gap-2 flex-wrap pt-1">
+            <div id="detailStyleFiltersContainer" class="flex items-center justify-center gap-1.5 flex-wrap pt-0.5">
               <!-- Renderizado dinámicamente desde modder-uploader.js -->
             </div>
 
@@ -372,7 +377,7 @@
       undoLastChange,
       commitAllStagedChanges,
       updateStagedUI
-    } from '../js/modder-uploader.js?v=1.8.1';
+    } from '../js/modder-uploader.js?v=1.8.2';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
     const activeSession = getModderSession();

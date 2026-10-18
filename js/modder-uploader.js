@@ -777,6 +777,28 @@ export function renderStyleFilterButtons() {
   });
 }
 
+export function getCollectionPreviewLimit() {
+  const grid = document.getElementById('collectionsGrid');
+  const w = (typeof window !== 'undefined') ? (window.innerWidth || document.documentElement.clientWidth || 360) : 360;
+  
+  if (grid && grid.clientWidth > 0) {
+    const isTwoCols = w >= 768; // md:grid-cols-2
+    const cardWidth = isTwoCols ? (grid.clientWidth - 16) / 2 : grid.clientWidth;
+    const innerWidth = cardWidth - 36; // margen/padding lateral interior
+    const slotWidth = w < 640 ? 46 : 52; // ancho icono (40/44px) + gap (6/8px)
+    const slots = Math.floor((innerWidth - 4) / slotWidth);
+    return Math.max(3, Math.min(8, slots));
+  }
+
+  // Fallback seguro basado en breakpoints estándar
+  if (w < 420) return 4;
+  if (w < 520) return 5;
+  if (w < 768) return 6;
+  if (w < 1050) return 5;
+  if (w < 1350) return 6;
+  return 7;
+}
+
 export function renderCollectionsGrid() {
   const collectionsView = document.getElementById('collectionsViewContainer');
   const detailView = document.getElementById('collectionDetailContainer');
@@ -810,11 +832,21 @@ export function renderCollectionsGrid() {
     return;
   }
 
+  const maxSlots = getCollectionPreviewLimit();
+
   grid.innerHTML = collections.map(col => {
-    // Tomar hasta 8 avatares para previsualización aprovechando todo el ancho disponible
-    const maxPreviews = 8;
-    const previewAvatars = col.avatars.slice(0, maxPreviews);
-    const extraCount = col.avatars.length - previewAvatars.length;
+    let previewAvatars = [];
+    let extraCount = 0;
+
+    if (col.avatars.length <= maxSlots) {
+      previewAvatars = col.avatars;
+      extraCount = 0;
+    } else {
+      // El último slot es la insignia que indica cuántos más avatares hay (+N)
+      const avatarSlots = maxSlots - 1;
+      previewAvatars = col.avatars.slice(0, avatarSlots);
+      extraCount = col.avatars.length - avatarSlots;
+    }
 
     // Verificar si algún avatar de esta colección tiene cambios pendientes
     const hasPendingChanges = col.avatars.some(a => {
@@ -830,8 +862,8 @@ export function renderCollectionsGrid() {
       <div class="lat-card p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 group hover:border-amber-400/50 hover:bg-white/[0.04] transition-all cursor-pointer relative" data-collection-id="${col.id}">
         <!-- Cabecera de la Colección (Sin icono amarillo de carpeta) -->
         <div class="flex items-start justify-between gap-2">
-          <div class="space-y-1.5 text-left w-full">
-            <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
+          <div class="space-y-1.5 text-left w-full min-w-0">
+            <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors truncate">
               ${col.franchiseName}
             </h4>
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -848,20 +880,20 @@ export function renderCollectionsGrid() {
           ${pendingBadge}
         </div>
 
-        <!-- Previsualización de Miniaturas (Aprovechando el ancho completo en móvil y escritorio) -->
-        <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap py-1">
+        <!-- Previsualización de Miniaturas (ESTRICTAMENTE 1 FILA, nunca wrap) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-hidden py-1 w-full">
           ${previewAvatars.map(av => {
             const ov = stagedState.avatarOverrides.get(av.id);
             const imgUrl = ov?.previewImgUrl || resolveAvatarCdnUrl(av.path);
             const isDel = ov?.isDeleted;
             return `
-              <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} shrink-0 relative group-hover:scale-105 transition-transform">
+              <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} shrink-0 relative group-hover:scale-105 transition-transform">
                 <img src="${imgUrl}" alt="${av.fileName}" class="w-full h-full object-cover" loading="lazy">
               </div>
             `;
           }).join('')}
           ${extraCount > 0 ? `
-            <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-xs font-mono text-white/60 shrink-0 font-bold">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[11px] sm:text-xs font-mono text-white/70 shrink-0 font-bold hover:border-amber-400/40 hover:text-white transition-colors" title="${extraCount} avatares adicionales">
               +${extraCount}
             </div>
           ` : ''}
@@ -1329,4 +1361,17 @@ export async function commitAllStagedChanges() {
   } finally {
     updateStagedUI();
   }
+}
+
+// Recalcular slots de previsualización en 1 fila automáticamente al cambiar el tamaño de ventana
+let _collectionResizeDebounce = null;
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', () => {
+    clearTimeout(_collectionResizeDebounce);
+    _collectionResizeDebounce = setTimeout(() => {
+      if (!modderState.activeCollection && modderState.activeTab === 'manage') {
+        renderCollectionsGrid();
+      }
+    }, 120);
+  });
 }
