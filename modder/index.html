@@ -354,6 +354,102 @@
       </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- MODAL DE PUBLICACIÓN EN GITHUB (ESTILO NUVIO / LAT-CARD)  -->
+    <!-- ======================================================== -->
+    <div id="publishStagedModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+      <div class="lat-card p-6 sm:p-7 w-full max-w-lg space-y-4 text-left border border-white/20 shadow-2xl relative">
+        
+        <!-- Cabecera del Modal -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-300 text-sm"></i>
+            <span>Publicar Cambios en GitHub</span>
+          </h3>
+          <button id="btnPublishModalClose" type="button" class="text-white/40 hover:text-white text-sm p-1 transition-colors" title="Cerrar ventana">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- FASE 1: CONFIRMACIÓN Y RESUMEN -->
+        <div id="publishPhaseConfirm" class="space-y-4">
+          <p class="text-xs text-white/70 leading-relaxed">
+            Se aplicarán todos los cambios acumulados directamente en el repositorio oficial de GitHub en un único commit atómico:
+          </p>
+
+          <!-- Resumen de Contadores -->
+          <div class="grid grid-cols-3 gap-2.5 py-1">
+            <div class="p-3 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 text-center space-y-1">
+              <span id="confirmAddedCount" class="text-base font-bold font-mono text-emerald-400 block">0</span>
+              <span class="text-[10px] text-white/60 uppercase tracking-wider block">Nuevos</span>
+            </div>
+            <div class="p-3 rounded-xl bg-amber-400/[0.08] border border-amber-400/20 text-center space-y-1">
+              <span id="confirmModifiedCount" class="text-base font-bold font-mono text-amber-300 block">0</span>
+              <span class="text-[10px] text-white/60 uppercase tracking-wider block">Editados</span>
+            </div>
+            <div class="p-3 rounded-xl bg-rose-500/[0.08] border border-rose-500/20 text-center space-y-1">
+              <span id="confirmDeletedCount" class="text-base font-bold font-mono text-rose-400 block">0</span>
+              <span class="text-[10px] text-white/60 uppercase tracking-wider block">Eliminados</span>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10 text-[11px] text-white/60 flex items-start gap-2.5">
+            <i class="fa-solid fa-circle-info text-amber-300 text-xs shrink-0 mt-0.5"></i>
+            <span>Los archivos se compilarán en un árbol Git y se sincronizarán en la rama <strong class="text-white font-mono">main</strong> sin modificar tu entorno local.</span>
+          </div>
+
+          <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-white/10">
+            <button id="btnCancelPublish" type="button" class="lat-capsule-btn outline text-xs px-4 py-2">
+              Cancelar
+            </button>
+            <button id="btnConfirmPublish" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 font-semibold flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+              <span>Confirmar y Publicar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- FASE 2: PROGRESO Y CONSOLA DE LOGS EN VIVO -->
+        <div id="publishPhaseProgress" class="space-y-3.5 hidden">
+          <!-- Título de Estado y Porcentaje -->
+          <div class="flex items-center justify-between text-xs">
+            <span id="publishProgressStatusText" class="font-semibold text-white flex items-center gap-2">
+              <i class="fa-solid fa-spinner fa-spin text-amber-300"></i>
+              <span>Iniciando comunicación con el Worker...</span>
+            </span>
+            <span id="publishProgressPercent" class="font-mono text-amber-300 font-bold">0%</span>
+          </div>
+
+          <!-- Barra de Progreso -->
+          <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden shadow-inner">
+            <div id="publishProgressBar" class="bg-gradient-to-r from-amber-400 to-amber-200 h-2 rounded-full transition-all duration-300 w-0 shadow-sm"></div>
+          </div>
+
+          <!-- Consola de Logs Monospace (Estilo Terminal) -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[10px] text-white/40 uppercase tracking-wider px-1">
+              <span>Registro de eventos</span>
+              <span id="publishLogCounter" class="font-mono text-[10px] text-white/40">0 eventos</span>
+            </div>
+            <div id="publishLogConsole" class="bg-black/80 border border-white/10 rounded-xl p-3 font-mono text-[11px] h-44 overflow-y-auto space-y-1 select-text scrollbar-thin">
+              <!-- Logs inyectados en tiempo real -->
+            </div>
+          </div>
+
+          <!-- Pie de Fase 2 -->
+          <div class="flex items-center justify-between pt-1 text-[11px] text-white/40">
+            <span class="italic"><i class="fa-solid fa-shield-halved mr-1"></i>No cierres la ventana mientras se publica...</span>
+          </div>
+        </div>
+
+        <!-- FASE 3: RESULTADO FINAL (ÉXITO O ERROR) -->
+        <div id="publishPhaseResult" class="space-y-4 hidden">
+          <div id="publishResultContent"></div>
+        </div>
+
+      </div>
+    </div>
+
   </main>
 
   <!-- Script Controlador Principal -->
@@ -376,8 +472,11 @@
       stageAvatarDelete,
       undoLastChange,
       commitAllStagedChanges,
-      updateStagedUI
-    } from '../js/modder-uploader.js?v=1.8.3';
+      updateStagedUI,
+      openPublishModal,
+      closePublishModal,
+      executePublishStagedChanges
+    } from '../js/modder-uploader.js?v=1.8.4';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
     const activeSession = getModderSession();
@@ -559,6 +658,16 @@
 
     const btnModalDelete = document.getElementById('btnModalDelete');
     if (btnModalDelete) btnModalDelete.addEventListener('click', stageAvatarDelete);
+
+    // Eventos del Modal de Publicación en GitHub (Progreso y Logs)
+    const btnPublishModalClose = document.getElementById('btnPublishModalClose');
+    if (btnPublishModalClose) btnPublishModalClose.addEventListener('click', closePublishModal);
+
+    const btnCancelPublish = document.getElementById('btnCancelPublish');
+    if (btnCancelPublish) btnCancelPublish.addEventListener('click', closePublishModal);
+
+    const btnConfirmPublish = document.getElementById('btnConfirmPublish');
+    if (btnConfirmPublish) btnConfirmPublish.addEventListener('click', executePublishStagedChanges);
 
     init();
   </script>

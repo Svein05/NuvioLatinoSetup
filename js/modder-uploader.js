@@ -1243,37 +1243,12 @@ export function undoLastChange() {
 
 // ============================================================
 // PUBLICACIÓN DE TODOS LOS CAMBIOS PENDIENTES (1 COMMIT ATÓMICO)
+// CON MODAL INTEGRADO, BARRA DE PROGRESO Y CONSOLA DE LOGS
 // ============================================================
 
-export async function commitAllStagedChanges() {
-  const session = getModderSession();
-  const token = modderState.token || session?.token;
-  if (!token) {
-    alert('Sesión no válida o expirada.');
-    return;
-  }
+let _publishLogLinesCount = 0;
 
-  const totalChanges = stagedState.history.length;
-  if (totalChanges === 0) {
-    alert('No hay cambios pendientes para guardar.');
-    return;
-  }
-
-  const confirmCommit = confirm(
-    `¿Confirmas publicar los ${totalChanges} cambio(s) acumulado(s) en GitHub?\nTodos los lotes, reemplazos, renombrados y eliminaciones se aplicarán en un único commit atómico.`
-  );
-  if (!confirmCommit) return;
-
-  const btnSave = document.getElementById('btnSaveAllChanges');
-  const btnUndo = document.getElementById('btnUndoChange');
-
-  if (btnSave) {
-    btnSave.disabled = true;
-    btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> <span>Guardando en GitHub...</span>';
-  }
-  if (btnUndo) btnUndo.disabled = true;
-
-  // Consolidar todas las operaciones pendientes
+export function getConsolidatedStagedOperations() {
   const addedFiles = [];
   const replacedFiles = [];
   const renamedFiles = [];
@@ -1286,6 +1261,10 @@ export async function commitAllStagedChanges() {
         const repoPath = `assets/profile_icons/${action.style}/${action.franchise}/${f.filename}`;
         addedFiles.push({
           path: repoPath,
+          filename: f.filename,
+          characterName: f.characterName,
+          style: action.style,
+          franchise: action.franchise,
           base64: f.base64
         });
       }
@@ -1301,7 +1280,13 @@ export async function commitAllStagedChanges() {
     const originalPath = `assets/profile_icons/${avatar.style}/${avatar.franchise}/${avatar.fileName}`;
 
     if (override.isDeleted) {
-      deletedFiles.push(originalPath);
+      deletedFiles.push({
+        path: originalPath,
+        filename: avatar.fileName,
+        characterName: avatar.characterName,
+        style: avatar.style,
+        franchise: avatar.franchise
+      });
     } else if (override.isModified) {
       const isRenamed = override.newFilename && override.newFilename !== avatar.fileName;
       const newPath = isRenamed 
@@ -1312,43 +1297,236 @@ export async function commitAllStagedChanges() {
         renamedFiles.push({
           oldPath: originalPath,
           newPath: newPath,
+          oldFilename: avatar.fileName,
+          newFilename: override.newFilename,
+          characterName: override.newCharacterName || avatar.characterName,
+          style: avatar.style,
+          franchise: avatar.franchise,
           newBase64: override.newBase64 || null
         });
       } else if (override.newBase64) {
         replacedFiles.push({
           path: originalPath,
+          filename: avatar.fileName,
+          characterName: avatar.characterName,
+          style: avatar.style,
+          franchise: avatar.franchise,
           base64: override.newBase64
         });
       }
     }
   }
 
+  return { addedFiles, replacedFiles, renamedFiles, deletedFiles };
+}
+
+export function appendPublishLog(type, message) {
+  const consoleEl = document.getElementById('publishLogConsole');
+  const counterEl = document.getElementById('publishLogCounter');
+  if (!consoleEl) return;
+
+  _publishLogLinesCount++;
+  if (counterEl) counterEl.textContent = `${_publishLogLinesCount} eventos`;
+
+  const now = new Date();
+  const timeStr = [
+    String(now.getHours()).padStart(2, '0'),
+    String(now.getMinutes()).padStart(2, '0'),
+    String(now.getSeconds()).padStart(2, '0')
+  ].join(':');
+
+  let colorClass = 'text-white/80';
+  let iconHtml = '<i class="fa-solid fa-circle-info text-blue-400 mr-1.5 text-[10px]"></i>';
+
+  if (type === 'step') {
+    colorClass = 'text-cyan-300 font-semibold';
+    iconHtml = '<i class="fa-solid fa-arrow-right text-cyan-400 mr-1.5 text-[10px]"></i>';
+  } else if (type === 'success') {
+    colorClass = 'text-emerald-400 font-semibold';
+    iconHtml = '<i class="fa-solid fa-circle-check text-emerald-400 mr-1.5 text-[10px]"></i>';
+  } else if (type === 'error') {
+    colorClass = 'text-rose-400 font-semibold';
+    iconHtml = '<i class="fa-solid fa-circle-xmark text-rose-400 mr-1.5 text-[10px]"></i>';
+  } else if (type === 'warning') {
+    colorClass = 'text-amber-300';
+    iconHtml = '<i class="fa-solid fa-triangle-exclamation text-amber-300 mr-1.5 text-[10px]"></i>';
+  }
+
+  const lineEl = document.createElement('div');
+  lineEl.className = `flex items-start gap-1 leading-relaxed ${colorClass}`;
+  lineEl.innerHTML = `<span class="text-white/30 shrink-0 font-mono text-[10px] select-none">[${timeStr}]</span> <span class="shrink-0">${iconHtml}</span> <span class="break-all">${message}</span>`;
+  consoleEl.appendChild(lineEl);
+  consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+export function updatePublishProgress(percent, statusText) {
+  const bar = document.getElementById('publishProgressBar');
+  const percentEl = document.getElementById('publishProgressPercent');
+  const statusEl = document.getElementById('publishProgressStatusText');
+
+  if (bar) bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+  if (percentEl) percentEl.textContent = `${Math.min(100, Math.max(0, percent))}%`;
+  if (statusEl) {
+    statusEl.innerHTML = percent >= 100 
+      ? `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>${statusText}</span>`
+      : `<i class="fa-solid fa-spinner fa-spin text-amber-300"></i> <span>${statusText}</span>`;
+  }
+}
+
+export function openPublishModal() {
+  const session = getModderSession();
+  const token = modderState.token || session?.token;
+  if (!token) {
+    showModderToast('Sesión no autorizada o expirada.', 'error');
+    return;
+  }
+
+  const ops = getConsolidatedStagedOperations();
+  const total = ops.addedFiles.length + ops.replacedFiles.length + ops.renamedFiles.length + ops.deletedFiles.length;
+  if (total === 0) {
+    showModderToast('No hay cambios pendientes para guardar.', 'info');
+    return;
+  }
+
+  const modal = document.getElementById('publishStagedModal');
+  const phaseConfirm = document.getElementById('publishPhaseConfirm');
+  const phaseProgress = document.getElementById('publishPhaseProgress');
+  const phaseResult = document.getElementById('publishPhaseResult');
+
+  const addedEl = document.getElementById('confirmAddedCount');
+  const modifiedEl = document.getElementById('confirmModifiedCount');
+  const deletedEl = document.getElementById('confirmDeletedCount');
+
+  if (addedEl) addedEl.textContent = ops.addedFiles.length;
+  if (modifiedEl) modifiedEl.textContent = ops.replacedFiles.length + ops.renamedFiles.length;
+  if (deletedEl) deletedEl.textContent = ops.deletedFiles.length;
+
+  if (phaseConfirm) phaseConfirm.classList.remove('hidden');
+  if (phaseProgress) phaseProgress.classList.add('hidden');
+  if (phaseResult) phaseResult.classList.add('hidden');
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+export function closePublishModal() {
+  const modal = document.getElementById('publishStagedModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+export function commitAllStagedChanges() {
+  openPublishModal();
+}
+
+export async function executePublishStagedChanges() {
+  const session = getModderSession();
+  const token = modderState.token || session?.token;
+  if (!token) {
+    showModderToast('Sesión no autorizada o expirada.', 'error');
+    closePublishModal();
+    return;
+  }
+
+  const ops = getConsolidatedStagedOperations();
+  const total = ops.addedFiles.length + ops.replacedFiles.length + ops.renamedFiles.length + ops.deletedFiles.length;
+  if (total === 0) {
+    showModderToast('No hay operaciones para publicar.', 'info');
+    closePublishModal();
+    return;
+  }
+
+  const phaseConfirm = document.getElementById('publishPhaseConfirm');
+  const phaseProgress = document.getElementById('publishPhaseProgress');
+  const phaseResult = document.getElementById('publishPhaseResult');
+  const consoleEl = document.getElementById('publishLogConsole');
+  const bar = document.getElementById('publishProgressBar');
+
+  if (phaseConfirm) phaseConfirm.classList.add('hidden');
+  if (phaseResult) phaseResult.classList.add('hidden');
+  if (phaseProgress) phaseProgress.classList.remove('hidden');
+
+  if (bar) bar.className = 'bg-gradient-to-r from-amber-400 to-amber-200 h-2 rounded-full transition-all duration-300 w-0 shadow-sm';
+  if (consoleEl) consoleEl.innerHTML = '';
+  _publishLogLinesCount = 0;
+
+  updatePublishProgress(5, 'Iniciando proceso de publicación...');
+  appendPublishLog('info', `Iniciando publicación de ${total} operación(es) acumulada(s)...`);
+
+  const btnSave = document.getElementById('btnSaveAllChanges');
+  const btnUndo = document.getElementById('btnUndoChange');
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> <span>Guardando en GitHub...</span>';
+  }
+  if (btnUndo) btnUndo.disabled = true;
+
   try {
+    updatePublishProgress(15, 'Consolidando operaciones en memoria...');
+    appendPublishLog('step', `Operaciones consolidadas: ${ops.addedFiles.length} nuevas, ${ops.replacedFiles.length} reemplazos, ${ops.renamedFiles.length} renombrados, ${ops.deletedFiles.length} eliminados.`);
+
+    const payload = {
+      password: token,
+      email: modderState.email || session?.email || '',
+      addedFiles: ops.addedFiles.map(f => ({ path: f.path, base64: f.base64 })),
+      replacedFiles: ops.replacedFiles.map(f => ({ path: f.path, base64: f.base64 })),
+      renamedFiles: ops.renamedFiles.map(f => ({ oldPath: f.oldPath, newPath: f.newPath, newBase64: f.newBase64 })),
+      deletedFiles: ops.deletedFiles.map(f => f.path)
+    };
+
+    updatePublishProgress(35, 'Conectando con Cloudflare Worker...');
+    appendPublishLog('info', `Conectando con ${CONFIG.WORKER_API_URL}...`);
+    appendPublishLog('step', 'Enviando petición a POST /api/save-staged-changes...');
+
     const endpoint = `${CONFIG.WORKER_API_URL.replace(/\/+$/, '')}/api/save-staged-changes`;
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        password: token,
-        addedFiles,
-        replacedFiles,
-        renamedFiles,
-        deletedFiles
-      })
+      body: JSON.stringify(payload)
     });
 
-    const data = await res.json();
-    if (!res.ok || !data.success) {
-      throw new Error(data.error || 'Error al guardar los cambios en GitHub.');
+    updatePublishProgress(65, 'Recibiendo respuesta del servidor...');
+    appendPublishLog('info', `Respuesta HTTP recibida: Código ${res.status} (${res.statusText || 'OK'}).`);
+
+    const rawText = await res.text();
+    let data = null;
+
+    try {
+      data = JSON.parse(rawText);
+    } catch (parseErr) {
+      if (rawText.includes('Nuvio Worker activo')) {
+        appendPublishLog('error', 'El Cloudflare Worker respondió con texto plano ("Nuvio Worker activo").');
+        appendPublishLog('warning', 'La ruta /api/save-staged-changes no está implementada en tu versión actual del Worker.');
+        appendPublishLog('info', '💡 Solución: Abre Cloudflare Workers > nuvio-proxy > Edit code, pega el código actualizado y pulsa Deploy.');
+        showPublishResultError(
+          'Worker desactualizado en Cloudflare',
+          'El Cloudflare Worker respondió "Nuvio Worker activo" en vez de procesar el guardado. Falta actualizar el código del Worker en el panel de Cloudflare para habilitar el endpoint /api/save-staged-changes.'
+        );
+        return;
+      }
+      appendPublishLog('error', `Error HTTP ${res.status}: Respuesta no es JSON válido.`);
+      showPublishResultError(`Respuesta no válida del servidor (${res.status})`, rawText.substring(0, 180));
+      return;
     }
 
-    // Vaciar historial local
+    if (!res.ok || !data.success) {
+      const errMsg = data.error || 'Error desconocido al guardar los cambios en GitHub.';
+      appendPublishLog('error', errMsg);
+      showPublishResultError('Error en GitHub API', errMsg);
+      return;
+    }
+
+    updatePublishProgress(100, '¡Publicación completada!');
+    appendPublishLog('success', `✓ ¡Éxito! Todos los cambios se aplicaron en GitHub en un único commit atómico.`);
+    if (data.commit) {
+      appendPublishLog('info', `Enlace al commit: ${data.commit}`);
+    }
+
+    // Vaciar historial local tras éxito
     stagedState.history = [];
     stagedState.avatarOverrides.clear();
     updateStagedUI();
 
     showModderToast(`✓ ¡Todos los cambios se guardaron con éxito en 1 commit!`, 'success');
-    alert(`✓ ¡Éxito! Todos los cambios se guardaron en GitHub en un único commit atómico.${data.commit ? `\n\nEnlace al commit:\n${data.commit}` : ''}`);
+    showPublishResultSuccess(data.commit, total);
 
     // Refrescar catálogo
     await populateSelects(true);
@@ -1356,9 +1534,102 @@ export async function commitAllStagedChanges() {
 
   } catch (err) {
     console.error('Error al guardar cambios:', err);
-    alert(`Error al guardar cambios: ${err.message}`);
+    updatePublishProgress(100, 'Error en el proceso');
+    appendPublishLog('error', err.message);
+    showPublishResultError('Error de red o procesamiento', err.message);
   } finally {
     updateStagedUI();
+  }
+}
+
+function showPublishResultSuccess(commitUrl, count) {
+  const phaseProgress = document.getElementById('publishPhaseProgress');
+  const phaseResult = document.getElementById('publishPhaseResult');
+  const content = document.getElementById('publishResultContent');
+
+  if (phaseProgress) phaseProgress.classList.add('hidden');
+  if (phaseResult) phaseResult.classList.remove('hidden');
+
+  if (content) {
+    content.innerHTML = `
+      <div class="text-center space-y-4 py-2">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-lg shadow-emerald-500/10">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="space-y-1">
+          <h4 class="text-base sm:text-lg font-bold text-white">¡Cambios Publicados con Éxito!</h4>
+          <p class="text-xs text-white/60">Se sincronizaron <strong>${count}</strong> archivo(s) en GitHub en 1 único commit atómico.</p>
+        </div>
+        ${commitUrl ? `
+          <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3 text-xs">
+            <span class="text-white/60 font-mono text-[11px] truncate">${commitUrl}</span>
+            <a href="${commitUrl}" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn glass text-xs py-1.5 px-3 flex items-center gap-1.5 text-amber-300 hover:text-white shrink-0">
+              <span>Ver en GitHub</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        ` : ''}
+        <button id="btnFinishPublish" type="button" class="lat-capsule-btn solid text-xs py-2 px-6 font-semibold mx-auto flex items-center gap-2">
+          <i class="fa-solid fa-check"></i>
+          <span>Entendido y Cerrar</span>
+        </button>
+      </div>
+    `;
+
+    const btnFinish = document.getElementById('btnFinishPublish');
+    if (btnFinish) btnFinish.addEventListener('click', closePublishModal);
+  }
+}
+
+function showPublishResultError(title, detail) {
+  const phaseProgress = document.getElementById('publishPhaseProgress');
+  const phaseResult = document.getElementById('publishPhaseResult');
+  const content = document.getElementById('publishResultContent');
+  const bar = document.getElementById('publishProgressBar');
+
+  if (bar) bar.className = 'bg-gradient-to-r from-rose-500 to-rose-400 h-2 rounded-full transition-all duration-300 shadow-sm';
+
+  if (phaseProgress) phaseProgress.classList.add('hidden');
+  if (phaseResult) phaseResult.classList.remove('hidden');
+
+  if (content) {
+    content.innerHTML = `
+      <div class="space-y-3.5 py-1 text-left">
+        <div class="flex items-start gap-3 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+          <i class="fa-solid fa-triangle-exclamation text-base shrink-0 text-rose-400 mt-0.5"></i>
+          <div class="space-y-1 min-w-0">
+            <strong class="text-white block font-semibold">${title}</strong>
+            <p class="text-rose-200/80 leading-relaxed">${detail}</p>
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-[10px] text-white/50 uppercase tracking-wider px-1">
+            <span>Consola de depuración:</span>
+            <span class="font-mono">${_publishLogLinesCount} eventos</span>
+          </div>
+          <div class="bg-black/80 border border-white/10 rounded-xl p-3 font-mono text-[11px] h-32 overflow-y-auto space-y-1 select-text scrollbar-thin">
+            ${document.getElementById('publishLogConsole')?.innerHTML || ''}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+          <button id="btnRetryPublish" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 text-amber-300 border-amber-400/30 hover:border-amber-400/60 flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-right"></i>
+            <span>Reintentar</span>
+          </button>
+          <button id="btnClosePublishError" type="button" class="lat-capsule-btn outline text-xs py-2 px-4">
+            <span>Cerrar y Conservar Cambios</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    const btnRetry = document.getElementById('btnRetryPublish');
+    if (btnRetry) btnRetry.addEventListener('click', executePublishStagedChanges);
+
+    const btnCloseErr = document.getElementById('btnClosePublishError');
+    if (btnCloseErr) btnCloseErr.addEventListener('click', closePublishModal);
   }
 }
 
