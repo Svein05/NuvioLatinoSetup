@@ -139,35 +139,38 @@ export function getModderSession() {
     const raw = sessionStorage.getItem(MODDER_SESSION_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return parsed.token || null;
+    return { token: parsed.token || null, email: parsed.email || '' };
   } catch (_) {
     return null;
   }
 }
 
-export function saveModderSession(token) {
+export function saveModderSession(token, email = '') {
   modderState.token = token;
+  modderState.email = email;
   try {
-    sessionStorage.setItem(MODDER_SESSION_KEY, JSON.stringify({ token, timestamp: Date.now() }));
+    sessionStorage.setItem(MODDER_SESSION_KEY, JSON.stringify({ token, email, timestamp: Date.now() }));
   } catch (_) {}
 }
 
 export function clearModderSession() {
   modderState.token = null;
+  modderState.email = null;
   try {
     sessionStorage.removeItem(MODDER_SESSION_KEY);
   } catch (_) {}
 }
 
-export async function verifyPassword(password) {
+export async function verifyPassword(password, email = '') {
   const endpoint = `${CONFIG.WORKER_API_URL.replace(/\/+$/, '')}/api/verify-auth`;
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password })
+    body: JSON.stringify({ password, email })
   });
   if (!res.ok) {
-    throw new Error('Contraseña no válida.');
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Credenciales de Modder no válidas.');
   }
   return await res.json();
 }
@@ -381,8 +384,8 @@ export async function handleFiles(files) {
 
 export async function submitBatchUpload() {
   const style = getActiveStyleName();
-  const franchise = getActiveFranchiseName();
-  const token = modderState.token || getModderSession();
+  const session = getModderSession();
+  const token = modderState.token || session?.token;
 
   if (!token) {
     alert('Sesión no válida o expirada.');
@@ -599,7 +602,8 @@ export async function handleReplacementImage(file) {
 
 export async function submitAvatarUpdate() {
   const avatar = modderState.selectedAvatarForEdit;
-  const token = modderState.token || getModderSession();
+  const session = getModderSession();
+  const token = modderState.token || session?.token;
   const modalStatus = document.getElementById('modalEditStatus');
   const btnSave = document.getElementById('btnModalSave');
   const newNameInput = document.getElementById('modalCharacterInput');
@@ -653,7 +657,8 @@ export async function submitAvatarUpdate() {
 
 export async function submitAvatarDelete() {
   const avatar = modderState.selectedAvatarForEdit;
-  const token = modderState.token || getModderSession();
+  const session = getModderSession();
+  const token = modderState.token || session?.token;
   const modalStatus = document.getElementById('modalEditStatus');
   const btnDelete = document.getElementById('btnModalDelete');
 

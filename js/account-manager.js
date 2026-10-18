@@ -4494,12 +4494,12 @@ export async function initAccountPage() {
           const verifyRes = await fetch(`${workerUrl}/api/verify-auth`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password })
+            body: JSON.stringify({ email, password })
           });
           if (verifyRes.ok) {
             const authInfo = await verifyRes.json();
             if (authInfo.role === 'modder' || authInfo.role === 'admin') {
-              sessionStorage.setItem('nuvio_modder_session', JSON.stringify({ token: password, timestamp: Date.now() }));
+              sessionStorage.setItem('nuvio_modder_session', JSON.stringify({ token: password, email, timestamp: Date.now() }));
               showToast('Acceso Modder detectado. Redirigiendo al panel...', 'info');
               setTimeout(() => {
                 window.location.href = '../modder/';
