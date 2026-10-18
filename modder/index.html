@@ -362,7 +362,7 @@
     <!-- MODAL DE PUBLICACIÓN EN GITHUB (ESTILO NUVIO / LAT-CARD)  -->
     <!-- ======================================================== -->
     <div id="publishStagedModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-      <div class="lat-card p-6 sm:p-7 w-full max-w-lg space-y-4 text-left border border-white/20 shadow-2xl relative">
+      <div class="lat-card p-6 sm:p-7 w-full max-w-xl sm:max-w-2xl space-y-4 text-left border border-white/20 shadow-2xl relative">
         
         <!-- Cabecera del Modal -->
         <div class="flex items-center justify-between border-b border-white/10 pb-3">
@@ -394,6 +394,24 @@
             <div class="p-3 rounded-xl bg-rose-500/[0.08] border border-rose-500/20 text-center space-y-1">
               <span id="confirmDeletedCount" class="text-base font-bold font-mono text-rose-400 block">0</span>
               <span class="text-[10px] text-white/60 uppercase tracking-wider block">Eliminados</span>
+            </div>
+          </div>
+
+          <!-- Desglose de Operaciones Pendientes con Descarte Individual -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs px-0.5">
+              <span class="text-white/80 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-list-check text-amber-300 text-xs"></i>
+                <span>Desglose de cambios pendientes</span>
+              </span>
+              <span id="confirmTotalOperationsBadge" class="text-[11px] font-mono text-white/60 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-full">
+                0 operaciones
+              </span>
+            </div>
+
+            <!-- Lista interactiva scrolleable de cambios -->
+            <div id="publishStagedItemsList" class="max-h-56 sm:max-h-64 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+              <!-- Renderizado dinámicamente -->
             </div>
           </div>
 
@@ -481,7 +499,7 @@
       closePublishModal,
       executePublishStagedChanges,
       refreshCatalogFromGitHub
-    } from '../js/modder-uploader.js?v=1.8.7';
+    } from '../js/modder-uploader.js?v=1.8.8';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
     const activeSession = getModderSession();

@@ -204,6 +204,7 @@ export async function verifyPassword(password, email = '') {
 // ============================================================
 
 export function showModderToast(message, type = 'info') {
+  if (typeof document === 'undefined') return;
   let toastContainer = document.getElementById('modderToastContainer');
   if (!toastContainer) {
     toastContainer = document.createElement('div');
@@ -239,6 +240,7 @@ export function showModderToast(message, type = 'info') {
 }
 
 export function updateStagedUI() {
+  if (typeof document === 'undefined') return;
   const totalChanges = stagedState.history.length;
   const btnUndo = document.getElementById('btnUndoChange');
   const btnSave = document.getElementById('btnSaveAllChanges');
@@ -1179,6 +1181,7 @@ export function renderCollectionAvatars() {
 }
 
 export function renderCatalogGrid() {
+  if (typeof document === 'undefined') return;
   if (modderState.activeCollection) {
     renderCollectionAvatars();
   } else {
@@ -1482,6 +1485,34 @@ export function stageAvatarDelete() {
 // SISTEMA DE DESHACER (UNDO STACK)
 // ============================================================
 
+export function rebuildAvatarOverridesFromHistory() {
+  stagedState.avatarOverrides.clear();
+  for (const action of stagedState.history) {
+    if (action.type === 'UPDATE_AVATAR') {
+      const current = stagedState.avatarOverrides.get(action.avatarId);
+      stagedState.avatarOverrides.set(action.avatarId, {
+        isDeleted: false,
+        isModified: true,
+        newCharacterName: action.newCharacterName,
+        newFilename: action.newFilename,
+        newBase64: action.newBase64 || current?.newBase64 || null,
+        previewImgUrl: (action.newBase64 ? `data:image/webp;base64,${action.newBase64}` : null) || current?.previewImgUrl || null
+      });
+    } else if (action.type === 'DELETE_AVATAR') {
+      stagedState.avatarOverrides.set(action.avatarId, {
+        isDeleted: true,
+        isModified: false
+      });
+    } else if (action.type === 'RESTORE_AVATAR') {
+      if (action.previousOverride && !action.previousOverride.isDeleted) {
+        stagedState.avatarOverrides.set(action.avatarId, action.previousOverride);
+      } else {
+        stagedState.avatarOverrides.delete(action.avatarId);
+      }
+    }
+  }
+}
+
 export function undoLastChange() {
   if (stagedState.history.length === 0) return;
 
@@ -1493,12 +1524,7 @@ export function undoLastChange() {
   if (lastAction.type === 'BATCH_UPLOAD') {
     message = `Se deshizo la subida del lote (${lastAction.files.length} avatares de ${lastAction.franchise}).`;
   } else if (lastAction.type === 'UPDATE_AVATAR' || lastAction.type === 'DELETE_AVATAR' || lastAction.type === 'RESTORE_AVATAR') {
-    const avatarId = lastAction.avatarId;
-    if (lastAction.previousOverride) {
-      stagedState.avatarOverrides.set(avatarId, lastAction.previousOverride);
-    } else {
-      stagedState.avatarOverrides.delete(avatarId);
-    }
+    rebuildAvatarOverridesFromHistory();
 
     if (lastAction.type === 'UPDATE_AVATAR') {
       message = `Se deshizo la edición de "${lastAction.avatar.character}".`;
@@ -1512,6 +1538,231 @@ export function undoLastChange() {
   updateStagedUI();
   renderCatalogGrid();
   showModderToast(message, 'info');
+}
+
+// ============================================================
+// DESGLOSE Y DESCARTE INDIVIDUAL EN MODAL DE PUBLICACIÓN
+// ============================================================
+
+export function getStagedItemsBreakdown() {
+  const items = [];
+  const allAvatars = getCompiledAvatars();
+
+  // 1. Archivos en lotes de subida (Nuevos archivos)
+  stagedState.history.forEach((action) => {
+    if (action.type === 'BATCH_UPLOAD') {
+      action.files.forEach((f, fileIdx) => {
+        items.push({
+          key: `batch_file:${action.id}:${fileIdx}`,
+          actionType: 'NEW_FILE',
+          actionId: action.id,
+          fileIndex: fileIdx,
+          badgeLabel: 'Nuevo archivo',
+          badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+          badgeIcon: 'fa-solid fa-plus',
+          previewUrl: f.previewUrl || (f.base64 ? `data:image/webp;base64,${f.base64}` : ''),
+          primaryText: f.filename,
+          secondaryText: `profile_icons/${action.style}/${action.franchise}/`,
+          sizeText: f.webpSize ? formatBytes(f.webpSize) : '',
+          isStrikethrough: false,
+          style: action.style,
+          franchise: action.franchise
+        });
+      });
+    }
+  });
+
+  // 2. Modificaciones y eliminaciones de catálogo existente
+  for (const [avatarId, override] of stagedState.avatarOverrides.entries()) {
+    let avatar = allAvatars.find(a => a.id === avatarId);
+    if (!avatar) {
+      const relatedAction = stagedState.history.find(a => a.avatarId === avatarId && a.avatar);
+      if (relatedAction) avatar = relatedAction.avatar;
+    }
+    if (!avatar) continue;
+
+    if (override.isDeleted) {
+      items.push({
+        key: `delete_avatar:${avatarId}`,
+        actionType: 'DELETE',
+        avatarId,
+        badgeLabel: 'Eliminación',
+        badgeClass: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
+        badgeIcon: 'fa-solid fa-trash-can',
+        previewUrl: resolveAvatarCdnUrl(avatar.path),
+        primaryText: avatar.fileName,
+        secondaryText: `profile_icons/${avatar.style}/${avatar.franchise}/`,
+        sizeText: '',
+        isStrikethrough: true,
+        style: avatar.style,
+        franchise: avatar.franchise
+      });
+    } else if (override.isModified) {
+      const isRenamed = override.newFilename && override.newFilename !== avatar.fileName;
+      const isReplaced = Boolean(override.newBase64);
+
+      let badgeLabel = 'Editado';
+      let badgeClass = 'bg-amber-400/15 text-amber-300 border-amber-400/30';
+      let badgeIcon = 'fa-solid fa-pen-ruler';
+
+      if (isRenamed && isReplaced) {
+        badgeLabel = 'Renombrado + Reemplazo';
+        badgeClass = 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40';
+        badgeIcon = 'fa-solid fa-wand-magic-sparkles';
+      } else if (isRenamed) {
+        badgeLabel = 'Renombrado';
+        badgeClass = 'bg-amber-400/15 text-amber-300 border-amber-400/30';
+        badgeIcon = 'fa-solid fa-pen';
+      } else if (isReplaced) {
+        badgeLabel = 'Reemplazo WebP';
+        badgeClass = 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
+        badgeIcon = 'fa-solid fa-image';
+      }
+
+      const previewUrl = override.previewImgUrl || (override.newBase64 ? `data:image/webp;base64,${override.newBase64}` : resolveAvatarCdnUrl(avatar.path));
+
+      const primaryText = isRenamed 
+        ? `${avatar.fileName} ➔ ${override.newFilename}` 
+        : (override.newFilename || avatar.fileName);
+
+      items.push({
+        key: `update_avatar:${avatarId}`,
+        actionType: isRenamed && isReplaced ? 'RENAME_AND_REPLACE' : isRenamed ? 'RENAME' : 'REPLACE',
+        avatarId,
+        badgeLabel,
+        badgeClass,
+        badgeIcon,
+        previewUrl,
+        primaryText,
+        secondaryText: `profile_icons/${avatar.style}/${avatar.franchise}/`,
+        sizeText: '',
+        isStrikethrough: false,
+        style: avatar.style,
+        franchise: avatar.franchise
+      });
+    }
+  }
+
+  return items;
+}
+
+export function renderPublishModalBreakdown() {
+  if (typeof document === 'undefined') return;
+  const container = document.getElementById('publishStagedItemsList');
+  const totalBadge = document.getElementById('confirmTotalOperationsBadge');
+  const addedEl = document.getElementById('confirmAddedCount');
+  const modifiedEl = document.getElementById('confirmModifiedCount');
+  const deletedEl = document.getElementById('confirmDeletedCount');
+  const btnConfirm = document.getElementById('btnConfirmPublish');
+
+  const ops = getConsolidatedStagedOperations();
+  const totalOps = ops.addedFiles.length + ops.replacedFiles.length + ops.renamedFiles.length + ops.deletedFiles.length;
+
+  if (addedEl) addedEl.textContent = ops.addedFiles.length;
+  if (modifiedEl) modifiedEl.textContent = ops.replacedFiles.length + ops.renamedFiles.length;
+  if (deletedEl) deletedEl.textContent = ops.deletedFiles.length;
+  if (totalBadge) totalBadge.textContent = `${totalOps} ${totalOps === 1 ? 'operación' : 'operaciones'}`;
+
+  if (btnConfirm) {
+    if (totalOps === 0) {
+      btnConfirm.disabled = true;
+      btnConfirm.classList.add('opacity-40', 'cursor-not-allowed');
+    } else {
+      btnConfirm.disabled = false;
+      btnConfirm.classList.remove('opacity-40', 'cursor-not-allowed');
+    }
+  }
+
+  if (!container) return;
+
+  const items = getStagedItemsBreakdown();
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="py-8 text-center text-white/40 space-y-2 bg-white/[0.02] border border-white/5 rounded-xl">
+        <i class="fa-solid fa-circle-check text-2xl text-emerald-400/70"></i>
+        <p class="text-xs text-white/60">Todos los cambios han sido descartados o publicados.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = items.map(item => `
+    <div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all group">
+      <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
+        <img src="${item.previewUrl}" alt="${item.primaryText}" class="w-full h-full object-cover" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+      </div>
+
+      <div class="flex-1 min-w-0 space-y-0.5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-xs font-mono font-medium text-white truncate max-w-[200px] sm:max-w-[280px] ${item.isStrikethrough ? 'line-through opacity-70 text-rose-300' : ''}" title="${item.primaryText}">
+            ${item.primaryText}
+          </span>
+          <span class="text-[9px] font-medium px-1.5 py-0.5 rounded-md border shrink-0 flex items-center gap-1 ${item.badgeClass}">
+            <i class="${item.badgeIcon} text-[8px]"></i>
+            <span>${item.badgeLabel}</span>
+          </span>
+        </div>
+        <div class="text-[10px] text-white/40 font-mono truncate flex items-center gap-1.5">
+          <span>${item.secondaryText}</span>
+          ${item.sizeText ? `<span class="text-white/20">•</span><span class="text-emerald-400/80 font-mono">${item.sizeText}</span>` : ''}
+        </div>
+      </div>
+
+      <button type="button" 
+              class="btn-discard-staged-item p-2 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer shrink-0" 
+              data-item-key="${item.key}"
+              title="Descartar este cambio">
+        <i class="fa-solid fa-trash-can text-xs"></i>
+      </button>
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.btn-discard-staged-item').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.itemKey;
+      discardSpecificStagedItem(key);
+    });
+  });
+}
+
+export function discardSpecificStagedItem(itemKey) {
+  if (!itemKey) return;
+
+  if (itemKey.startsWith('batch_file:')) {
+    // batch_file:actionId:fileIndex
+    const parts = itemKey.split(':');
+    const actionId = parts[1];
+    const fileIdx = parseInt(parts[2], 10);
+
+    const action = stagedState.history.find(a => a.id === actionId && a.type === 'BATCH_UPLOAD');
+    if (action && action.files[fileIdx]) {
+      const removed = action.files.splice(fileIdx, 1)[0];
+      if (action.files.length === 0) {
+        stagedState.history = stagedState.history.filter(a => a.id !== actionId);
+      }
+      showModderToast(`Se descartó "${removed?.filename || 'archivo'}" de la subida.`, 'info');
+    }
+  } else if (itemKey.startsWith('delete_avatar:') || itemKey.startsWith('update_avatar:')) {
+    const parts = itemKey.split(':');
+    const avatarId = parts[1];
+
+    const allAvatars = getCompiledAvatars();
+    let avatar = allAvatars.find(a => a.id === avatarId);
+    if (!avatar) {
+      const relatedAction = stagedState.history.find(a => a.avatarId === avatarId && a.avatar);
+      if (relatedAction) avatar = relatedAction.avatar;
+    }
+    const targetName = avatar?.fileName || 'avatar';
+
+    stagedState.history = stagedState.history.filter(a => a.avatarId !== avatarId);
+    rebuildAvatarOverridesFromHistory();
+    showModderToast(`Se descartaron los cambios sobre "${targetName}".`, 'info');
+  }
+
+  updateStagedUI();
+  renderCatalogGrid();
+  renderPublishModalBreakdown();
 }
 
 // ============================================================
@@ -1547,7 +1798,11 @@ export function getConsolidatedStagedOperations() {
   // 2. Modificaciones y eliminaciones sobre catálogo existente
   const allAvatars = getCompiledAvatars();
   for (const [avatarId, override] of stagedState.avatarOverrides.entries()) {
-    const avatar = allAvatars.find(a => a.id === avatarId);
+    let avatar = allAvatars.find(a => a.id === avatarId);
+    if (!avatar) {
+      const relatedAction = stagedState.history.find(a => a.avatarId === avatarId && a.avatar);
+      if (relatedAction) avatar = relatedAction.avatar;
+    }
     if (!avatar) continue;
 
     const originalPath = `assets/profile_icons/${avatar.style}/${avatar.franchise}/${avatar.fileName}`;
@@ -1677,6 +1932,8 @@ export function openPublishModal() {
   if (phaseConfirm) phaseConfirm.classList.remove('hidden');
   if (phaseProgress) phaseProgress.classList.add('hidden');
   if (phaseResult) phaseResult.classList.add('hidden');
+
+  renderPublishModalBreakdown();
 
   if (modal) modal.classList.remove('hidden');
 }
