@@ -855,7 +855,6 @@ export function renderCollectionAvatars() {
         
         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative flex items-center justify-center group-hover:scale-105 transition-transform">
           <img src="${displayImg}" alt="${displayFilename}" class="w-full h-full object-cover" loading="lazy">
-          <span class="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white/70">${ext}</span>
         </div>
 
         <div class="w-full space-y-0.5">
@@ -865,7 +864,7 @@ export function renderCollectionAvatars() {
           </span>
         </div>
 
-        <button type="button" class="mt-1 w-full py-1 text-[11px] rounded-lg ${isDeleted ? 'bg-rose-500/20 text-rose-300' : 'bg-white/5 hover:bg-amber-400 hover:text-black text-white/70'} font-medium transition-colors flex items-center justify-center gap-1.5">
+        <button type="button" class="mt-1 w-full py-1.5 text-[11px] rounded-xl sm:rounded-2xl ${isDeleted ? 'bg-rose-500/20 text-rose-300' : 'bg-white/5 hover:bg-amber-400 hover:text-black text-white/70'} font-medium transition-colors flex items-center justify-center gap-1.5">
           <i class="fa-solid ${isDeleted ? 'fa-rotate-left' : 'fa-pen-to-square'} text-[10px]"></i>
           <span>${isDeleted ? 'Desmarcar' : 'Editar'}</span>
         </button>
