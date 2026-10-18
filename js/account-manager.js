@@ -19,6 +19,12 @@ import {
   loadAvatarsCatalog
 } from './avatars-data.js';
 import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
+import { 
+  BASELINE_TOP_AVATARS,
+  fetchTopAvatarKeys, 
+  recordAvatarUsage, 
+  normalizeAvatarStorageKey 
+} from './avatar-rank-client.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const SESSION_KEY = 'nuvio_account_session_v1';
@@ -34,6 +40,8 @@ export const accountState = {
   // Avatar del perfil seleccionado y filtros de catálogo
   selectedAvatarUrl: null,
   originalAvatarUrl: null,
+  mostUsedKeys: null,
+  _isLoadingMostUsed: false,
   avatarFilters: {
     style: 'all',
     franchise: 'all',
@@ -804,6 +812,79 @@ function updateCreateProfileFranchiseTriggerLabel() {
   if (count) count.textContent = cur?.count ?? 0;
 }
 
+/**
+ * Formatea cantidades de usuarios de forma compacta y legible: 300, 1k, 1.1k, 10k, 1m
+ */
+function formatUserCount(num) {
+  const n = Number(num) || 0;
+  if (n < 1000) return String(n);
+  if (n < 1000000) {
+    const k = n / 1000;
+    return (k % 1 === 0 || k >= 10 ? k.toFixed(0) : k.toFixed(1)).replace('.0', '') + 'k';
+  }
+  const m = n / 1000000;
+  return (m % 1 === 0 || m >= 10 ? m.toFixed(0) : m.toFixed(1)).replace('.0', '') + 'm';
+}
+
+/**
+ * Obtiene los avatares más usados para el bloque inicial (hasta 8 para 1 fila responsiva)
+ * Si hay un estilo seleccionado diferente a 'all', filtra o prioriza avatares de ese estilo.
+ * Cada elemento incluye la propiedad 'usageScore' con la cantidad de usuarios.
+ */
+function getMostUsedAvatarItems(selectedStyle = 'all') {
+  const allAvatars = getCompiledAvatars();
+  if (!allAvatars || allAvatars.length === 0) return [];
+
+  const rawEntries = (accountState.mostUsedKeys && accountState.mostUsedKeys.length > 0)
+    ? accountState.mostUsedKeys
+    : BASELINE_TOP_AVATARS;
+
+  const entries = rawEntries.map(e => {
+    if (typeof e === 'string') return { key: e, score: 0 };
+    return { key: e.key || '', score: Number(e.score) || 0 };
+  });
+
+  const avatarMap = new Map();
+  for (const av of allAvatars) {
+    const norm = normalizeAvatarStorageKey(av.path);
+    if (norm && !avatarMap.has(norm)) {
+      avatarMap.set(norm, av);
+    }
+  }
+
+  const matched = [];
+  for (const entry of entries) {
+    const normKey = normalizeAvatarStorageKey(entry.key);
+    const item = avatarMap.get(normKey);
+    if (item) {
+      if (selectedStyle === 'all' || item.style === selectedStyle) {
+        if (!matched.some(m => m.path === item.path)) {
+          matched.push({
+            ...item,
+            usageScore: entry.score
+          });
+        }
+      }
+    }
+  }
+
+  // Rellenar hasta 8 si quedan menos tras el filtro de estilo
+  if (matched.length < 8) {
+    for (const av of allAvatars) {
+      if (selectedStyle !== 'all' && av.style !== selectedStyle) continue;
+      if (!matched.some(m => m.path === av.path)) {
+        matched.push({
+          ...av,
+          usageScore: 0
+        });
+        if (matched.length >= 8) break;
+      }
+    }
+  }
+
+  return matched.slice(0, 8);
+}
+
 export function renderCreateProfileAvatarsCatalog() {
   const container = document.getElementById('createProfileAvatarsCatalogContainer');
   if (!container) return;
@@ -824,7 +905,7 @@ export function renderCreateProfileAvatarsCatalog() {
     return;
   }
 
-  const renderCard = (av, extraClass = '') => {
+  const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const cdnUrl = resolveAvatarCdnUrl(av.path);
     const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
     return `
@@ -832,8 +913,11 @@ export function renderCreateProfileAvatarsCatalog() {
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
            title="${av.character} (${av.franchiseName})">
-        <div class="avatar-circle-wrap">
-          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+        <div class="relative w-full aspect-square">
+          <div class="avatar-circle-wrap">
+            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          </div>
+          ${badgeHtml}
         </div>
         <span class="avatar-card-name-label">${av.character}</span>
       </div>
@@ -866,6 +950,49 @@ export function renderCreateProfileAvatarsCatalog() {
     );
 
     let html = '';
+
+    // Colección especial inicial "Más usados": solo 1 fila responsiva (3 mobile, 4 sm, 6 md, 8 lg)
+    const mostUsedItems = getMostUsedAvatarItems('all');
+    if (mostUsedItems.length > 0) {
+      const mostUsedCardsHtml = mostUsedItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+
+        // Etiqueta de cantidad de usuarios: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal
+        let rankClass = 'rank-normal';
+        if (idx === 0) rankClass = 'rank-gold';
+        else if (idx === 1) rankClass = 'rank-silver';
+        else if (idx === 2) rankClass = 'rank-bronze';
+
+        const rawScore = Number(av.usageScore) || 0;
+        const formattedScore = formatUserCount(rawScore);
+        const tooltip = `${rawScore.toLocaleString('es')} ${rawScore === 1 ? 'usuario ha' : 'usuarios han'} seleccionado este icono`;
+
+        const badgeHtml = `
+          <span class="avatar-user-count-badge ${rankClass}" title="${tooltip}">
+            ${formattedScore}
+          </span>
+        `;
+
+        return renderCard(av, responsiveClass, badgeHtml);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5" id="createProfileBlockMostUsedAvatars">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">Más usados</h4>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${mostUsedCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     for (const [fId, group] of sortedGroups) {
       const previewItems = group.items.slice(0, 8);
       const previewCardsHtml = previewItems.map((av, idx) => {
@@ -1121,6 +1248,9 @@ export function setupProfileModals() {
         });
 
         showToast('✓ Perfil creado con éxito.', 'success');
+        if (createProfileAvatarUrl) {
+          recordAvatarUsage(createProfileAvatarUrl).catch(() => null);
+        }
         closeCreateProfileModal();
 
         await fetchProfiles();
@@ -1796,6 +1926,19 @@ export function renderAvatarsSection() {
   setupFranchisesModal();
   renderAvatarStylePills();
   renderModalFranchisesList();
+
+  // Precargar ranking global de avatares más usados si aún no está disponible
+  if (!accountState.mostUsedKeys && !accountState._isLoadingMostUsed) {
+    accountState._isLoadingMostUsed = true;
+    fetchTopAvatarKeys(8).then(keys => {
+      accountState.mostUsedKeys = keys;
+      accountState._isLoadingMostUsed = false;
+      renderAvatarsCatalog();
+    }).catch(() => {
+      accountState._isLoadingMostUsed = false;
+    });
+  }
+
   renderAvatarsCatalog();
 }
 
@@ -1955,15 +2098,18 @@ function renderAvatarsCatalog() {
     return;
   }
 
-  const renderCard = (av, extraClass = '') => {
+  const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const isSelected = av.path === activeAvatar || resolvePublicAvatarUrl(av.path) === activePublic;
     return `
       <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
            title="${av.character} (${av.franchiseName})">
-        <div class="avatar-circle-wrap">
-          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+        <div class="relative w-full aspect-square">
+          <div class="avatar-circle-wrap">
+            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          </div>
+          ${badgeHtml}
         </div>
         <span class="avatar-card-name-label">${av.character}</span>
       </div>
@@ -2001,6 +2147,50 @@ function renderAvatarsCatalog() {
     );
 
     let html = '';
+
+    // Colección especial inicial "Más usados": exactamente 1 fila responsiva (3 mobile, 4 sm, 6 md, 8 lg)
+    // Sin botón "Abrir colección" ni contador, solo título "Más usados"
+    const mostUsedItems = getMostUsedAvatarItems(accountState.avatarFilters.style);
+    if (mostUsedItems.length > 0) {
+      const mostUsedCardsHtml = mostUsedItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+
+        // Etiqueta de cantidad de usuarios: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal
+        let rankClass = 'rank-normal';
+        if (idx === 0) rankClass = 'rank-gold';
+        else if (idx === 1) rankClass = 'rank-silver';
+        else if (idx === 2) rankClass = 'rank-bronze';
+
+        const rawScore = Number(av.usageScore) || 0;
+        const formattedScore = formatUserCount(rawScore);
+        const tooltip = `${rawScore.toLocaleString('es')} ${rawScore === 1 ? 'usuario ha' : 'usuarios han'} seleccionado este icono`;
+
+        const badgeHtml = `
+          <span class="avatar-user-count-badge ${rankClass}" title="${tooltip}">
+            ${formattedScore}
+          </span>
+        `;
+
+        return renderCard(av, responsiveClass, badgeHtml);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5" id="blockMostUsedAvatars">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">Más usados</h4>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${mostUsedCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     for (const [fId, group] of sortedGroups) {
       // Previsualización adaptativa de 1 fila (3 en mobile, 4 en sm, 6 en md, 8 en lg)
       const previewItems = group.items.slice(0, 8);
@@ -3845,6 +4035,7 @@ export async function saveAllChanges() {
     // 0. Guardar Avatar de Perfil si cambió
     if (accountState.dirty.avatar && accountState.selectedAvatarUrl) {
       const avatarUrlToSave = resolvePublicAvatarUrl(accountState.selectedAvatarUrl);
+      recordAvatarUsage(accountState.selectedAvatarUrl).catch(() => null);
       await NuvioClient.updateProfileAvatar({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -4249,6 +4440,14 @@ export async function initAccountPage() {
 
   // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
   loadAvatarsCatalog().catch(() => null);
+
+  // Precargar ranking global de avatares más usados desde Upstash Redis
+  fetchTopAvatarKeys(8).then(keys => {
+    accountState.mostUsedKeys = keys;
+    if (accountState.activeSection === 'avatars') {
+      renderAvatarsCatalog();
+    }
+  }).catch(() => null);
 
   // Inicializar listeners del módulo de sugerencias de avatares (Discord)
   initAvatarSuggestionsUI();

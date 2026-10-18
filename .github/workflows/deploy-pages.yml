@@ -33,6 +33,8 @@ jobs:
           COUNTER_FALLBACK_HIT: ${{ secrets.COUNTER_FALLBACK_HIT }}
           COUNTER_API_URL: ${{ secrets.COUNTER_API_URL }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: |
           node -e '
             const fs = require("fs");
@@ -73,6 +75,17 @@ jobs:
               fs.writeFileSync("js/webhook-config.js", webhookContent, "utf8");
             } else {
               console.log("Sin secreto DISCORD_WEBHOOK_URL definido.");
+            }
+
+            const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+            const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+            if (redisUrl && redisToken) {
+              console.log("Inyectando configuración de Upstash Redis para ranking de avatares...");
+              const rankCfg = { url: redisUrl, token: redisToken };
+              const rankContent = "export const INJECTED_AVATAR_RANK_CONFIG = " + JSON.stringify(rankCfg, null, 2) + ";\n";
+              fs.writeFileSync("js/avatar-rank-config.js", rankContent, "utf8");
+            } else {
+              console.log("Sin secretos de Upstash Redis definidos.");
             }
           '
 
