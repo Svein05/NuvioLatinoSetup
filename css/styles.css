@@ -2110,6 +2110,72 @@ header.lat-floating-nav nav {
   color: #ffd479;
 }
 
+/* Etiqueta numérica de usuarios en avatares Más Usados (inferior derecha) */
+.avatar-user-count-badge {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 9999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .avatar-user-count-badge {
+    min-width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.6875rem;
+    bottom: 1px;
+    right: 1px;
+  }
+}
+
+.netflix-avatar-card:hover .avatar-user-count-badge {
+  transform: scale(1.08);
+}
+
+/* Colores de la etiqueta: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal */
+.avatar-user-count-badge.rank-gold {
+  background: #ffd479;
+  color: #08090c;
+  border: 1px solid #ffe39f;
+  box-shadow: 0 0 10px rgba(255, 212, 121, 0.45);
+}
+
+.avatar-user-count-badge.rank-silver {
+  background: #e2e8f0;
+  color: #08090c;
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 10px rgba(226, 232, 240, 0.35);
+}
+
+.avatar-user-count-badge.rank-bronze {
+  background: #cd7f32;
+  color: #ffffff;
+  border: 1px solid #e59850;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.35);
+}
+
+.avatar-user-count-badge.rank-normal {
+  background: #08090c;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
 /* Selector / Disparador del Modal de Obras */
 .avatar-dropdown-trigger {
   padding: 0.35rem 0.85rem;
@@ -2279,6 +2345,10 @@ header.lat-floating-nav nav {
               background-color 0.2s ease,
               border-color 0.2s ease,
               opacity 0.2s ease;
+}
+
+.account-addon-row .lat-capsule-btn:active {
+  transform: scale(0.95);
 }
 
 /* Fila seleccionada / en arrastre activo */

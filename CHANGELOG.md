@@ -7,6 +7,31 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.8.0] - 2026-10-18
+
+### ✨ Añadido
+- **Portal de Colaboradores y Modders de Assets (`/modder/`):**
+  - Nuevo panel web exclusivo para colaboradores autorizados mediante token seguro verificado en Cloudflare Worker.
+  - **Conversión Universal a WebP en el Cliente:** Conversión automática mediante Canvas HTML5 de cualquier formato de imagen (PNG, JPEG, SVG, BMP) a WebP de alta fidelidad (0.90) con cálculo y optimización de peso en tiempo real.
+  - **Subida por Lote con Cola Visual:** Admite arrastrar y soltar múltiples imágenes, asignación interactiva de nombres de archivo y destino con validación instantánea contra colisiones en la misma carpeta (`profile_icons/<Estilo>/<Obra>/`).
+  - **Gestor Visual de Catálogo Existente:** Explorador de colecciones y catálogo por obras, con modal de edición rápida para renombrado de personajes o reemplazo de imágenes WebP en vivo.
+  - **Pila de Cambios Pendientes (Staging Stack) y Desglose Interactivo:**
+    - Modal de confirmación "Guardar Cambios" con desglose pormenorizado de cada operación pendiente (miniaturas de 38x38 px, badges semánticos de acción: nuevo archivo, renombrado, reemplazo WebP o eliminación, ruta de carpeta y peso).
+    - Descarte y eliminación individual quirúrgica de cambios pendientes sin perder el resto de operaciones acumuladas.
+    - Sincronización atómica directa contra la rama `main` de GitHub vía Worker con commit único descriptivo y `[skip ci]`.
+- **Auto-Actualización y Sincronización Remota de Avatares en `/account`:**
+  - Revalidación ultraligera por SHA de commit contra GitHub Trees API (`~200 bytes`, timeout protector de 3.5s). Si se detecta un commit nuevo en `main`, invalida la caché en segundo plano y descarga el árbol fresco.
+  - Botón circular de refresco manual (`#btnRefreshAvatarsCatalog`) junto a los filtros de estilo para forzar la sincronización en vivo.
+  - Refresco forzado automático al iniciar sesión en el formulario de `/account`.
+
+### ⚡ Rendimiento, Caché y Seguridad
+- **Resolución Directa desde `raw.githubusercontent.com`:**
+  - Migración definitiva desde jsDelivr hacia GitHub Raw para todas las imágenes y recursos de avatares, eliminando el desfase de caché Edge de 24 horas en ramas móviles (`@main`).
+  - Incorporación de parámetro cache-buster determinista por SHA de commit (`?v=${commitSha}`) para refresco instantáneo en todos los navegadores.
+  - Supresión completa de dependencias y crawlers locales (`crawlLocalAvatars`), asegurando arquitectura 100% cloud-native conectada a GitHub.
+
+---
+
 ## [1.7.0] - 2026-10-17
 
 ### ✨ Añadido

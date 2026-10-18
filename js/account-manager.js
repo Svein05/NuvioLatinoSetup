@@ -19,6 +19,12 @@ import {
   loadAvatarsCatalog
 } from './avatars-data.js';
 import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
+import { 
+  BASELINE_TOP_AVATARS,
+  fetchTopAvatarKeys, 
+  recordAvatarUsage, 
+  normalizeAvatarStorageKey 
+} from './avatar-rank-client.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const SESSION_KEY = 'nuvio_account_session_v1';
@@ -34,6 +40,8 @@ export const accountState = {
   // Avatar del perfil seleccionado y filtros de catálogo
   selectedAvatarUrl: null,
   originalAvatarUrl: null,
+  mostUsedKeys: null,
+  _isLoadingMostUsed: false,
   avatarFilters: {
     style: 'all',
     franchise: 'all',
@@ -257,7 +265,7 @@ export async function selectProfile(profileId) {
   // Actualizar UI del perfil activo en la barra de navegación
   const activeAvatar = document.getElementById('sidebarActiveAvatar');
   const activeName = document.getElementById('sidebarActiveName');
-  if (activeAvatar && profile) activeAvatar.src = profile.avatar_url;
+  if (activeAvatar && profile) activeAvatar.src = resolveAvatarCdnUrl(profile.avatar_url);
   if (activeName && profile) activeName.textContent = profile.name;
 
   // Actualizar avatar en memoria para la sección de avatares
@@ -619,7 +627,7 @@ export function renderProfilePopover() {
     return `
       <div class="popover-profile-row ${isSelected ? 'is-active' : ''}" data-profile-id="${id}">
         <div class="flex items-center gap-2.5 min-w-0 flex-1 pointer-events-none">
-          <img src="${p.avatar_url}" alt="${p.name}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0">
+          <img src="${resolveAvatarCdnUrl(p.avatar_url)}" alt="${p.name}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           <div class="min-w-0 flex-1">
             <div class="text-xs font-semibold text-white truncate profile-row-name">${p.name}</div>
           </div>
@@ -673,7 +681,7 @@ export function showSelectProfilePrompt() {
     return `
       <div class="p-4 rounded-2xl bg-white/[0.04] border ${isSelected ? 'border-[#ffd479] bg-white/[0.08]' : 'border-white/10'} hover:border-[#ffd479]/60 hover:bg-white/[0.08] transition-all cursor-pointer flex flex-col items-center gap-2.5 group select-none shadow-sm" data-profile-id="${id}">
         <div class="relative">
-          <img src="${p.avatar_url}" alt="${p.name}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg">
+          <img src="${resolveAvatarCdnUrl(p.avatar_url)}" alt="${p.name}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           ${isSelected ? '<span class="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#ffd479] text-black text-[10px] flex items-center justify-center font-bold shadow-md"><i class="fa-solid fa-check"></i></span>' : ''}
         </div>
         <div class="text-center w-full">
@@ -804,6 +812,79 @@ function updateCreateProfileFranchiseTriggerLabel() {
   if (count) count.textContent = cur?.count ?? 0;
 }
 
+/**
+ * Formatea cantidades de usuarios de forma compacta y legible: 300, 1k, 1.1k, 10k, 1m
+ */
+function formatUserCount(num) {
+  const n = Number(num) || 0;
+  if (n < 1000) return String(n);
+  if (n < 1000000) {
+    const k = n / 1000;
+    return (k % 1 === 0 || k >= 10 ? k.toFixed(0) : k.toFixed(1)).replace('.0', '') + 'k';
+  }
+  const m = n / 1000000;
+  return (m % 1 === 0 || m >= 10 ? m.toFixed(0) : m.toFixed(1)).replace('.0', '') + 'm';
+}
+
+/**
+ * Obtiene los avatares más usados para el bloque inicial (hasta 8 para 1 fila responsiva)
+ * Si hay un estilo seleccionado diferente a 'all', filtra o prioriza avatares de ese estilo.
+ * Cada elemento incluye la propiedad 'usageScore' con la cantidad de usuarios.
+ */
+function getMostUsedAvatarItems(selectedStyle = 'all') {
+  const allAvatars = getCompiledAvatars();
+  if (!allAvatars || allAvatars.length === 0) return [];
+
+  const rawEntries = (accountState.mostUsedKeys && accountState.mostUsedKeys.length > 0)
+    ? accountState.mostUsedKeys
+    : BASELINE_TOP_AVATARS;
+
+  const entries = rawEntries.map(e => {
+    if (typeof e === 'string') return { key: e, score: 0 };
+    return { key: e.key || '', score: Number(e.score) || 0 };
+  });
+
+  const avatarMap = new Map();
+  for (const av of allAvatars) {
+    const norm = normalizeAvatarStorageKey(av.path);
+    if (norm && !avatarMap.has(norm)) {
+      avatarMap.set(norm, av);
+    }
+  }
+
+  const matched = [];
+  for (const entry of entries) {
+    const normKey = normalizeAvatarStorageKey(entry.key);
+    const item = avatarMap.get(normKey);
+    if (item) {
+      if (selectedStyle === 'all' || item.style === selectedStyle) {
+        if (!matched.some(m => m.path === item.path)) {
+          matched.push({
+            ...item,
+            usageScore: entry.score
+          });
+        }
+      }
+    }
+  }
+
+  // Rellenar hasta 8 si quedan menos tras el filtro de estilo
+  if (matched.length < 8) {
+    for (const av of allAvatars) {
+      if (selectedStyle !== 'all' && av.style !== selectedStyle) continue;
+      if (!matched.some(m => m.path === av.path)) {
+        matched.push({
+          ...av,
+          usageScore: 0
+        });
+        if (matched.length >= 8) break;
+      }
+    }
+  }
+
+  return matched.slice(0, 8);
+}
+
 export function renderCreateProfileAvatarsCatalog() {
   const container = document.getElementById('createProfileAvatarsCatalogContainer');
   if (!container) return;
@@ -824,16 +905,19 @@ export function renderCreateProfileAvatarsCatalog() {
     return;
   }
 
-  const renderCard = (av, extraClass = '') => {
+  const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const cdnUrl = resolveAvatarCdnUrl(av.path);
     const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
     return `
       <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
-           title="${av.character} (${av.franchiseName})">
-        <div class="avatar-circle-wrap">
-          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+           title="${av.character} (${av.franchiseName})${av.fileName ? ` • ${av.fileName}` : ''}">
+        <div class="relative w-full aspect-square">
+          <div class="avatar-circle-wrap">
+            <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          </div>
+          ${badgeHtml}
         </div>
         <span class="avatar-card-name-label">${av.character}</span>
       </div>
@@ -866,6 +950,49 @@ export function renderCreateProfileAvatarsCatalog() {
     );
 
     let html = '';
+
+    // Colección especial inicial "Más usados": solo 1 fila responsiva (3 mobile, 4 sm, 6 md, 8 lg)
+    const mostUsedItems = getMostUsedAvatarItems('all');
+    if (mostUsedItems.length > 0) {
+      const mostUsedCardsHtml = mostUsedItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+
+        // Etiqueta de cantidad de usuarios: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal
+        let rankClass = 'rank-normal';
+        if (idx === 0) rankClass = 'rank-gold';
+        else if (idx === 1) rankClass = 'rank-silver';
+        else if (idx === 2) rankClass = 'rank-bronze';
+
+        const rawScore = Number(av.usageScore) || 0;
+        const formattedScore = formatUserCount(rawScore);
+        const tooltip = `${rawScore.toLocaleString('es')} ${rawScore === 1 ? 'usuario ha' : 'usuarios han'} seleccionado este icono`;
+
+        const badgeHtml = `
+          <span class="avatar-user-count-badge ${rankClass}" title="${tooltip}">
+            ${formattedScore}
+          </span>
+        `;
+
+        return renderCard(av, responsiveClass, badgeHtml);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5" id="createProfileBlockMostUsedAvatars">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">Más usados</h4>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${mostUsedCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     for (const [fId, group] of sortedGroups) {
       const previewItems = group.items.slice(0, 8);
       const previewCardsHtml = previewItems.map((av, idx) => {
@@ -1121,6 +1248,9 @@ export function setupProfileModals() {
         });
 
         showToast('✓ Perfil creado con éxito.', 'success');
+        if (createProfileAvatarUrl) {
+          recordAvatarUsage(createProfileAvatarUrl).catch(() => null);
+        }
         closeCreateProfileModal();
 
         await fetchProfiles();
@@ -1513,36 +1643,16 @@ export async function renderOverviewSection() {
 
 export function resolvePublicAvatarUrl(rawUrl) {
   if (!rawUrl) return '';
-  const trimmed = String(rawUrl).trim();
-  // Migración automática de enlaces raw.githubusercontent.com hacia jsDelivr CDN
-  if (trimmed.includes('raw.githubusercontent.com') && trimmed.includes('/assets/profile_icons/')) {
-    const sub = trimmed.split('/assets/profile_icons/')[1];
-    if (sub) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${sub}`;
-    }
-  }
-  if (trimmed.includes('assets/profile_icons/')) {
-    const subPath = trimmed.split('assets/profile_icons/')[1];
-    if (subPath) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${subPath}`;
-    }
-  }
-  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
-    return trimmed;
-  }
-  if (typeof window !== 'undefined' && window.location) {
-    try {
-      return new URL(trimmed, window.location.href).href;
-    } catch (_) {}
-  }
-  return trimmed;
+  return resolveAvatarCdnUrl(rawUrl);
 }
 
 export function areAvatarUrlsEqual(urlA, urlB) {
   if (!urlA && !urlB) return true;
   if (!urlA || !urlB) return false;
   if (urlA === urlB) return true;
-  return resolvePublicAvatarUrl(urlA) === resolvePublicAvatarUrl(urlB);
+  const cleanA = resolvePublicAvatarUrl(urlA).split('?')[0];
+  const cleanB = resolvePublicAvatarUrl(urlB).split('?')[0];
+  return cleanA === cleanB;
 }
 
 export function updateAvatarComparisonUI() {
@@ -1554,8 +1664,8 @@ export function updateAvatarComparisonUI() {
   const modBadge = document.getElementById('avatarModifiedBadge');
   const headerMainWrap = document.getElementById('avatarHeaderMainWrap');
 
-  const origUrl = accountState.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio';
-  const selectedUrl = accountState.selectedAvatarUrl || origUrl;
+  const origUrl = resolveAvatarCdnUrl(accountState.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio');
+  const selectedUrl = resolveAvatarCdnUrl(accountState.selectedAvatarUrl || origUrl);
   const isChanged = Boolean(accountState.selectedAvatarUrl && !areAvatarUrlsEqual(accountState.selectedAvatarUrl, accountState.originalAvatarUrl));
 
   if (origPreview) origPreview.src = origUrl;
@@ -1796,6 +1906,42 @@ export function renderAvatarsSection() {
   setupFranchisesModal();
   renderAvatarStylePills();
   renderModalFranchisesList();
+
+  // 5. Botón de sincronización manual con el repositorio de GitHub
+  const btnRefresh = document.getElementById('btnRefreshAvatarsCatalog');
+  if (btnRefresh && btnRefresh.dataset.bound !== 'true') {
+    btnRefresh.dataset.bound = 'true';
+    btnRefresh.addEventListener('click', async () => {
+      const icon = btnRefresh.querySelector('i');
+      if (icon) icon.classList.add('fa-spin');
+      btnRefresh.disabled = true;
+      try {
+        await loadAvatarsCatalog(true);
+        renderAvatarStylePills();
+        renderModalFranchisesList();
+        renderAvatarsCatalog();
+        showToast('Catálogo de avatares sincronizado correctamente.', 'success');
+      } catch (err) {
+        showToast('No se pudo sincronizar el catálogo remoto.', 'error');
+      } finally {
+        if (icon) icon.classList.remove('fa-spin');
+        btnRefresh.disabled = false;
+      }
+    });
+  }
+
+  // Precargar ranking global de avatares más usados si aún no está disponible
+  if (!accountState.mostUsedKeys && !accountState._isLoadingMostUsed) {
+    accountState._isLoadingMostUsed = true;
+    fetchTopAvatarKeys(8).then(keys => {
+      accountState.mostUsedKeys = keys;
+      accountState._isLoadingMostUsed = false;
+      renderAvatarsCatalog();
+    }).catch(() => {
+      accountState._isLoadingMostUsed = false;
+    });
+  }
+
   renderAvatarsCatalog();
 }
 
@@ -1955,15 +2101,19 @@ function renderAvatarsCatalog() {
     return;
   }
 
-  const renderCard = (av, extraClass = '') => {
+  const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const isSelected = av.path === activeAvatar || resolvePublicAvatarUrl(av.path) === activePublic;
+    const cdnUrl = resolveAvatarCdnUrl(av.path);
     return `
       <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
-           title="${av.character} (${av.franchiseName})">
-        <div class="avatar-circle-wrap">
-          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+           title="${av.character} (${av.franchiseName})${av.fileName ? ` • ${av.fileName}` : ''}">
+        <div class="relative w-full aspect-square">
+          <div class="avatar-circle-wrap">
+            <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          </div>
+          ${badgeHtml}
         </div>
         <span class="avatar-card-name-label">${av.character}</span>
       </div>
@@ -2001,6 +2151,50 @@ function renderAvatarsCatalog() {
     );
 
     let html = '';
+
+    // Colección especial inicial "Más usados": exactamente 1 fila responsiva (3 mobile, 4 sm, 6 md, 8 lg)
+    // Sin botón "Abrir colección" ni contador, solo título "Más usados"
+    const mostUsedItems = getMostUsedAvatarItems(accountState.avatarFilters.style);
+    if (mostUsedItems.length > 0) {
+      const mostUsedCardsHtml = mostUsedItems.map((av, idx) => {
+        let responsiveClass = '';
+        if (idx === 3) responsiveClass = 'hidden sm:flex';
+        else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
+        else if (idx >= 6) responsiveClass = 'hidden lg:flex';
+
+        // Etiqueta de cantidad de usuarios: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal
+        let rankClass = 'rank-normal';
+        if (idx === 0) rankClass = 'rank-gold';
+        else if (idx === 1) rankClass = 'rank-silver';
+        else if (idx === 2) rankClass = 'rank-bronze';
+
+        const rawScore = Number(av.usageScore) || 0;
+        const formattedScore = formatUserCount(rawScore);
+        const tooltip = `${rawScore.toLocaleString('es')} ${rawScore === 1 ? 'usuario ha' : 'usuarios han'} seleccionado este icono`;
+
+        const badgeHtml = `
+          <span class="avatar-user-count-badge ${rankClass}" title="${tooltip}">
+            ${formattedScore}
+          </span>
+        `;
+
+        return renderCard(av, responsiveClass, badgeHtml);
+      }).join('');
+
+      html += `
+        <div class="avatar-collection-block space-y-3.5" id="blockMostUsedAvatars">
+          <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
+            <div class="min-w-0">
+              <h4 class="text-sm font-bold text-white tracking-tight truncate">Más usados</h4>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+            ${mostUsedCardsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     for (const [fId, group] of sortedGroups) {
       // Previsualización adaptativa de 1 fila (3 en mobile, 4 en sm, 6 en md, 8 en lg)
       const previewItems = group.items.slice(0, 8);
@@ -2135,7 +2329,6 @@ export function canAccountUndo() {
 
 export function updateUndoButton() {
   const btn = document.getElementById('btnAccountUndo');
-  const btnSection = document.getElementById('btnAccountUndoAddons');
   const canUndo = canAccountUndo();
 
   if (btn) {
@@ -2146,18 +2339,6 @@ export function updateUndoButton() {
     } else {
       btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
       btn.classList.remove('opacity-100', 'cursor-pointer');
-    }
-  }
-
-  if (btnSection) {
-    const canUndoAddons = Boolean((accountState.addonHistory && accountState.addonHistory.length > 0) || accountState.dirty.addons);
-    btnSection.disabled = !canUndoAddons;
-    if (canUndoAddons) {
-      btnSection.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-      btnSection.classList.add('opacity-100', 'cursor-pointer');
-    } else {
-      btnSection.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-      btnSection.classList.remove('opacity-100', 'cursor-pointer');
     }
   }
 }
@@ -2570,16 +2751,17 @@ export function renderAddonsSection() {
 
     const configureBtnHtml = configureUrl ? `
       <a href="${escapeHtml(configureUrl)}" target="_blank" rel="noopener noreferrer" 
-         class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 transition-all flex items-center gap-1.5" 
+         class="h-8 sm:h-auto lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1.5" 
          title="Abrir página oficial de configuración del addon">
-        <span>Configurar</span>
-        <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i>
+        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-[#ffd479]/90"></i>
+        <span class="hidden sm:inline">Configurar</span>
       </a>
     ` : '';
 
     html += `
-      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-colors duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
-        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 transition-colors duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
+        <!-- Nivel 1 (Móvil: 100% ancho / Escritorio: flex-1 a la izquierda) -->
+        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 w-full sm:w-auto sm:flex-1">
           <!-- Handle arrastre fluido (solo escritorio) -->
           <div class="hidden md:flex items-center text-white/30 hover:text-white/80 cursor-grab active:cursor-grabbing p-1 drag-handle" title="Arrastrar para reordenar prioridad">
             <i class="fa-solid fa-grip-vertical text-xs"></i>
@@ -2609,25 +2791,35 @@ export function renderAddonsSection() {
           </div>
         </div>
 
-        <!-- Botones de Acción a la derecha idénticos a Nuvio Oficial -->
-        <div class="shrink-0 flex items-center gap-1.5 sm:gap-2">
-          ${configureBtnHtml}
+        <!-- Nivel 2 (Móvil: Barra de acciones dividida / Escritorio: Fila a la derecha) -->
+        <div class="w-full sm:w-auto pt-2 sm:pt-0 border-t border-white/[0.06] sm:border-t-0 flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 shrink-0">
+          <!-- Grupo Izquierda en Móvil: Reordenamiento (Subir / Bajar) -->
+          <div class="flex items-center gap-1 sm:order-2">
+            <button type="button" class="w-8 h-8 sm:w-auto lat-capsule-btn glass text-xs py-1 px-2 sm:px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1 ${isFirst ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-up" data-index="${idx}" title="Subir orden">
+              <i class="fa-solid fa-chevron-up text-[10px]"></i>
+              <span class="hidden sm:inline">Subir</span>
+            </button>
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 btn-edit-addon" data-index="${idx}" title="Modificar nombre, estado o enlace del manifiesto">
-            Editar
-          </button>
+            <button type="button" class="w-8 h-8 sm:w-auto lat-capsule-btn glass text-xs py-1 px-2 sm:px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1 ${isLast ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-down" data-index="${idx}" title="Bajar orden">
+              <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              <span class="hidden sm:inline">Bajar</span>
+            </button>
+          </div>
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/70 hover:text-rose-400 border-white/10 hover:border-rose-500/30 hover:bg-rose-500/10 btn-delete-addon" data-index="${idx}" title="Eliminar addon de este perfil">
-            Eliminar
-          </button>
+          <!-- Grupo Derecha en Móvil: Gestión del Addon (Configurar, Editar, Eliminar) -->
+          <div class="flex items-center gap-1.5 sm:order-1">
+            ${configureBtnHtml}
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 ${isFirst ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-up" data-index="${idx}" title="Subir orden">
-            Subir
-          </button>
+            <button type="button" class="h-8 sm:h-auto lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 btn-edit-addon" data-index="${idx}" title="Modificar nombre, estado o enlace del manifiesto">
+              <i class="fa-solid fa-pen text-[10px]"></i>
+              <span class="hidden sm:inline">Editar</span>
+            </button>
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 ${isLast ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-down" data-index="${idx}" title="Bajar orden">
-            Bajar
-          </button>
+            <button type="button" class="h-8 sm:h-auto lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/70 hover:text-rose-400 border-white/10 hover:border-rose-500/30 hover:bg-rose-500/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 btn-delete-addon" data-index="${idx}" title="Eliminar addon de este perfil">
+              <i class="fa-regular fa-trash-can text-[11px] text-rose-400/80 sm:text-inherit"></i>
+              <span class="hidden sm:inline">Eliminar</span>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -3192,18 +3384,12 @@ export function setupAddonModals() {
   // Botones de la barra superior de Addons
   const btnRefresh = document.getElementById('btnAccountRefreshAddons');
   const btnDeleteAll = document.getElementById('btnAccountDeleteAllAddons');
-  const btnUndoAddons = document.getElementById('btnAccountUndoAddons');
   const btnOpenAio = document.getElementById('btnAccountOpenAddAioStreams');
   const btnOpenAdd = document.getElementById('btnAccountOpenAddAddon');
 
   if (btnRefresh && !btnRefresh.dataset.bound) {
     btnRefresh.dataset.bound = 'true';
     btnRefresh.addEventListener('click', refreshAccountAddons);
-  }
-
-  if (btnUndoAddons && !btnUndoAddons.dataset.bound) {
-    btnUndoAddons.dataset.bound = 'true';
-    btnUndoAddons.addEventListener('click', undoAddonsChange);
   }
 
   if (btnDeleteAll && !btnDeleteAll.dataset.bound) {
@@ -3845,6 +4031,7 @@ export async function saveAllChanges() {
     // 0. Guardar Avatar de Perfil si cambió
     if (accountState.dirty.avatar && accountState.selectedAvatarUrl) {
       const avatarUrlToSave = resolvePublicAvatarUrl(accountState.selectedAvatarUrl);
+      recordAvatarUsage(accountState.selectedAvatarUrl).catch(() => null);
       await NuvioClient.updateProfileAvatar({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -3863,7 +4050,7 @@ export async function saveAllChanges() {
 
       // Actualizar avatar en barra lateral y popover
       const sidebarAvatar = document.getElementById('sidebarActiveAvatar');
-      if (sidebarAvatar) sidebarAvatar.src = accountState.selectedAvatarUrl;
+      if (sidebarAvatar) sidebarAvatar.src = resolveAvatarCdnUrl(avatarUrlToSave);
 
       renderProfilePopover();
       accountState.dirty.avatar = false;
@@ -4250,6 +4437,14 @@ export async function initAccountPage() {
   // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
   loadAvatarsCatalog().catch(() => null);
 
+  // Precargar ranking global de avatares más usados desde Upstash Redis
+  fetchTopAvatarKeys(8).then(keys => {
+    accountState.mostUsedKeys = keys;
+    if (accountState.activeSection === 'avatars') {
+      renderAvatarsCatalog();
+    }
+  }).catch(() => null);
+
   // Inicializar listeners del módulo de sugerencias de avatares (Discord)
   initAvatarSuggestionsUI();
 
@@ -4296,6 +4491,31 @@ export async function initAccountPage() {
         btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Iniciando sesión...';
       }
 
+      // 1. Detección de Contraseña de Modder / Colaborador
+      try {
+        const workerUrl = (CONFIG.WORKER_API_URL || '').replace(/\/+$/, '');
+        if (workerUrl) {
+          const verifyRes = await fetch(`${workerUrl}/api/verify-auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          if (verifyRes.ok) {
+            const authInfo = await verifyRes.json();
+            if (authInfo.role === 'modder' || authInfo.role === 'admin') {
+              sessionStorage.setItem('nuvio_modder_session', JSON.stringify({ token: password, email, timestamp: Date.now() }));
+              showToast('Acceso Modder detectado. Redirigiendo al panel...', 'info');
+              setTimeout(() => {
+                window.location.href = '../modder/';
+              }, 400);
+              return;
+            }
+          }
+        }
+      } catch (_) {
+        // Continuar con login normal de Nuvio si no es modder o si falla la red
+      }
+
       try {
         const loginData = await NuvioClient.login({
           apiUrl: CONFIG.NUVIO_API_URL,
@@ -4313,6 +4533,13 @@ export async function initAccountPage() {
         showToast('Sesión iniciada correctamente.', 'success');
         if (authView) authView.classList.add('hidden');
         if (dashboardView) dashboardView.classList.remove('hidden');
+
+        // Refresco de avatares en segundo plano al iniciar sesión para asegurar los assets más recientes
+        loadAvatarsCatalog(true).then(() => {
+          renderAvatarStylePills();
+          renderModalFranchisesList();
+          renderAvatarsCatalog();
+        }).catch(e => console.warn('[Account] No se pudo refrescar catálogo al iniciar sesión:', e));
 
         await fetchProfiles();
         renderProfilePopover();

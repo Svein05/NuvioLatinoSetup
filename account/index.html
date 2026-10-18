@@ -42,7 +42,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <!-- Estilos propios -->
-  <link rel="stylesheet" href="../css/styles.css?v=1.7.0" />
+  <link rel="stylesheet" href="../css/styles.css?v=1.8.0" />
 
   <!-- SortableJS para Reordenación Fluida y Animada (Local con fallback CDN) -->
   <script src="../js/vendor/sortable.min.js"></script>
@@ -62,7 +62,7 @@
     <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Volver al Inicio">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
       <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
-      <span class="lat-brand-badge app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">v1.7.0</span>
+      <span class="lat-brand-badge app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">v1.8.0</span>
     </a>
 
     <!-- Cápsula Central: Segmented Tabs (Cuenta Activo) -->
@@ -252,7 +252,7 @@
       </header>
 
       <!-- Panel de Contenido Principal (100% de Ancho Disponible) -->
-      <section class="account-content-card w-full p-5 sm:p-7 md:p-8 flex flex-col gap-6">
+      <section class="account-content-card w-full p-3.5 sm:p-7 md:p-8 flex flex-col gap-6">
         
         <!-- Barra Superior de Acciones del Panel -->
         <div class="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/10">
@@ -462,6 +462,12 @@
                 <span id="avatarFranchiseDropdownCount" class="pill-badge">46</span>
                 <i class="fa-solid fa-chevron-right text-[10px] text-white/40 ml-1"></i>
               </button>
+
+              <!-- Botón Refrescar Catálogo con GitHub -->
+              <button type="button" id="btnRefreshAvatarsCatalog" class="avatar-dropdown-trigger text-white/70 hover:text-[#ffd479]" title="Sincronizar y buscar nuevos avatares en GitHub">
+                <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                <span class="hidden sm:inline">Actualizar</span>
+              </button>
             </div>
 
             <!-- Buscador Rápido de Personajes con soporte de prefijos pj: y ob: -->
@@ -507,27 +513,30 @@
                 0 addons instalados
               </p>
             </div>
-            <div class="flex items-center flex-wrap gap-2 shrink-0">
-              <button type="button" id="btnAccountRefreshAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5 text-white/80 hover:text-white" title="Recargar lista desde Nuvio">
-                <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
-                <span>Refrescar</span>
-              </button>
-              <button type="button" id="btnAccountUndoAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5 text-white/70 hover:text-white border-white/10 hover:border-white/20 opacity-40 cursor-not-allowed pointer-events-none" disabled title="Deshacer último cambio en addons">
-                <i class="fa-solid fa-rotate-left text-[11px]"></i>
-                <span>Deshacer</span>
-              </button>
-              <button type="button" id="btnAccountDeleteAllAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center gap-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/30" title="Eliminar todos los addons de este perfil">
-                <i class="fa-regular fa-trash-can text-[11px]"></i>
-                <span>Eliminar todos</span>
-              </button>
-              <button type="button" id="btnAccountOpenAddAioStreams" class="lat-capsule-btn glass text-xs py-2 px-3.5 flex items-center gap-2 border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] text-emerald-300 hover:text-white transition-all shadow-[var(--shadow-lift)]" title="Configurar e instalar AIOStreams Latino">
-                <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-4 h-4 object-contain" alt="AIOStreams Logo">
-                <span>Agregar AIOStreams</span>
-              </button>
-              <button type="button" id="btnAccountOpenAddAddon" class="lat-capsule-btn solid text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-[var(--shadow-lift)]" title="Agregar addon mediante URL de manifiesto">
-                <i class="fa-solid fa-plus text-[10px]"></i>
-                <span>Agregar Addon</span>
-              </button>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+              <!-- Acciones Principales de Creación (Fila 1 en móvil, grupo final en desktop) -->
+              <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+                <button type="button" id="btnAccountOpenAddAddon" class="lat-capsule-btn solid text-xs py-2 px-3 sm:px-3.5 flex items-center justify-center gap-1.5 shadow-[var(--shadow-lift)] active:scale-95 transition-all" title="Agregar addon mediante URL de manifiesto">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Agregar Addon</span>
+                </button>
+                <button type="button" id="btnAccountOpenAddAioStreams" class="lat-capsule-btn glass text-xs py-2 px-3 sm:px-3.5 flex items-center justify-center gap-2 border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] text-emerald-300 hover:text-white transition-all shadow-[var(--shadow-lift)] active:scale-95" title="Configurar e instalar AIOStreams Latino">
+                  <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-4 h-4 object-contain" alt="AIOStreams Logo">
+                  <span class="truncate"><span class="hidden sm:inline">Agregar </span>AIOStreams</span>
+                </button>
+              </div>
+
+              <!-- Acciones Secundarias de Mantenimiento (Fila 2 en móvil, grupo inicial en desktop) -->
+              <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto order-2 sm:order-1">
+                <button type="button" id="btnAccountRefreshAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center justify-center gap-1.5 text-white/80 hover:text-white active:scale-95 transition-all" title="Recargar lista desde Nuvio">
+                  <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                  <span>Refrescar</span>
+                </button>
+                <button type="button" id="btnAccountDeleteAllAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center justify-center gap-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/30 active:scale-95 transition-all" title="Eliminar todos los addons de este perfil">
+                  <i class="fa-regular fa-trash-can text-[11px]"></i>
+                  <span>Eliminar todos</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -582,7 +591,7 @@
         </p>
         <div class="pt-2 text-[11px] text-white/40 space-y-1">
           <div>© 2025-2026 Nuvio Latino Setup</div>
-          <div>Versión <span class="font-mono text-white/80 font-medium">v1.6.0</span> • Licencia MIT</div>
+          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono text-white/80 font-medium hover:underline">v1.8.0</a> • Licencia MIT</div>
           <div class="text-[10px] text-white/30">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
         </div>
       </div>
