@@ -7,8 +7,22 @@
 
 import { CONFIG } from './config.js';
 
+let currentCatalogCommitSha = null;
+
+export function setCatalogCommitSha(sha) {
+  if (sha && typeof sha === 'string') {
+    currentCatalogCommitSha = sha.trim();
+  }
+}
+
+export function getCatalogCommitSha() {
+  return currentCatalogCommitSha;
+}
+
 /**
- * Resuelve la URL pública para cualquier avatar de profile_icons mediante jsDelivr CDN
+ * Resuelve la URL pública para cualquier avatar de profile_icons directamente desde GitHub (raw.githubusercontent.com)
+ * Asegura sincronización 100% en tiempo real directamente desde el repositorio en la nube,
+ * eliminando problemas de caché desfasada en CDNs de terceros (jsDelivr).
  */
 export function resolveAvatarCdnUrl(avatarPath) {
   if (!avatarPath) return '';
@@ -26,11 +40,25 @@ export function resolveAvatarCdnUrl(avatarPath) {
       cleanSub = decodeURIComponent(rawSub);
     } catch (_) {}
 
+    cleanSub = cleanSub.split('?')[0];
     const safeSub = cleanSub.split('/').map(seg => encodeURIComponent(seg)).join('/');
-    return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${safeSub}`;
+    const versionParam = currentCatalogCommitSha ? `?v=${currentCatalogCommitSha}` : '';
+    return `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/main/assets/profile_icons/${safeSub}${versionParam}`;
   }
 
   if (/^https?:\/\//i.test(trimmed)) {
+    // Si viene de jsdelivr o dominio legacy que apunta a profile_icons, redirigir a GitHub raw
+    if (trimmed.includes('cdn.jsdelivr.net') && trimmed.includes('/assets/profile_icons/')) {
+      const rawSub = trimmed.split('/assets/profile_icons/')[1].replace(/^\/+/, '');
+      let cleanSub = rawSub;
+      try {
+        cleanSub = decodeURIComponent(rawSub);
+      } catch (_) {}
+      cleanSub = cleanSub.split('?')[0];
+      const safeSub = cleanSub.split('/').map(seg => encodeURIComponent(seg)).join('/');
+      const versionParam = currentCatalogCommitSha ? `?v=${currentCatalogCommitSha}` : '';
+      return `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/main/assets/profile_icons/${safeSub}${versionParam}`;
+    }
     return trimmed;
   }
   return trimmed;
@@ -73,108 +101,7 @@ export function formatCharacterName(rawName) {
 let compiledAvatarsCache = null;
 let rawRegistryCache = null;
 
-/**
- * Rastreador asíncrono dinámico para entornos locales (Live Server / Python)
- * Lee los directorios HTML automáticos de assets/profile_icons/ sin tocar código.
- */
-async function crawlLocalAvatars() {
-  const origin = window.location.origin;
-  const basePath = '/assets/profile_icons/';
-  const rootUrl = `${origin}${basePath}`;
-  
-  const rootRes = await fetch(rootUrl, { cache: 'no-cache' });
-  if (!rootRes.ok) return null;
-  const rootText = await rootRes.text();
-  const rootLinks = extractChildLinks(rootText, basePath);
-  if (!rootLinks || rootLinks.length === 0) return null;
 
-  // Filtrar estilos (carpetas sin punto de extensión)
-  const styles = rootLinks.filter(l => !l.includes('.') && l !== '..' && l !== '');
-  if (styles.length === 0) return null;
-
-  const registry = [];
-
-  for (const style of styles) {
-    const stylePath = `${basePath}${encodeURIComponent(style)}/`;
-    try {
-      const styleRes = await fetch(`${origin}${stylePath}`, { cache: 'no-cache' });
-      if (!styleRes.ok) continue;
-      const styleText = await styleRes.text();
-      const franchiseLinks = extractChildLinks(styleText, stylePath);
-      const franchises = franchiseLinks.filter(l => !l.includes('.') && l !== '..' && l !== '');
-
-      for (const franchise of franchises) {
-        const franchisePath = `${stylePath}${encodeURIComponent(franchise)}/`;
-        try {
-          const franRes = await fetch(`${origin}${franchisePath}`, { cache: 'no-cache' });
-          if (!franRes.ok) continue;
-          const franText = await franRes.text();
-          const fileLinks = extractChildLinks(franText, franchisePath);
-          const files = fileLinks.filter(f => /\.(jpe?g|png|webp|svg)$/i.test(f) && !f.startsWith('.') && !/desktop\.ini$/i.test(f));
-
-          if (files.length > 0) {
-            registry.push({
-              style,
-              franchise,
-              files
-            });
-          }
-        } catch (_) {}
-      }
-
-      // Archivos directos colocados en la raíz del estilo (ej: MangaStyle/Personaje.png)
-      const directFiles = franchiseLinks.filter(f => /\.(jpe?g|png|webp|svg)$/i.test(f) && !f.startsWith('.') && !/desktop\.ini$/i.test(f));
-      if (directFiles.length > 0) {
-        registry.push({
-          style,
-          franchise: 'General',
-          files: directFiles,
-          isDirect: true
-        });
-      }
-    } catch (_) {}
-  }
-
-  return registry.length > 0 ? registry : null;
-}
-
-function extractChildLinks(htmlText, currentDirectoryPath) {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlText, 'text/html');
-    const links = [];
-    const cleanDir = currentDirectoryPath.endsWith('/') ? currentDirectoryPath : `${currentDirectoryPath}/`;
-
-    doc.querySelectorAll('a').forEach(a => {
-      let rawHref = (a.getAttribute('href') || '').trim();
-      if (!rawHref || rawHref === '#' || rawHref.startsWith('?') || rawHref === '..') return;
-
-      let resolvedPath = '';
-      try {
-        const u = new URL(rawHref, (typeof window !== 'undefined' ? window.location.origin : 'http://localhost') + cleanDir);
-        resolvedPath = u.pathname;
-      } catch (_) {
-        resolvedPath = rawHref;
-      }
-
-      if (!resolvedPath.startsWith(cleanDir) || resolvedPath === cleanDir) return;
-
-      let sub = resolvedPath.substring(cleanDir.length).replace(/\/+$/, '');
-      if (!sub || sub.includes('/')) return;
-
-      try {
-        sub = decodeURIComponent(sub);
-      } catch (_) {}
-
-      if (!links.includes(sub)) {
-        links.push(sub);
-      }
-    });
-    return links;
-  } catch (_) {
-    return [];
-  }
-}
 
 function parseGitHubTree(tree) {
   const map = new Map();
@@ -341,6 +268,7 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
         cachedSha = parsed.commitSha || null;
         if (parsed.timestamp && (Date.now() - parsed.timestamp < 1800000) && parsed.registry) {
           treeData = parsed.registry;
+          if (cachedSha) setCatalogCommitSha(cachedSha);
         }
       } catch (_) {}
     }
@@ -356,6 +284,7 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
       if (shaRes.ok) {
         const shaJson = await shaRes.json();
         latestSha = shaJson.object?.sha || null;
+        if (latestSha) setCatalogCommitSha(latestSha);
       }
     } catch (_) {
       // Si falla o no hay conexión / timeout, continuar fluidamente con treeData en caché
@@ -380,10 +309,12 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
         const ghJson = await ghRes.json();
         if (Array.isArray(ghJson.tree)) {
           treeData = parseGitHubTree(ghJson.tree);
+          const finalSha = latestSha || ghJson.sha || null;
+          if (finalSha) setCatalogCommitSha(finalSha);
           if (typeof sessionStorage !== 'undefined' && treeData.length > 0) {
             sessionStorage.setItem('nuvio_avatars_tree_cache', JSON.stringify({
               timestamp: Date.now(),
-              commitSha: latestSha || ghJson.sha || null,
+              commitSha: finalSha,
               registry: treeData
             }));
           }
@@ -399,33 +330,14 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
       return compiledAvatarsCache;
     }
   } catch (err) {
-    console.warn('[AvatarsData] No se pudo obtener árbol de GitHub, recurriendo a fallbacks locales:', err);
+    console.warn('[AvatarsData] No se pudo obtener árbol de GitHub, recurriendo a manifest remoto:', err);
   }
 
-  // 2. FALLBACK SECUNDARIO (Offline / Sin conexión): Crawling local en localhost
-  const isLocal = typeof window !== 'undefined' && ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
-  if (isLocal) {
-    try {
-      const localRegistry = await crawlLocalAvatars();
-      if (localRegistry && localRegistry.length > 0) {
-        rawRegistryCache = localRegistry;
-        compiledAvatarsCache = compileRegistry(localRegistry);
-        return compiledAvatarsCache;
-      }
-    } catch (err) {
-      console.warn('[AvatarsData] Fallback local no disponible:', err);
-    }
-  }
-
+  // 2. FALLBACK REMOTO: Si la API REST de GitHub está en límite de tasa (403), descargar manifest.json directamente de raw.githubusercontent.com
+  // NUNCA recurrir a carpetas locales de Live Server ni emular disco local.
   try {
-    const isSubfolder = typeof window !== 'undefined' && (
-      window.location.pathname.includes('/account/') || 
-      window.location.pathname.includes('/configuration/') || 
-      window.location.pathname.includes('/documentation/') ||
-      window.location.pathname.includes('/modder/')
-    );
-    const manifestPath = isSubfolder ? '../assets/profile_icons/manifest.json' : './assets/profile_icons/manifest.json';
-    const mRes = await fetch(manifestPath, { cache: forceRefresh ? 'no-cache' : 'default' });
+    const rawManifestUrl = `https://raw.githubusercontent.com/${CONFIG.GITHUB_REPO}/main/assets/profile_icons/manifest.json?_t=${Date.now()}`;
+    const mRes = await fetch(rawManifestUrl, { cache: 'no-store' });
     if (mRes.ok) {
       const mJson = await mRes.json();
       if (Array.isArray(mJson.styles)) {
@@ -447,7 +359,7 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
       }
     }
   } catch (err) {
-    console.warn('[AvatarsData] Fallback manifest.json no disponible:', err);
+    console.warn('[AvatarsData] Fallback remoto de manifest no disponible:', err);
   }
 
   rawRegistryCache = [];

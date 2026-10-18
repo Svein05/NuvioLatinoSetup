@@ -1650,7 +1650,9 @@ export function areAvatarUrlsEqual(urlA, urlB) {
   if (!urlA && !urlB) return true;
   if (!urlA || !urlB) return false;
   if (urlA === urlB) return true;
-  return resolvePublicAvatarUrl(urlA) === resolvePublicAvatarUrl(urlB);
+  const cleanA = resolvePublicAvatarUrl(urlA).split('?')[0];
+  const cleanB = resolvePublicAvatarUrl(urlB).split('?')[0];
+  return cleanA === cleanB;
 }
 
 export function updateAvatarComparisonUI() {
