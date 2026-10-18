@@ -13,20 +13,24 @@ import { CONFIG } from './config.js';
 export function resolveAvatarCdnUrl(avatarPath) {
   if (!avatarPath) return '';
   const trimmed = String(avatarPath).trim();
-  // Migración automática de enlaces raw de GitHub a jsDelivr CDN
-  if (trimmed.includes('raw.githubusercontent.com') && trimmed.includes('/assets/profile_icons/')) {
-    const sub = trimmed.split('/assets/profile_icons/')[1];
-    if (sub) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${encodeURI(sub.replace(/^\/+/, ''))}`;
-    }
+  if (/^data:image\//i.test(trimmed)) {
+    return trimmed;
   }
+
+  // Rutas relativas o URLs absolutas que apuntan a assets/profile_icons/
   if (trimmed.includes('assets/profile_icons/')) {
-    const subPath = trimmed.split('assets/profile_icons/')[1];
-    if (subPath) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${encodeURI(subPath.replace(/^\/+/, ''))}`;
-    }
+    const rawSub = trimmed.split('assets/profile_icons/')[1].replace(/^\/+/, '');
+    // Decodificar primero para evitar doble codificación (%20 -> %2520)
+    let cleanSub = rawSub;
+    try {
+      cleanSub = decodeURIComponent(rawSub);
+    } catch (_) {}
+
+    const safeSub = cleanSub.split('/').map(seg => encodeURIComponent(seg)).join('/');
+    return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${safeSub}`;
   }
-  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
+
+  if (/^https?:\/\//i.test(trimmed)) {
     return trimmed;
   }
   return trimmed;
