@@ -250,12 +250,16 @@
                 <p id="detailCollectionCount" class="text-[11px] text-white/50 font-mono">0 avatares disponibles</p>
               </div>
 
-              <!-- Buscador a la derecha -->
-              <div class="flex items-center justify-end w-full">
-                <div class="relative w-full sm:w-56 shrink-0">
+              <!-- Buscador y Botón de Refrescar a la derecha -->
+              <div class="flex items-center justify-end gap-2 w-full">
+                <div class="relative flex-1 sm:w-52 sm:flex-initial">
                   <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
                   <input type="text" id="detailSearchInput" placeholder="Buscar personaje o archivo..." class="lat-field w-full text-xs pl-8 pr-3 py-1.5">
                 </div>
+                <button id="btnRefreshDetailCatalog" type="button" class="lat-capsule-btn outline w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 sm:py-1.5 text-xs flex items-center justify-center gap-1.5 shrink-0 rounded-xl" title="Sincronizar catálogo con GitHub">
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span class="hidden sm:inline">Refrescar</span>
+                </button>
               </div>
             </div>
 
@@ -475,8 +479,9 @@
       updateStagedUI,
       openPublishModal,
       closePublishModal,
-      executePublishStagedChanges
-    } from '../js/modder-uploader.js?v=1.8.5';
+      executePublishStagedChanges,
+      refreshCatalogFromGitHub
+    } from '../js/modder-uploader.js?v=1.8.6';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
     const activeSession = getModderSession();
@@ -618,10 +623,12 @@
 
     const btnRefreshCatalog = document.getElementById('btnRefreshCatalog');
     if (btnRefreshCatalog) {
-      btnRefreshCatalog.addEventListener('click', async () => {
-        await populateSelects(true);
-        renderCatalogGrid();
-      });
+      btnRefreshCatalog.addEventListener('click', refreshCatalogFromGitHub);
+    }
+
+    const btnRefreshDetailCatalog = document.getElementById('btnRefreshDetailCatalog');
+    if (btnRefreshDetailCatalog) {
+      btnRefreshDetailCatalog.addEventListener('click', refreshCatalogFromGitHub);
     }
 
     // Navegación de Detalle de Colección (Nivel 2)

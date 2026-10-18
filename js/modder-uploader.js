@@ -394,6 +394,68 @@ export async function populateSelects(forceRefresh = false) {
   updateStep2Visibility();
 }
 
+/**
+ * Recarga y sincroniza el catálogo directamente desde GitHub Trees API,
+ * activando una animación de giro en los botones de refresco y confirmación visual mediante toast.
+ */
+export async function refreshCatalogFromGitHub() {
+  const btns = [
+    document.getElementById('btnRefreshCatalog'),
+    document.getElementById('btnRefreshDetailCatalog')
+  ].filter(Boolean);
+
+  btns.forEach(btn => {
+    btn.disabled = true;
+    btn.classList.add('opacity-70', 'cursor-wait');
+    const icon = btn.querySelector('i');
+    if (icon) icon.classList.add('fa-spin', 'text-amber-300');
+    const span = btn.querySelector('span');
+    if (span) span.textContent = 'Sincronizando...';
+  });
+
+  try {
+    // 1. Recargar catálogo forzando bypass de caché contra GitHub Trees API
+    await populateSelects(true);
+
+    // 2. Si estábamos dentro de una colección abierta, re-sincronizar el objeto activo
+    if (modderState.activeCollection) {
+      const summary = getCollectionsSummary();
+      const refreshedCol = summary.find(c => c.franchise === modderState.activeCollection.franchise);
+      if (refreshedCol) {
+        modderState.activeCollection = refreshedCol;
+      }
+    }
+
+    // 3. Re-renderizar la cuadrícula activa y los filtros
+    renderStyleFilterButtons();
+    renderCatalogGrid();
+
+    // 4. Actualizar badge contador de avatares totales
+    const totalAvatars = getCompiledAvatars().length;
+    const manageBadge = document.getElementById('manageTotalBadge');
+    if (manageBadge) {
+      manageBadge.textContent = `${totalAvatars}`;
+    }
+
+    // 5. Notificación / Confirmación de éxito
+    showModderToast(`✓ Catálogo sincronizado con GitHub (${totalAvatars} avatares disponibles).`, 'success');
+
+  } catch (err) {
+    console.error('Error al sincronizar catálogo desde GitHub:', err);
+    showModderToast(`No se pudo sincronizar con GitHub: ${err.message}`, 'error');
+  } finally {
+    btns.forEach(btn => {
+      btn.disabled = false;
+      btn.classList.remove('opacity-70', 'cursor-wait');
+      const icon = btn.querySelector('i');
+      if (icon) icon.classList.remove('fa-spin', 'text-amber-300');
+      const span = btn.querySelector('span');
+      if (span) span.textContent = 'Refrescar';
+    });
+  }
+}
+
+
 // ============================================================
 // RENDERIZADO DE LA COLA DE SUBIDA POR LOTE
 // ============================================================

@@ -17,13 +17,13 @@ export function resolveAvatarCdnUrl(avatarPath) {
   if (trimmed.includes('raw.githubusercontent.com') && trimmed.includes('/assets/profile_icons/')) {
     const sub = trimmed.split('/assets/profile_icons/')[1];
     if (sub) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${sub}`;
+      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${encodeURI(sub.replace(/^\/+/, ''))}`;
     }
   }
   if (trimmed.includes('assets/profile_icons/')) {
     const subPath = trimmed.split('assets/profile_icons/')[1];
     if (subPath) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${subPath}`;
+      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${encodeURI(subPath.replace(/^\/+/, ''))}`;
     }
   }
   if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
@@ -324,28 +324,15 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
     return compiledAvatarsCache;
   }
 
-  const isLocal = typeof window !== 'undefined' && ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
-
-  if (isLocal) {
-    try {
-      const localRegistry = await crawlLocalAvatars();
-      if (localRegistry && localRegistry.length > 0) {
-        rawRegistryCache = localRegistry;
-        compiledAvatarsCache = compileRegistry(localRegistry);
-        return compiledAvatarsCache;
-      }
-    } catch (err) {
-      console.warn('[AvatarsData] No se pudo rastrear directorio local dinámico, probando fallback:', err);
-    }
-  }
-
+  // 1. PRIORIDAD ABSOLUTA: ÁRBOL REMOTO DE GITHUB (FUENTE DE VERDAD EN LA NUBE)
+  // Conectamos siempre a GitHub para que los assets reflejen lo que está publicado y listo, sin depender de archivos locales
   try {
     const cachedTree = !forceRefresh && typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('nuvio_avatars_tree_cache') : null;
     let treeData = null;
     if (cachedTree) {
       try {
         const parsed = JSON.parse(cachedTree);
-        if (parsed.timestamp && (Date.now() - parsed.timestamp < 3600000) && parsed.registry) {
+        if (parsed.timestamp && (Date.now() - parsed.timestamp < 1800000) && parsed.registry) {
           treeData = parsed.registry;
         }
       } catch (_) {}
@@ -368,6 +355,8 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
             }));
           }
         }
+      } else {
+        console.warn(`[AvatarsData] GitHub API respondió con código HTTP ${ghRes.status}`);
       }
     }
 
@@ -377,7 +366,22 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
       return compiledAvatarsCache;
     }
   } catch (err) {
-    console.warn('[AvatarsData] No se pudo obtener árbol de GitHub:', err);
+    console.warn('[AvatarsData] No se pudo obtener árbol de GitHub, recurriendo a fallbacks locales:', err);
+  }
+
+  // 2. FALLBACK SECUNDARIO (Offline / Sin conexión): Crawling local en localhost
+  const isLocal = typeof window !== 'undefined' && ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+  if (isLocal) {
+    try {
+      const localRegistry = await crawlLocalAvatars();
+      if (localRegistry && localRegistry.length > 0) {
+        rawRegistryCache = localRegistry;
+        compiledAvatarsCache = compileRegistry(localRegistry);
+        return compiledAvatarsCache;
+      }
+    } catch (err) {
+      console.warn('[AvatarsData] Fallback local no disponible:', err);
+    }
   }
 
   try {
