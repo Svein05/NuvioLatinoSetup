@@ -2325,7 +2325,6 @@ export function canAccountUndo() {
 
 export function updateUndoButton() {
   const btn = document.getElementById('btnAccountUndo');
-  const btnSection = document.getElementById('btnAccountUndoAddons');
   const canUndo = canAccountUndo();
 
   if (btn) {
@@ -2336,18 +2335,6 @@ export function updateUndoButton() {
     } else {
       btn.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
       btn.classList.remove('opacity-100', 'cursor-pointer');
-    }
-  }
-
-  if (btnSection) {
-    const canUndoAddons = Boolean((accountState.addonHistory && accountState.addonHistory.length > 0) || accountState.dirty.addons);
-    btnSection.disabled = !canUndoAddons;
-    if (canUndoAddons) {
-      btnSection.classList.remove('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-      btnSection.classList.add('opacity-100', 'cursor-pointer');
-    } else {
-      btnSection.classList.add('opacity-40', 'cursor-not-allowed', 'pointer-events-none');
-      btnSection.classList.remove('opacity-100', 'cursor-pointer');
     }
   }
 }
@@ -2760,16 +2747,17 @@ export function renderAddonsSection() {
 
     const configureBtnHtml = configureUrl ? `
       <a href="${escapeHtml(configureUrl)}" target="_blank" rel="noopener noreferrer" 
-         class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 transition-all flex items-center gap-1.5" 
+         class="h-8 sm:h-auto lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1.5" 
          title="Abrir página oficial de configuración del addon">
-        <span>Configurar</span>
-        <i class="fa-solid fa-arrow-up-right-from-square text-[9px] opacity-60"></i>
+        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-[#ffd479]/90"></i>
+        <span class="hidden sm:inline">Configurar</span>
       </a>
     ` : '';
 
     html += `
-      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex items-center justify-between gap-3 transition-colors duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
-        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 flex-1">
+      <div class="account-addon-row p-3 sm:p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 hover:bg-white/[0.05] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3 transition-colors duration-150 select-none ${isEnabled ? '' : 'opacity-80'}" data-addon-index="${idx}">
+        <!-- Nivel 1 (Móvil: 100% ancho / Escritorio: flex-1 a la izquierda) -->
+        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 w-full sm:w-auto sm:flex-1">
           <!-- Handle arrastre fluido (solo escritorio) -->
           <div class="hidden md:flex items-center text-white/30 hover:text-white/80 cursor-grab active:cursor-grabbing p-1 drag-handle" title="Arrastrar para reordenar prioridad">
             <i class="fa-solid fa-grip-vertical text-xs"></i>
@@ -2799,25 +2787,35 @@ export function renderAddonsSection() {
           </div>
         </div>
 
-        <!-- Botones de Acción a la derecha idénticos a Nuvio Oficial -->
-        <div class="shrink-0 flex items-center gap-1.5 sm:gap-2">
-          ${configureBtnHtml}
+        <!-- Nivel 2 (Móvil: Barra de acciones dividida / Escritorio: Fila a la derecha) -->
+        <div class="w-full sm:w-auto pt-2 sm:pt-0 border-t border-white/[0.06] sm:border-t-0 flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2 shrink-0">
+          <!-- Grupo Izquierda en Móvil: Reordenamiento (Subir / Bajar) -->
+          <div class="flex items-center gap-1 sm:order-2">
+            <button type="button" class="w-8 h-8 sm:w-auto lat-capsule-btn glass text-xs py-1 px-2 sm:px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1 ${isFirst ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-up" data-index="${idx}" title="Subir orden">
+              <i class="fa-solid fa-chevron-up text-[10px]"></i>
+              <span class="hidden sm:inline">Subir</span>
+            </button>
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 btn-edit-addon" data-index="${idx}" title="Modificar nombre, estado o enlace del manifiesto">
-            Editar
-          </button>
+            <button type="button" class="w-8 h-8 sm:w-auto lat-capsule-btn glass text-xs py-1 px-2 sm:px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1 ${isLast ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-down" data-index="${idx}" title="Bajar orden">
+              <i class="fa-solid fa-chevron-down text-[10px]"></i>
+              <span class="hidden sm:inline">Bajar</span>
+            </button>
+          </div>
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/70 hover:text-rose-400 border-white/10 hover:border-rose-500/30 hover:bg-rose-500/10 btn-delete-addon" data-index="${idx}" title="Eliminar addon de este perfil">
-            Eliminar
-          </button>
+          <!-- Grupo Derecha en Móvil: Gestión del Addon (Configurar, Editar, Eliminar) -->
+          <div class="flex items-center gap-1.5 sm:order-1">
+            ${configureBtnHtml}
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 ${isFirst ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-up" data-index="${idx}" title="Subir orden">
-            Subir
-          </button>
+            <button type="button" class="h-8 sm:h-auto lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/80 hover:text-white border-white/10 hover:border-white/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 btn-edit-addon" data-index="${idx}" title="Modificar nombre, estado o enlace del manifiesto">
+              <i class="fa-solid fa-pen text-[10px]"></i>
+              <span class="hidden sm:inline">Editar</span>
+            </button>
 
-          <button type="button" class="lat-capsule-btn glass text-xs py-1 px-2.5 text-white/60 hover:text-white border-white/10 hover:border-white/20 ${isLast ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''} btn-move-down" data-index="${idx}" title="Bajar orden">
-            Bajar
-          </button>
+            <button type="button" class="h-8 sm:h-auto lat-capsule-btn glass text-xs py-1 px-2.5 sm:px-3 text-white/70 hover:text-rose-400 border-white/10 hover:border-rose-500/30 hover:bg-rose-500/10 active:scale-95 transition-all flex items-center justify-center gap-1.5 btn-delete-addon" data-index="${idx}" title="Eliminar addon de este perfil">
+              <i class="fa-regular fa-trash-can text-[11px] text-rose-400/80 sm:text-inherit"></i>
+              <span class="hidden sm:inline">Eliminar</span>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -3382,18 +3380,12 @@ export function setupAddonModals() {
   // Botones de la barra superior de Addons
   const btnRefresh = document.getElementById('btnAccountRefreshAddons');
   const btnDeleteAll = document.getElementById('btnAccountDeleteAllAddons');
-  const btnUndoAddons = document.getElementById('btnAccountUndoAddons');
   const btnOpenAio = document.getElementById('btnAccountOpenAddAioStreams');
   const btnOpenAdd = document.getElementById('btnAccountOpenAddAddon');
 
   if (btnRefresh && !btnRefresh.dataset.bound) {
     btnRefresh.dataset.bound = 'true';
     btnRefresh.addEventListener('click', refreshAccountAddons);
-  }
-
-  if (btnUndoAddons && !btnUndoAddons.dataset.bound) {
-    btnUndoAddons.dataset.bound = 'true';
-    btnUndoAddons.addEventListener('click', undoAddonsChange);
   }
 
   if (btnDeleteAll && !btnDeleteAll.dataset.bound) {

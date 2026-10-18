@@ -2347,6 +2347,10 @@ header.lat-floating-nav nav {
               opacity 0.2s ease;
 }
 
+.account-addon-row .lat-capsule-btn:active {
+  transform: scale(0.95);
+}
+
 /* Fila seleccionada / en arrastre activo */
 .addon-sortable-chosen {
   cursor: grabbing !important;
