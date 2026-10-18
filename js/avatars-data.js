@@ -333,19 +333,47 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
   try {
     const cachedTree = !forceRefresh && typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('nuvio_avatars_tree_cache') : null;
     let treeData = null;
+    let cachedSha = null;
+
     if (cachedTree) {
       try {
         const parsed = JSON.parse(cachedTree);
+        cachedSha = parsed.commitSha || null;
         if (parsed.timestamp && (Date.now() - parsed.timestamp < 1800000) && parsed.registry) {
           treeData = parsed.registry;
         }
       } catch (_) {}
     }
 
+    // Revalidación ultraligera contra el SHA más reciente del branch main en GitHub (~200 bytes)
+    let latestSha = null;
+    try {
+      const shaRes = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/ref/heads/main`, {
+        cache: 'no-store',
+        headers: { 'Accept': 'application/vnd.github.v3+json' },
+        signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(3500) : undefined
+      });
+      if (shaRes.ok) {
+        const shaJson = await shaRes.json();
+        latestSha = shaJson.object?.sha || null;
+      }
+    } catch (_) {
+      // Si falla o no hay conexión / timeout, continuar fluidamente con treeData en caché
+    }
+
+    // Si detectamos un nuevo commit en main que difiere de la caché, la invalidamos automáticamente
+    if (latestSha && (!cachedSha || latestSha !== cachedSha)) {
+      treeData = null;
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('nuvio_avatars_tree_cache');
+      }
+    }
+
     if (!treeData) {
-      const ghUrl = `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/trees/main?recursive=1&_t=${Date.now()}`;
+      const treeRef = latestSha || 'main';
+      const ghUrl = `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/trees/${treeRef}?recursive=1&_t=${Date.now()}`;
       const ghRes = await fetch(ghUrl, {
-        cache: forceRefresh ? 'no-store' : 'default',
+        cache: 'no-store',
         headers: { 'Accept': 'application/vnd.github.v3+json' }
       });
       if (ghRes.ok) {
@@ -355,6 +383,7 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
           if (typeof sessionStorage !== 'undefined' && treeData.length > 0) {
             sessionStorage.setItem('nuvio_avatars_tree_cache', JSON.stringify({
               timestamp: Date.now(),
+              commitSha: latestSha || ghJson.sha || null,
               registry: treeData
             }));
           }

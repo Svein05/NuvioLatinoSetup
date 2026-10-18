@@ -265,7 +265,7 @@ export async function selectProfile(profileId) {
   // Actualizar UI del perfil activo en la barra de navegación
   const activeAvatar = document.getElementById('sidebarActiveAvatar');
   const activeName = document.getElementById('sidebarActiveName');
-  if (activeAvatar && profile) activeAvatar.src = profile.avatar_url;
+  if (activeAvatar && profile) activeAvatar.src = resolveAvatarCdnUrl(profile.avatar_url);
   if (activeName && profile) activeName.textContent = profile.name;
 
   // Actualizar avatar en memoria para la sección de avatares
@@ -627,7 +627,7 @@ export function renderProfilePopover() {
     return `
       <div class="popover-profile-row ${isSelected ? 'is-active' : ''}" data-profile-id="${id}">
         <div class="flex items-center gap-2.5 min-w-0 flex-1 pointer-events-none">
-          <img src="${p.avatar_url}" alt="${p.name}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0">
+          <img src="${resolveAvatarCdnUrl(p.avatar_url)}" alt="${p.name}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           <div class="min-w-0 flex-1">
             <div class="text-xs font-semibold text-white truncate profile-row-name">${p.name}</div>
           </div>
@@ -681,7 +681,7 @@ export function showSelectProfilePrompt() {
     return `
       <div class="p-4 rounded-2xl bg-white/[0.04] border ${isSelected ? 'border-[#ffd479] bg-white/[0.08]' : 'border-white/10'} hover:border-[#ffd479]/60 hover:bg-white/[0.08] transition-all cursor-pointer flex flex-col items-center gap-2.5 group select-none shadow-sm" data-profile-id="${id}">
         <div class="relative">
-          <img src="${p.avatar_url}" alt="${p.name}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg">
+          <img src="${resolveAvatarCdnUrl(p.avatar_url)}" alt="${p.name}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           ${isSelected ? '<span class="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#ffd479] text-black text-[10px] flex items-center justify-center font-bold shadow-md"><i class="fa-solid fa-check"></i></span>' : ''}
         </div>
         <div class="text-center w-full">
@@ -912,10 +912,10 @@ export function renderCreateProfileAvatarsCatalog() {
       <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
-           title="${av.character} (${av.franchiseName})">
+           title="${av.character} (${av.franchiseName})${av.fileName ? ` • ${av.fileName}` : ''}">
         <div class="relative w-full aspect-square">
           <div class="avatar-circle-wrap">
-            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+            <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           </div>
           ${badgeHtml}
         </div>
@@ -1643,29 +1643,7 @@ export async function renderOverviewSection() {
 
 export function resolvePublicAvatarUrl(rawUrl) {
   if (!rawUrl) return '';
-  const trimmed = String(rawUrl).trim();
-  // Migración automática de enlaces raw.githubusercontent.com hacia jsDelivr CDN
-  if (trimmed.includes('raw.githubusercontent.com') && trimmed.includes('/assets/profile_icons/')) {
-    const sub = trimmed.split('/assets/profile_icons/')[1];
-    if (sub) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${sub}`;
-    }
-  }
-  if (trimmed.includes('assets/profile_icons/')) {
-    const subPath = trimmed.split('assets/profile_icons/')[1];
-    if (subPath) {
-      return `https://cdn.jsdelivr.net/gh/${CONFIG.GITHUB_REPO}@main/assets/profile_icons/${subPath}`;
-    }
-  }
-  if (/^https?:\/\//i.test(trimmed) || /^data:image\//i.test(trimmed)) {
-    return trimmed;
-  }
-  if (typeof window !== 'undefined' && window.location) {
-    try {
-      return new URL(trimmed, window.location.href).href;
-    } catch (_) {}
-  }
-  return trimmed;
+  return resolveAvatarCdnUrl(rawUrl);
 }
 
 export function areAvatarUrlsEqual(urlA, urlB) {
@@ -1684,8 +1662,8 @@ export function updateAvatarComparisonUI() {
   const modBadge = document.getElementById('avatarModifiedBadge');
   const headerMainWrap = document.getElementById('avatarHeaderMainWrap');
 
-  const origUrl = accountState.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio';
-  const selectedUrl = accountState.selectedAvatarUrl || origUrl;
+  const origUrl = resolveAvatarCdnUrl(accountState.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio');
+  const selectedUrl = resolveAvatarCdnUrl(accountState.selectedAvatarUrl || origUrl);
   const isChanged = Boolean(accountState.selectedAvatarUrl && !areAvatarUrlsEqual(accountState.selectedAvatarUrl, accountState.originalAvatarUrl));
 
   if (origPreview) origPreview.src = origUrl;
@@ -1927,6 +1905,29 @@ export function renderAvatarsSection() {
   renderAvatarStylePills();
   renderModalFranchisesList();
 
+  // 5. Botón de sincronización manual con el repositorio de GitHub
+  const btnRefresh = document.getElementById('btnRefreshAvatarsCatalog');
+  if (btnRefresh && btnRefresh.dataset.bound !== 'true') {
+    btnRefresh.dataset.bound = 'true';
+    btnRefresh.addEventListener('click', async () => {
+      const icon = btnRefresh.querySelector('i');
+      if (icon) icon.classList.add('fa-spin');
+      btnRefresh.disabled = true;
+      try {
+        await loadAvatarsCatalog(true);
+        renderAvatarStylePills();
+        renderModalFranchisesList();
+        renderAvatarsCatalog();
+        showToast('Catálogo de avatares sincronizado correctamente.', 'success');
+      } catch (err) {
+        showToast('No se pudo sincronizar el catálogo remoto.', 'error');
+      } finally {
+        if (icon) icon.classList.remove('fa-spin');
+        btnRefresh.disabled = false;
+      }
+    });
+  }
+
   // Precargar ranking global de avatares más usados si aún no está disponible
   if (!accountState.mostUsedKeys && !accountState._isLoadingMostUsed) {
     accountState._isLoadingMostUsed = true;
@@ -2100,14 +2101,15 @@ function renderAvatarsCatalog() {
 
   const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const isSelected = av.path === activeAvatar || resolvePublicAvatarUrl(av.path) === activePublic;
+    const cdnUrl = resolveAvatarCdnUrl(av.path);
     return `
       <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
-           title="${av.character} (${av.franchiseName})">
+           title="${av.character} (${av.franchiseName})${av.fileName ? ` • ${av.fileName}` : ''}">
         <div class="relative w-full aspect-square">
           <div class="avatar-circle-wrap">
-            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+            <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
           </div>
           ${badgeHtml}
         </div>
@@ -4046,7 +4048,7 @@ export async function saveAllChanges() {
 
       // Actualizar avatar en barra lateral y popover
       const sidebarAvatar = document.getElementById('sidebarActiveAvatar');
-      if (sidebarAvatar) sidebarAvatar.src = accountState.selectedAvatarUrl;
+      if (sidebarAvatar) sidebarAvatar.src = resolveAvatarCdnUrl(avatarUrlToSave);
 
       renderProfilePopover();
       accountState.dirty.avatar = false;
@@ -4529,6 +4531,13 @@ export async function initAccountPage() {
         showToast('Sesión iniciada correctamente.', 'success');
         if (authView) authView.classList.add('hidden');
         if (dashboardView) dashboardView.classList.remove('hidden');
+
+        // Refresco de avatares en segundo plano al iniciar sesión para asegurar los assets más recientes
+        loadAvatarsCatalog(true).then(() => {
+          renderAvatarStylePills();
+          renderModalFranchisesList();
+          renderAvatarsCatalog();
+        }).catch(e => console.warn('[Account] No se pudo refrescar catálogo al iniciar sesión:', e));
 
         await fetchProfiles();
         renderProfilePopover();
