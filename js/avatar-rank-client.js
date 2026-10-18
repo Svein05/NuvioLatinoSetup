@@ -79,7 +79,8 @@ export function normalizeAvatarStorageKey(rawPath) {
 }
 
 /**
- * Obtiene las claves del Top 8 de avatares más usados globalmente
+ * Obtiene las claves del Top 8 de avatares más usados globalmente con sus puntuaciones de uso
+ * Devuelve un array de objetos: [ { key: string, score: number }, ... ]
  */
 export async function fetchTopAvatarKeys(limit = 8) {
   const config = await getAvatarRankConfig();
@@ -89,8 +90,8 @@ export async function fetchTopAvatarKeys(limit = 8) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 2500);
 
-      // Comando ZREVRANGE avatar_ranks 0 (limit - 1)
-      const res = await fetch(`${config.url.replace(/\/+$/, '')}/zrevrange/avatar_ranks/0/${limit - 1}`, {
+      // Comando ZREVRANGE avatar_ranks 0 (limit - 1) WITHSCORES
+      const res = await fetch(`${config.url.replace(/\/+$/, '')}/zrevrange/avatar_ranks/0/${limit - 1}/WITHSCORES`, {
         headers: {
           'Authorization': `Bearer ${config.token}`
         },
@@ -100,33 +101,38 @@ export async function fetchTopAvatarKeys(limit = 8) {
 
       if (res.ok) {
         const data = await res.json();
-        const topList = Array.isArray(data?.result) ? data.result : [];
+        const rawList = Array.isArray(data?.result) ? data.result : [];
+        const topList = [];
 
-        // Si hay suficientes en Redis, guardamos en caché local y retornamos
-        if (topList.length >= limit) {
-          saveLocalCache(topList.slice(0, limit));
-          return topList.slice(0, limit);
-        }
-
-        // Si hay menos del límite, combinamos con el baseline evitando duplicados
-        const combined = [...topList];
-        for (const baseItem of BASELINE_TOP_AVATARS) {
-          if (!combined.includes(baseItem) && combined.length < limit) {
-            combined.push(baseItem);
+        // Parsear pares [key, score, key, score, ...] devueltos por Redis
+        for (let i = 0; i < rawList.length; i += 2) {
+          const key = rawList[i];
+          const score = parseInt(rawList[i + 1], 10) || 0;
+          if (key) {
+            topList.push({ key, score });
           }
         }
-        saveLocalCache(combined);
-        return combined;
+
+        // Si hay menos del límite, combinamos con el baseline con score 0 evitando duplicados
+        const combined = [...topList];
+        for (const baseItem of BASELINE_TOP_AVATARS) {
+          if (!combined.some(item => item.key === baseItem) && combined.length < limit) {
+            combined.push({ key: baseItem, score: 0 });
+          }
+        }
+        const finalTop = combined.slice(0, limit);
+        saveLocalCache(finalTop);
+        return finalTop;
       }
     } catch (err) {
       console.warn('[AvatarRank] Fallo al consultar Upstash Redis:', err.message);
     }
   }
 
-  // Fallback: Retornar caché local o baseline
+  // Fallback: Retornar caché local o baseline con score 0
   const cached = getLocalCache();
   if (cached && cached.length > 0) return cached;
-  return BASELINE_TOP_AVATARS.slice(0, limit);
+  return BASELINE_TOP_AVATARS.slice(0, limit).map(key => ({ key, score: 0 }));
 }
 
 /**
@@ -183,7 +189,12 @@ function getLocalCache() {
     const raw = localStorage.getItem(STORAGE_KEYS.CACHED_TOP);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(item => {
+          if (typeof item === 'string') return { key: item, score: 0 };
+          return { key: item.key || '', score: Number(item.score) || 0 };
+        });
+      }
     }
   } catch (_) {}
   return null;

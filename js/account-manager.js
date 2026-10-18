@@ -813,16 +813,36 @@ function updateCreateProfileFranchiseTriggerLabel() {
 }
 
 /**
+ * Formatea cantidades de usuarios de forma compacta y legible: 300, 1k, 1.1k, 10k, 1m
+ */
+function formatUserCount(num) {
+  const n = Number(num) || 0;
+  if (n < 1000) return String(n);
+  if (n < 1000000) {
+    const k = n / 1000;
+    return (k % 1 === 0 || k >= 10 ? k.toFixed(0) : k.toFixed(1)).replace('.0', '') + 'k';
+  }
+  const m = n / 1000000;
+  return (m % 1 === 0 || m >= 10 ? m.toFixed(0) : m.toFixed(1)).replace('.0', '') + 'm';
+}
+
+/**
  * Obtiene los avatares más usados para el bloque inicial (hasta 8 para 1 fila responsiva)
  * Si hay un estilo seleccionado diferente a 'all', filtra o prioriza avatares de ese estilo.
+ * Cada elemento incluye la propiedad 'usageScore' con la cantidad de usuarios.
  */
 function getMostUsedAvatarItems(selectedStyle = 'all') {
   const allAvatars = getCompiledAvatars();
   if (!allAvatars || allAvatars.length === 0) return [];
 
-  const keys = (accountState.mostUsedKeys && accountState.mostUsedKeys.length > 0)
+  const rawEntries = (accountState.mostUsedKeys && accountState.mostUsedKeys.length > 0)
     ? accountState.mostUsedKeys
     : BASELINE_TOP_AVATARS;
+
+  const entries = rawEntries.map(e => {
+    if (typeof e === 'string') return { key: e, score: 0 };
+    return { key: e.key || '', score: Number(e.score) || 0 };
+  });
 
   const avatarMap = new Map();
   for (const av of allAvatars) {
@@ -833,13 +853,16 @@ function getMostUsedAvatarItems(selectedStyle = 'all') {
   }
 
   const matched = [];
-  for (const key of keys) {
-    const normKey = normalizeAvatarStorageKey(key);
+  for (const entry of entries) {
+    const normKey = normalizeAvatarStorageKey(entry.key);
     const item = avatarMap.get(normKey);
     if (item) {
       if (selectedStyle === 'all' || item.style === selectedStyle) {
         if (!matched.some(m => m.path === item.path)) {
-          matched.push(item);
+          matched.push({
+            ...item,
+            usageScore: entry.score
+          });
         }
       }
     }
@@ -850,7 +873,10 @@ function getMostUsedAvatarItems(selectedStyle = 'all') {
     for (const av of allAvatars) {
       if (selectedStyle !== 'all' && av.style !== selectedStyle) continue;
       if (!matched.some(m => m.path === av.path)) {
-        matched.push(av);
+        matched.push({
+          ...av,
+          usageScore: 0
+        });
         if (matched.length >= 8) break;
       }
     }
@@ -879,7 +905,7 @@ export function renderCreateProfileAvatarsCatalog() {
     return;
   }
 
-  const renderCard = (av, extraClass = '') => {
+  const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const cdnUrl = resolveAvatarCdnUrl(av.path);
     const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
     return `
@@ -887,8 +913,11 @@ export function renderCreateProfileAvatarsCatalog() {
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
            title="${av.character} (${av.franchiseName})">
-        <div class="avatar-circle-wrap">
-          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+        <div class="relative w-full aspect-square">
+          <div class="avatar-circle-wrap">
+            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          </div>
+          ${badgeHtml}
         </div>
         <span class="avatar-card-name-label">${av.character}</span>
       </div>
@@ -930,7 +959,24 @@ export function renderCreateProfileAvatarsCatalog() {
         if (idx === 3) responsiveClass = 'hidden sm:flex';
         else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
         else if (idx >= 6) responsiveClass = 'hidden lg:flex';
-        return renderCard(av, responsiveClass);
+
+        // Etiqueta de cantidad de usuarios: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal
+        let rankClass = 'rank-normal';
+        if (idx === 0) rankClass = 'rank-gold';
+        else if (idx === 1) rankClass = 'rank-silver';
+        else if (idx === 2) rankClass = 'rank-bronze';
+
+        const rawScore = Number(av.usageScore) || 0;
+        const formattedScore = formatUserCount(rawScore);
+        const tooltip = `${rawScore.toLocaleString('es')} ${rawScore === 1 ? 'usuario ha' : 'usuarios han'} seleccionado este icono`;
+
+        const badgeHtml = `
+          <span class="avatar-user-count-badge ${rankClass}" title="${tooltip}">
+            ${formattedScore}
+          </span>
+        `;
+
+        return renderCard(av, responsiveClass, badgeHtml);
       }).join('');
 
       html += `
@@ -2052,15 +2098,18 @@ function renderAvatarsCatalog() {
     return;
   }
 
-  const renderCard = (av, extraClass = '') => {
+  const renderCard = (av, extraClass = '', badgeHtml = '') => {
     const isSelected = av.path === activeAvatar || resolvePublicAvatarUrl(av.path) === activePublic;
     return `
       <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
            data-avatar-path="${av.path}" 
            data-avatar-name="${av.character}" 
            title="${av.character} (${av.franchiseName})">
-        <div class="avatar-circle-wrap">
-          <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+        <div class="relative w-full aspect-square">
+          <div class="avatar-circle-wrap">
+            <img src="${av.path}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          </div>
+          ${badgeHtml}
         </div>
         <span class="avatar-card-name-label">${av.character}</span>
       </div>
@@ -2108,7 +2157,24 @@ function renderAvatarsCatalog() {
         if (idx === 3) responsiveClass = 'hidden sm:flex';
         else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
         else if (idx >= 6) responsiveClass = 'hidden lg:flex';
-        return renderCard(av, responsiveClass);
+
+        // Etiqueta de cantidad de usuarios: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal
+        let rankClass = 'rank-normal';
+        if (idx === 0) rankClass = 'rank-gold';
+        else if (idx === 1) rankClass = 'rank-silver';
+        else if (idx === 2) rankClass = 'rank-bronze';
+
+        const rawScore = Number(av.usageScore) || 0;
+        const formattedScore = formatUserCount(rawScore);
+        const tooltip = `${rawScore.toLocaleString('es')} ${rawScore === 1 ? 'usuario ha' : 'usuarios han'} seleccionado este icono`;
+
+        const badgeHtml = `
+          <span class="avatar-user-count-badge ${rankClass}" title="${tooltip}">
+            ${formattedScore}
+          </span>
+        `;
+
+        return renderCard(av, responsiveClass, badgeHtml);
       }).join('');
 
       html += `
