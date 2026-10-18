@@ -784,19 +784,18 @@ export function getCollectionPreviewLimit() {
   if (grid && grid.clientWidth > 0) {
     const isTwoCols = w >= 768; // md:grid-cols-2
     const cardWidth = isTwoCols ? (grid.clientWidth - 16) / 2 : grid.clientWidth;
-    const innerWidth = cardWidth - 36; // margen/padding lateral interior
-    const slotWidth = w < 640 ? 46 : 52; // ancho icono (40/44px) + gap (6/8px)
+    const innerWidth = cardWidth - (w < 640 ? 32 : 40); // padding p-4 (32px) o sm:p-5 (40px)
+    const slotWidth = w < 640 ? 46 : 52; // ancho referencia por icono + gap
     const slots = Math.floor((innerWidth - 4) / slotWidth);
-    return Math.max(3, Math.min(8, slots));
+    return Math.max(4, Math.min(8, slots));
   }
 
   // Fallback seguro basado en breakpoints estándar
   if (w < 420) return 4;
   if (w < 520) return 5;
   if (w < 768) return 6;
-  if (w < 1050) return 5;
-  if (w < 1350) return 6;
-  return 7;
+  if (w < 1050) return 6;
+  return 8;
 }
 
 export function renderCollectionsGrid() {
@@ -880,20 +879,20 @@ export function renderCollectionsGrid() {
           ${pendingBadge}
         </div>
 
-        <!-- Previsualización de Miniaturas (ESTRICTAMENTE 1 FILA, nunca wrap) -->
-        <div class="flex items-center gap-1.5 sm:gap-2 flex-nowrap overflow-hidden py-1 w-full">
+        <!-- Previsualización de Miniaturas (Adaptadas proporcionalmente a todo el ancho, 1 fila) -->
+        <div class="grid items-center gap-1.5 sm:gap-2 py-1 w-full" style="grid-template-columns: repeat(${maxSlots}, minmax(0, 1fr));">
           ${previewAvatars.map(av => {
             const ov = stagedState.avatarOverrides.get(av.id);
             const imgUrl = ov?.previewImgUrl || resolveAvatarCdnUrl(av.path);
             const isDel = ov?.isDeleted;
             return `
-              <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} shrink-0 relative group-hover:scale-105 transition-transform">
+              <div class="aspect-square w-full rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} relative group-hover:scale-105 transition-transform">
                 <img src="${imgUrl}" alt="${av.fileName}" class="w-full h-full object-cover" loading="lazy">
               </div>
             `;
           }).join('')}
           ${extraCount > 0 ? `
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[11px] sm:text-xs font-mono text-white/70 shrink-0 font-bold hover:border-amber-400/40 hover:text-white transition-colors" title="${extraCount} avatares adicionales">
+            <div class="aspect-square w-full rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[11px] sm:text-xs font-mono text-white/70 font-bold hover:border-amber-400/40 hover:text-white transition-colors" title="${extraCount} avatares adicionales">
               +${extraCount}
             </div>
           ` : ''}
