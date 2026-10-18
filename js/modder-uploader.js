@@ -15,7 +15,8 @@ import {
   resolveAvatarCdnUrl,
   formatStyleName,
   formatFranchiseName,
-  formatCharacterName
+  formatCharacterName,
+  patchAvatarsAfterPublish
 } from './avatars-data.js';
 
 const MODDER_SESSION_KEY = 'nuvio_modder_session';
@@ -247,20 +248,20 @@ export function updateStagedUI() {
 
   // 1. Botón Deshacer
   if (btnUndo) {
+    btnUndo.innerHTML = `
+      <i class="fa-solid fa-rotate-left"></i>
+      <span>Deshacer</span>
+      <span id="undoCountBadge" class="${totalChanges > 0 ? '' : 'hidden'} text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/80 font-bold">${totalChanges}</span>
+    `;
     if (totalChanges === 0) {
       btnUndo.disabled = true;
       btnUndo.classList.add('opacity-40', 'cursor-not-allowed');
       btnUndo.classList.remove('opacity-100', 'cursor-pointer');
-      if (undoBadge) undoBadge.classList.add('hidden');
       btnUndo.title = 'No hay cambios para deshacer';
     } else {
       btnUndo.disabled = false;
       btnUndo.classList.remove('opacity-40', 'cursor-not-allowed');
       btnUndo.classList.add('opacity-100', 'cursor-pointer');
-      if (undoBadge) {
-        undoBadge.textContent = String(totalChanges);
-        undoBadge.classList.remove('hidden');
-      }
 
       const last = stagedState.history[stagedState.history.length - 1];
       let desc = 'último cambio';
@@ -273,20 +274,20 @@ export function updateStagedUI() {
 
   // 2. Botón Guardar Cambios
   if (btnSave) {
+    btnSave.innerHTML = `
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      <span>Guardar Cambios</span>
+      <span id="stagedCountBadge" class="${totalChanges > 0 ? '' : 'hidden'} text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400 text-black font-bold">${totalChanges}</span>
+    `;
     if (totalChanges === 0) {
       btnSave.disabled = true;
       btnSave.classList.add('opacity-40', 'cursor-not-allowed');
       btnSave.classList.remove('opacity-100', 'cursor-pointer', 'bg-emerald-400', 'text-black', 'hover:bg-emerald-300');
-      if (stagedBadge) stagedBadge.classList.add('hidden');
       btnSave.title = 'No hay cambios pendientes por guardar';
     } else {
       btnSave.disabled = false;
       btnSave.classList.remove('opacity-40', 'cursor-not-allowed');
       btnSave.classList.add('opacity-100', 'cursor-pointer', 'bg-emerald-400', 'text-black', 'hover:bg-emerald-300');
-      if (stagedBadge) {
-        stagedBadge.textContent = String(totalChanges);
-        stagedBadge.classList.remove('hidden');
-      }
       btnSave.title = `Publicar todos los ${totalChanges} cambio(s) en 1 solo commit de GitHub`;
     }
   }
@@ -1411,6 +1412,7 @@ export function openPublishModal() {
 export function closePublishModal() {
   const modal = document.getElementById('publishStagedModal');
   if (modal) modal.classList.add('hidden');
+  updateStagedUI();
 }
 
 export function commitAllStagedChanges() {
@@ -1520,17 +1522,49 @@ export async function executePublishStagedChanges() {
       appendPublishLog('info', `Enlace al commit: ${data.commit}`);
     }
 
-    // Vaciar historial local tras éxito
+    // 1. Aplicar cambios inmediatamente al catálogo en memoria para refresco instantáneo (0ms)
+    patchAvatarsAfterPublish(ops);
+
+    // 2. Vaciar historial y overrides
     stagedState.history = [];
     stagedState.avatarOverrides.clear();
     updateStagedUI();
 
+    // 3. Si estábamos dentro de una colección, refrescar el objeto de la colección activa
+    if (modderState.activeCollection) {
+      const summary = getCollectionsSummary();
+      const refreshedCol = summary.find(c => c.franchise === modderState.activeCollection.franchise);
+      if (refreshedCol) {
+        modderState.activeCollection = refreshedCol;
+      }
+    }
+
+    // 4. Actualizar insignias y cuadrículas
+    const manageBadge = document.getElementById('manageTotalBadge');
+    if (manageBadge) {
+      manageBadge.textContent = `${getCompiledAvatars().length}`;
+    }
+
+    renderStyleFilterButtons();
+    renderCatalogGrid();
+
+    // 5. Notificación y modal de resultado
     showModderToast(`✓ ¡Todos los cambios se guardaron con éxito en 1 commit!`, 'success');
     showPublishResultSuccess(data.commit, total);
 
-    // Refrescar catálogo
-    await populateSelects(true);
-    renderCatalogGrid();
+    // 6. Sincronización asíncrona en segundo plano con el árbol remoto
+    try {
+      await populateSelects(true);
+      if (modderState.activeCollection) {
+        const summary = getCollectionsSummary();
+        const refreshedCol = summary.find(c => c.franchise === modderState.activeCollection.franchise);
+        if (refreshedCol) {
+          modderState.activeCollection = refreshedCol;
+        }
+      }
+      renderStyleFilterButtons();
+      renderCatalogGrid();
+    } catch (_) {}
 
   } catch (err) {
     console.error('Error al guardar cambios:', err);

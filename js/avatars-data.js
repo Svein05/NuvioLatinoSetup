@@ -314,7 +314,13 @@ export function compileRegistry(registry) {
  * 4. Fallback final: semilla interna
  */
 export async function loadAvatarsCatalog(forceRefresh = false) {
-  if (compiledAvatarsCache && !forceRefresh) {
+  if (forceRefresh) {
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('nuvio_avatars_tree_cache');
+    }
+    compiledAvatarsCache = null;
+    rawRegistryCache = null;
+  } else if (compiledAvatarsCache) {
     return compiledAvatarsCache;
   }
 
@@ -346,7 +352,9 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
     }
 
     if (!treeData) {
-      const ghRes = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/trees/main?recursive=1`, {
+      const ghUrl = `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/git/trees/main?recursive=1&_t=${Date.now()}`;
+      const ghRes = await fetch(ghUrl, {
+        cache: forceRefresh ? 'no-store' : 'default',
         headers: { 'Accept': 'application/vnd.github.v3+json' }
       });
       if (ghRes.ok) {
@@ -447,6 +455,89 @@ export function getCompiledAvatars() {
   }
   return [];
 }
+
+/**
+ * Aplica de forma inmediata y en memoria las operaciones staged publicadas con éxito
+ * garantizando que el catálogo se actualice instantáneamente sin desincronizaciones de caché.
+ */
+export function patchAvatarsAfterPublish({ addedFiles = [], replacedFiles = [], renamedFiles = [], deletedFiles = [] }) {
+  if (!compiledAvatarsCache) {
+    compiledAvatarsCache = getCompiledAvatars();
+  }
+
+  // 1. Eliminar archivos borrados
+  if (deletedFiles && deletedFiles.length > 0) {
+    const deletedPaths = new Set(deletedFiles.map(d => typeof d === 'string' ? d : d.path));
+    compiledAvatarsCache = compiledAvatarsCache.filter(a => {
+      const fullPath = `assets/profile_icons/${a.style}/${a.franchise}/${a.fileName}`;
+      return !deletedPaths.has(fullPath) && !deletedPaths.has(a.path);
+    });
+  }
+
+  // 2. Aplicar renombrados
+  if (renamedFiles && renamedFiles.length > 0) {
+    for (const ren of renamedFiles) {
+      const oldPath = ren.oldPath;
+      const item = compiledAvatarsCache.find(a => {
+        const fullPath = `assets/profile_icons/${a.style}/${a.franchise}/${a.fileName}`;
+        return fullPath === oldPath || a.fileName === ren.oldFilename;
+      });
+      if (item) {
+        item.fileName = ren.newFilename;
+        item.rawCharacter = ren.characterName || ren.newFilename.replace(/\.webp$/i, '');
+        item.character = item.rawCharacter;
+        item.baseCharacter = formatCharacterName(item.rawCharacter);
+        item.id = `${item.style}_${item.franchise}_${item.rawCharacter}`;
+        item.path = ren.newPath;
+      }
+    }
+  }
+
+  // 3. Aplicar reemplazos de imagen
+  if (replacedFiles && replacedFiles.length > 0) {
+    for (const rep of replacedFiles) {
+      const item = compiledAvatarsCache.find(a => {
+        const fullPath = `assets/profile_icons/${a.style}/${a.franchise}/${a.fileName}`;
+        return fullPath === rep.path || a.fileName === rep.filename;
+      });
+      if (item && rep.base64) {
+        item.path = `data:image/webp;base64,${rep.base64}`;
+      }
+    }
+  }
+
+  // 4. Agregar nuevos archivos
+  if (addedFiles && addedFiles.length > 0) {
+    const isSubfolder = typeof window !== 'undefined' && window.location.pathname.includes('/modder/');
+    const relPrefix = isSubfolder ? '../' : './';
+    for (const add of addedFiles) {
+      const styleName = formatStyleName(add.style);
+      const franchiseName = formatFranchiseName(add.franchise);
+      const charName = add.characterName || add.filename.replace(/\.webp$/i, '');
+      const imgUrl = add.base64 ? `data:image/webp;base64,${add.base64}` : `${relPrefix}${add.path}`;
+
+      compiledAvatarsCache.push({
+        id: `${add.style}_${add.franchise}_${charName}`,
+        fileName: add.filename,
+        character: charName,
+        baseCharacter: formatCharacterName(charName),
+        variationNumber: null,
+        isVariation: false,
+        rawCharacter: charName,
+        franchise: add.franchise,
+        franchiseName,
+        style: add.style,
+        styleName,
+        path: imgUrl,
+        extension: 'webp'
+      });
+    }
+  }
+
+  compiledAvatarsCache.sort(compareAvatars);
+  return compiledAvatarsCache;
+}
+
 
 /**
  * Obtiene la lista de estilos únicos con sus contadores
