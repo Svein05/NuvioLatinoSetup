@@ -180,6 +180,7 @@ export async function verifyPassword(password, email = '') {
 // ============================================================
 
 export async function populateSelects(forceRefresh = false) {
+  await loadAvatarsCatalog(forceRefresh);
   const allStyles = getStylesSummary() || [];
   const styles = allStyles.filter(s => s.id !== 'all');
   const franchises = (getFranchisesSummary() || []).filter(f => f.id !== 'all');

@@ -2,7 +2,7 @@
 const getBasePath = () => {
   if (typeof window === 'undefined' || !window.location) return './';
   const p = window.location.pathname.toLowerCase();
-  if (p.includes('/configuration') || p.includes('/documentation') || p.includes('/account') || p.includes('/cuenta') || p.includes('/home')) {
+  if (p.includes('/configuration') || p.includes('/documentation') || p.includes('/account') || p.includes('/cuenta') || p.includes('/home') || p.includes('/modder')) {
     return '../';
   }
   return './';

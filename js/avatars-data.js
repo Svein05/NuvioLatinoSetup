@@ -209,7 +209,8 @@ export function compileRegistry(registry) {
   const isSubfolder = typeof window !== 'undefined' && (
     window.location.pathname.includes('/account/') || 
     window.location.pathname.includes('/configuration/') || 
-    window.location.pathname.includes('/documentation/')
+    window.location.pathname.includes('/documentation/') ||
+    window.location.pathname.includes('/modder/')
   );
   const relPrefix = isSubfolder ? '../' : './';
 
@@ -375,7 +376,8 @@ export async function loadAvatarsCatalog(forceRefresh = false) {
     const isSubfolder = typeof window !== 'undefined' && (
       window.location.pathname.includes('/account/') || 
       window.location.pathname.includes('/configuration/') || 
-      window.location.pathname.includes('/documentation/')
+      window.location.pathname.includes('/documentation/') ||
+      window.location.pathname.includes('/modder/')
     );
     const manifestPath = isSubfolder ? '../assets/profile_icons/manifest.json' : './assets/profile_icons/manifest.json';
     const mRes = await fetch(manifestPath, { cache: forceRefresh ? 'no-cache' : 'default' });
