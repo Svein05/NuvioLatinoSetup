@@ -159,7 +159,7 @@
         </div>
 
         <!-- Paso 3: Cola de Lote y Publicación -->
-        <div id="queueSection" class="lat-card p-6 sm:p-8 space-y-4 hidden">
+        <div id="queueSection" class="lat-card p-4 sm:p-6 sm:p-8 space-y-4 hidden">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
               <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">3</span>
@@ -187,7 +187,6 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- ======================================================== -->
       <!-- SECCIÓN B: GESTIONAR ASSETS EXISTENTES (MANAGE SECTION)   -->
       <!-- ======================================================== -->
       <div id="sectionManage" class="space-y-6 hidden">
@@ -199,22 +198,22 @@
           <!-- Barra de Filtros y Búsqueda de Colecciones -->
           <div class="lat-card p-4 sm:p-6 space-y-4">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <!-- Buscador en tiempo real de Colecciones -->
-              <div class="relative flex-1">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
-                <input type="text" id="manageSearchInput" placeholder="Buscar colección u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+              <!-- Fila en móvil: Buscador + Botón compacto de refrescar a su derecha -->
+              <div class="flex items-center gap-2 flex-1">
+                <div class="relative flex-1">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                  <input type="text" id="manageSearchInput" placeholder="Buscar colección u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+                </div>
+                <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline w-10 h-10 sm:w-auto sm:h-auto sm:px-3 sm:py-2 text-xs flex items-center justify-center gap-1.5 shrink-0 rounded-xl" title="Recargar catálogo desde GitHub">
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span class="hidden sm:inline">Refrescar</span>
+                </button>
               </div>
 
               <!-- Filtro Estilo -->
-              <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer sm:w-52">
+              <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer w-full sm:w-52">
                 <option value="all">Todos los estilos</option>
               </select>
-
-              <!-- Refrescar -->
-              <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline px-3 py-2 text-xs flex items-center justify-center gap-1.5 shrink-0" title="Recargar catálogo desde GitHub">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <span class="hidden sm:inline">Refrescar</span>
-              </button>
             </div>
 
             <div class="text-xs text-white/50 text-left flex items-center justify-between">
@@ -373,7 +372,7 @@
       undoLastChange,
       commitAllStagedChanges,
       updateStagedUI
-    } from '../js/modder-uploader.js?v=1.8.0';
+    } from '../js/modder-uploader.js?v=1.8.1';
 
     // Verificación de Acceso Secreto: Si no hay sesión válida proveniente de /account, redirigir
     const activeSession = getModderSession();

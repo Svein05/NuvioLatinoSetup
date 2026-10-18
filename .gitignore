@@ -23,9 +23,8 @@ env/
 js/webhook-config.local.js
 js/avatar-rank-config.local.js
 
-# Local user scripts (not uploaded to GitHub)
-scripts/generate_github_preview.py
-scripts/*.bat
+# User scripts completely ignored
+scripts/
 
 # Residual / removed files
 Plantilla.html

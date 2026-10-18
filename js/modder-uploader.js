@@ -294,7 +294,7 @@ export function updateStagedUI() {
   // 3. Texto informativo
   if (uploadStatusText) {
     if (modderState.filesQueue.length > 0) {
-      uploadStatusText.innerHTML = `<span class="text-white/80 font-medium">${modderState.filesQueue.length} imagen(es) lista(s). Haz clic en 'Añadir Lote a Cambios Pendientes'.</span>`;
+      uploadStatusText.innerHTML = `<span class="text-white/80 font-medium">${modderState.filesQueue.length} imagen(es) lista(s).</span>`;
     } else if (totalChanges > 0) {
       uploadStatusText.innerHTML = `<span class="text-amber-300 font-medium"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Tienes ${totalChanges} cambio(s) acumulado(s). Pulsa 'Guardar Cambios' arriba a la derecha.</span>`;
     } else {
@@ -430,34 +430,33 @@ export function renderQueue() {
     const finalFilename = `${rawCharName}.webp`;
 
     return `
-      <div class="lat-card p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 relative group" data-queue-id="${item.id}">
-        <div class="relative w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
+      <div class="lat-card p-3 sm:p-4 flex flex-row items-start sm:items-center gap-3 sm:gap-4 relative group" data-queue-id="${item.id}">
+        <div class="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-xl overflow-hidden bg-white/5 border border-white/10 flex items-center justify-center">
           <img src="${item.previewUrl}" alt="${finalFilename}" class="w-full h-full object-cover">
-          <span class="absolute bottom-1 right-1 text-[9px] font-mono px-1 rounded bg-black/70 text-white/80">.webp</span>
         </div>
 
-        <div class="flex-1 w-full text-left space-y-1.5">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs text-white/50 truncate max-w-[200px]" title="${item.originalName}">
+        <div class="flex-1 min-w-0 text-left space-y-1.5">
+          <div class="flex flex-wrap items-center justify-between gap-1">
+            <span class="text-[11px] sm:text-xs text-white/50 truncate max-w-[130px] sm:max-w-[200px]" title="${item.originalName}">
               Original: ${item.originalName}
             </span>
-            <div class="flex items-center gap-2">
-              <span class="text-[11px] font-mono text-white/60">
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span class="text-[10px] sm:text-[11px] font-mono text-white/60">
                 ${formatBytes(item.originalSize)} ➔ <strong class="text-emerald-400">${formatBytes(item.webpSize)}</strong>
               </span>
               ${savingsBadge}
             </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-            <label class="text-[11px] text-white/60 shrink-0 font-medium">Nombre del Personaje:</label>
-            <div class="flex items-center gap-1.5 flex-1">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+            <label class="text-[10px] sm:text-[11px] text-white/60 shrink-0 font-medium">Nombre:</label>
+            <div class="flex items-center gap-1 flex-1 min-w-0">
               <input type="text" 
                      value="${rawCharName}" 
-                     class="lat-field text-xs py-1 px-2.5 flex-1 font-mono input-character-name" 
+                     class="lat-field text-xs py-1 px-2 flex-1 min-w-0 font-mono input-character-name" 
                      data-index="${index}"
                      placeholder="ej: Asta_Demon">
-              <span class="text-xs font-mono text-white/40 shrink-0 px-2 py-1 bg-white/[0.05] border border-white/10 rounded-lg">.webp</span>
+              <span class="text-[10px] sm:text-xs font-mono text-white/40 shrink-0 px-2 py-1 bg-white/[0.05] border border-white/10 rounded-lg">.webp</span>
             </div>
           </div>
 
@@ -467,7 +466,7 @@ export function renderQueue() {
         </div>
 
         <button type="button" 
-                class="btn-remove-item p-2 text-white/40 hover:text-rose-400 transition-colors cursor-pointer self-end sm:self-center"
+                class="btn-remove-item p-1.5 sm:p-2 text-white/40 hover:text-rose-400 transition-colors cursor-pointer shrink-0 self-center"
                 data-index="${index}"
                 title="Eliminar de la cola">
           <i class="fa-solid fa-trash-can text-sm"></i>
