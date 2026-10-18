@@ -36,3 +36,7 @@ collectionResultante.json
 metadataResultante.json
 EjemploPerfilPersonal*.json
 
+# Cloudflare Worker (kept local/deployed directly to Cloudflare, not in repo)
+cloudflare-worker/
+
+
