@@ -23,8 +23,18 @@ env/
 js/webhook-config.local.js
 js/avatar-rank-config.local.js
 
-# User scripts completely ignored
-scripts/
+# Legacy personal scripts; architecture tooling is versioned explicitly
+scripts/*
+!scripts/*.js
+!scripts/*.test.js
+
+# JavaScript tooling and generated output
+node_modules/
+dist/
+.vite/
+coverage/
+playwright-report/
+test-results/
 
 # Residual / removed files
 Plantilla.html

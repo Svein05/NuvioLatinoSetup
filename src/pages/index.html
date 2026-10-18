@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nuvio Metadata Latino</title>
-  <link rel="icon" type="image/webp" href="./assets/logo/logo.webp" />
-  <link rel="apple-touch-icon" href="./assets/logo/logo.webp" />
+  <link rel="icon" type="image/webp" href="/assets/logo/logo.webp" />
+  <link rel="apple-touch-icon" href="/assets/logo/logo.webp" />
   
   <!-- Metadatos de Descripción y Color de Tema (Discord Accent Strip) -->
   <meta name="description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
@@ -33,38 +33,17 @@
   <link rel="image_src" href="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
   
   <!-- Preload de Fuentes Instrument Sans & Serif -->
-  <link rel="preload" href="./assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="./assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
   
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Instrument Sans"', 'system-ui', '-apple-system', 'sans-serif'],
-            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
-          },
-          colors: {
-            brand: {
-              400: '#818cf8',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca'
-            }
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Compiled Tailwind utilities -->
+  <link rel="stylesheet" href="../shared/styles/tailwind.css">
 
   <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
 
   <!-- Estilos propios -->
-  <link rel="stylesheet" href="./css/styles.css?v=1.8.0" />
+  <link rel="stylesheet" href="../../css/styles.css?v=1.8.0" />
 </head>
 <body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white overflow-x-hidden">
 
@@ -167,7 +146,7 @@
 
   <!-- Hero Backdrop Cinemático de Pósters Latinos TMDB (Fixed con scroll fade) -->
   <div id="heroBackdrop" class="fixed inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0 select-none">
-    <img src="./assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-85 filter brightness-100 contrast-105">
+    <img src="/assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-85 filter brightness-100 contrast-105">
     <!-- Scrim atmosférico estilo LAT-ADD: transparente arriba para ver los pósters con nitidez y fundido gradual hacia el fondo de la página -->
     <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent via-35% to-[#08090c]"></div>
     <div class="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[#08090c] via-[#08090c]/85 to-transparent"></div>
@@ -439,12 +418,12 @@
   </footer>
 
   <!-- Sincronización automática de versión -->
-  <script type="module" src="./js/version.js"></script>
+  <script type="module" src="../../js/version.js"></script>
   <!-- Barra de navegación con indicador deslizante animado -->
-  <script type="module" src="./js/nav-indicator.js"></script>
+  <script type="module" src="../../js/nav-indicator.js"></script>
   <!-- Inicializador del Contador Global de Configuraciones -->
   <script type="module">
-    import { initCompletionsCounterUI } from './js/counter.js';
+    import { initCompletionsCounterUI } from '../../js/counter.js';
     initCompletionsCounterUI();
   </script>
   <!-- Listener de scroll para fade progresivo de largo recorrido y atmósfera sutil -->
