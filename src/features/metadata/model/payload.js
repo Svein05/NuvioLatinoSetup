@@ -1,3 +1,5 @@
+import { selectedAiProvider } from './search-provider.js';
+
 function selectedCatalogs(template, config, activeIds, customPosters) {
   const seen = new Set();
   return [config.catalogs, template.catalogs].filter(Array.isArray).flat().filter(catalog => {
@@ -21,8 +23,8 @@ function searchConfiguration(search, apiKeys, enabled) {
   const result = { ...search, ai_enabled: Boolean(enabled) };
   if (enabled) {
     result.engineEnabled = { ...result.engineEnabled, 'gemini.search': true };
-    if (apiKeys.openrouter) result.ai_provider = 'openrouter';
-    else if (apiKeys.gemini) result.ai_provider = 'gemini';
+    const provider = selectedAiProvider(apiKeys);
+    if (provider) result.ai_provider = provider;
   } else if (result.engineEnabled) result.engineEnabled = { ...result.engineEnabled, 'gemini.search': false };
   return result;
 }

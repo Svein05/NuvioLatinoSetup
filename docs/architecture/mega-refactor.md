@@ -214,6 +214,24 @@ impiden envíos simultáneos y exponen cancelación/limpieza. Se retiró el subm
 HTML inline. Los recorridos cubren registro, validación de confirmación, Enter,
 cambio de pestañas, login, recarga y modo manual sin servicios externos reales.
 
+### Paso de claves API
+
+El controlador de claves se separó en vista, eventos con revisión, workflow de
+validación y adaptador de proveedores. Solo respuestas reconocidas verifican una
+clave: los respaldos por formato y los falsos éxitos offline se retiraron.
+TMDB y MDBList siguen siendo obligatorios. RPDB/TheTVDB son opcionales y sus fallos
+se muestran explícitamente sin fingir validación; no bloquean por sí solos las
+claves obligatorias verificadas. Con IA activa se exige verificar el proveedor
+que seleccionará el payload (OpenRouter tiene prioridad si se suministran ambas).
+Editar una clave cancela la comprobación y descarta cualquier resultado antiguo.
+
+Contratos contrastados con documentación oficial: [TMDB](https://developer.themoviedb.org/reference/authentication-validate-key),
+[MDBList](https://api.mdblist.com/docs/) y su esquema público `/schema/`,
+[OpenRouter](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key),
+[Gemini](https://ai.google.dev/api/models) y [TheTVDB](https://thetvdb.github.io/v4-api/).
+El contrato RPDB `isValid` conserva el endpoint existente y valida el campo booleano
+de la respuesta; no se ejecutaron consultas con claves reales.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo
