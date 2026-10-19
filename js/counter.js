@@ -1,3 +1,7 @@
+import { renderOdometer } from '../src/shared/ui/odometer/render.js';
+import { initMobileHeaderMenu } from '../src/shared/ui/navigation/menu.js';
+import { initNavOverflowMonitor } from '../src/shared/ui/navigation/overflow.js';
+export { renderOdometer, initMobileHeaderMenu, initNavOverflowMonitor };
 /**
  * Módulo de Contador Global de Configuraciones Completadas
  * Nuvio Latino Setup - Arquitectura Jamstack / GitHub Pages ($0 Costo)
@@ -250,120 +254,7 @@ export function formatFullNumber(num) {
  * Motor del Odómetro / Ruleta Digital Estilo YouTube Live Subscriber Count
  * Renderiza los caracteres en slots y anima los dígitos descendiendo desde arriba hacia abajo
  */
-export function renderOdometer(container, textValue, animate = false) {
-  if (!container) return;
-  const str = String(textValue);
 
-  const prevStr = container.__odometerPrevStr || '';
-  container.__odometerPrevStr = str;
-
-  // Si no se solicita animación o no había valor previo, renderizado directo estático
-  if (!animate || !prevStr) {
-    container.innerHTML = '';
-    const wrapper = document.createElement('span');
-    wrapper.className = 'odometer-wrapper';
-    for (const char of str) {
-      if (/\d/.test(char)) {
-        const slot = document.createElement('span');
-        slot.className = 'odometer-digit-slot';
-        slot.dataset.digit = char;
-        const val = document.createElement('span');
-        val.className = 'odometer-digit-val';
-        val.textContent = char;
-        slot.appendChild(val);
-        wrapper.appendChild(slot);
-      } else {
-        const sym = document.createElement('span');
-        sym.className = 'odometer-static-char';
-        sym.textContent = char;
-        wrapper.appendChild(sym);
-      }
-    }
-    container.appendChild(wrapper);
-    return;
-  }
-
-  // Renderizado animado con ruleta de dígitos que bajan desde arriba
-  container.innerHTML = '';
-  const wrapper = document.createElement('span');
-  wrapper.className = 'odometer-wrapper';
-
-  const maxLen = Math.max(prevStr.length, str.length);
-  const paddedPrev = prevStr.padStart(maxLen, ' ');
-  const paddedNext = str.padStart(maxLen, ' ');
-
-  for (let i = 0; i < maxLen; i++) {
-    const cPrev = paddedPrev[i];
-    const cNext = paddedNext[i];
-
-    if (cNext === ' ') continue;
-
-    if (/\d/.test(cNext)) {
-      const slot = document.createElement('span');
-      slot.className = 'odometer-digit-slot';
-      slot.dataset.digit = cNext;
-
-      const nPrev = /\d/.test(cPrev) ? parseInt(cPrev, 10) : null;
-      const nNext = parseInt(cNext, 10);
-
-      if (nPrev !== null && nPrev !== nNext) {
-        // Ruleta de YouTube: los números bajan desde arriba (el nuevo dígito entra rodando desde arriba)
-        // Secuencia donde nNext está en la cima (índice 0) y nPrev está en el fondo
-        const digits = [];
-        let curr = nNext;
-        digits.push(curr);
-        let steps = (nNext - nPrev + 10) % 10;
-        if (steps === 0) steps = 10;
-        for (let s = 1; s <= steps; s++) {
-          curr = (curr - 1 + 10) % 10;
-          digits.push(curr);
-          if (curr === nPrev) break;
-        }
-
-        const strip = document.createElement('span');
-        strip.className = 'odometer-digit-strip';
-
-        digits.forEach(d => {
-          const val = document.createElement('span');
-          val.className = 'odometer-digit-val';
-          val.textContent = String(d);
-          strip.appendChild(val);
-        });
-
-        // Mostrar inicialmente nPrev (al fondo de la tira vertical)
-        const totalHeightEm = (digits.length - 1) * 1.15;
-        strip.style.transform = `translateY(-${totalHeightEm}em)`;
-        strip.style.transition = 'none';
-
-        slot.appendChild(strip);
-        wrapper.appendChild(slot);
-
-        // En el cuadro siguiente, animar suavemente hacia translateY(0)
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            strip.style.transition = 'transform 0.72s cubic-bezier(0.16, 1, 0.3, 1)';
-            strip.style.transform = 'translateY(0)';
-          });
-        });
-      } else {
-        // El dígito no cambió
-        const val = document.createElement('span');
-        val.className = 'odometer-digit-val';
-        val.textContent = cNext;
-        slot.appendChild(val);
-        wrapper.appendChild(slot);
-      }
-    } else {
-      // Símbolo estático (coma, punto, 'k', 'M')
-      const sym = document.createElement('span');
-      sym.className = 'odometer-static-char';
-      sym.textContent = cNext;
-      wrapper.appendChild(sym);
-    }
-  }
-
-  container.appendChild(wrapper);
-}
 
 /**
  * Actualiza los elementos del DOM asociados al contador utilizando el odómetro
@@ -430,32 +321,7 @@ export function startLiveSyncPolling(intervalMs = 25000) {
 /**
  * Inicializa el menú desplegable vertical de cabecera en móviles y tablets
  */
-export function initMobileHeaderMenu() {
-  const btn = document.getElementById('btnMobileHeaderMenu');
-  const dropdown = document.getElementById('mobileHeaderDropdown');
-  if (!btn || !dropdown || btn._hasMobileMenuInit) return;
-  btn._hasMobileMenuInit = true;
 
-  const toggle = (e) => {
-    e.stopPropagation();
-    dropdown.classList.toggle('is-open');
-  };
-
-  btn.addEventListener('click', toggle);
-
-  // Cerrar al hacer clic en cualquier otra parte
-  document.addEventListener('click', (e) => {
-    if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-      dropdown.classList.remove('is-open');
-    }
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      dropdown.classList.remove('is-open');
-    }
-  });
-}
 
 /**
  * Monitor reactivo de desborde de la barra de navegación flotante:
@@ -463,60 +329,7 @@ export function initMobileHeaderMenu() {
  * toca o sobrepasa el borde visible de la pantalla, conmuta de inmediato a modo compacto (.force-compact).
  * Cuando la ventana vuelve a ampliarse a un ancho seguro, restaura el modo escritorio automáticamente.
  */
-export function initNavOverflowMonitor() {
-  const nav = document.querySelector('header.lat-floating-nav');
-  if (!nav || nav._hasOverflowMonitor) return;
-  nav._hasOverflowMonitor = true;
 
-  const evaluateOverflow = () => {
-    const desktopCluster = nav.querySelector('.lat-desktop-nav-cluster');
-    const safetyMargin = 16; // Margen de respiro respecto al borde derecho
-
-    // 1. Si el clúster de escritorio está visible actualmente en el DOM
-    if (desktopCluster && getComputedStyle(desktopCluster).display !== 'none') {
-      const rightEdge = desktopCluster.getBoundingClientRect().right;
-      // Si el borde derecho sobrepasa la pantalla o queda apretado al borde
-      if (rightEdge > window.innerWidth - safetyMargin) {
-        nav.classList.add('force-compact');
-        nav.__overflowBreakWidth = Math.max(nav.__overflowBreakWidth || 0, window.innerWidth + 12);
-        return;
-      }
-    }
-
-    // 2. Si estaba en modo compacto por desborde previo, comprobar si creció la pantalla
-    if (nav.classList.contains('force-compact')) {
-      const minRestoreWidth = (nav.__overflowBreakWidth || 1080);
-      if (window.innerWidth >= minRestoreWidth) {
-        nav.classList.remove('force-compact');
-        // Validar en el siguiente cuadro si en el nuevo ancho todavía desborda
-        requestAnimationFrame(() => {
-          if (desktopCluster) {
-            const rect = desktopCluster.getBoundingClientRect();
-            if (rect.right > window.innerWidth - safetyMargin) {
-              nav.classList.add('force-compact');
-              nav.__overflowBreakWidth = window.innerWidth + 12;
-            }
-          }
-        });
-      }
-    }
-  };
-
-  // Evaluar inmediatamente
-  evaluateOverflow();
-
-  // Re-evaluar cuando las fuentes personalizadas terminen de cargar
-  if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(evaluateOverflow);
-  }
-
-  // Escuchar redimensionamiento en tiempo real con ResizeObserver y window resize
-  window.addEventListener('resize', evaluateOverflow, { passive: true });
-  if (window.ResizeObserver) {
-    const ro = new ResizeObserver(evaluateOverflow);
-    ro.observe(nav);
-  }
-}
 
 /**
  * Inicializa la pastilla del contador en la cabecera al cargar la página

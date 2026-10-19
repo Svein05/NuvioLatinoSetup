@@ -164,6 +164,16 @@ Los cambios de límites, formatos y proxy están documentados en `worker/README.
 Conservar la configuración privada existente hasta verificar y desplegar la nueva
 versión explícitamente; este trabajo no despliega ni modifica servicios reales.
 
+### Navegación y odómetro compartidos
+
+El odómetro, menú móvil, monitor de desborde e indicador de navegación viven en
+`shared/ui/`. Los componentes exponen limpieza de eventos, observers y cuadros
+de animación; son idempotentes por nodo y respetan movimiento reducido. El puente
+del indicador libera sus recursos al ocultar la página y se reinicia al restaurarla
+desde la caché del navegador. El contador conserva temporalmente su coordinación
+heredada; no debe volver a absorber lógica de navegación o animación de dígitos.
+Los recorridos prueban apertura/cierre por teclado, hover y movimiento reducido.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo
