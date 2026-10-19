@@ -174,6 +174,12 @@ desde la caché del navegador. El contador conserva temporalmente su coordinaci�
 heredada; no debe volver a absorber lógica de navegación o animación de dígitos.
 Los recorridos prueban apertura/cierre por teclado, hover y movimiento reducido.
 
+Las notificaciones y el control de visibilidad de contraseñas también son
+componentes compartidos. Se mantienen las dos presentaciones de toast existentes,
+pero los mensajes usan texto seguro y anuncian su estado accesible. Los controles
+de contraseña usan un único listener delegado para incluir campos dinámicos sin
+registrar eventos repetidos; el icono y la etiqueta describen la acción disponible.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo

@@ -15,6 +15,14 @@ export function createLifetime() {
     signal: controller.signal,
     add,
     frame,
+    timeout(callback, milliseconds) {
+      if (controller.signal.aborted) return;
+      const id = setTimeout(() => {
+        cleanups.delete(cancel);
+        if (!controller.signal.aborted) callback();
+      }, milliseconds);
+      const cancel = add(() => clearTimeout(id));
+    },
     on(target, event, listener, options = {}) {
       target?.addEventListener(event, listener, { ...options, signal: controller.signal });
     },

@@ -31,3 +31,20 @@ test('desktop navigation restores the active page after hover and respects reduc
   await expect(nav.locator('a').first()).toHaveClass(/is-active/);
   await expect(nav.locator('.is-hovered')).toHaveCount(0);
 });
+
+for (const pathname of ['/configuration/', '/account/']) {
+  test(`password controls at ${pathname} toggle once per click and announce their state`, async ({ page }) => {
+    await isolateExternalServices(page);
+    await page.goto(pathname);
+    const button = page.locator('.btn-toggle-key:visible').first();
+    const target = await button.getAttribute('data-target');
+    const input = page.locator(`[id="${target}"]`);
+    await expect(input).toHaveAttribute('type', 'password');
+    await button.click();
+    await expect(input).toHaveAttribute('type', 'text');
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await button.click();
+    await expect(input).toHaveAttribute('type', 'password');
+    await expect(button).toHaveAttribute('aria-label', 'Mostrar contraseña');
+  });
+}

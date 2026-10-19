@@ -1,3 +1,5 @@
+import { showToast as renderToast } from '../src/shared/ui/toast/render.js';
+import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
 import { loadProfileOverviewSources } from '../src/workflows/load-profile-overview.js';
 import { buildProfileOverview } from '../src/features/profiles/index.js';
 import { presentAccountOverview } from '../src/app/account-overview.js';
@@ -109,67 +111,14 @@ export const accountState = {
 // ============================================================
 
 export function showToast(message, type = 'info') {
-  let container = document.getElementById('latToastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'latToastContainer';
-    container.className = 'fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none';
-    document.body.appendChild(container);
-  }
-
-  const toast = document.createElement('div');
-  const iconClass = type === 'success' 
-    ? 'fa-solid fa-circle-check text-emerald-400' 
-    : (type === 'error' ? 'fa-solid fa-circle-xmark text-rose-400' : 'fa-solid fa-circle-info text-amber-300');
-
-  toast.className = 'lat-toast is-entering';
-  toast.innerHTML = `
-    <i class="${iconClass}"></i>
-    <span>${message}</span>
-  `;
-
-  container.appendChild(toast);
-  requestAnimationFrame(() => toast.classList.add('is-visible'));
-
-  setTimeout(() => {
-    toast.classList.remove('is-visible');
-    toast.classList.add('is-leaving');
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  return renderToast(message, { type, compact: true, duration: 4000, containerId: 'latToastContainer', createContainer: true });
 }
 
 // ============================================================
 // CONTROLADOR DE ALTERNAR VISIBILIDAD DE CONTRASEÑA ("OJITO")
 // ============================================================
 
-export function setupPasswordToggles() {
-  document.querySelectorAll('.btn-toggle-key').forEach((btn) => {
-    if (btn.dataset.toggleBound === 'true') return;
-    btn.dataset.toggleBound = 'true';
-
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const targetId = btn.getAttribute('data-target');
-      const input = document.getElementById(targetId);
-      if (!input) return;
-
-      const icon = btn.querySelector('i');
-      if (input.type === 'password') {
-        input.type = 'text';
-        if (icon) {
-          icon.className = 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        }
-        btn.title = 'Ocultar contraseña';
-      } else {
-        input.type = 'password';
-        if (icon) {
-          icon.className = 'fa-solid fa-eye text-xs pointer-events-none';
-        }
-        btn.title = 'Mostrar contraseña';
-      }
-    });
-  });
-}
+export function setupPasswordToggles() { return initPasswordToggles(); }
 
 // ============================================================
 // GESTIÓN DE SESIÓN AISLADA (SESSION STORAGE)

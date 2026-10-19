@@ -1,3 +1,5 @@
+import { showToast as renderToast } from '../src/shared/ui/toast/render.js';
+import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
 /**
  * Controlador Principal de la Aplicación (UI y Eventos)
  * Nuvio & AIOMetadata Auto-Setup Wizard
@@ -182,76 +184,12 @@ class AppController {
    * @param {'info' | 'success' | 'warning' | 'error'} type 
    * @param {number} duration 
    */
-  showToast(message, type = 'info', duration = 3500) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = 'lat-toast is-entering';
-
-    let badgeIcon = 'fa-circle-info';
-    let badgeStyle = 'bg-white/[0.08] border-white/20 text-[#ffd479]';
-
-    if (type === 'success') {
-      badgeIcon = 'fa-check';
-      badgeStyle = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400';
-    } else if (type === 'error') {
-      badgeIcon = 'fa-xmark';
-      badgeStyle = 'bg-rose-500/15 border-rose-500/30 text-rose-400';
-    } else if (type === 'warning') {
-      badgeIcon = 'fa-triangle-exclamation';
-      badgeStyle = 'bg-amber-500/15 border-amber-500/30 text-amber-300';
-    }
-
-    // Limpiar caracteres redundantes al inicio del mensaje para mayor elegancia visual
-    const cleanMessage = String(message).replace(/^[✓✔🎉⚠️💡]\s*/u, '').trim();
-
-    toast.innerHTML = `
-      <div class="w-6 h-6 rounded-full border ${badgeStyle} flex items-center justify-center shrink-0 text-[11px] shadow-[var(--brillo-vidrio)]">
-        <i class="fa-solid ${badgeIcon}"></i>
-      </div>
-      <span class="text-white/90 text-xs font-medium leading-snug">${cleanMessage}</span>
-    `;
-
-    container.appendChild(toast);
-
-    requestAnimationFrame(() => {
-      toast.classList.remove('is-entering');
-      toast.classList.add('is-visible');
-    });
-
-    setTimeout(() => {
-      toast.classList.remove('is-visible');
-      toast.classList.add('is-leaving');
-      setTimeout(() => toast.remove(), 280);
-    }, duration);
-  }
+  showToast(message, type = 'info', duration = 3500) { return renderToast(message, { type, duration }); }
 
   /**
    * Inicializa manejadores universales para alternar visibilidad de contraseñas (ojito)
    */
-  setupPasswordToggles() {
-    document.querySelectorAll('.btn-toggle-key').forEach(btn => {
-      if (btn.dataset.toggleInitialized) return;
-      btn.dataset.toggleInitialized = 'true';
-
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const targetId = btn.dataset.target;
-        if (!targetId) return;
-        const input = document.getElementById(targetId);
-        if (!input) return;
-        const icon = btn.querySelector('i');
-        const willShow = input.type === 'password';
-        input.type = willShow ? 'text' : 'password';
-        if (icon) {
-          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        }
-        btn.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
-      });
-    });
-  }
+  setupPasswordToggles() { return initPasswordToggles(); }
 
   saveSession() {
     try {
@@ -816,35 +754,11 @@ class AppController {
     }
 
     // Alternar visibilidad de contraseña en Paso 1 (Nuvio Cuenta)
-    const btnToggleNuvioPass = document.getElementById('btnToggleNuvioPassword');
-    if (btnToggleNuvioPass && passInput) {
-      btnToggleNuvioPass.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const willShow = passInput.type === 'password';
-        passInput.type = willShow ? 'text' : 'password';
-        const icon = btnToggleNuvioPass.querySelector('i');
-        if (icon) {
-          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        }
-        btnToggleNuvioPass.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
-      };
-    }
+    
+    
 
-    const btnToggleNuvioConfirm = document.getElementById('btnToggleNuvioPasswordConfirm');
-    if (btnToggleNuvioConfirm && confirmInput) {
-      btnToggleNuvioConfirm.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const willShow = confirmInput.type === 'password';
-        confirmInput.type = willShow ? 'text' : 'password';
-        const icon = btnToggleNuvioConfirm.querySelector('i');
-        if (icon) {
-          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        }
-        btnToggleNuvioConfirm.title = willShow ? 'Ocultar confirmación' : 'Mostrar confirmación';
-      };
-    }
+    
+    
 
     // Acción Continuar sin Cuenta (Modo Manual)
     const btnContinueWithout = document.getElementById('btnContinueWithoutAccount');
@@ -2127,27 +2041,7 @@ class AppController {
     }
 
     // 4. Botones de alternar visibilidad de contraseña (eye icon)
-    document.querySelectorAll('.btn-toggle-key').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const targetId = btn.getAttribute('data-target');
-        const input = document.getElementById(targetId);
-        if (!input) return;
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-          input.type = 'text';
-          if (icon) {
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-          }
-        } else {
-          input.type = 'password';
-          if (icon) {
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-          }
-        }
-      });
-    });
+    
 
     // 5. Ocultar botones de obtención si las claves ya estaban previamente validadas
     ['tmdb', 'mdblist', 'rpdb', 'tvdb'].forEach((key) => {
@@ -4181,20 +4075,8 @@ class AppController {
       });
     }
 
-    const btnToggleAio = document.getElementById('btnToggleAioPassword');
-    if (btnToggleAio && passwordInput) {
-      btnToggleAio.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const willShow = passwordInput.type === 'password';
-        passwordInput.type = willShow ? 'text' : 'password';
-        const icon = btnToggleAio.querySelector('i');
-        if (icon) {
-          icon.className = willShow ? 'fa-solid fa-eye text-xs pointer-events-none' : 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        }
-        btnToggleAio.title = willShow ? 'Ocultar contraseña' : 'Mostrar contraseña';
-      };
-    }
+    
+    
 
     if (btnGenPass && passwordInput) {
       btnGenPass.addEventListener('click', () => {
