@@ -1,3 +1,5 @@
+import { prepareMetadataPayload } from '../src/workflows/prepare-metadata-payload.js';
+import { selectedCollections, flattenedCollections } from '../src/features/collections/index.js';
 /**
  * Gestión de Estado Reactivo y Sincronización Dinámica
  * Nuvio & AIOMetadata Auto-Setup Wizard
@@ -827,191 +829,22 @@ class WizardState {
    * e inyecta las API keys configuradas en el Paso 3.
    */
   getSynchronizedMetadataPayload() {
-    if (!this.rawMetadataTemplate) {
-      throw new Error('Plantilla MetadataLatino no cargada.');
-    }
-
-    const template = JSON.parse(JSON.stringify(this.rawMetadataTemplate));
-    const configObj = template.config ? template.config : template;
-
-    // 1. Obtener todos los catalogIds referenciados por carpetas ACTIVAS
-    const activeCatalogIds = new Set();
-    this.collections.forEach(section => {
-      if (section.enabled === false) return;
-      (section.folders || []).forEach(folder => {
-        if (folder.enabled === false) return;
-
-        // Extraer de catalogSources
-        if (Array.isArray(folder.catalogSources)) {
-          folder.catalogSources.forEach(cs => {
-            if (cs && cs.catalogId) {
-              activeCatalogIds.add(cs.catalogId);
-              if (cs.catalogId.startsWith('tmdb.trending')) activeCatalogIds.add('tmdb.trending');
-              if (cs.catalogId.startsWith('tmdb.top')) activeCatalogIds.add('tmdb.top');
-            }
-          });
-        }
-        // Extraer de sources
-        if (Array.isArray(folder.sources)) {
-          folder.sources.forEach(s => {
-            if (s && s.catalogId) {
-              activeCatalogIds.add(s.catalogId);
-              if (s.catalogId.startsWith('tmdb.trending')) activeCatalogIds.add('tmdb.trending');
-              if (s.catalogId.startsWith('tmdb.top')) activeCatalogIds.add('tmdb.top');
-            }
-          });
-        }
-      });
-    });
-
-    // 2. Determinar si se activa Custom Art según la preferencia seleccionada
-    const engine = (this.preferences && this.preferences.posterEngine) || 'default';
-    const isCustomEngine = engine !== 'default';
-
-    // 2.1 Unificar catálogos de ambas listas (config.catalogs y root catalogs) deduplicando por id:::type
-    const combinedCatalogs = [];
-    const seenCatKeys = new Set();
-    const sourceLists = [configObj.catalogs, template.catalogs].filter(Array.isArray);
-    for (const list of sourceLists) {
-      for (const cat of list) {
-        if (!cat || !cat.id) continue;
-        const key = `${cat.id}:::${cat.type || 'movie'}`;
-        if (!seenCatKeys.has(key)) {
-          seenCatKeys.add(key);
-          combinedCatalogs.push(cat);
-        }
-      }
-    }
-
-    const filteredCatalogs = combinedCatalogs.filter(cat => {
-      const isIncluded = activeCatalogIds.has(cat.id);
-      cat.showInHome = false;
-      cat.enableRatingPosters = isCustomEngine;
-      return isIncluded;
-    });
-
-    configObj.catalogs = filteredCatalogs;
-    if (template.catalogs) {
-      template.catalogs = filteredCatalogs;
-    }
-
-    // 3. Inyectar API Keys en config
-    if (!configObj.apiKeys) configObj.apiKeys = {};
-
-    configObj.apiKeys.tmdb = (this.apiKeys.tmdb || '').trim();
-    configObj.apiKeys.tvdb = (this.apiKeys.tvdb || '').trim();
-    configObj.apiKeys.mdblist = (this.apiKeys.mdblist || '').trim();
-    configObj.apiKeys.rpdb = (this.apiKeys.rpdb || 't0-free-rpdb').trim();
-    configObj.apiKeys.topPoster = (this.apiKeys.topPoster || '').trim();
-    configObj.apiKeys.publicmetadb = (this.apiKeys.publicmetadb || '').trim();
-    configObj.apiKeys.gemini = (this.apiKeys.gemini || '').trim();
-    configObj.apiKeys.openrouter = (this.apiKeys.openrouter || '').trim();
-    configObj.apiKeys.traktTokenId = '';
-
-    // 3.1 Configuración estricta de Custom Art y Motor de Pósters
-    if (engine === 'default') {
-      // DESACTIVADO ESTRICTO: Carátulas nativas limpias en español latino (evita fallback en inglés)
-      configObj.posterRatingProvider = "none";
-      configObj.customPosterUrlPattern = "";
-      configObj.enableRatingPostersForLibrary = false;
-      configObj.usePosterProxy = false;
-      if (template.customPosterUrlPattern !== undefined) {
-        template.customPosterUrlPattern = "";
-      }
-    } else if (engine === 'betterposter') {
-      // ACTIVADO ESTRICTO: BetterPoster con link oficial es-MX
-      configObj.posterRatingProvider = "custom";
-      configObj.customPosterUrlPattern = (this.preferences.customPosterUrl || '').trim() ||
-        "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM";
-      configObj.enableRatingPostersForLibrary = true;
-      configObj.usePosterProxy = true;
-      if (template.customPosterUrlPattern !== undefined) {
-        template.customPosterUrlPattern = configObj.customPosterUrlPattern;
-      }
-    } else if (engine === 'postersplus') {
-      // ACTIVADO ESTRICTO: PostersPlus con credenciales interpoladas
-      const tmdbEncoded = encodeURIComponent((this.apiKeys.tmdb || '').trim());
-      const mdblistEncoded = encodeURIComponent((this.apiKeys.mdblist || '').trim());
-      const defaultPostersPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbEncoded}&mdblist_key=${mdblistEncoded}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
-
-      configObj.posterRatingProvider = "custom";
-      configObj.customPosterUrlPattern = (this.preferences.customPosterUrl || '').trim() || defaultPostersPlusPattern;
-      configObj.enableRatingPostersForLibrary = true;
-      configObj.usePosterProxy = true;
-      if (template.customPosterUrlPattern !== undefined) {
-        template.customPosterUrlPattern = configObj.customPosterUrlPattern;
-      }
-    }
-
-    // 3.1 Configurar Búsqueda con IA
-    if (!configObj.search) configObj.search = {};
-    configObj.search.ai_enabled = Boolean(this.searchAiEnabled);
-    if (this.searchAiEnabled) {
-      if (!configObj.search.engineEnabled) configObj.search.engineEnabled = {};
-      configObj.search.engineEnabled["gemini.search"] = true;
-      if (this.apiKeys.openrouter) {
-        configObj.search.ai_provider = 'openrouter';
-      } else if (this.apiKeys.gemini) {
-        configObj.search.ai_provider = 'gemini';
-      }
-    } else {
-      if (configObj.search.engineEnabled) {
-        configObj.search.engineEnabled["gemini.search"] = false;
-      }
-    }
-
-    // 4. Inyectar contraseña de edición
-    const password = this.aiometadata.password || 'NuvioSetupMaster2026';
-
-    return {
-      password,
-      config: configObj
-    };
+    return prepareMetadataPayload({ rawTemplate: this.rawMetadataTemplate, collections: this.collections,
+      preferences: this.preferences, apiKeys: this.apiKeys, searchAiEnabled: this.searchAiEnabled,
+      password: this.aiometadata.password || 'NuvioSetupMaster2026' });
   }
 
   /**
    * Obtiene la estructura nativa completa de colecciones Nuvio lista para inyección
    * (filtrando carpetas o secciones deshabilitadas)
    */
-  getSynchronizedNuvioCollections() {
-    return this.collections
-      .filter(sec => sec.enabled !== false && (sec.folders || []).some(f => f.enabled !== false))
-      .map(sec => ({
-        ...sec,
-        pinToTop: sec.pinToTop !== undefined ? sec.pinToTop : true,
-        folders: sec.folders.filter(f => f.enabled !== false)
-      }));
-  }
+  getSynchronizedNuvioCollections() { return selectedCollections(this.collections); }
 
   /**
    * Obtiene la lista aplanada para inyección compatible en /rest/v1/collections
    */
   getFlattenedCollectionsForApi(profileId, addonId) {
-    const list = [];
-    let order = 1;
-
-    this.collections.forEach(sec => {
-      if (sec.enabled === false) return;
-      (sec.folders || []).forEach(folder => {
-        if (folder.enabled === false) return;
-
-        const mainCatalog = (folder.catalogSources && folder.catalogSources[0]) ||
-                            (folder.sources && folder.sources[0]) || {};
-
-        list.push({
-          profile_id: profileId,
-          name: folder.title,
-          catalog_id: mainCatalog.catalogId || folder.id,
-          catalog_type: mainCatalog.type || 'movie',
-          addon_id: addonId,
-          backdrop_url: folder.heroBackdropUrl || folder.coverImageUrl || '',
-          sort_order: order++,
-          is_active: true
-        });
-      });
-    });
-
-    return list;
+    return flattenedCollections(this.collections, { profileId, addonId });
   }
 
   /**

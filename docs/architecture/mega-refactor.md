@@ -136,6 +136,17 @@ proxy solo admite catálogos públicos GitHub Raw sin credenciales y no elude
 errores HTTP 4xx ni cancelación. Esta corrección funcional tiene su propia regresión
 y commit, separados de la extracción de reglas.
 
+### Preparación de colecciones y metadatos
+
+El estado heredado delega la selección/exportación de colecciones a su modelo,
+y la preparación de AIOMetadata a un workflow que coordina interfaces de
+collections, posters y metadata. Se compararon ocho combinaciones con el método
+anterior (plantilla raíz/anidada y cuatro valores de motor), además de pruebas
+de conservación de claves, opciones ajenas y ausencia de mutaciones del origen.
+Las exportaciones de colecciones son snapshots independientes. La contraseña
+predeterminada heredada todavía se suministra desde el puente de estado, no se
+introdujo como regla nueva en los modelos; su retirada requiere la etapa de sesión.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo
