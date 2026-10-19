@@ -158,13 +158,14 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 - `public/`: plantillas y recursos públicos copiados al build.
 - `scripts/`: comprobaciones versionadas de arquitectura y build.
 - `config/`: configuración de Vite, CSS, lint y pruebas; los comandos npm indican sus rutas.
+- `worker/`: backend versionado sin secretos; contratos y configuración en su README.
 - `tests/`: regresiones heredadas y recorridos de navegador.
 - `assets/` y `js/`: fuentes heredadas en migración, con límites de crecimiento.
 - `src/app/styles.css`: composición de estilos; cada módulo reside junto a su responsabilidad.
 
 Consultar [AGENTS.md](AGENTS.md) y el [plan de migración](docs/architecture/mega-refactor.md)
-antes de ampliar la arquitectura. El Worker, las sesiones y los controladores
-monolíticos todavía requieren migración; esta rama no constituye su refactorización completa.
+antes de ampliar la arquitectura. El Worker modular todavía no se ha desplegado;
+las sesiones y los controladores monolíticos continúan en migración.
 
 ---
 

@@ -87,7 +87,8 @@ Los módulos de configuración `.local.js` se excluyen siempre del build. El ant
 workflow que incorporaba secretos al frontend se retiró; el contador conserva sus
 endpoints públicos. Discord y Redis todavía deben migrarse al Worker antes de
 desplegar esta rama en producción: sin esa etapa, sus funciones no tendrán
-configuración privada de producción. El Worker aún no se incorporó al repositorio.
+configuración privada de producción. El Worker ya está versionado en `worker/`,
+pero no está desplegado y esos dos endpoints privados siguen pendientes.
 
 Tailwind 3 mantiene compatibilidad visual con el CDN anterior, pero npm audit
 reporta avisos de desarrollo en sus dependencias (braces y postcss-selector-parser,
@@ -146,6 +147,22 @@ de conservación de claves, opciones ajenas y ausencia de mutaciones del origen.
 Las exportaciones de colecciones son snapshots independientes. La contraseña
 predeterminada heredada todavía se suministra desde el puente de estado, no se
 introdujo como regla nueva en los modelos; su retirada requiere la etapa de sesión.
+
+### Backend versionado y validación de publicación
+
+`worker/` contiene rutas, middleware, validación de lotes, cliente GitHub y servicio
+de publicación con dependencias inyectadas. No importa código del navegador.
+El archivo local ignorado `cloudflare-worker/worker.js` no se publica ni se elimina:
+sirve como referencia del backend actualmente desplegado, que no se ha sustituido.
+No se incorporaron secretos ni la cuenta personal predeterminada del código local.
+
+Las pruebas simulan autenticación, restricciones configuradas, validación previa
+a red, rutas, contenido, publicación de un árbol, renombrados fallidos y resultado
+desconocido al actualizar la rama. El backend no repite escrituras ambiguas ni
+omite renombrados fallidos para publicar el resto del lote como éxito.
+Los cambios de límites, formatos y proxy están documentados en `worker/README.md`.
+Conservar la configuración privada existente hasta verificar y desplegar la nueva
+versión explícitamente; este trabajo no despliega ni modifica servicios reales.
 
 ## Validación y seguimiento
 
