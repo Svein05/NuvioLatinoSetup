@@ -1,0 +1,42 @@
+/* ============================================================ */
+/* ODÓMETRO / RULETA DIGITAL ESTILO YOUTUBE (DÍGITOS RODANTES)  */
+/* ============================================================ */
+
+.odometer-wrapper {
+  display: inline-flex;
+  align-items: center;
+  font-family: inherit;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.odometer-digit-slot {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  height: 1.15em;
+  line-height: 1.15em;
+  text-align: center;
+  vertical-align: middle;
+  min-width: 0.6em;
+}
+
+.odometer-digit-strip {
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.odometer-digit-val {
+  display: block;
+  height: 1.15em;
+  line-height: 1.15em;
+  text-align: center;
+}
+
+.odometer-static-char {
+  display: inline-block;
+  line-height: 1.15em;
+  vertical-align: middle;
+}

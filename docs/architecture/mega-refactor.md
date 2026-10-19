@@ -68,7 +68,12 @@ publicador remoto usan rutas GitHub `assets/profile_icons/`. El build copia solo
 esos recursos públicos a `dist/assets/`; cambiar su origen exige migrar también
 el Worker y las URLs ya guardadas. No duplicar el catálogo en el repositorio.
 
-`css/styles.css` se conserva temporalmente como fuente heredada. SortableJS sigue
+`css/styles.css` se retiró tras separar sus 29 responsabilidades y verificar
+la conservación exacta del contenido y la cascada (solo cambian rutas relativas
+de fuentes y finales de línea). La composición está en `src/app/styles.css`;
+los módulos están junto a páginas, funcionalidades y componentes compartidos.
+Todos cumplen el máximo de 350 líneas. El CSS compilado conserva el mismo hash.
+SortableJS sigue
 como dependencia copiada en public/vendor. Tailwind se compila localmente con la
 misma paleta y fuentes; Font Awesome conserva la versión 6.4.0 y se empaqueta localmente.
 Se inspeccionaron clases dinámicas y las páginas de escritorio y móvil. Falta

@@ -1,0 +1,68 @@
+/* ============================================================ */
+/* 3. CAPAS GLOBALES Y BASE                                     */
+/* ============================================================ */
+
+html {
+  color-scheme: dark;
+  background-color: var(--color-bg);
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+body {
+  background-color: var(--color-bg) !important;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  margin: 0;
+  max-width: 100vw;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grano analógico sobre la pantalla */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background-image: var(--grano);
+  opacity: 0.032;
+}
+
+/* Selección de texto elegante */
+::selection {
+  background-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-ink);
+}
+
+/* Opciones de select con fondo acorde */
+option, optgroup {
+  background-color: var(--color-panel);
+  color: var(--color-ink);
+}
+
+/* Scrollbars personalizadas estilo glass */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(8, 9, 12, 0.8);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}

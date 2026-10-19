@@ -1,0 +1,9 @@
+/* ============================================================ */
+/* 9. TARJETA DE PERFIL SELECCIONADO                            */
+/* ============================================================ */
+
+.profile-card-selected {
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  box-shadow: var(--brillo-vidrio), 0 0 25px -3px rgba(255, 255, 255, 0.2) !important;
+  background: var(--color-glass-strong) !important;
+}

@@ -1,0 +1,189 @@
+/* ============================================================ */
+/* SECCIÓN DE AVATARES ESTILO NETFLIX (/account)                */
+/* ============================================================ */
+
+.avatar-filter-pill {
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.avatar-filter-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+.avatar-filter-pill.is-active {
+  background: #ffd479 !important;
+  color: #08090c !important;
+  border-color: #ffd479 !important;
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(255, 212, 121, 0.35);
+}
+
+.avatar-filter-pill .pill-badge {
+  font-size: 0.65rem;
+  font-family: monospace;
+  padding: 0.1rem 0.4rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+}
+
+.avatar-filter-pill.is-active .pill-badge {
+  background: rgba(0, 0, 0, 0.3);
+  color: #08090c;
+}
+
+/* Tarjeta individual de avatar CIRCULAR estilo Nuvio */
+.netflix-avatar-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+  width: 100%;
+}
+
+.netflix-avatar-card:hover {
+  transform: translateY(-3px);
+}
+
+.netflix-avatar-card .avatar-circle-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  background: rgba(14, 17, 24, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.netflix-avatar-card:hover .avatar-circle-wrap {
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 18px rgba(255, 212, 121, 0.25);
+}
+
+.netflix-avatar-card .avatar-card-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.netflix-avatar-card:hover .avatar-card-img {
+  transform: scale(1.08);
+}
+
+.netflix-avatar-card.is-selected .avatar-circle-wrap {
+  border-color: #ffd479 !important;
+  box-shadow: 0 0 0 2px #ffd479, 0 0 24px rgba(255, 212, 121, 0.55), inset 0 0 12px rgba(255, 212, 121, 0.25) !important;
+  transform: scale(1.04);
+}
+
+.netflix-avatar-card .avatar-card-name-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  max-width: 100%;
+  transition: color 0.2s ease;
+  line-height: 1.2;
+}
+
+.netflix-avatar-card:hover .avatar-card-name-label,
+.netflix-avatar-card.is-selected .avatar-card-name-label {
+  color: #ffd479;
+}
+
+/* Etiqueta numérica de usuarios en avatares Más Usados (inferior derecha) */
+.avatar-user-count-badge {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 9999px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+@media (min-width: 640px) {
+  .avatar-user-count-badge {
+    min-width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.6875rem;
+    bottom: 1px;
+    right: 1px;
+  }
+}
+
+.netflix-avatar-card:hover .avatar-user-count-badge {
+  transform: scale(1.08);
+}
+
+/* Colores de la etiqueta: 1.º Dorado, 2.º Plata, 3.º Bronce, 4.º+ Negro normal */
+.avatar-user-count-badge.rank-gold {
+  background: #ffd479;
+  color: #08090c;
+  border: 1px solid #ffe39f;
+  box-shadow: 0 0 10px rgba(255, 212, 121, 0.45);
+}
+
+.avatar-user-count-badge.rank-silver {
+  background: #e2e8f0;
+  color: #08090c;
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 10px rgba(226, 232, 240, 0.35);
+}
+
+.avatar-user-count-badge.rank-bronze {
+  background: #cd7f32;
+  color: #ffffff;
+  border: 1px solid #e59850;
+  box-shadow: 0 0 10px rgba(205, 127, 50, 0.35);
+}
+
+.avatar-user-count-badge.rank-normal {
+  background: #08090c;
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
