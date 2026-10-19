@@ -1,52 +1,53 @@
-# Context memory rules & Agent internal workspace
-.contexts/
-context.md
-.agents/
-.agent/
-
-# OS / Editor files
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
-
-# Python & Virtual Environments
-__pycache__/
-*.py[cod]
-*$py.class
-run.pyc
-.venv/
-venv/
-env/
+# Credentials and machine-specific configuration. Templates remain versionable.
 .env
 .env.*
-js/webhook-config.local.js
-js/avatar-rank-config.local.js
+!.env.example
+!.env.*.example
+*.local.js
+*.local.json
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
 
-# Legacy personal scripts; architecture tooling is versioned explicitly
-scripts/*
-!scripts/*.js
-!scripts/*.test.js
-
-# JavaScript tooling and generated output
+# Installed dependencies, builds, caches and test output
 node_modules/
-dist/
+/dist/
 .vite/
+.wrangler/
 coverage/
 playwright-report/
 test-results/
+*.log
 
-# Residual / removed files
-Plantilla.html
-run.py
-design-reference/
+# OS and personal editor settings
+.DS_Store
+Thumbs.db
+desktop.ini
+/.vscode/
+/.idea/
 
-# Debug / analysis files (not part of source)
-collectionResultante.json
-metadataResultante.json
-EjemploPerfilPersonal*.json
+# Local automation, agent caches and scratch files; shared context is versioned.
+/.local/
+/.contexts/
+/.agents/
+/.agent/
+/scripts/generate_github_preview.py
+/scripts/run_asset_generator.bat
 
-# Cloudflare Worker (kept local/deployed directly to Cloudflare, not in repo)
-cloudflare-worker/
+# Local Python tooling
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
 
+# Legacy deployed Worker reference; the maintained source is worker/.
+/cloudflare-worker/
 
+# Personal exports and obsolete prototypes; never inputs to the public build.
+/collectionResultante.json
+/metadataResultante.json
+/EjemploPerfilPersonal*.json
+/Plantilla.html
+/run.py
+/design-reference/
