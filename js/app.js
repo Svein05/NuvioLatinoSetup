@@ -1,3 +1,4 @@
+import { initializeWizard } from '../src/app/wizard-bootstrap.js';
 import { mountApiKeysStep } from '../src/pages/configuration/steps/api-keys.js';
 import { verifyWizardApiKeys } from '../src/app/api-key-validation.js';
 import { mountAuthStep } from '../src/pages/configuration/steps/auth.js';
@@ -57,64 +58,8 @@ class AppController {
   }
 
   async init() {
-    // 1. Inicializar Mini Nuvio y Cargar Plantillas
-    this.miniNuvio = new MiniNuvio('miniNuvioContainer');
-    window.miniNuvioInstance = this.miniNuvio;
-    window.appController = this;
-
-    // Inicializar contador global de configuraciones
-    initCompletionsCounterUI();
-
-    // Pre-cargar catálogo de avatares en segundo plano
-    loadAvatarsCatalog().catch(() => null);
-
-    await state.loadTemplates();
-    this.miniNuvio.init();
-
-    // 2. Configurar eventos de navegación y formularios
-    this.setupNavigation();
-    this.setupStep1Events();
-    this.setupStep2Profiles();
-    this.setupStep3ApiKeys();
-    this.setupStep5Preferences();
-    this.setupStep6AddonsManager();
-    this.setupStep7Injection();
-    this.setupPasswordToggles();
-
-    // 2.1 Restaurar sesión si existe
-    this.restoreSession();
-
-    // 3. Suscribirse al estado para actualizar la UI reactiva
-    state.subscribe((s, eventType) => {
-      this.handleStateUpdate(s, eventType);
-    });
-
-    // 4. Mostrar paso inicial del asistente
-    this.updateUI();
-
-    // 5. Control inicial de vistas (Landing por defecto, o Asistente si hay hash o página dedicada)
-    const landing = document.getElementById('landingView');
-    if (!landing) {
-      // Estamos en la página dedicada de configuración (/configuration/)
-      const wizard = document.getElementById('wizardView');
-      if (wizard) wizard.classList.remove('hidden');
-      this.updateUI();
-    } else {
-      if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
-        this.showWizardView(false);
-      } else {
-        this.showLandingView(false);
-      }
-
-      // Escuchar cambios de navegación en el historial
-      window.addEventListener('hashchange', () => {
-        if (window.location.hash === '#wizard' || window.location.hash === '#setup') {
-          this.showWizardView(false);
-        } else {
-          this.showLandingView(false);
-        }
-      });
-    }
+    return initializeWizard({ controller: this, state, MiniNuvio, loadAvatarsCatalog,
+      initCounter: initCompletionsCounterUI });
   }
 
   /**

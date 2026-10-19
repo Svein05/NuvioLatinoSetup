@@ -54,6 +54,8 @@ fuentes heredadas activas. Se genera inicialmente desde el contenido anterior a
 su migración y no debe ampliarse para acomodar nuevas funciones. Las fuentes
 registradas pueden reducirse o desaparecer; las nuevas quedan sujetas a AGENTS.
 La comprobación de arquitectura rechaza crecimiento sobre ese inventario.
+Tras cada extracción verificada, reducir sus topes al tamaño restante: no dejar
+el espacio liberado disponible para volver a añadir responsabilidades al legado.
 
 Las cinco páginas HTML se componen mediante parciales de secciones y modales,
 todos por debajo de 350 líneas. La expansión se hace en build y desarrollo,
@@ -106,8 +108,11 @@ compilan fuentes locales y no se distribuyen como JavaScript al navegador.
 - Corregido filtrado entre perfiles y éxitos ficticios de ajustes; cuenta conserva
   ajustes pendientes ante errores. Otros guardados heredados siguen pendientes.
 - CI prepara comprobaciones y despliegue solo de dist; no se ejecutó ningún despliegue.
-- Pendientes: Worker, sesiones, carreras de perfil, guardados parciales completos,
-  división de controladores, parciales HTML y retirada del legado restante.
+- Ya separados después de esta base: estilos, parciales HTML, backend de
+  publicación, sesión Nuvio, perfiles, resumen, badges, autenticación y claves
+  del asistente, además de modelos de colecciones y metadata.
+- Pendientes: completar guardados, controladores y UI, sesión de colaboradores,
+  endpoints privados de Discord/Redis y retirada de los puentes heredados.
 
 ### Extracción del resumen de cuenta
 
@@ -248,6 +253,16 @@ los catálogos sin ID se rechazan; una pareja de listas de distinta longitud no
 se reordena parcialmente. La plantilla actual tiene 26 carpetas sin discrepancias.
 Dos recorridos de navegador ejercitan los controles y el explorador sin servicios
 reales. La vista extensa y sus eventos inline siguen pendientes de extracción.
+
+### Arranque e interacción temprana
+
+La suite completa en desarrollo detectó botones visibles antes de registrar
+eventos y terminar las plantillas. Se extrajo la composición inicial a
+`src/app/wizard-bootstrap.js`. El contenedor comienza con `inert` y `aria-busy`;
+solo admite interacción al completar la preparación. Una regresión retrasa la
+plantilla de colecciones y verifica ambos estados y la navegación posterior.
+El bootstrap libera su suscripción, navegación y los controladores ya extraídos
+al abandonar el documento. Los listeners de los pasos heredados siguen pendientes.
 
 ## Validación y seguimiento
 

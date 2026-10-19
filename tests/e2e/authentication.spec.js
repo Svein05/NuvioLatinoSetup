@@ -11,6 +11,7 @@ test('wizard login preserves profile navigation without persisting account or ad
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
   });
   await page.goto('/configuration/');
+  await expect(page.locator('#wizardView')).toHaveAttribute('aria-busy', 'false');
   await page.locator('#nuvioEmail').fill('test@example.invalid');
   await page.locator('#nuvioPassword').fill('synthetic-private-password');
   await page.locator('#btnNuvioConnect').click();
