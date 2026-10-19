@@ -3,7 +3,8 @@ import { createTransport, isSchemaMismatch } from './transport.js';
 const resources = {
   progress: {
     rpc: 'sync_pull_watch_progress', table: 'watch_progress', field: 'progress', order: 'last_watched',
-    parameters: { p_limit: 100, p_since_last_watched: '1970-01-01T00:00:00Z' },
+    // Nuvio expects a bigint sync cursor; zero reads from the beginning.
+    parameters: { p_limit: 100, p_since_last_watched: 0 },
     checkEmptyResult: true,
   },
   watched: {

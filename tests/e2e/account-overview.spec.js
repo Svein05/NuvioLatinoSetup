@@ -5,7 +5,8 @@ const progressRow = {
   position: 120, duration: 3600, poster_url: '/assets/logo/logo.webp', content_type: 'movie',
 };
 
-function apiResponse(url, failed) {
+function apiResponse(url, mode, payload) {
+  const failed = mode === 'failed';
   const pathname = url.pathname;
   if (pathname.endsWith('/sync_pull_profiles')) {
     return { body: [{ profile_index: 1, name: 'Synthetic profile', avatar_url: '/assets/logo/logo.webp' }] };
@@ -16,7 +17,12 @@ function apiResponse(url, failed) {
   if (pathname.endsWith('/sync_pull_provider_credentials')) {
     return { body: [{ provider: 'tmdb', credential_json: { api_key: 'synthetic-key' } }] };
   }
-  if (pathname.endsWith('/sync_pull_watch_progress')) return { status: failed ? 503 : 200, body: [] };
+  if (pathname.endsWith('/sync_pull_watch_progress')) {
+    if (!Number.isSafeInteger(payload?.p_since_last_watched)) {
+      return { status: 400, body: { code: '22P02', message: 'invalid input syntax for type bigint' } };
+    }
+    return { status: failed ? 503 : 200, body: mode === 'rpc' ? [progressRow] : [] };
+  }
   if (pathname.endsWith('/watch_progress')) return { status: failed ? 503 : 200, body: [progressRow] };
   if (pathname.endsWith('/sync_pull_watched_items')) {
     return { body: [{ profile_id: 1, content_id: 'synthetic-watched', title: 'Synthetic watched item' }] };
@@ -24,7 +30,7 @@ function apiResponse(url, failed) {
   return { body: [] };
 }
 
-async function prepareAccount(page, failed) {
+async function prepareAccount(page, mode) {
   await page.addInitScript(() => sessionStorage.setItem('nuvio_account_session_v1', JSON.stringify({
     accessToken: 'synthetic-test-only', userId: 'synthetic-user', email: 'test@example.invalid',
   })));
@@ -32,7 +38,8 @@ async function prepareAccount(page, failed) {
     const url = new URL(route.request().url());
     if (url.origin === 'http://127.0.0.1:4173') return route.continue();
     if (url.hostname === 'api.nuvio.tv') {
-      const response = apiResponse(url, failed);
+      const payload = route.request().method() === 'POST' ? route.request().postDataJSON() : null;
+      const response = apiResponse(url, mode, payload);
       return route.fulfill({ status: response.status ?? 200, contentType: 'application/json', body: JSON.stringify(response.body) });
     }
     if (route.request().resourceType() === 'image') {
@@ -49,7 +56,7 @@ test('authenticated overview recovers continue-watching cards from the scoped ta
   page.on('request', request => {
     if (request.url().includes('/watch_progress?')) progressRequests.push(request.url());
   });
-  await prepareAccount(page, false);
+  await prepareAccount(page, 'fallback');
   await expect(page.locator('#rowCurrentlyWatchingCards')).toContainText('Synthetic continue watching');
   await expect(page.locator('#metricProgressCount')).toHaveText('1');
   await expect(page.locator('#rowRecentlyWatchedCards')).toContainText('Synthetic watched item');
@@ -58,9 +65,20 @@ test('authenticated overview recovers continue-watching cards from the scoped ta
 });
 
 test('authenticated overview reports a progress outage without clearing the watched section', async ({ page }) => {
-  await prepareAccount(page, true);
+  await prepareAccount(page, 'failed');
   await expect(page.locator('#rowCurrentlyWatchingCards')).toContainText('No se pudo cargar el progreso');
   await expect(page.locator('#rowCurrentlyWatchingCards')).not.toContainText('Sin reproducciones');
   await expect(page.locator('#metricProgressCount')).toHaveText('—');
   await expect(page.locator('#rowRecentlyWatchedCards')).toContainText('Synthetic watched item');
+});
+
+test('authenticated overview renders progress directly from the numeric-cursor RPC', async ({ page }) => {
+  const requests = [];
+  page.on('request', request => {
+    if (request.url().includes('/watch_progress?')) requests.push(request.url());
+  });
+  await prepareAccount(page, 'rpc');
+  await expect(page.locator('#rowCurrentlyWatchingCards')).toContainText('Synthetic continue watching');
+  await expect(page.locator('#metricProgressCount')).toHaveText('1');
+  expect(requests).toEqual([]);
 });

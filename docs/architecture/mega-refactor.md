@@ -135,6 +135,26 @@ se representa con aviso y métrica «—», no como un historial vacío confirma
 Se añadieron regresiones y recorridos autenticados con sesión y APIs ficticias.
 La respuesta exacta de la sesión real de la captura no se inspeccionó.
 
+### Causa confirmada del rechazo del RPC
+
+La corrección anterior no solucionó el fallo mostrado por la cuenta del usuario.
+El parámetro `p_since_last_watched` conservaba la fecha ISO heredada de main,
+pero el servicio exige un `bigint`. Una consulta de lectura sin sesión, usando
+solo la clave pública, confirmó HTTP 400 y código `22P02` con el texto ISO.
+Con el cursor numérico `0`, la misma consulta pasó la validación de parámetros
+y devolvió el rechazo de sesión esperado (403). No se utilizaron credenciales
+del usuario ni se comprobó su historial autenticado real.
+
+Main ocultaba este defecto consultando REST tras cualquier error del RPC.
+La nueva integración detenía correctamente el respaldo ante un error de validación,
+pero había conservado la petición inválida. Ahora envía el cursor numérico `0`.
+Se mantiene la política de no eludir errores de permisos o validación.
+
+La regresión nueva reprodujo el 400 antes del cambio y pasa con el parámetro
+corregido. El navegador simulado también valida el cuerpo enviado, y cubre tanto
+filas RPC directas como respaldo REST y fallo de lectura. Las pruebas anteriores
+simulaban respuestas por URL sin comprobar el tipo del cursor y omitían este error.
+
 ## Configuración manual durante la migración
 
 - Historial, progreso, perfiles y addons consultan Nuvio directamente. Esta

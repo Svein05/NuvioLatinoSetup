@@ -4,6 +4,23 @@ import { readProfileHistory } from '../profile-history.js';
 const context = { apiUrl: 'https://nuvio.invalid', accessToken: 'synthetic', apikey: 'public', profileId: 2 };
 
 describe('profile history', () => {
+  it('sends a numeric sync cursor accepted by the Nuvio bigint parameter', async () => {
+    const row = { profile_id: 2, content_id: 'synthetic-movie', position: 120, duration: 3600 };
+    const fetchImpl = vi.fn(async (_url, options) => {
+      const payload = JSON.parse(options.body);
+      if (!Number.isSafeInteger(payload.p_since_last_watched)) {
+        return Response.json({ code: '22P02', message: 'invalid input syntax for type bigint' }, { status: 400 });
+      }
+      return Response.json([row]);
+    });
+    const result = await readProfileHistory({ ...context, fetchImpl }, 'progress');
+    expect(result.items).toEqual([row]);
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body)).toEqual({
+      p_profile_id: 2, p_limit: 100, p_since_last_watched: 0,
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
   it('recovers continue-watching rows from REST when the progress RPC returns an empty list', async () => {
     const row = { profile_id: 2, content_id: 'synthetic-movie', position: 120, duration: 3600 };
     const fetchImpl = vi.fn().mockResolvedValueOnce(Response.json([]))
