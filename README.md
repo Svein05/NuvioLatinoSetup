@@ -166,6 +166,8 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 Consultar [AGENTS.md](AGENTS.md) y el [plan de migración](docs/architecture/mega-refactor.md)
 antes de ampliar la arquitectura. El Worker modular todavía no se ha desplegado;
 las sesiones y los controladores monolíticos continúan en migración.
+El [punto de comprobación actual](docs/architecture/refactor-checkpoint.md) enumera
+las extracciones verificadas, los archivos de raíz y las etapas pendientes.
 
 ---
 

@@ -61,7 +61,10 @@ function checkCycles() {
 }
 
 const legacy = Object.keys(baseline).filter(file => existsSync(path.join(root, file)));
-const files = new Set([...collect('src'), ...collect('worker'), ...collect('scripts'), ...collect('tests'), ...legacy]);
+const files = new Set([
+  ...collect('src'), ...collect('worker'), ...collect('scripts'),
+  ...collect('tests'), ...collect('config'), ...legacy,
+]);
 for (const file of files) inspect(file);
 checkCycles();
 if (violations.length) {

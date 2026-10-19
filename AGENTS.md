@@ -9,7 +9,8 @@ pero no relajarlos silenciosamente.
 
 - La estructura siguiente es la arquitectura de destino acordada, parcialmente
   implementada. Consultar `docs/architecture/mega-refactor.md` para el avance real.
-  El código heredado en `js/`, `css/` y `cloudflare-worker/` sigue en migración.
+  El código heredado en `js/` y el Worker local en `cloudflare-worker/` siguen
+  en migración. Los estilos de `css/` ya se separaron en módulos dentro de `src/`.
 - No considerar la presencia de código heredado como autorización para copiar
   sus patrones. No afirmar que las herramientas, comandos o pruebas propuestas
   ya existen: comprobarlo en el repositorio.
