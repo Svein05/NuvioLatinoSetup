@@ -55,9 +55,13 @@ su migración y no debe ampliarse para acomodar nuevas funciones. Las fuentes
 registradas pueden reducirse o desaparecer; las nuevas quedan sujetas a AGENTS.
 La comprobación de arquitectura rechaza crecimiento sobre ese inventario.
 
-Las páginas HTML se trasladan primero conservando el marcado. Exceden 350 líneas
-y mantienen scripts y eventos inline temporalmente: dividirlas y verificar el
-renderizado requiere una etapa específica. No se justifican nuevos handlers inline.
+Las cinco páginas HTML se componen mediante parciales de secciones y modales,
+todos por debajo de 350 líneas. La expansión se hace en build y desarrollo,
+con recarga al editar un parcial, detección de ciclos y rechazo de rutas externas.
+Se comprobó igualdad exacta con el HTML anterior al extraerlos; se mantienen
+temporalmente scripts y eventos inline heredados hasta migrar sus controladores.
+No se justifican nuevos handlers inline. Las URLs de un parcial se interpretan
+respecto a su página de entrada, ya que se inserta antes del procesamiento de Vite.
 
 `js/` permanece como adaptador de compatibilidad y fuente heredada durante la
 extracción; los módulos nuevos no pueden importarlo. Las páginas migradas pueden

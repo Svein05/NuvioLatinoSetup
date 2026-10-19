@@ -1,0 +1,43 @@
+<div id="sectionPane-addons" class="account-section-pane space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-white/[0.08]">
+            <div>
+              <h3 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+                <i class="fa-solid fa-puzzle-piece text-[#ffd479] text-sm"></i>
+                <span>Gestor de Addons</span>
+              </h3>
+              <p id="accountAddonsCountLabel" class="text-xs text-white/60 mt-0.5">
+                0 addons instalados
+              </p>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+              <!-- Acciones Principales de Creación (Fila 1 en móvil, grupo final en desktop) -->
+              <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+                <button type="button" id="btnAccountOpenAddAddon" class="lat-capsule-btn solid text-xs py-2 px-3 sm:px-3.5 flex items-center justify-center gap-1.5 shadow-[var(--shadow-lift)] active:scale-95 transition-all" title="Agregar addon mediante URL de manifiesto">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Agregar Addon</span>
+                </button>
+                <button type="button" id="btnAccountOpenAddAioStreams" class="lat-capsule-btn glass text-xs py-2 px-3 sm:px-3.5 flex items-center justify-center gap-2 border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] text-emerald-300 hover:text-white transition-all shadow-[var(--shadow-lift)] active:scale-95" title="Configurar e instalar AIOStreams Latino">
+                  <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-4 h-4 object-contain" alt="AIOStreams Logo">
+                  <span class="truncate"><span class="hidden sm:inline">Agregar </span>AIOStreams</span>
+                </button>
+              </div>
+
+              <!-- Acciones Secundarias de Mantenimiento (Fila 2 en móvil, grupo inicial en desktop) -->
+              <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto order-2 sm:order-1">
+                <button type="button" id="btnAccountRefreshAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center justify-center gap-1.5 text-white/80 hover:text-white active:scale-95 transition-all" title="Recargar lista desde Nuvio">
+                  <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                  <span>Refrescar</span>
+                </button>
+                <button type="button" id="btnAccountDeleteAllAddons" class="lat-capsule-btn glass text-xs py-2 px-3 flex items-center justify-center gap-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 border-rose-500/30 active:scale-95 transition-all" title="Eliminar todos los addons de este perfil">
+                  <i class="fa-regular fa-trash-can text-[11px]"></i>
+                  <span>Eliminar todos</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenedor Dinámico de la Lista de Addons -->
+          <div id="accountAddonsListContainer" class="space-y-2.5 max-w-4xl mx-auto py-1 min-h-[120px]">
+            <!-- Inyectado dinámicamente por js/account-manager.js -->
+          </div>
+        </div>

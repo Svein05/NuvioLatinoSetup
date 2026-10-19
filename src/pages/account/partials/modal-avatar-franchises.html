@@ -1,0 +1,36 @@
+<div id="modalAvatarFranchises" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-lg w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 flex items-center justify-center text-xs text-[#ffd479]">
+            <i class="fa-solid fa-masks-theater"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Elegir Obra</h3>
+            <span class="text-[11px] text-white/50">Selecciona la serie o anime para filtrar los avatares</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseFranchisesModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Grid Limpio de Obras / Franquicias Seleccionables (Sin buscador redundante) -->
+      <div id="modalFranchisesListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[380px] overflow-y-auto p-1 pr-1.5">
+        <!-- Inyectado dinámicamente por js/account-manager.js -->
+      </div>
+
+      <!-- Banner Inferior de Sugerencias de Avatares (Discord & Subida Directa) -->
+      <div class="border-t border-white/[0.08] pt-3 mt-1 flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
+        <div class="min-w-0 text-left">
+          <p class="text-[11px] text-white/70 leading-snug">
+            Si quieres sugerir o ayudar con imágenes png o iconos no png, puedes enviarle un mensaje en discord al usuario <strong class="text-white font-medium inline-flex items-center gap-1"><i class="fa-brands fa-discord text-[#5865F2] text-xs"></i> svein._</strong> o en el siguiente botón:
+          </p>
+        </div>
+        <button type="button" id="btnOpenAvatarSuggestionModal" class="lat-capsule-btn solid text-xs py-2 px-3.5 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099] flex items-center gap-1.5 shrink-0 shadow-[var(--shadow-lift)] transition-all cursor-pointer" title="Sugerir avatar para la colección">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>Subir</span>
+        </button>
+      </div>
+    </div>
+  </div>

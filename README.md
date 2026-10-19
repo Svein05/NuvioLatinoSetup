@@ -149,6 +149,8 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 ## Estructura del Repositorio
 
 - `src/pages/`: portada y páginas; conserva las URLs públicas actuales.
+- Cada página compone sus secciones y modales con `<!-- @include "partials/nombre.html" -->`.
+  Vite ensambla esos parciales sin descargas HTML adicionales en el navegador.
 - `src/features/`: funcionalidades con modelos, datos, UI y pruebas propias.
 - `src/integrations/`: adaptadores HTTP y contratos externos.
 - `src/app/`: configuración y composición.

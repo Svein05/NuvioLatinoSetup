@@ -1,0 +1,44 @@
+<main class="account-container flex-1 flex flex-col justify-start items-center px-4 sm:px-6 w-full">
+
+    <!-- Vista 1: Inicio de Sesión Nuvio (Si no hay sesión en sessionStorage) -->
+    <div id="accountAuthView" class="w-full max-w-md mx-auto my-auto py-12 flex flex-col items-center text-center">
+      <div class="lat-card p-8 sm:p-10 w-full space-y-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-serif text-white tracking-tight">Gestor de Cuenta & Perfil</h2>
+          <p class="text-xs sm:text-sm text-white/60 mt-2">
+            Ingresa con tus credenciales de Nuvio para administrar tus perfiles, avatares y tu addon AIOMetadata en tiempo real.
+          </p>
+        </div>
+
+        <form id="accountAuthForm" class="space-y-4 text-left">
+          <div>
+            <label class="text-xs text-white/70 block mb-1 font-medium">Correo electrónico</label>
+            <input type="email" id="accountEmail" required placeholder="tu@correo.com" class="lat-field w-full text-sm" autocomplete="email">
+          </div>
+          <div>
+            <label class="text-xs text-white/70 block mb-1 font-medium">Contraseña de Nuvio</label>
+            <div class="relative">
+              <input type="password" id="accountPassword" required placeholder="••••••••" class="lat-field w-full text-sm pr-10" autocomplete="current-password">
+              <button id="btnToggleAccountPassword" type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="accountPassword" title="Mostrar contraseña">
+                <i class="fa-solid fa-eye text-xs pointer-events-none"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="lat-capsule-btn solid w-full mt-2 font-semibold">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Vista 2: Dashboard Integral con Sub-Barra Horizontal Deslizable (Si hay sesión activa) -->
+    <div id="accountDashboardView" class="hidden w-full max-w-[1440px] mx-auto flex flex-col gap-6 items-stretch">
+      
+      <!-- Sub-Barra Horizontal Flotante con Pestañas Deslizables -->
+      <!-- @include "./account-subnav-bar.html" -->
+
+      <!-- Panel de Contenido Principal (100% de Ancho Disponible) -->
+      <!-- @include "./account-content-card.html" -->
+    </div>
+
+  </main>

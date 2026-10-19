@@ -19,10 +19,5 @@
   "js/nuvio-client.js": 1705,
   "js/state.js": 1082,
   "js/version.js": 33,
-  "js/webhook-config.js": 8,
-  "src/pages/index.html": 487,
-  "src/pages/configuration/index.html": 1753,
-  "src/pages/account/index.html": 1516,
-  "src/pages/documentation/index.html": 697,
-  "src/pages/modder/index.html": 700
+  "js/webhook-config.js": 8
 }

@@ -1,0 +1,59 @@
+<section class="account-content-card w-full p-3.5 sm:p-7 md:p-8 flex flex-col gap-6">
+        
+        <!-- Barra Superior de Acciones del Panel -->
+        <div class="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/10">
+          <div>
+            <span class="lat-label">Panel de Gestión</span>
+            <h2 class="text-xl sm:text-2xl font-serif text-white mt-0.5">Gestor de Perfil & Configuración</h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Botón Deshacer Cambios (Paso a paso) -->
+            <button type="button" id="btnAccountUndo" class="lat-capsule-btn glass text-xs sm:text-sm px-3.5 py-2.5 text-white/70 hover:text-white border-white/10 hover:border-white/20 transition-all flex items-center gap-1.5 opacity-40 cursor-not-allowed pointer-events-none" disabled title="Deshacer último cambio">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span class="hidden sm:inline">Deshacer</span>
+            </button>
+
+            <!-- Botón Inteligente Guardar Cambios -->
+            <button type="button" id="btnAccountSave" class="lat-capsule-btn glass btn-save-changes font-semibold text-xs sm:text-sm px-5 py-2.5" disabled>
+              <i class="fa-solid fa-floppy-disk mr-1.5"></i>
+              <span>Guardar Cambios</span>
+              <span id="accountSaveCountBadge" class="hidden ml-1.5 px-2 py-0.5 rounded-full text-[11px] bg-black text-[#ffd479] font-mono font-bold"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 1: RESUMEN -->
+        <!-- @include "./section-pane-overview.html" -->
+
+        <!-- SECCIÓN 2: AVATARES (NETFLIX STYLE) -->
+        <!-- @include "./section-pane-avatars.html" -->
+
+        <!-- SECCIÓN 3: GESTOR DE ADDONS -->
+        <!-- @include "./section-pane-addons.html" -->
+
+        <!-- SECCIÓN 4: AIOMETADATA -->
+        <div id="sectionPane-aiometadata" class="account-section-pane space-y-6">
+          <div>
+            <h3 class="text-base font-semibold text-white">Configuración del Addon AIOMetadata</h3>
+            <p class="text-xs text-white/60">Inspecciona y personaliza in-place el motor de pósters, carátulas y enlaces del addon vinculado.</p>
+          </div>
+
+          <div id="accountAioCard">
+            <!-- Tarjeta y editor de AIOMetadata -->
+          </div>
+        </div>
+
+        <!-- SECCIÓN 4: AJUSTES & API KEYS -->
+        <div id="sectionPane-settings" class="account-section-pane space-y-6">
+          <div>
+            <h3 class="text-base font-semibold text-white">Ajustes de Nuvio (API Keys)</h3>
+            <p class="text-xs text-white/60">Configura tus API Keys de TMDB, MDBList y enriquecimiento oficial de metadatos.</p>
+          </div>
+
+          <div id="accountSettingsContainer">
+            <!-- Inputs protegidos de API Keys de TMDB y MDBList -->
+          </div>
+        </div>
+
+      </section>
