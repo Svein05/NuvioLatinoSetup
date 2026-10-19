@@ -1,3 +1,5 @@
+import { loadProfileOverviewSources } from '../src/workflows/load-profile-overview.js';
+import { renderRequestError } from '../src/shared/ui/request-error.js';
 /**
  * Controlador Modular del Gestor de Cuenta y Perfil (/account)
  * Ecosistema Nuvio Metadata Latino & AIOMetadata
@@ -1393,32 +1395,14 @@ export async function loadProfileOverview() {
   if (!profId || !accountState.session) return;
 
   try {
-    const [plugins, progressItems, libraryItems, watchedItems] = await Promise.all([
-      NuvioClient.listPlugins({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        profileId: profId
-      }).catch(() => []),
-      NuvioClient.pullWatchProgress({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        profileId: profId
-      }).catch(() => []),
-      NuvioClient.pullLibrary({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        profileId: profId
-      }).catch(() => []),
-      NuvioClient.pullWatched({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        profileId: profId
-      }).catch(() => [])
-    ]);
+    const session = accountState.session;
+    const { plugins, progressItems, libraryItems, watchedItems, loadErrors } = await loadProfileOverviewSources(NuvioClient, {
+      apiUrl: CONFIG.NUVIO_API_URL,
+      apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+      accessToken: session.accessToken,
+      profileId: profId
+    });
+    if (accountState.session !== session || String(accountState.selectedProfileId) !== String(profId)) return;
 
     // 1. Filtrar watchedItems estrictamente por profile_id
     const filteredWatched = (Array.isArray(watchedItems) ? watchedItems : []).filter(item => 
@@ -1495,6 +1479,7 @@ export async function loadProfileOverview() {
       libraryCount,
       watchedCount,
       currentlyWatching,
+      loadErrors,
       recentlyWatched: uniqueWatchedItems.slice(0, 6)
     };
 
@@ -1515,11 +1500,11 @@ export async function renderOverviewSection() {
   const elLibrary = document.getElementById('metricLibraryCount');
   const elWatched = document.getElementById('metricWatchedCount');
 
-  if (elPlugins) elPlugins.textContent = data.pluginsCount;
+  if (elPlugins) elPlugins.textContent = data.loadErrors?.plugins ? '—' : data.pluginsCount;
   if (elAddons) elAddons.textContent = (accountState.installedAddons || []).length || data.addonsCount;
-  if (elProgress) elProgress.textContent = data.progressCount;
-  if (elLibrary) elLibrary.textContent = data.libraryCount;
-  if (elWatched) elWatched.textContent = data.watchedCount;
+  if (elProgress) elProgress.textContent = data.loadErrors?.progressItems ? '—' : data.progressCount;
+  if (elLibrary) elLibrary.textContent = data.loadErrors?.libraryItems ? '—' : data.libraryCount;
+  if (elWatched) elWatched.textContent = data.loadErrors?.watchedItems ? '—' : data.watchedCount;
 
   // Condición de seguridad requerida:
   // "si el perfil no tiene el enrichment activado y sin clave tmdb, no pondras las 2 filas, para evitar errores claro"
@@ -1554,7 +1539,9 @@ export async function renderOverviewSection() {
   // Renderizar Fila 1: Actualmente Viendo
   const watchingContainer = document.getElementById('rowCurrentlyWatchingCards');
   if (watchingContainer) {
-    if (data.currentlyWatching.length === 0) {
+    if (data.loadErrors?.progressItems) {
+      renderRequestError(watchingContainer, 'No se pudo cargar el progreso de Nuvio. Recarga la página para reintentar.');
+    } else if (data.currentlyWatching.length === 0) {
       watchingContainer.innerHTML = `
         <div class="col-span-full py-8 text-center text-xs text-white/40 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
           <i class="fa-solid fa-play text-white/20 text-lg mb-1 block"></i>
@@ -1602,7 +1589,9 @@ export async function renderOverviewSection() {
   // Renderizar Fila 2: Últimas Vistas
   const watchedContainer = document.getElementById('rowRecentlyWatchedCards');
   if (watchedContainer) {
-    if (data.recentlyWatched.length === 0) {
+    if (data.loadErrors?.watchedItems) {
+      renderRequestError(watchedContainer, 'No se pudo cargar el historial de Nuvio. Recarga la página para reintentar.');
+    } else if (data.recentlyWatched.length === 0) {
       watchedContainer.innerHTML = `
         <div class="col-span-full py-8 text-center text-xs text-white/40 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
           <i class="fa-solid fa-check text-white/20 text-lg mb-1 block"></i>

@@ -20,10 +20,12 @@ describe('legacy Nuvio adapter regression contracts', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('does not mistake a valid empty history for an unavailable RPC', async () => {
+  it('checks an empty progress RPC against the scoped table without inventing items', async () => {
     const fetchMock = vi.fn(async () => Response.json([]));
     vi.stubGlobal('fetch', fetchMock);
     expect([...(await NuvioClient.pullWatchProgress(context))]).toEqual([]);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[1][1].method).toBe('GET');
+    expect(fetchMock.mock.calls[1][0]).toContain('profile_id=eq.1');
   });
 });

@@ -116,3 +116,38 @@ del legado. No demuestran que todos los defectos anteriores estén corregidos.
 Verificación local de esta etapa: 39 pruebas unitarias/regresión, 11 comprobaciones
 de navegador contra build y 10 contra desarrollo. Servicios externos simulados;
 las pantallas autenticadas con datos reales y el despliegue quedan sin verificar.
+
+## Corrección de compatibilidad del progreso
+
+La primera extracción cambió una condición de main: una respuesta vacía del RPC
+de progreso dejaba de consultar la tabla `watch_progress`. También eliminó la
+lectura alternativa ante fallos transitorios o respuestas RPC sin una lista válida.
+La pantalla heredada convertía el error en `[]` y mostraba «Sin reproducciones».
+
+Se restauró la comprobación REST del progreso vacío y el respaldo de lecturas ante
+incompatibilidad, fallos 5xx, red o formato. No se aplica a escrituras, cancelación,
+401, 403, 429 ni errores de validación no reconocidos. Ambas respuestas se filtran
+por el perfil solicitado; una respuesta de otro perfil nunca se reutiliza.
+
+La coordinación de fuentes del resumen ahora pertenece a un workflow con cliente
+inyectado. Mantiene las secciones cargadas cuando otra falla. Una fuente fallida
+se representa con aviso y métrica «—», no como un historial vacío confirmado.
+Se añadieron regresiones y recorridos autenticados con sesión y APIs ficticias.
+La respuesta exacta de la sesión real de la captura no se inspeccionó.
+
+## Configuración manual durante la migración
+
+- Historial, progreso, perfiles y addons consultan Nuvio directamente. Esta
+  corrección no requiere cambios de Cloudflare ni nuevas claves del usuario.
+- Los pósters del resumen siguen usando la clave TMDB del perfil. Las capturas
+  muestran que otras filas sí tienen metadatos; eso no demuestra que el progreso
+  se haya leído correctamente.
+- El contador local puede usar respaldo y caché de localhost si no tiene los
+  endpoints públicos configurados en el entorno de GitHub Actions. No representa
+  el número de contenidos del perfil ni demuestra pérdida de datos.
+- Las sugerencias de Discord y el ranking global continúan pendientes de sus
+  endpoints privados en el Worker. Sus configuraciones locales no se incorporan
+  al bundle. No solucionar esto publicando el webhook ni el token Redis.
+- Conservar por ahora el Worker desplegado. Cuando se complete su migración,
+  habrá que desplegar el código compatible y configurar sus secretos; esa tarea
+  no se ejecutó ni se exige al usuario para probar el historial local.
