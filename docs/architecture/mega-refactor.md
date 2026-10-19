@@ -204,6 +204,16 @@ Ver [contratos contrastados con el código oficial](nuvio-profiles.md).
 Las regresiones cubren cuota, identidad, lecturas fallidas, escrituras ambiguas,
 conservación y confirmación; los recorridos de cuenta prueban edición y error.
 
+### Paso de autenticación del asistente
+
+El paso auth ya tiene controlador y vista propios en `pages/configuration/steps/`.
+Solo controla el estado visual y emite acciones; el workflow inyectado coordina
+autenticación, lectura de perfiles y creación inicial. Una lectura fallida no
+desencadena creación. Las entradas capturan credenciales para cada intento,
+impiden envíos simultáneos y exponen cancelación/limpieza. Se retiró el submit
+HTML inline. Los recorridos cubren registro, validación de confirmación, Enter,
+cambio de pestañas, login, recarga y modo manual sin servicios externos reales.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo

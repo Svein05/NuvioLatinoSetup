@@ -1,3 +1,5 @@
+import { mountAuthStep } from '../src/pages/configuration/steps/auth.js';
+import { authenticateWizard } from '../src/workflows/authenticate-wizard.js';
 import { createWizardSessionStore } from '../src/workflows/wizard-session.js';
 const wizardSessionStore = createWizardSessionStore({ key: 'nuvio_wizard_auth', storage: sessionStorage });
 import { showToast as renderToast } from '../src/shared/ui/toast/render.js';
@@ -614,345 +616,47 @@ class AppController {
   }
 
   setupStep1Events() {
-    const emailInput = document.getElementById('nuvioEmail');
-    const passInput = document.getElementById('nuvioPassword');
-    const confirmGroup = document.getElementById('confirmPasswordGroup');
-    const confirmInput = document.getElementById('nuvioPasswordConfirm');
-    const matchBadge = document.getElementById('passwordMatchBadge');
-    const btnConnect = document.getElementById('btnNuvioConnect');
-    const btnSignup = document.getElementById('btnNuvioSignup');
-    const tabLogin = document.getElementById('tabAuthLogin');
-    const tabSignup = document.getElementById('tabAuthSignup');
-    const headingText = document.getElementById('authHeadingText');
-    const hintText = document.getElementById('authHintText');
-
-    let authMode = 'login'; // 'login' | 'signup'
-
-    const pillIndicator = document.getElementById('authPillIndicator');
-
-    const validatePasswordMatch = () => {
-      if (authMode !== 'signup' || !confirmInput || !matchBadge) return;
-      const p1 = passInput ? passInput.value : '';
-      const p2 = confirmInput ? confirmInput.value : '';
-      const baseInputClass = "w-full px-4 py-3 pr-10 rounded-[16px] bg-white/[0.04] text-sm text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all focus:outline-none focus:ring-2";
-
-      if (!p2) {
-        matchBadge.className = 'text-[11px] text-white/40 mt-1 hidden flex items-center gap-1 font-medium';
-        matchBadge.innerHTML = '';
-        confirmInput.className = `${baseInputClass} border border-white/[0.12] focus:border-white/40 focus:ring-white/10`;
-        return;
-      }
-
-      matchBadge.classList.remove('hidden');
-      if (p1 === p2) {
-        confirmInput.className = `${baseInputClass} border border-emerald-400/60 focus:border-emerald-400 focus:ring-emerald-400/20`;
-        matchBadge.className = 'text-[11px] text-emerald-400 mt-1 flex items-center gap-1 font-medium';
-        matchBadge.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i> <span>Las contraseñas coinciden perfectamente.</span>';
-      } else {
-        confirmInput.className = `${baseInputClass} border border-rose-400/60 focus:border-rose-400 focus:ring-rose-400/20`;
-        matchBadge.className = 'text-[11px] text-rose-400 mt-1 flex items-center gap-1 font-medium';
-        matchBadge.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-400 text-xs"></i> <span>Las contraseñas no coinciden.</span>';
-      }
-    };
-
-    const switchAuthMode = (mode) => {
-      authMode = mode;
-      if (mode === 'login') {
-        if (pillIndicator) {
-          pillIndicator.classList.remove('signup');
-        }
-        if (tabLogin) {
-          tabLogin.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-semibold text-[#08090c] transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
-        }
-        if (tabSignup) {
-          tabSignup.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
-        }
-        if (headingText) headingText.innerText = "Conectar con tu cuenta de Nuvio";
-        if (hintText) hintText.classList.add('hidden');
-        if (confirmGroup) confirmGroup.classList.add('hidden');
-        if (confirmInput) {
-          confirmInput.value = '';
-          confirmInput.type = 'password';
-        }
-        if (passInput) passInput.type = 'password';
-        const pIcon = document.getElementById('btnToggleNuvioPassword')?.querySelector('i');
-        if (pIcon) pIcon.className = 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        const cIcon = document.getElementById('btnToggleNuvioPasswordConfirm')?.querySelector('i');
-        if (cIcon) cIcon.className = 'fa-solid fa-eye-slash text-xs pointer-events-none';
-        if (matchBadge) matchBadge.classList.add('hidden');
-        if (btnConnect) btnConnect.style.display = 'flex';
-        if (btnSignup) btnSignup.style.display = 'none';
-      } else {
-        if (pillIndicator) {
-          pillIndicator.classList.add('signup');
-        }
-        if (tabSignup) {
-          tabSignup.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-semibold text-[#08090c] transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
-        }
-        if (tabLogin) {
-          tabLogin.className = "relative z-10 flex-1 py-2 px-3 rounded-full text-xs font-medium text-white/60 hover:text-white transition-colors duration-200 flex items-center justify-center gap-1.5 focus:outline-none";
-        }
-        if (headingText) headingText.innerText = "Crear una nueva cuenta en Nuvio";
-        if (hintText) hintText.classList.remove('hidden');
-        if (confirmGroup) confirmGroup.classList.remove('hidden');
-        validatePasswordMatch();
-        if (btnConnect) btnConnect.style.display = 'none';
-        if (btnSignup) btnSignup.style.display = 'flex';
-      }
-    };
-
-    if (tabLogin) tabLogin.addEventListener('click', () => switchAuthMode('login'));
-    if (tabSignup) tabSignup.addEventListener('click', () => switchAuthMode('signup'));
-
-    // Soporte para tecla Enter en campos de autenticación
-    const handleEnterSubmit = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (authMode === 'login') {
-          if (btnConnect) btnConnect.click();
-        } else {
-          if (btnSignup) btnSignup.click();
-        }
-      }
-    };
-
-    [emailInput, passInput, confirmInput].forEach(inp => {
-      if (inp) inp.addEventListener('keydown', handleEnterSubmit);
-    });
-
-    if (emailInput) {
-      emailInput.addEventListener('input', (e) => {
-        state.nuvioAuth.email = e.target.value.trim();
+    this.disposeAuthStep?.();
+    this.disposeAuthStep = mountAuthStep({
+      authenticate: ({ mode, credentials, signal }) => authenticateWizard({ mode, credentials, client: NuvioClient,
+        context: { apiUrl: CONFIG.NUVIO_API_URL, apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY, signal } }),
+      onCredentials: ({ email, password }) => {
+        state.nuvioAuth.email = email;
+        state.nuvioAuth.password = password;
         this.updateNavigationButtons();
-      });
-    }
-
-    if (passInput) {
-      passInput.addEventListener('input', (e) => {
-        state.nuvioAuth.password = e.target.value;
-        validatePasswordMatch();
-        this.updateNavigationButtons();
-      });
-    }
-
-    if (confirmInput) {
-      confirmInput.addEventListener('input', () => {
-        validatePasswordMatch();
-      });
-    }
-
-    // Alternar visibilidad de contraseña en Paso 1 (Nuvio Cuenta)
-
-
-
-
-
-
-    // Acción Continuar sin Cuenta (Modo Manual)
-    const btnContinueWithout = document.getElementById('btnContinueWithoutAccount');
-    if (btnContinueWithout) {
-      btnContinueWithout.addEventListener('click', () => {
+      },
+      onAuthenticated: ({ auth, profiles, email }) => {
+        state.isManualMode = false;
+        Object.assign(state.nuvioAuth, { accessToken: auth.accessToken, userId: auth.userId, expiresAt: auth.expiresAt,
+          isAuthenticated: true, apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY, email, password: '' });
+        state.profiles = profiles;
+        if (profiles.length) {
+          state.selectedProfileId = profiles[0].id;
+          state.selectedProfileName = profiles[0].name || profiles[0].title || 'Principal';
+          state.unlockStep(3);
+        }
+        state.unlockStep(2);
+        this.setAuthBadge(true);
+        this.saveSession();
+      },
+      onContinue: destination => {
+        state.currentStep = destination === 'manual' ? 3 : 2;
+        if (destination === 'manual') state.unlockStep(3);
+        else this.renderProfiles();
+        this.updateUI();
+      },
+      onManual: () => {
         state.enableManualMode();
         const badge = document.getElementById('authStatusBadge');
         if (badge) {
-          badge.className = "text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5";
+          badge.className = 'text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5';
           badge.innerHTML = '<i class="fa-solid fa-user-slash text-[10px]"></i> Modo Manual (Sin cuenta)';
         }
         this.showToast('Continuando en modo manual sin cuenta de Nuvio.', 'info');
-        setTimeout(() => {
-          state.unlockStep(3);
-          state.currentStep = 3;
-          this.updateUI();
-        }, 300);
-      });
-    }
-
-    // Acción Iniciar Sesión
-    if (btnConnect) {
-      btnConnect.addEventListener('click', async () => {
-        const email = emailInput?.value?.trim();
-        const password = passInput?.value;
-        const apikey = CONFIG.NUVIO_PUBLIC_ANON_KEY;
-
-        if (!email || !password) {
-          this.showToast('Por favor ingresa tu correo y contraseña de Nuvio.', 'warning');
-          return;
-        }
-
-        btnConnect.disabled = true;
-        btnConnect.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Conectando...';
-
-        try {
-          const auth = await NuvioClient.login({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey,
-            email,
-            password
-          });
-
-          state.isManualMode = false;
-          state.nuvioAuth.accessToken = auth.accessToken;
-          state.nuvioAuth.expiresAt = auth.expiresAt;
-          state.nuvioAuth.userId = auth.userId;
-          state.nuvioAuth.isAuthenticated = true;
-          state.nuvioAuth.apikey = apikey;
-
-          // Obtener perfiles de la cuenta
-          let profiles = [];
-          try {
-            profiles = await NuvioClient.getProfiles({
-              apiUrl: CONFIG.NUVIO_API_URL,
-              apikey,
-              accessToken: auth.accessToken,
-              userId: auth.userId
-            });
-          } catch (pErr) {
-            console.warn('[NuvioClient] Error obteniendo perfiles:', pErr);
-            profiles = [];
-          }
-
-          // Si la cuenta no tiene perfiles, crear el perfil inicial "Principal"
-          if (!profiles || profiles.length === 0) {
-            try {
-              const defaultProfile = await NuvioClient.createProfile({
-                apiUrl: CONFIG.NUVIO_API_URL,
-                apikey,
-                accessToken: auth.accessToken,
-                userId: auth.userId,
-                name: 'Principal'
-              });
-              if (defaultProfile) {
-                profiles = [defaultProfile];
-              }
-            } catch (_) {}
-          }
-
-          state.profiles = profiles || [];
-          if (profiles && profiles.length > 0) {
-            state.selectedProfileId = profiles[0].id;
-            state.selectedProfileName = profiles[0].name || profiles[0].title || 'Perfil Principal';
-            state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
-          }
-
-          state.unlockStep(2); // Desbloquea Paso 2 (Elegir Perfil)
-          this.setAuthBadge(true);
-          this.saveSession();
-          this.showToast('✓ ¡Sesión iniciada con éxito! Perfiles sincronizados.', 'success');
-
-          // Auto-avanzar al paso 2 de manera fluida
-          setTimeout(() => {
-            state.currentStep = 2;
-            this.renderProfiles();
-            this.updateUI();
-          }, 600);
-        } catch (err) {
-          this.showToast(`Error al conectar: ${err.message}`, 'error');
-          this.setAuthBadge(false);
-        } finally {
-          btnConnect.disabled = false;
-          btnConnect.innerHTML = '<i class="fa-solid fa-arrow-right-to-bracket mr-1"></i> Conectar Cuenta';
-        }
-      });
-    }
-
-    // Acción Crear Cuenta
-    if (btnSignup) {
-      btnSignup.addEventListener('click', async () => {
-        const email = emailInput?.value?.trim();
-        const password = passInput?.value;
-        const confirmPassword = confirmInput?.value;
-        const apikey = CONFIG.NUVIO_PUBLIC_ANON_KEY;
-
-        if (!email || !password) {
-          this.showToast('Por favor ingresa un correo y contraseña para crear tu cuenta.', 'warning');
-          return;
-        }
-
-        if (password.length < 6) {
-          this.showToast('La contraseña debe tener al menos 6 caracteres.', 'warning');
-          passInput?.focus();
-          return;
-        }
-
-        if (password !== confirmPassword) {
-          this.showToast('Las contraseñas no coinciden. Por favor verifícalas antes de continuar.', 'warning');
-          confirmInput?.focus();
-          return;
-        }
-
-        btnSignup.disabled = true;
-        btnSignup.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Registrando cuenta...';
-
-        try {
-          const auth = await NuvioClient.signup({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey,
-            email,
-            password
-          });
-
-          state.isManualMode = false;
-          state.nuvioAuth.accessToken = auth.accessToken;
-          state.nuvioAuth.expiresAt = auth.expiresAt;
-          state.nuvioAuth.userId = auth.userId;
-          state.nuvioAuth.isAuthenticated = true;
-          state.nuvioAuth.apikey = apikey;
-
-          // Consultar perfiles o crear perfil inicial "Principal"
-          let profiles = [];
-          try {
-            profiles = await NuvioClient.getProfiles({
-              apiUrl: CONFIG.NUVIO_API_URL,
-              apikey,
-              accessToken: auth.accessToken,
-              userId: auth.userId
-            });
-          } catch (_) {
-            profiles = [];
-          }
-
-          if (profiles.length === 0) {
-            try {
-              const defaultProfile = await NuvioClient.createProfile({
-                apiUrl: CONFIG.NUVIO_API_URL,
-                apikey,
-                accessToken: auth.accessToken,
-                userId: auth.userId,
-                name: 'Principal'
-              });
-              profiles = [defaultProfile];
-            } catch (_) {}
-          }
-
-          state.profiles = profiles;
-          if (profiles.length > 0) {
-            state.selectedProfileId = profiles[0].id;
-            state.selectedProfileName = profiles[0].name || profiles[0].title || 'Principal';
-            state.unlockStep(3);
-          }
-
-          state.unlockStep(2);
-          this.renderProfiles();
-          this.setAuthBadge(true);
-          this.saveSession();
-          this.showToast('✓ ¡Cuenta creada con éxito! Bienvenido a Nuvio.', 'success');
-
-          setTimeout(() => {
-            state.currentStep = 2;
-            this.renderProfiles();
-            this.updateUI();
-          }, 600);
-        } catch (err) {
-          this.showToast(err.message, 'error');
-          if (/iniciar sesión/i.test(err.message)) {
-            switchAuthMode('login');
-          }
-        } finally {
-          btnSignup.disabled = false;
-          btnSignup.innerHTML = '<i class="fa-solid fa-user-plus mr-1"></i> Crear Cuenta en Nuvio';
-        }
-      });
-    }
+      },
+      notify: (message, type) => this.showToast(message, type),
+      onFailure: () => this.setAuthBadge(false)
+    });
   }
 
   setAuthBadge(connected) {
