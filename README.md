@@ -151,6 +151,9 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 - `src/pages/`: portada y páginas; conserva las URLs públicas actuales.
 - Cada página compone sus secciones y modales con `<!-- @include "partials/nombre.html" -->`.
   Vite ensambla esos parciales sin descargas HTML adicionales en el navegador.
+- La cabecera y el footer públicos se mantienen una sola vez en
+  `src/shared/ui/site-shell/`. El build ajusta enlaces relativos y página activa;
+  el panel de colaboradores mantiene su cabecera específica.
 - `src/features/`: funcionalidades con modelos, datos, UI y pruebas propias.
 - `src/integrations/`: adaptadores HTTP y contratos externos.
 - `src/app/`: configuración y composición.
@@ -163,11 +166,16 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 - `assets/` y `js/`: fuentes heredadas en migración, con límites de crecimiento.
 - `src/app/styles.css`: composición de estilos; cada módulo reside junto a su responsabilidad.
 
-Consultar [AGENTS.md](AGENTS.md) y el [plan de migración](docs/architecture/mega-refactor.md)
-antes de ampliar la arquitectura. El Worker modular todavía no se ha desplegado;
-las sesiones y los controladores monolíticos continúan en migración.
-El [punto de comprobación actual](docs/architecture/refactor-checkpoint.md) enumera
-las extracciones verificadas, los archivos de raíz y las etapas pendientes.
+El [contexto compartido y roadmap](docs/development/context.md) contiene el estado
+real, las reglas de arquitectura y el Git Flow obligatorio. [AGENTS.md](AGENTS.md)
+y [GEMINI.md](GEMINI.md) son entradas breves para descubrir esas instrucciones.
+La migración sigue incompleta: las páginas todavía necesitan `js/`. No eliminarlo
+hasta sustituir sus consumidores. El Worker modular no se ha desplegado.
+
+Se versionan las herramientas reproducibles de `scripts/` y la documentación de
+desarrollo en `docs/`: permiten contribuir y verificar el proyecto. Las herramientas
+personales se guardan en `.local/`; secretos, cachés y resultados se ignoran.
+No fusionar a develop/producción ni publicar cambios sin autorización explícita.
 
 ---
 
