@@ -128,8 +128,13 @@ de kingsizew ya acreditados en README. No contienen lógica ni efectos laterales
 La identidad de módulos, previews, colores, filtros de idioma y compilación pura
 están separados. Se compararon 33 salidas con la implementación anterior antes
 de conectarlas. Las adiciones personalizadas tienen un dueño de estado y los
-consumidores reciben snapshots de la lista. El antiguo módulo queda temporalmente
-como puente de descarga; su política de errores todavía requiere corrección.
+consumidores reciben snapshots de la lista. La descarga vive en una integración
+inyectada desde app; el módulo antiguo solo reexporta interfaces explícitas.
+Una descarga fallida o inválida ya no se convierte en reglas vacías con apariencia
+de éxito, ni el inyector declara finalización tras ese error. El respaldo por
+proxy solo admite catálogos públicos GitHub Raw sin credenciales y no elude
+errores HTTP 4xx ni cancelación. Esta corrección funcional tiene su propia regresión
+y commit, separados de la extracción de reglas.
 
 ## Validación y seguimiento
 

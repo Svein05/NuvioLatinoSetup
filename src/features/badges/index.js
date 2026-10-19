@@ -7,3 +7,4 @@ export { getPackSectionsOrdered } from './model/sections.js';
 export { stripRegexFlags, toUniversalHybridFilter, decoupleLatinoFromSpainPattern } from './model/hybrid-patterns.js';
 export { sanitizeLanguageAndBadges } from './model/language-filters.js';
 export { compileBadgeRules } from './model/compile-rules.js';
+export { createBadgeCompiler } from './application/compile-pack.js';

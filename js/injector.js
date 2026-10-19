@@ -226,12 +226,7 @@ export class PipelineInjector {
         const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
         const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
 
-        let compiled = { groups: [], filters: [] };
-        try {
-          compiled = await compileUniversalBadgeRules(selectedBadgePack, activeIds, orderIds);
-        } catch (compileErr) {
-          console.warn('[Injector] Error en compilación universal de badges:', compileErr);
-        }
+        const compiled = await compileUniversalBadgeRules(selectedBadgePack, activeIds, orderIds);
 
         const badgeRulesJson = {
           imports: [
