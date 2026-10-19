@@ -1,5 +1,6 @@
 import { loadProfileOverviewSources } from '../src/workflows/load-profile-overview.js';
-import { renderRequestError } from '../src/shared/ui/request-error.js';
+import { buildProfileOverview } from '../src/features/profiles/index.js';
+import { presentAccountOverview } from '../src/app/account-overview.js';
 /**
  * Controlador Modular del Gestor de Cuenta y Perfil (/account)
  * Ecosistema Nuvio Metadata Latino & AIOMetadata
@@ -1277,353 +1278,35 @@ export function setupProfileModals() {
 // CARGA Y RENDERIZADO DE LA PESTAÑA RESUMEN (MÉTRICAS Y FILAS TMDB)
 // ============================================================
 
-const tmdbDetailsCache = new Map();
-
-async function fetchTmdbMediaDetails(rawItem, apiKey) {
-  if (!rawItem) return null;
-
-  // 1. Extraer identificador de contenido priorizando content_id real de Nuvio
-  const rawContentId = String(rawItem.content_id || rawItem.video_id || rawItem.item_id || rawItem.media_id || '').trim();
-  let imdbId = rawItem.imdb_id || null;
-  let tmdbId = rawItem.tmdb_id || null;
-
-  if (rawContentId) {
-    if (rawContentId.startsWith('tt')) {
-      imdbId = rawContentId.split(':')[0];
-    } else if (rawContentId.startsWith('tmdb:')) {
-      tmdbId = rawContentId.replace(/^tmdb:/, '').split(':')[0];
-    } else if (/^\d+$/.test(rawContentId)) {
-      tmdbId = rawContentId;
-    } else if (rawContentId.includes(':')) {
-      const parts = rawContentId.split(':');
-      if (parts[0].startsWith('tt')) imdbId = parts[0];
-      else if (parts[0] === 'imdb' && parts[1]?.startsWith('tt')) imdbId = parts[1];
-      else if (parts[0] === 'tmdb') tmdbId = parts[1];
-    }
-  }
-
-  // 2. Determinar tipo de contenido
-  let type = String(rawItem.content_type || rawItem.type || rawItem.media_type || '').toLowerCase();
-  if (type === 'series' || type === 'tv' || type === 'show' || (rawItem.season !== undefined && rawItem.season !== null)) {
-    type = 'tv';
-  } else {
-    type = 'movie';
-  }
-
-  if (!imdbId && !tmdbId) return null;
-
-  const cacheKey = `${type}_${imdbId || tmdbId}`;
-  if (tmdbDetailsCache.has(cacheKey)) {
-    return tmdbDetailsCache.get(cacheKey);
-  }
-
-  let details = null;
-
-  // 3. Consulta a TMDB si se cuenta con API Key
-  if (apiKey) {
-    try {
-      let url = '';
-      if (imdbId) {
-        url = `https://api.themoviedb.org/3/find/${encodeURIComponent(imdbId)}?api_key=${encodeURIComponent(apiKey)}&external_source=imdb_id&language=es-MX`;
-      } else if (tmdbId) {
-        url = `https://api.themoviedb.org/3/${type === 'tv' ? 'tv' : 'movie'}/${encodeURIComponent(tmdbId)}?api_key=${encodeURIComponent(apiKey)}&language=es-MX`;
-      }
-
-      if (url) {
-        const res = await fetch(url);
-        if (res.ok) {
-          const data = await res.json();
-          if (imdbId) {
-            const results = (data.movie_results || []).concat(data.tv_results || []);
-            const match = results[0];
-            if (match) {
-              details = {
-                title: match.title || match.name,
-                poster_path: match.poster_path ? `https://image.tmdb.org/t/p/w500${match.poster_path}` : '',
-                backdrop_path: match.backdrop_path ? `https://image.tmdb.org/t/p/w780${match.backdrop_path}` : ''
-              };
-            }
-          } else if (data) {
-            details = {
-              title: data.title || data.name,
-              poster_path: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
-              backdrop_path: data.backdrop_path ? `https://image.tmdb.org/t/p/w780${data.backdrop_path}` : ''
-            };
-          }
-        }
-      }
-    } catch (tmdbErr) {
-      console.warn('[AccountManager] TMDB find:', tmdbErr.message);
-    }
-  }
-
-  // 4. Fallback con Cinemeta / Metahub si no se obtuvo póster o título completo y hay imdbId
-  if (imdbId && (!details || !details.poster_path || !details.title)) {
-    try {
-      const cinemetaType = type === 'tv' ? 'series' : 'movie';
-      const metaRes = await fetch(`https://v3-cinemeta.strem.io/meta/${cinemetaType}/${encodeURIComponent(imdbId)}.json`);
-      if (metaRes.ok) {
-        const metaJson = await metaRes.json();
-        const meta = metaJson?.meta;
-        if (meta) {
-          details = {
-            title: details?.title || meta.name || rawItem.title || 'Contenido Nuvio',
-            poster_path: details?.poster_path || meta.poster || `https://images.metahub.space/poster/medium/${imdbId}/img`,
-            backdrop_path: details?.backdrop_path || meta.background || ''
-          };
-        }
-      }
-    } catch (_) {}
-
-    if (!details?.poster_path) {
-      details = {
-        title: details?.title || rawItem.title || 'Contenido Nuvio',
-        poster_path: `https://images.metahub.space/poster/medium/${imdbId}/img`,
-        backdrop_path: details?.backdrop_path || ''
-      };
-    }
-  }
-
-  if (details) {
-    tmdbDetailsCache.set(cacheKey, details);
-  }
-  return details;
-}
-
 export async function loadProfileOverview() {
-  const profId = accountState.selectedProfileId;
-  if (!profId || !accountState.session) return;
-
+  const profileId = accountState.selectedProfileId;
+  const session = accountState.session;
+  if (!profileId || !session) return;
   try {
-    const session = accountState.session;
-    const { plugins, progressItems, libraryItems, watchedItems, loadErrors } = await loadProfileOverviewSources(NuvioClient, {
-      apiUrl: CONFIG.NUVIO_API_URL,
-      apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-      accessToken: session.accessToken,
-      profileId: profId
+    const sources = await loadProfileOverviewSources(NuvioClient, {
+      apiUrl: CONFIG.NUVIO_API_URL, apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+      accessToken: session.accessToken, profileId,
     });
-    if (accountState.session !== session || String(accountState.selectedProfileId) !== String(profId)) return;
-
-    // 1. Filtrar watchedItems estrictamente por profile_id
-    const filteredWatched = (Array.isArray(watchedItems) ? watchedItems : []).filter(item => 
-      item && (item.profile_id === undefined || Number(item.profile_id) === Number(profId))
-    );
-
-    // 2. Deduplicar watchedItems por content_id y season/episode para conteo exacto de Nuvio (96)
-    const seenWatched = new Set();
-    const uniqueWatchedItems = [];
-    for (const w of filteredWatched) {
-      const key = `${w.content_id || ''}_${w.season ?? ''}_${w.episode ?? ''}`;
-      if (!seenWatched.has(key)) {
-        seenWatched.add(key);
-        uniqueWatchedItems.push(w);
-      }
-    }
-    const watchedCount = uniqueWatchedItems.length;
-
-    // 3. Filtrar progressItems para obtener ÚNICAMENTE los contenidos activos en progreso (NO completados)
-    const inProgressItems = (Array.isArray(progressItems) ? progressItems : []).filter(item => {
-      if (!item) return false;
-      if (item.profile_id !== undefined && Number(item.profile_id) !== Number(profId)) return false;
-
-      const pos = Number(item.position || 0);
-      const dur = Number(item.duration || 0);
-      // Sin reproducción iniciada
-      if (pos <= 0) return false;
-      // Si la posición superó el 90% de la duración, ya fue completado
-      if (dur > 0 && (pos / dur) >= 0.90) return false;
-
-      // Si ya está registrado en watchedItems, ya fue completado
-      const alreadyWatched = uniqueWatchedItems.some(w => {
-        if (!w || !w.content_id || w.content_id !== item.content_id) return false;
-        if (item.season !== undefined && item.season !== null && w.season !== undefined && w.season !== null) {
-          return Number(item.season) === Number(w.season) && Number(item.episode) === Number(w.episode);
-        }
-        return true;
-      });
-      if (alreadyWatched) return false;
-
-      return true;
+    if (accountState.session !== session || String(accountState.selectedProfileId) !== String(profileId)) return;
+    accountState.overviewData = buildProfileOverview({
+      ...sources, profileId, addonsCount: accountState.installedAddons.length,
     });
-
-    // 4. Deduplicar series para "Actualmente Viendo" para mostrar solo el último episodio activo de cada serie
-    const seenShows = new Set();
-    const currentlyWatching = [];
-    for (const item of inProgressItems) {
-      const showKey = item.content_id || item.video_id;
-      if (!seenShows.has(showKey)) {
-        seenShows.add(showKey);
-        currentlyWatching.push(item);
-      }
-      if (currentlyWatching.length >= 6) break;
-    }
-
-    // 5. Métrica de progreso: en Nuvio Sync corresponde a los contenidos en curso (46)
-    let progressCount = inProgressItems.length;
-    if (progressCount === 0 && Array.isArray(progressItems) && progressItems.length > 0) {
-      progressCount = progressItems.totalCount ?? progressItems.length;
-    }
-
-    const libraryCount = libraryItems.totalCount !== undefined
-      ? libraryItems.totalCount
-      : (Array.isArray(libraryItems) ? libraryItems.length : 0);
-
-    const pluginsCount = plugins.totalCount !== undefined
-      ? plugins.totalCount
-      : (Array.isArray(plugins) ? plugins.length : 0);
-
-    accountState.overviewData = {
-      pluginsCount,
-      addonsCount: (accountState.installedAddons || []).length,
-      progressCount,
-      libraryCount,
-      watchedCount,
-      currentlyWatching,
-      loadErrors,
-      recentlyWatched: uniqueWatchedItems.slice(0, 6)
-    };
-
-    renderOverviewSection();
-  } catch (err) {
-    console.warn('[AccountManager] Error cargando métricas de resumen:', err);
+    await renderOverviewSection();
+  } catch (error) {
+    console.warn('[Account] No se pudo cargar el resumen:', error);
   }
 }
 
 export async function renderOverviewSection() {
   const data = accountState.overviewData;
   if (!data) return;
-
-  // Actualizar las 5 tarjetas de métricas (coherencia con Nuvio)
-  const elPlugins = document.getElementById('metricPluginsCount');
-  const elAddons = document.getElementById('metricAddonsCount');
-  const elProgress = document.getElementById('metricProgressCount');
-  const elLibrary = document.getElementById('metricLibraryCount');
-  const elWatched = document.getElementById('metricWatchedCount');
-
-  if (elPlugins) elPlugins.textContent = data.loadErrors?.plugins ? '—' : data.pluginsCount;
-  if (elAddons) elAddons.textContent = (accountState.installedAddons || []).length || data.addonsCount;
-  if (elProgress) elProgress.textContent = data.loadErrors?.progressItems ? '—' : data.progressCount;
-  if (elLibrary) elLibrary.textContent = data.loadErrors?.libraryItems ? '—' : data.libraryCount;
-  if (elWatched) elWatched.textContent = data.loadErrors?.watchedItems ? '—' : data.watchedCount;
-
-  // Condición de seguridad requerida:
-  // "si el perfil no tiene el enrichment activado y sin clave tmdb, no pondras las 2 filas, para evitar errores claro"
-  const tmdbKey = (accountState.settings.tmdb_api_key || '').trim();
-  const isEnrichmentActive = Boolean(accountState.settings.enrichment_enabled);
-  const canShowCinemaRows = Boolean(isEnrichmentActive && tmdbKey);
-
-  const cinemaContainer = document.getElementById('overviewCinemaContainer');
-  const tmdbNotice = document.getElementById('overviewTmdbNotice');
-
-  if (!canShowCinemaRows) {
-    if (cinemaContainer) cinemaContainer.classList.add('hidden');
-    if (tmdbNotice) tmdbNotice.classList.remove('hidden');
-    return;
-  }
-
-  if (cinemaContainer) cinemaContainer.classList.remove('hidden');
-  if (tmdbNotice) tmdbNotice.classList.add('hidden');
-
-  // Helper para formatear subtítulo de contenido (Temporada/Episodio o Tipo)
-  const formatMediaSubtitle = (item) => {
-    let sub = String(item.content_type || item.type || 'Película').toLowerCase();
-    if (sub === 'series' || sub === 'tv' || (item.season !== undefined && item.season !== null)) {
-      if (item.season !== undefined && item.season !== null && item.episode !== undefined && item.episode !== null) {
-        return `T${item.season} : E${item.episode}`;
-      }
-      return 'Serie';
-    }
-    return 'Película';
-  };
-
-  // Renderizar Fila 1: Actualmente Viendo
-  const watchingContainer = document.getElementById('rowCurrentlyWatchingCards');
-  if (watchingContainer) {
-    if (data.loadErrors?.progressItems) {
-      renderRequestError(watchingContainer, 'No se pudo cargar el progreso de Nuvio. Recarga la página para reintentar.');
-    } else if (data.currentlyWatching.length === 0) {
-      watchingContainer.innerHTML = `
-        <div class="col-span-full py-8 text-center text-xs text-white/40 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
-          <i class="fa-solid fa-play text-white/20 text-lg mb-1 block"></i>
-          Sin reproducciones en curso en este perfil.
-        </div>
-      `;
-    } else {
-      watchingContainer.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-white/40"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Cargando metadatos en Latino...</div>';
-
-      const cardsHtml = await Promise.all(data.currentlyWatching.map(async (item) => {
-        const details = await fetchTmdbMediaDetails(item, tmdbKey);
-        const title = details?.title || item.title || item.name || 'Contenido Nuvio';
-        const posterUrl = details?.poster_path || item.poster_url || item.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
-        
-        let pct = 40;
-        if (item.position && item.duration && item.duration > 0) {
-          pct = Math.min(100, Math.max(5, Math.round((item.position / item.duration) * 100)));
-        } else if (item.progress && item.duration && item.duration > 0) {
-          pct = Math.min(100, Math.max(5, Math.round((item.progress / item.duration) * 100)));
-        } else if (item.progress_percentage) {
-          pct = Math.min(100, Math.max(5, Number(item.progress_percentage)));
-        }
-
-        const subtitle = formatMediaSubtitle(item);
-
-        return `
-          <div class="nuvio-cinema-card group select-none">
-            <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
-              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'">
-              <div class="card-gradient-overlay"></div>
-              <div class="card-progress-bar" style="width: ${pct}%"></div>
-            </div>
-            <div class="p-2.5">
-              <h5 class="text-xs font-semibold text-white truncate group-hover:text-[#ffd479] transition-colors" title="${title}">${title}</h5>
-              <span class="text-[10px] text-white/40 font-mono">${subtitle}</span>
-            </div>
-          </div>
-        `;
-      }));
-
-      watchingContainer.innerHTML = cardsHtml.join('');
-    }
-  }
-
-  // Renderizar Fila 2: Últimas Vistas
-  const watchedContainer = document.getElementById('rowRecentlyWatchedCards');
-  if (watchedContainer) {
-    if (data.loadErrors?.watchedItems) {
-      renderRequestError(watchedContainer, 'No se pudo cargar el historial de Nuvio. Recarga la página para reintentar.');
-    } else if (data.recentlyWatched.length === 0) {
-      watchedContainer.innerHTML = `
-        <div class="col-span-full py-8 text-center text-xs text-white/40 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
-          <i class="fa-solid fa-check text-white/20 text-lg mb-1 block"></i>
-          Sin contenidos marcados como vistos en este perfil.
-        </div>
-      `;
-    } else {
-      watchedContainer.innerHTML = '<div class="col-span-full py-4 text-center text-xs text-white/40"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Cargando metadatos en Latino...</div>';
-
-      const cardsHtml = await Promise.all(data.recentlyWatched.map(async (item) => {
-        const details = await fetchTmdbMediaDetails(item, tmdbKey);
-        const title = details?.title || item.title || item.name || 'Contenido Nuvio';
-        const posterUrl = details?.poster_path || item.poster_url || item.poster || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
-        const subtitle = formatMediaSubtitle(item);
-
-        return `
-          <div class="nuvio-cinema-card group select-none">
-            <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/60">
-              <img src="${posterUrl}" alt="${title}" class="poster-img" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80'">
-              <div class="card-gradient-overlay"></div>
-            </div>
-            <div class="p-2.5">
-              <h5 class="text-xs font-semibold text-white truncate group-hover:text-emerald-300 transition-colors" title="${title}">${title}</h5>
-              <span class="text-[10px] text-white/40 font-mono">${subtitle}</span>
-            </div>
-          </div>
-        `;
-      }));
-
-      watchedContainer.innerHTML = cardsHtml.join('');
-    }
-  }
+  const profileId = accountState.selectedProfileId;
+  const session = accountState.session;
+  await presentAccountOverview({
+    data, settings: { ...accountState.settings }, addonsCount: accountState.installedAddons.length,
+    isCurrent: () => accountState.session === session && accountState.selectedProfileId === profileId
+      && accountState.overviewData === data,
+  });
 }
 
 // ============================================================

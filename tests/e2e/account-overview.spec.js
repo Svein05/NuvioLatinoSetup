@@ -21,6 +21,8 @@ function apiResponse(url, mode, payload) {
     if (!Number.isSafeInteger(payload?.p_since_last_watched)) {
       return { status: 400, body: { code: '22P02', message: 'invalid input syntax for type bigint' } };
     }
+    if (mode === 'unsafe') return { body: [{ ...progressRow,
+      title: '<img src=x onerror=alert(1)>', poster_url: 'javascript:alert(1)' }] };
     return { status: failed ? 503 : 200, body: mode === 'rpc' ? [progressRow] : [] };
   }
   if (pathname.endsWith('/watch_progress')) return { status: failed ? 503 : 200, body: [progressRow] };
@@ -81,4 +83,10 @@ test('authenticated overview renders progress directly from the numeric-cursor R
   await expect(page.locator('#rowCurrentlyWatchingCards')).toContainText('Synthetic continue watching');
   await expect(page.locator('#metricProgressCount')).toHaveText('1');
   expect(requests).toEqual([]);
+});
+
+test('overview treats remote titles as text and rejects executable poster URLs', async ({ page }) => {
+  await prepareAccount(page, 'unsafe');
+  await expect(page.locator('#rowCurrentlyWatchingCards h5')).toHaveText('<img src=x onerror=alert(1)>');
+  await expect(page.locator('#rowCurrentlyWatchingCards img')).not.toHaveAttribute('src', /^javascript:/);
 });

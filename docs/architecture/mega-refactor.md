@@ -108,6 +108,18 @@ compilan fuentes locales y no se distribuyen como JavaScript al navegador.
 - Pendientes: Worker, sesiones, carreras de perfil, guardados parciales completos,
   división de controladores, parciales HTML y retirada del legado restante.
 
+### Extracción del resumen de cuenta
+
+Las reglas de historial pertenecen ahora al modelo de perfiles; la resolución
+TMDB/Cinemeta está en integración sin DOM, y la vista de cuenta solo representa
+las métricas y tarjetas recibidas. La composición captura el destino para ignorar
+metadatos tardíos de otro perfil. Se conservan los conteos y respaldos existentes;
+el respaldo de métricas heredado cuando todos los elementos están completados
+sigue siendo deuda funcional explícita, no se redefine durante esta extracción.
+Las tarjetas usan nodos y texto, validan protocolos y no interpolan datos externos
+en HTML. Se añadieron pruebas de episodios, perfiles, fallos de metadatos,
+resultados tardíos y títulos/URLs hostiles en navegador.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo
