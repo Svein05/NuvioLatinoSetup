@@ -193,6 +193,17 @@ introducir la contraseña de edición del addon cuando se necesite.
 La sesión compartida de colaboradores todavía necesita un token emitido por el
 Worker para retirar su contraseña persistida sin romper el cambio de página.
 
+### Lectura y edición de perfiles
+
+El cliente heredado delega lectura, creación, nombre, avatar y eliminación a
+adaptadores Nuvio separados con mappers de identidad, validación y verificación
+posterior. Se conservan los campos de avatar/herencia/fondo conocidos. No se
+generan snapshots vacíos tras un fallo de lectura ni se prueban alternativas tras
+una escritura incierta. El borrado deja de recorrer eliminaciones indiscriminadas.
+Ver [contratos contrastados con el código oficial](nuvio-profiles.md).
+Las regresiones cubren cuota, identidad, lecturas fallidas, escrituras ambiguas,
+conservación y confirmación; los recorridos de cuenta prueban edición y error.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo
