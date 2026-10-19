@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { renderSiteShell } from './site-shell.js';
 
 const directive = /<!--\s*@include\s+"([^"]+)"\s*-->/g;
 
@@ -25,9 +26,10 @@ export function htmlFragments(root) {
     transformIndexHtml: {
       order: 'pre',
       handler(source, context) {
-        return expandHtmlFragments(source, context.filename, {
+        const expanded = expandHtmlFragments(source, context.filename, {
           root, watch: filename => server?.watcher.add(filename),
         });
+        return renderSiteShell(expanded, context.filename, path.join(root, 'pages'));
       },
     },
     handleHotUpdate(context) {

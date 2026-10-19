@@ -20,6 +20,14 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
         const response = await page.goto(pathname);
         expect(response.status()).toBe(200);
         await expect(page.locator('header.lat-floating-nav')).toBeVisible();
+        const activeTab = page.locator('header nav a[aria-current="page"]');
+        await expect(activeTab).toHaveCount(1);
+        expect(await activeTab.evaluate(link => new URL(link.href).pathname)).toBe(pathname);
+        const footerPaths = await page.locator('footer a').evaluateAll(links => links
+          .map(link => new URL(link.href))
+          .filter(url => url.origin === location.origin)
+          .map(url => url.pathname));
+        expect(footerPaths).toEqual(['/configuration/', '/documentation/', '/account/']);
         await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(8, 9, 12)');
         await expect(page.locator('.app-version-badge').first()).toHaveText('v1.8.0');
         await page.evaluate(() => document.fonts.ready);

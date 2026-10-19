@@ -1,6 +1,6 @@
 <header class="lat-floating-nav">
     <!-- Cápsula Izquierda: Marca (Compacta en móvil/tablet < 1080px, extendida en desktop >= 1080px) -->
-    <a href="./" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Nuvio Metadata Latino">
+    <a href="{{ site.href-index }}" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="{{ site.brand-title }}">
       <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
       <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
       <span class="lat-brand-badge app-version-badge text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5 rounded-full bg-white/[0.08] text-white/80 border border-white/10 font-mono">v1.8.0</span>
@@ -8,19 +8,19 @@
 
     <!-- Cápsula Central: Segmented Tabs (Solo íconos en móvil, texto en sm:) -->
     <nav class="lat-floating-pill p-1 sm:p-1.5 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-medium">
-      <a href="./" class="lat-nav-tab is-active" aria-label="Inicio" title="Inicio">
+      <a href="{{ site.href-index }}" class="lat-nav-tab{{ site.active-index }}" aria-current="{{ site.current-index }}" aria-label="Inicio" title="Inicio">
         <i class="fa-solid fa-house text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Inicio</span>
       </a>
-      <a href="./configuration/" class="lat-nav-tab" aria-label="Asistente" title="Asistente">
+      <a href="{{ site.href-configuration }}" class="lat-nav-tab{{ site.active-configuration }}" aria-current="{{ site.current-configuration }}" aria-label="Asistente" title="Asistente">
         <i class="fa-solid fa-wand-magic-sparkles text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Asistente</span>
       </a>
-      <a href="./account/" class="lat-nav-tab" aria-label="Cuenta" title="Cuenta">
+      <a href="{{ site.href-account }}" class="lat-nav-tab{{ site.active-account }}" aria-current="{{ site.current-account }}" aria-label="Cuenta" title="Cuenta">
         <i class="fa-solid fa-circle-user text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Cuenta</span>
       </a>
-      <a href="./documentation/" class="lat-nav-tab" aria-label="Documentación" title="Documentación">
+      <a href="{{ site.href-documentation }}" class="lat-nav-tab{{ site.active-documentation }}" aria-current="{{ site.current-documentation }}" aria-label="Documentación" title="Documentación">
         <i class="fa-solid fa-book-open text-xs sm:text-sm"></i>
         <span class="hidden sm:inline">Documentación</span>
       </a>

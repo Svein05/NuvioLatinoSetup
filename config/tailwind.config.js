@@ -1,5 +1,5 @@
 export default {
-  content: ['./src/**/*.{html,js}', './js/**/*.js', '!./js/**/*.local.js'],
+  content: ['./src/**/*.{html,js}', './js/**/*.js', './scripts/site-shell.js', '!./js/**/*.local.js'],
   darkMode: 'class',
   theme: {
     extend: {

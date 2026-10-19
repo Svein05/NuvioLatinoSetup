@@ -1,4 +1,4 @@
-<footer class="border-t border-white/[0.08] bg-[#08090c] mt-auto py-12 px-4 sm:px-6">
+<footer class="border-t border-white/[0.08] {{ site.footer-background }} mt-auto py-12 px-4 sm:px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
       
       <!-- Columna 1: Info del Proyecto & Licencia (Sin Logo) -->
@@ -6,12 +6,12 @@
         <h4 class="text-xs font-semibold text-white uppercase tracking-widest flex items-center gap-2">
           <span>Nuvio Latino Setup</span>
         </h4>
-        <p class="text-xs text-white/50 leading-relaxed">
+        <p class="text-xs {{ site.footer-description }} leading-relaxed">
           Herramienta de automatización y configuración visual de colecciones y metadatos en Español Latino para Nuvio TV y AIOMetadata.
         </p>
         <div class="pt-2 text-[11px] text-white/40 space-y-1">
           <div>© 2025-2026 Nuvio Latino Setup</div>
-          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono text-white/70 font-medium hover:underline">v1.8.0</a> • Licencia MIT</div>
+          <div>Versión <a href="https://github.com/Svein05/NuvioLatinoSetup/releases" target="_blank" rel="noopener noreferrer" class="app-version-badge font-mono {{ site.footer-version }} font-medium hover:underline">v1.8.0</a> • Licencia MIT</div>
           <div class="text-[10px] text-white/30">No afiliado oficialmente con Nuvio TV. Hecho por y para la comunidad.</div>
         </div>
       </div>
@@ -25,7 +25,7 @@
         <ul class="space-y-2 text-xs text-white/60">
           <li>
             <a href="https://nuvio.tv/community-collections/colecci-n-en-espa-ol-completa-creada-por-donpuercotroll" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
-              Colección en Español Completa (DonPuercoTroll)
+              {{ site.collection-credit }}
             </a>
           </li>
           <li>
@@ -84,17 +84,17 @@
         </h4>
         <ul class="space-y-2 text-xs text-white/60">
           <li>
-            <a href="./configuration/" class="hover:text-white transition-colors">
+            <a href="{{ site.href-configuration }}" class="{{ site.footer-configuration }}" aria-current="{{ site.current-configuration }}">
               Asistente de Configuración
             </a>
           </li>
           <li>
-            <a href="./documentation/" class="hover:text-white transition-colors">
+            <a href="{{ site.href-documentation }}" class="{{ site.footer-documentation }}" aria-current="{{ site.current-documentation }}">
               Documentación & Guías
             </a>
           </li>
           <li>
-            <a href="./account/" class="hover:text-white transition-colors">
+            <a href="{{ site.href-account }}" class="{{ site.footer-account }}" aria-current="{{ site.current-account }}">
               Gestor de Perfil y Cuenta
             </a>
           </li>
