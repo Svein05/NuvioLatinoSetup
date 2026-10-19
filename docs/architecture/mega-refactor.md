@@ -232,6 +232,23 @@ Contratos contrastados con documentación oficial: [TMDB](https://developer.them
 El contrato RPDB `isValid` conserva el endpoint existente y valida el campo booleano
 de la respuesta; no se ejecutaron consultas con claves reales.
 
+### Edición de colecciones
+
+Las acciones de secciones, carpetas y catálogos usan modelos puros de collections.
+El workflow coordina el renombrado con la plantilla de metadata; ninguna feature
+importa otra. Las inicializaciones y resets usan copias separadas. La vista de
+Mini Nuvio ya no modifica directamente los títulos o flags de las colecciones;
+resuelve la carpeta enfocada por identidad para admitir reemplazos inmutables.
+
+Se contrastaron 17 operaciones con los métodos anteriores antes de conectarlos:
+activación, edición, orden, extremos, eliminación, altas y nombres. Las pruebas
+adicionales conservan ajustes desconocidos, verifican que ambas listas de fuentes
+mantengan el orden y que las entradas no se modifiquen. Los índices inválidos y
+los catálogos sin ID se rechazan; una pareja de listas de distinta longitud no
+se reordena parcialmente. La plantilla actual tiene 26 carpetas sin discrepancias.
+Dos recorridos de navegador ejercitan los controles y el explorador sin servicios
+reales. La vista extensa y sus eventos inline siguen pendientes de extracción.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo

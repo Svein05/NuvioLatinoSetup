@@ -1,5 +1,6 @@
+import { editWizardCollections } from '../src/workflows/edit-wizard-collections.js';
 import { prepareMetadataPayload } from '../src/workflows/prepare-metadata-payload.js';
-import { selectedCollections, flattenedCollections } from '../src/features/collections/index.js';
+import { selectedCollections, flattenedCollections, initializeCollections } from '../src/features/collections/index.js';
 /**
  * Gestión de Estado Reactivo y Sincronización Dinámica
  * Nuvio & AIOMetadata Auto-Setup Wizard
@@ -460,19 +461,8 @@ class WizardState {
       }
       const collectionsData = await colRes.json();
 
-      // Clonar para permitir reset
-      this.originalCollectionsTemplate = JSON.parse(JSON.stringify(collectionsData));
-      
-      // Inicializar cada carpeta con propiedad `enabled: true` si no viene definida
-      this.collections = collectionsData.map(section => ({
-        ...section,
-        pinToTop: section.pinToTop !== undefined ? section.pinToTop : true,
-        enabled: section.enabled !== false,
-        folders: (section.folders || []).map(folder => ({
-          ...folder,
-          enabled: folder.enabled !== false
-        }))
-      }));
+      this.originalCollectionsTemplate = structuredClone(collectionsData);
+      this.collections = initializeCollections(collectionsData);
 
       this.notify('TEMPLATES_LOADED');
       return true;
@@ -486,14 +476,21 @@ class WizardState {
   /**
    * Restaura las colecciones a los valores originales de NuvioCollections.json
    */
+  applyCollectionEdit(edit) {
+    const result = editWizardCollections({
+      collections: this.collections, metadataTemplate: this.rawMetadataTemplate,
+    }, edit);
+    if (result.collections !== this.collections) {
+      this.collections = result.collections;
+      this.rawMetadataTemplate = result.metadataTemplate;
+      this.notify('COLLECTIONS_UPDATED');
+    }
+    return result.result;
+  }
+
   resetCollections() {
     if (!this.originalCollectionsTemplate) return;
-    this.collections = JSON.parse(JSON.stringify(this.originalCollectionsTemplate)).map(section => ({
-      ...section,
-      pinToTop: section.pinToTop !== undefined ? section.pinToTop : true,
-      enabled: true,
-      folders: (section.folders || []).map(f => ({ ...f, enabled: true }))
-    }));
+    this.collections = initializeCollections(this.originalCollectionsTemplate, { reset: true });
     this.notify('COLLECTIONS_UPDATED');
   }
 
@@ -501,308 +498,116 @@ class WizardState {
    * Activa o desactiva una carpeta/colección
    */
   toggleFolder(sectionId, folderId) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section) return;
-    const folder = section.folders.find(f => f.id === folderId);
-    if (folder) {
-      folder.enabled = !folder.enabled;
-      this.notify('COLLECTIONS_UPDATED');
-    }
+    return this.applyCollectionEdit({ operation: 'folder-toggle', sectionId, folderId });
+  }
+
+  toggleAllCollections(enabled) {
+    return this.applyCollectionEdit({ operation: 'all-toggle', enabled });
   }
 
   /**
    * Activa o desactiva toda una sección
    */
   toggleSection(sectionId, forceState = null) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section) return;
-    const newState = forceState !== null ? forceState : !section.enabled;
-    section.enabled = newState;
-    section.folders.forEach(f => { f.enabled = newState; });
-    this.notify('COLLECTIONS_UPDATED');
+    return this.applyCollectionEdit({ operation: 'section-toggle', sectionId, enabled: forceState });
   }
 
   /**
    * Actualiza propiedades de una sección completa (título, visibilidad, etc.)
    */
-  updateSection(sectionId, newProps) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section) return;
-    Object.assign(section, newProps);
-    this.notify('COLLECTIONS_UPDATED');
+  updateSection(sectionId, properties) {
+    return this.applyCollectionEdit({ operation: 'section-update', sectionId, properties });
   }
 
   /**
    * Actualiza los datos de una colección existente
    */
-  updateFolder(sectionId, folderId, newProps) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section) return;
-    const folderIndex = section.folders.findIndex(f => f.id === folderId);
-    if (folderIndex !== -1) {
-      section.folders[folderIndex] = {
-        ...section.folders[folderIndex],
-        ...newProps
-      };
-      this.notify('COLLECTIONS_UPDATED');
-    }
+  updateFolder(sectionId, folderId, properties) {
+    return this.applyCollectionEdit({ operation: 'folder-update', sectionId, folderId, properties });
   }
 
   /**
    * Reordena carpetas dentro de una sección por índice directo (drag and drop)
    */
-  reorderFolder(sectionId, fromIndex, toIndex) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return false;
-    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= section.folders.length || toIndex < 0 || toIndex >= section.folders.length) return false;
-
-    const [moved] = section.folders.splice(fromIndex, 1);
-    section.folders.splice(toIndex, 0, moved);
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  reorderFolder(sectionId, index, to) {
+    return this.applyCollectionEdit({ operation: 'folder-move', sectionId, index, to });
   }
 
   /**
    * Reordena carpetas dentro de una sección (dirección relativa: -1 o 1)
    */
-  moveFolder(sectionId, folderIndex, direction) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return;
-
-    const targetIndex = folderIndex + direction;
-    if (targetIndex < 0 || targetIndex >= section.folders.length) return;
-
-    const [moved] = section.folders.splice(folderIndex, 1);
-    section.folders.splice(targetIndex, 0, moved);
-    this.notify('COLLECTIONS_UPDATED');
+  moveFolder(sectionId, index, direction) {
+    return this.applyCollectionEdit({ operation: 'folder-move', sectionId, index, direction });
   }
 
   /**
    * Reordena secciones completas por índice directo (drag and drop)
    */
-  reorderSection(fromIndex, toIndex) {
-    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= this.collections.length || toIndex < 0 || toIndex >= this.collections.length) return false;
-
-    const [moved] = this.collections.splice(fromIndex, 1);
-    this.collections.splice(toIndex, 0, moved);
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  reorderSection(index, to) {
+    return this.applyCollectionEdit({ operation: 'section-move', index, to });
   }
 
   /**
    * Reordena secciones completas (dirección relativa: -1 o 1)
    */
-  moveSection(sectionIndex, direction) {
-    const targetIndex = sectionIndex + direction;
-    if (targetIndex < 0 || targetIndex >= this.collections.length) return;
-
-    const [moved] = this.collections.splice(sectionIndex, 1);
-    this.collections.splice(targetIndex, 0, moved);
-    this.notify('COLLECTIONS_UPDATED');
+  moveSection(index, direction) {
+    return this.applyCollectionEdit({ operation: 'section-move', index, direction });
   }
 
   /**
    * Mueve una sección a los extremos: 'top' (al cielo / posición 0) o 'bottom' (al fondo / última posición)
    */
-  moveSectionExtreme(sectionIndex, destination) {
-    if (sectionIndex < 0 || sectionIndex >= this.collections.length) return;
-    const targetIndex = destination === 'top' ? 0 : this.collections.length - 1;
-    if (sectionIndex === targetIndex) return;
-
-    const [moved] = this.collections.splice(sectionIndex, 1);
-    this.collections.splice(targetIndex, 0, moved);
-    this.notify('COLLECTIONS_UPDATED');
+  moveSectionExtreme(index, destination) {
+    return this.applyCollectionEdit({ operation: 'section-move', index, destination });
   }
 
   /**
    * Elimina una carpeta de una sección
    */
   deleteFolder(sectionId, folderId) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section) return;
-    section.folders = section.folders.filter(f => f.id !== folderId);
-    this.notify('COLLECTIONS_UPDATED');
+    return this.applyCollectionEdit({ operation: 'folder-delete', sectionId, folderId });
   }
 
   /**
    * Reordena un catálogo dentro de una carpeta por índice directo (drag and drop)
    */
-  reorderCatalogInFolder(sectionId, folderId, fromIndex, toIndex) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return false;
-    const folder = section.folders.find(f => f.id === folderId);
-    if (!folder || !folder.sources) return false;
-
-    const sources = folder.sources || [];
-    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= sources.length || toIndex < 0 || toIndex >= sources.length) return false;
-
-    const [movedSource] = sources.splice(fromIndex, 1);
-    sources.splice(toIndex, 0, movedSource);
-    folder.sources = sources;
-
-    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length > fromIndex) {
-      const [movedCat] = folder.catalogSources.splice(fromIndex, 1);
-      folder.catalogSources.splice(toIndex, 0, movedCat);
-    }
-
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  reorderCatalogInFolder(sectionId, folderId, index, to) {
+    return this.applyCollectionEdit({ operation: 'catalog-move', sectionId, folderId, index, to });
   }
 
   /**
    * Reordena un catálogo dentro de una carpeta (subir o bajar relativo: -1 o 1)
    */
-  moveCatalogInFolder(sectionId, folderId, catalogIndex, direction) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return false;
-    const folder = section.folders.find(f => f.id === folderId);
-    if (!folder) return false;
-
-    const sources = folder.sources || [];
-    const targetIndex = catalogIndex + direction;
-    if (targetIndex < 0 || targetIndex >= sources.length) return false;
-
-    // Mover en sources
-    const [movedSource] = sources.splice(catalogIndex, 1);
-    sources.splice(targetIndex, 0, movedSource);
-    folder.sources = sources;
-
-    // Mover en catalogSources si existe
-    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length === sources.length) {
-      const [movedCat] = folder.catalogSources.splice(catalogIndex, 1);
-      folder.catalogSources.splice(targetIndex, 0, movedCat);
-    }
-
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  moveCatalogInFolder(sectionId, folderId, index, direction) {
+    return this.applyCollectionEdit({ operation: 'catalog-move', sectionId, folderId, index, direction });
   }
 
   /**
    * Mueve un catálogo a los extremos: 'top' (al cielo / posición 0) o 'bottom' (al fondo / última posición)
    */
-  moveCatalogExtreme(sectionId, folderId, catalogIndex, destination) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return false;
-    const folder = section.folders.find(f => f.id === folderId);
-    if (!folder || !folder.sources) return false;
-
-    const sources = folder.sources || [];
-    if (catalogIndex < 0 || catalogIndex >= sources.length) return false;
-
-    const targetIndex = destination === 'top' ? 0 : sources.length - 1;
-    if (catalogIndex === targetIndex) return false;
-
-    const [movedSource] = sources.splice(catalogIndex, 1);
-    sources.splice(targetIndex, 0, movedSource);
-    folder.sources = sources;
-
-    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length > catalogIndex) {
-      const [movedCat] = folder.catalogSources.splice(catalogIndex, 1);
-      folder.catalogSources.splice(targetIndex, 0, movedCat);
-    }
-
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  moveCatalogExtreme(sectionId, folderId, index, destination) {
+    return this.applyCollectionEdit({ operation: 'catalog-move', sectionId, folderId, index, destination });
   }
 
   /**
    * Renombra un catálogo dentro de una carpeta y en la plantilla de AIOMetadata
    */
-  renameCatalogInFolder(sectionId, folderId, catalogIndex, newTitle) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return false;
-    const folder = section.folders.find(f => f.id === folderId);
-    if (!folder || !folder.sources || !folder.sources[catalogIndex]) return false;
-
-    const trimmed = (newTitle || '').trim();
-    if (!trimmed) return false;
-
-    const source = folder.sources[catalogIndex];
-    source.title = trimmed;
-
-    if (Array.isArray(folder.catalogSources) && folder.catalogSources[catalogIndex]) {
-      folder.catalogSources[catalogIndex].title = trimmed;
-    }
-
-    // Actualizar en el manifest de AIOMetadata si coincide con el catalogId
-    const catId = source.catalogId || source.id;
-    if (catId && this.rawMetadataTemplate) {
-      const cats = this.rawMetadataTemplate.config?.catalogs || this.rawMetadataTemplate.catalogs || [];
-      const match = cats.find(c => c.id === catId);
-      if (match) {
-        match.name = trimmed;
-      }
-    }
-
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  renameCatalogInFolder(sectionId, folderId, index, title) {
+    return this.applyCollectionEdit({ operation: 'catalog-rename', sectionId, folderId, index, title });
   }
 
   /**
    * Elimina un catálogo de una carpeta
    */
-  removeCatalogFromFolder(sectionId, folderId, catalogIndex) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return false;
-    const folder = section.folders.find(f => f.id === folderId);
-    if (!folder || !folder.sources || catalogIndex < 0 || catalogIndex >= folder.sources.length) return false;
-
-    folder.sources.splice(catalogIndex, 1);
-    if (Array.isArray(folder.catalogSources) && folder.catalogSources.length > catalogIndex) {
-      folder.catalogSources.splice(catalogIndex, 1);
-    }
-
-    this.notify('COLLECTIONS_UPDATED');
-    return true;
+  removeCatalogFromFolder(sectionId, folderId, index) {
+    return this.applyCollectionEdit({ operation: 'catalog-remove', sectionId, folderId, index });
   }
 
   /**
    * Añade un catálogo a una carpeta
    */
-  addCatalogToFolder(sectionId, folderId, catalogMeta) {
-    const section = this.collections.find(s => s.id === sectionId);
-    if (!section || !section.folders) return { success: false, error: 'Sección no encontrada.' };
-    const folder = section.folders.find(f => f.id === folderId);
-    if (!folder) return { success: false, error: 'Carpeta no encontrada.' };
-
-    if (!Array.isArray(folder.sources)) folder.sources = [];
-    if (!Array.isArray(folder.catalogSources)) folder.catalogSources = [];
-
-    const catId = catalogMeta.id || '';
-    const exists = folder.sources.some(s => (s.catalogId || s.id) === catId);
-    if (exists) {
-      return { success: false, error: 'El catálogo ya está presente en esta fila.' };
-    }
-
-    const newSource = {
-      type: catalogMeta.type || 'movie',
-      genre: null,
-      title: catalogMeta.name || catId,
-      sortBy: null,
-      tmdbId: null,
-      addonId: 'aio-metadata',
-      filters: null,
-      sortHow: null,
-      provider: 'addon',
-      catalogId: catId,
-      mediaType: null,
-      traktListId: null,
-      tmdbSourceType: null
-    };
-
-    const newCatSource = {
-      type: catalogMeta.type || 'movie',
-      genre: null,
-      addonId: 'aio-metadata',
-      catalogId: catId,
-      title: catalogMeta.name || catId
-    };
-
-    folder.sources.push(newSource);
-    folder.catalogSources.push(newCatSource);
-
-    this.notify('COLLECTIONS_UPDATED');
-    return { success: true };
+  addCatalogToFolder(sectionId, folderId, metadata) {
+    return this.applyCollectionEdit({ operation: 'catalog-add', sectionId, folderId, metadata });
   }
 
   /**

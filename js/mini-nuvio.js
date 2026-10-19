@@ -10,6 +10,7 @@ export class MiniNuvio {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.focusedFolder = null;
+    this.focusedSectionId = null;
     this.editingTarget = null; // { sectionId, folderId }
     this.searchTerm = '';
 
@@ -60,11 +61,16 @@ export class MiniNuvio {
       return;
     }
 
-    // Si no hay tarjeta enfocada, enfocar la primera activa disponible
+    // Resolver la selección por identidad cuando las acciones reemplazan datos inmutables.
+    if (this.focusedFolder) {
+      this.focusedFolder = state.collections.find(section => section.id === this.focusedSectionId)
+        ?.folders.find(folder => folder.id === this.focusedFolder.id) || null;
+    }
     if (!this.focusedFolder) {
       for (const sec of state.collections) {
         if (sec.folders && sec.folders.length > 0) {
           this.focusedFolder = sec.folders[0];
+          this.focusedSectionId = sec.id;
           break;
         }
       }
@@ -356,6 +362,7 @@ export class MiniNuvio {
     const folder = (sec.folders || []).find(f => f.id === folderId);
     if (folder) {
       this.focusedFolder = folder;
+      this.focusedSectionId = sectionId;
       // Actualizar solo el hero banner para no perder scroll del carrusel
       const heroEl = document.getElementById('miniNuvioHeroBanner') || this.container.querySelector('.relative.w-full.h-48');
       if (heroEl) {
@@ -375,11 +382,7 @@ export class MiniNuvio {
   }
 
   toggleAll(enable) {
-    state.collections.forEach(sec => {
-      sec.enabled = enable;
-      (sec.folders || []).forEach(f => { f.enabled = enable; });
-    });
-    state.notify('COLLECTIONS_UPDATED');
+    state.toggleAllCollections(enable);
   }
 
   moveFolder(sectionId, fIndex, direction) {
@@ -1119,25 +1122,15 @@ export class MiniNuvio {
     const titleInput = document.getElementById('secEditTitle');
     const enabledInput = document.getElementById('secEditEnabled');
     
-    if (titleInput && titleInput.value.trim()) {
-      sec.title = titleInput.value.trim();
-    }
-    if (enabledInput) {
-      sec.enabled = enabledInput.checked;
-    }
-
-    // Actualizar títulos de las filas
-    const inputs = document.querySelectorAll('.sec-folder-title-input');
-    inputs.forEach(input => {
-      const fId = input.getAttribute('data-folder-id');
-      const folder = (sec.folders || []).find(f => f.id === fId);
-      if (folder && input.value.trim()) {
-        folder.title = input.value.trim();
-      }
+    const titles = new Map([...document.querySelectorAll('.sec-folder-title-input')]
+      .map(input => [input.getAttribute('data-folder-id'), input.value.trim()]));
+    state.updateSection(sectionId, {
+      title: titleInput?.value.trim() || sec.title,
+      enabled: enabledInput ? enabledInput.checked : sec.enabled,
+      folders: sec.folders.map(folder => ({ ...folder, title: titles.get(folder.id) || folder.title })),
     });
 
     this.closeModal();
-    state.notify('COLLECTIONS_UPDATED');
     if (window.appController) {
       window.appController.showToast('✓ Sección y filas guardadas con éxito', 'success');
     }
