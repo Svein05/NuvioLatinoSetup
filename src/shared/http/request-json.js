@@ -11,7 +11,7 @@ export class HttpError extends Error {
 function rejectedResponse(response, body) {
   return new HttpError(`El servidor rechazó la operación (HTTP ${response.status}).`, {
     status: response.status,
-    code: typeof body?.code === 'string' ? body.code : null,
+    code: typeof body?.code === 'string' ? body.code : (typeof body?.error_code === 'string' ? body.error_code : null),
   });
 }
 

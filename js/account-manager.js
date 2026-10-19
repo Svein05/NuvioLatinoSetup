@@ -1,3 +1,4 @@
+import { createSessionStore } from '../src/features/auth/index.js';
 import { showToast as renderToast } from '../src/shared/ui/toast/render.js';
 import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
 import { loadProfileOverviewSources } from '../src/workflows/load-profile-overview.js';
@@ -32,7 +33,7 @@ import {
 } from './avatar-rank-client.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
-const SESSION_KEY = 'nuvio_account_session_v1';
+const accountSessionStore = createSessionStore({ key: 'nuvio_account_session_v1', storage: sessionStorage });
 
 // Estado reactivo local del gestor de cuenta
 export const accountState = {
@@ -125,21 +126,13 @@ export function setupPasswordToggles() { return initPasswordToggles(); }
 // ============================================================
 
 function loadSession() {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    if (raw) {
-      accountState.session = JSON.parse(raw);
-      return accountState.session;
-    }
-  } catch (_) {}
-  return null;
+  accountState.session = accountSessionStore.read();
+  return accountState.session;
 }
 
 function saveSession(sessionData) {
   accountState.session = sessionData;
-  try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
-  } catch (_) {}
+  accountSessionStore.write(sessionData);
 }
 
 function clearSession() {
@@ -149,9 +142,7 @@ function clearSession() {
   accountState.aioConfig = null;
   accountState.aioUuid = null;
   accountState.aioProtected = false;
-  try {
-    sessionStorage.removeItem(SESSION_KEY);
-  } catch (_) {}
+  accountSessionStore.clear();
 }
 
 // ============================================================
@@ -4147,6 +4138,7 @@ export async function initAccountPage() {
 
         saveSession({
           accessToken: loginData.accessToken,
+          expiresAt: loginData.expiresAt,
           userId: loginData.userId,
           email
         });

@@ -1,3 +1,5 @@
+import { createWizardSessionStore } from '../src/workflows/wizard-session.js';
+const wizardSessionStore = createWizardSessionStore({ key: 'nuvio_wizard_auth', storage: sessionStorage });
 import { showToast as renderToast } from '../src/shared/ui/toast/render.js';
 import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
 /**
@@ -192,29 +194,17 @@ class AppController {
   setupPasswordToggles() { return initPasswordToggles(); }
 
   saveSession() {
-    try {
-      if (typeof sessionStorage === 'undefined') return;
-      if (state.nuvioAuth.isAuthenticated && state.nuvioAuth.accessToken) {
-        sessionStorage.setItem('nuvio_wizard_auth', JSON.stringify({
-          auth: state.nuvioAuth,
-          profiles: state.profiles,
-          selectedProfileId: state.selectedProfileId,
-          selectedProfileName: state.selectedProfileName,
-          newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
-          currentStep: state.currentStep,
-          maxUnlockedStep: state.maxUnlockedStep,
-          aioPassword: (state.aiometadata?.password || '').trim()
-        }));
-      }
-    } catch (_) {}
+    if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) return;
+    wizardSessionStore.write({ auth: state.nuvioAuth, profiles: state.profiles,
+      selectedProfileId: state.selectedProfileId, selectedProfileName: state.selectedProfileName,
+      newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
+      currentStep: state.currentStep, maxUnlockedStep: state.maxUnlockedStep });
   }
 
   restoreSession() {
     try {
       if (typeof sessionStorage === 'undefined') return;
-      const raw = sessionStorage.getItem('nuvio_wizard_auth');
-      if (!raw) return;
-      const data = JSON.parse(raw);
+      const data = wizardSessionStore.read();
       if (data && data.auth && data.auth.isAuthenticated) {
         state.nuvioAuth = { ...state.nuvioAuth, ...data.auth };
         state.profiles = data.profiles || [];
@@ -223,9 +213,7 @@ class AppController {
         if (Array.isArray(data.newlyCreatedProfileIds)) {
           state.newlyCreatedProfileIds = new Set(data.newlyCreatedProfileIds.map(String));
         }
-        if (data.aioPassword) {
-          state.aiometadata.password = data.aioPassword;
-        }
+
         state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
         state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
         this.setAuthBadge(true);
@@ -754,11 +742,11 @@ class AppController {
     }
 
     // Alternar visibilidad de contraseña en Paso 1 (Nuvio Cuenta)
-    
-    
 
-    
-    
+
+
+
+
 
     // Acción Continuar sin Cuenta (Modo Manual)
     const btnContinueWithout = document.getElementById('btnContinueWithoutAccount');
@@ -804,6 +792,7 @@ class AppController {
 
           state.isManualMode = false;
           state.nuvioAuth.accessToken = auth.accessToken;
+          state.nuvioAuth.expiresAt = auth.expiresAt;
           state.nuvioAuth.userId = auth.userId;
           state.nuvioAuth.isAuthenticated = true;
           state.nuvioAuth.apikey = apikey;
@@ -904,6 +893,7 @@ class AppController {
 
           state.isManualMode = false;
           state.nuvioAuth.accessToken = auth.accessToken;
+          state.nuvioAuth.expiresAt = auth.expiresAt;
           state.nuvioAuth.userId = auth.userId;
           state.nuvioAuth.isAuthenticated = true;
           state.nuvioAuth.apikey = apikey;
@@ -2041,7 +2031,7 @@ class AppController {
     }
 
     // 4. Botones de alternar visibilidad de contraseña (eye icon)
-    
+
 
     // 5. Ocultar botones de obtención si las claves ya estaban previamente validadas
     ['tmdb', 'mdblist', 'rpdb', 'tvdb'].forEach((key) => {
@@ -4075,8 +4065,8 @@ class AppController {
       });
     }
 
-    
-    
+
+
 
     if (btnGenPass && passwordInput) {
       btnGenPass.addEventListener('click', () => {

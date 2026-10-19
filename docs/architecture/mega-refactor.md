@@ -180,6 +180,19 @@ pero los mensajes usan texto seguro y anuncian su estado accesible. Los controle
 de contraseña usan un único listener delegado para incluir campos dinámicos sin
 registrar eventos repetidos; el icono y la etiqueta describen la acción disponible.
 
+### Autenticación y persistencia de sesiones Nuvio
+
+Login/registro están en la integración Nuvio con transporte común, validación de
+sesión y errores sin cuerpos sensibles. Un registro con resultado desconocido
+no se repite. Se conservan el login posterior a un registro confirmado y los
+contratos de navegación. Las sesiones de cuenta y asistente mantienen sus claves
+de compatibilidad, pero se reescriben con campos permitidos y se limpian al expirar
+cuando Nuvio proporciona vencimiento o el JWT permite leerlo. El asistente ya no
+guarda ni restaura contraseñas Nuvio/AIOMetadata; tras recargar hay que volver a
+introducir la contraseña de edición del addon cuando se necesite.
+La sesión compartida de colaboradores todavía necesita un token emitido por el
+Worker para retirar su contraseña persistida sin romper el cambio de página.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo

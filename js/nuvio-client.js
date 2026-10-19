@@ -1,3 +1,4 @@
+import { login, signup } from '../src/integrations/nuvio/authentication.js';
 import { pushProfileSettings as saveProfileSettings } from '../src/integrations/nuvio/profile-settings.js';
 import { legacyHistory } from '../src/integrations/nuvio/profile-history.js';
 /**
@@ -36,102 +37,12 @@ export class NuvioClient {
   /**
    * Crea una nueva cuenta en Nuvio (Supabase Auth SignUp)
    */
-  static async signup({ apiUrl, apikey, email, password }) {
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-    const endpoint = `${cleanUrl}/auth/v1/signup`;
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'apikey': apikey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const message = errorData.msg || errorData.error_description || errorData.message || response.statusText;
-        if (/already registered|already exists|duplicate/i.test(message)) {
-          throw new Error('Ya existe una cuenta con este correo en Nuvio. Por favor cambia a la opción "Iniciar Sesión".');
-        }
-        throw new Error(`Error al registrar cuenta (${response.status}): ${message}`);
-      }
-
-      const data = await response.json();
-
-      // Si la respuesta incluye directamente la sesión con access_token
-      if (data.access_token && data.user?.id) {
-        return {
-          accessToken: data.access_token,
-          userId: data.user.id,
-          user: data.user
-        };
-      }
-
-      // Si la cuenta fue creada pero no retornó token de sesión inmediato, iniciar sesión automáticamente
-      try {
-        return await this.login({ apiUrl, apikey, email, password });
-      } catch (loginErr) {
-        if (/email not confirmed|confirm/i.test(loginErr.message)) {
-          throw new Error('Cuenta registrada con éxito. Nuvio requiere confirmación por correo: por favor revisa tu bandeja de entrada para verificar tu cuenta antes de iniciar sesión.');
-        }
-        throw loginErr;
-      }
-    } catch (err) {
-      console.error('[NuvioClient] Error de signup:', err);
-      throw err;
-    }
-  }
+  static signup(context) { return signup(context); }
 
   /**
    * Inicia sesión con credenciales de Nuvio (Supabase Auth)
    */
-  static async login({ apiUrl, apikey, email, password }) {
-    const cleanUrl = apiUrl.replace(/\/+$/, '');
-    const endpoint = `${cleanUrl}/auth/v1/token?grant_type=password`;
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'apikey': apikey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password: password
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const message = errorData.error_description || errorData.msg || errorData.message || response.statusText;
-        throw new Error(`Error de autenticación (${response.status}): ${message}`);
-      }
-
-      const data = await response.json();
-      const accessToken = data.access_token;
-      const userId = data.user?.id;
-
-      if (!accessToken || !userId) {
-        throw new Error('Respuesta de autenticación incompleta (falta token o userId).');
-      }
-
-      return {
-        accessToken,
-        userId,
-        user: data.user
-      };
-    } catch (err) {
-      console.error('[NuvioClient] Error de login:', err);
-      throw new Error(`Fallo al autenticar con Nuvio: ${err.message}`);
-    }
-  }
+  static login(context) { return login(context); }
 
   /**
    * Obtiene la lista de perfiles asociados a la cuenta del usuario (intenta RPC sync_pull_profiles primero)
