@@ -6,15 +6,15 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1",
-    "lint": "eslint src scripts tests *.config.js",
+    "dev": "vite --config config/vite.config.js --host 127.0.0.1",
+    "build": "vite build --config config/vite.config.js",
+    "preview": "vite preview --config config/vite.config.js --host 127.0.0.1",
+    "lint": "eslint --config config/eslint.config.js src scripts tests config",
     "check:architecture": "node scripts/check-architecture.js",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:dev": "playwright test --config playwright.dev.config.js",
+    "test": "vitest run --config config/vitest.config.js",
+    "test:watch": "vitest --config config/vitest.config.js",
+    "test:e2e": "playwright test --config config/playwright.config.js",
+    "test:e2e:dev": "playwright test --config config/playwright.dev.config.js",
     "check": "npm run lint && npm run check:architecture && npm test && npm run build"
   },
   "devDependencies": {

@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { excludePrivateConfiguration, publicResources } from './scripts/public-resources.js';
-import { injectPublicCounterConfig } from './scripts/public-counter-config.js';
+import { excludePrivateConfiguration, publicResources } from '../scripts/public-resources.js';
+import { injectPublicCounterConfig } from '../scripts/public-counter-config.js';
+import postcss from './postcss.config.js';
 
-const repository = fileURLToPath(new URL('./', import.meta.url));
+const repository = fileURLToPath(new URL('../', import.meta.url));
 const pages = ['index', 'configuration/index', 'account/index', 'documentation/index', 'modder/index'];
 
 export default defineConfig({
   appType: 'mpa',
+  css: { postcss },
   root: path.join(repository, 'src/pages'),
   publicDir: path.join(repository, 'public'),
   plugins: [excludePrivateConfiguration(), injectPublicCounterConfig(process.env), publicResources(repository)],

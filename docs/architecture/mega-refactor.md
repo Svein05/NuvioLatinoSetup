@@ -101,6 +101,16 @@ compilan fuentes locales y no se distribuyen como JavaScript al navegador.
 
 ## Validación y seguimiento
 
+### Limpieza de entradas de desarrollo
+
+Configuraciones agrupadas en `config/`, con rutas explícitas en npm y resolución
+de recursos desde la raíz del repositorio. Retirados el servidor Python `run.py`,
+su referencia en la pantalla, `requirements.txt` (apuntaba a un generador ausente),
+`.nojekyll` (no formaba parte del artefacto publicado) y un `.gitkeep` redundante.
+No se borraron herramientas personales ignoradas ni el Worker local desplegado.
+Verificación: lint, arquitectura, 55 pruebas de lógica, build y 14 recorridos de
+navegador sobre el build. Ningún servicio externo real se modificó.
+
 - `npm ci`: instalación reproducible.
 - `npm run check`: lint, límites y arquitectura, regresiones y build.
 - `npm run test:e2e`: navegador contra build local, servicios externos simulados.

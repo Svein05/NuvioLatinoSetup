@@ -6,7 +6,7 @@
   <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.8.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.8.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
-  <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/TailwindCSS-Build-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Architecture-Static%20MPA-emerald.svg?style=flat-square" alt="Static MPA" />
   <a href="https://discord.gg/EubYtJVJEc"><img src="https://img.shields.io/badge/Discord-Comunidad%20Latina-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
@@ -155,6 +155,7 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 - `src/shared/`: componentes e infraestructura genéricos.
 - `public/`: plantillas y recursos públicos copiados al build.
 - `scripts/`: comprobaciones versionadas de arquitectura y build.
+- `config/`: configuración de Vite, CSS, lint y pruebas; los comandos npm indican sus rutas.
 - `tests/`: regresiones heredadas y recorridos de navegador.
 - `assets/`, `js/` y `css/`: fuentes heredadas en migración, con límites de crecimiento.
 
