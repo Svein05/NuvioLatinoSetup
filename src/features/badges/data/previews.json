@@ -1,0 +1,836 @@
+{
+  "glang": [
+    {
+      "name": "Latino",
+      "img": "latino.png"
+    },
+    {
+      "name": "Español",
+      "img": "spanish.png"
+    },
+    {
+      "name": "English",
+      "img": "english.png"
+    },
+    {
+      "name": "Japanese",
+      "img": "japanese.png"
+    },
+    {
+      "name": "Português",
+      "img": "portuguese.png"
+    },
+    {
+      "name": "Français",
+      "img": "french.png"
+    },
+    {
+      "name": "Italiano",
+      "img": "italian.png"
+    },
+    {
+      "name": "Deutsch",
+      "img": "german.png"
+    },
+    {
+      "name": "Russian",
+      "img": "russian.png"
+    },
+    {
+      "name": "Chinese",
+      "img": "chinese.png"
+    },
+    {
+      "name": "Korean",
+      "img": "korean.png"
+    },
+    {
+      "name": "Dutch",
+      "img": "dutch.png"
+    },
+    {
+      "name": "Polish",
+      "img": "polish.png"
+    },
+    {
+      "name": "Turkish",
+      "img": "turkish.png"
+    },
+    {
+      "name": "Swedish",
+      "img": "swedish.png"
+    },
+    {
+      "name": "Arabic",
+      "img": "arabic.png"
+    },
+    {
+      "name": "Hindi",
+      "img": "hindi.png"
+    },
+    {
+      "name": "Greek",
+      "img": "greek.png"
+    },
+    {
+      "name": "Danish",
+      "img": "danish.png"
+    },
+    {
+      "name": "Norwegian",
+      "img": "norwegian.png"
+    },
+    {
+      "name": "Finnish",
+      "img": "finnish.png"
+    },
+    {
+      "name": "Czech",
+      "img": "czech.png"
+    },
+    {
+      "name": "Hungarian",
+      "img": "hungarian.png"
+    },
+    {
+      "name": "Romanian",
+      "img": "romanian.png"
+    },
+    {
+      "name": "Thai",
+      "img": "thai.png"
+    },
+    {
+      "name": "Vietnamese",
+      "img": "vietnamese.png"
+    },
+    {
+      "name": "Indonesian",
+      "img": "indonesian.png"
+    },
+    {
+      "name": "Ukrainian",
+      "img": "ukrainian.png"
+    },
+    {
+      "name": "Hebrew",
+      "img": "hebrew.png"
+    },
+    {
+      "name": "Catalan",
+      "img": "catalan.png"
+    },
+    {
+      "name": "Bengali",
+      "img": "bengali.png"
+    },
+    {
+      "name": "Bulgarian",
+      "img": "bulgarian.png"
+    },
+    {
+      "name": "Croatian",
+      "img": "croatian.png"
+    },
+    {
+      "name": "Estonian",
+      "img": "estonian.png"
+    },
+    {
+      "name": "Filipino",
+      "img": "filipino.png"
+    },
+    {
+      "name": "Icelandic",
+      "img": "icelandic.png"
+    },
+    {
+      "name": "Irish",
+      "img": "irish.png"
+    },
+    {
+      "name": "Lithuanian",
+      "img": "lithuanian.png"
+    },
+    {
+      "name": "Malay",
+      "img": "malay.png"
+    },
+    {
+      "name": "Persian",
+      "img": "persian.png"
+    },
+    {
+      "name": "Serbian",
+      "img": "serbian.png"
+    },
+    {
+      "name": "Slovak",
+      "img": "slovak.png"
+    },
+    {
+      "name": "Slovenian",
+      "img": "slovenian.png"
+    },
+    {
+      "name": "Tamil",
+      "img": "tamil.png"
+    },
+    {
+      "name": "Telugu",
+      "img": "telugu.png"
+    },
+    {
+      "name": "Urdu",
+      "img": "urdu.png"
+    }
+  ],
+  "gsub": [
+    {
+      "name": "Latino Sub",
+      "img": "latino.png"
+    },
+    {
+      "name": "Español Sub",
+      "img": "spanish.png"
+    },
+    {
+      "name": "English Sub",
+      "img": "english.png"
+    },
+    {
+      "name": "Japanese Sub",
+      "img": "japanese.png"
+    },
+    {
+      "name": "Português Sub",
+      "img": "portuguese.png"
+    },
+    {
+      "name": "Français Sub",
+      "img": "french.png"
+    },
+    {
+      "name": "Italiano Sub",
+      "img": "italian.png"
+    },
+    {
+      "name": "Deutsch Sub",
+      "img": "german.png"
+    },
+    {
+      "name": "Russian Sub",
+      "img": "russian.png"
+    },
+    {
+      "name": "Chinese Sub",
+      "img": "chinese.png"
+    },
+    {
+      "name": "Korean Sub",
+      "img": "korean.png"
+    },
+    {
+      "name": "Dutch Sub",
+      "img": "dutch.png"
+    },
+    {
+      "name": "Polish Sub",
+      "img": "polish.png"
+    },
+    {
+      "name": "Turkish Sub",
+      "img": "turkish.png"
+    },
+    {
+      "name": "Swedish Sub",
+      "img": "swedish.png"
+    },
+    {
+      "name": "Arabic Sub",
+      "img": "arabic.png"
+    },
+    {
+      "name": "Hindi Sub",
+      "img": "hindi.png"
+    },
+    {
+      "name": "Greek Sub",
+      "img": "greek.png"
+    },
+    {
+      "name": "Danish Sub",
+      "img": "danish.png"
+    },
+    {
+      "name": "Norwegian Sub",
+      "img": "norwegian.png"
+    },
+    {
+      "name": "Finnish Sub",
+      "img": "finnish.png"
+    },
+    {
+      "name": "Czech Sub",
+      "img": "czech.png"
+    },
+    {
+      "name": "Hungarian Sub",
+      "img": "hungarian.png"
+    },
+    {
+      "name": "Romanian Sub",
+      "img": "romanian.png"
+    },
+    {
+      "name": "Thai Sub",
+      "img": "thai.png"
+    },
+    {
+      "name": "Vietnamese Sub",
+      "img": "vietnamese.png"
+    },
+    {
+      "name": "Indonesian Sub",
+      "img": "indonesian.png"
+    },
+    {
+      "name": "Ukrainian Sub",
+      "img": "ukrainian.png"
+    },
+    {
+      "name": "Hebrew Sub",
+      "img": "hebrew.png"
+    },
+    {
+      "name": "Catalan Sub",
+      "img": "catalan.png"
+    },
+    {
+      "name": "Bengali Sub",
+      "img": "bengali.png"
+    },
+    {
+      "name": "Bulgarian Sub",
+      "img": "bulgarian.png"
+    },
+    {
+      "name": "Croatian Sub",
+      "img": "croatian.png"
+    },
+    {
+      "name": "Estonian Sub",
+      "img": "estonian.png"
+    },
+    {
+      "name": "Filipino Sub",
+      "img": "filipino.png"
+    },
+    {
+      "name": "Icelandic Sub",
+      "img": "icelandic.png"
+    },
+    {
+      "name": "Irish Sub",
+      "img": "irish.png"
+    },
+    {
+      "name": "Lithuanian Sub",
+      "img": "lithuanian.png"
+    },
+    {
+      "name": "Malay Sub",
+      "img": "malay.png"
+    },
+    {
+      "name": "Persian Sub",
+      "img": "persian.png"
+    },
+    {
+      "name": "Serbian Sub",
+      "img": "serbian.png"
+    },
+    {
+      "name": "Slovak Sub",
+      "img": "slovak.png"
+    },
+    {
+      "name": "Slovenian Sub",
+      "img": "slovenian.png"
+    },
+    {
+      "name": "Tamil Sub",
+      "img": "tamil.png"
+    },
+    {
+      "name": "Telugu Sub",
+      "img": "telugu.png"
+    },
+    {
+      "name": "Urdu Sub",
+      "img": "urdu.png"
+    }
+  ],
+  "ga": [
+    {
+      "name": "Atmos TrueHD",
+      "base": "dolby-atmos-truehd",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "DTS:X MA",
+      "base": "dts-x-hd-ma",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "Atmos Digital+",
+      "base": "dolby-atmos-digital-plus",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "DTS-HD MA",
+      "base": "dts-hd-ma",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "TrueHD",
+      "base": "dolby-truehd",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "DTS-HD",
+      "base": "dts-hd",
+      "color": "green",
+      "hex": "#2EB853"
+    },
+    {
+      "name": "DTS:X HD",
+      "base": "dts-x-hd",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "DTS:X",
+      "base": "dts-x",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "Atmos",
+      "base": "dolby-atmos",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "DD+",
+      "base": "dolby-digital-plus",
+      "color": "green",
+      "hex": "#2EB853"
+    },
+    {
+      "name": "DTS-ES",
+      "base": "dts-es",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "DTS",
+      "base": "dts",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "DD",
+      "base": "dolby-digital",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "AAC",
+      "base": "aac",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "FLAC",
+      "base": "flac",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "Opus",
+      "base": "opus",
+      "color": "orange",
+      "hex": "#FF7300"
+    }
+  ],
+  "gr": [
+    {
+      "name": "4K",
+      "base": "4k",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "1440p",
+      "base": "1440p",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "1080p",
+      "base": "1080p",
+      "color": "green",
+      "hex": "#2EB853"
+    },
+    {
+      "name": "720p",
+      "base": "720p",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "576p",
+      "base": "576p",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "480p",
+      "base": "480p",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "360p",
+      "base": "360p",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "240p",
+      "base": "240p",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "144p",
+      "base": "144p",
+      "color": "red",
+      "hex": "#E53935"
+    }
+  ],
+  "gc": [
+    {
+      "name": "7.1",
+      "base": "7-1",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "6.1",
+      "base": "6-1",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "5.1",
+      "base": "5-1",
+      "color": "green",
+      "hex": "#2EB853"
+    },
+    {
+      "name": "2.0",
+      "base": "2-0",
+      "color": "orange",
+      "hex": "#FF7300"
+    }
+  ],
+  "gq": [
+    {
+      "name": "Remux",
+      "base": "remux",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "BluRay",
+      "base": "bluray",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "WEB-DL",
+      "base": "web-dl",
+      "color": "green",
+      "hex": "#2EB853"
+    },
+    {
+      "name": "WEBRip",
+      "base": "webrip",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "HDTV",
+      "base": "hdtv",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "DVDRip",
+      "base": "dvdrip",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "HDRip",
+      "base": "hdrip",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "HC-HDRip",
+      "base": "hc-hdrip",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "TC",
+      "base": "tc",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "CAM",
+      "base": "cam",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "TS",
+      "base": "ts",
+      "color": "red",
+      "hex": "#E53935"
+    },
+    {
+      "name": "SCR",
+      "base": "scr",
+      "color": "red",
+      "hex": "#E53935"
+    }
+  ],
+  "gv": [
+    {
+      "name": "DV · HDR10+",
+      "base": "dolby-vision-hdr10-plus",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "DV · HDR10",
+      "base": "dolby-vision-hdr10",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "DV · HDR",
+      "base": "dolby-vision-hdr",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "DV",
+      "base": "dolby-vision",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "HDR10+",
+      "base": "hdr10-plus",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "HDR10",
+      "base": "hdr10",
+      "color": "blue",
+      "hex": "#176BE8"
+    },
+    {
+      "name": "HDR",
+      "base": "hdr",
+      "color": "green",
+      "hex": "#2EB853"
+    },
+    {
+      "name": "HLG",
+      "base": "hlg",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "10bit",
+      "base": "10bit",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "SDR",
+      "base": "sdr",
+      "color": "orange",
+      "hex": "#FF7300"
+    },
+    {
+      "name": "AI",
+      "base": "ai",
+      "color": "red",
+      "hex": "#E53935"
+    }
+  ],
+  "gst": [
+    {
+      "name": "SeaDex",
+      "base": "seadex",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "HYBRID",
+      "base": "hybrid",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "CRITERION",
+      "base": "criterion",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "PROPER",
+      "base": "proper",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "REPACK",
+      "base": "repack",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "REMASTERED",
+      "base": "remastered",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "OPEN MATTE",
+      "base": "open-matte",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "IMAX",
+      "base": "imax",
+      "color": "gold",
+      "hex": "#FFD500"
+    },
+    {
+      "name": "DIR CUT",
+      "base": "directors-cut",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "EXTENDED",
+      "base": "extended",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "THEATRICAL",
+      "base": "theatrical",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "UNCUT",
+      "base": "uncut",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "UNCENSORED",
+      "base": "uncensored",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "REGRADED",
+      "base": "regraded",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "B&W",
+      "base": "black-and-white",
+      "hex": "#BBDEFB"
+    },
+    {
+      "name": "TRUE HUE",
+      "base": "true-hue",
+      "hex": "#BBDEFB"
+    }
+  ],
+  "gs": [
+    {
+      "name": "PEACOCK",
+      "base": "peacock",
+      "color": "yellow",
+      "hex": "#FCCC12"
+    },
+    {
+      "name": "NETFLIX",
+      "base": "netflix",
+      "color": "red",
+      "hex": "#E50914"
+    },
+    {
+      "name": "PRIME VIDEO",
+      "base": "prime-video",
+      "color": "cyan",
+      "hex": "#00A8E1"
+    },
+    {
+      "name": "APPLE TV+",
+      "base": "apple-tv-plus",
+      "color": "gray",
+      "hex": "#A2AAAD"
+    },
+    {
+      "name": "DISNEY+",
+      "base": "disney-plus",
+      "color": "blue",
+      "hex": "#3E82F7"
+    },
+    {
+      "name": "HBO MAX",
+      "base": "hbo-max",
+      "color": "purple",
+      "hex": "#9B51E0"
+    },
+    {
+      "name": "PARAMOUNT+",
+      "base": "paramount-plus",
+      "color": "blue",
+      "hex": "#0064FF"
+    },
+    {
+      "name": "HULU",
+      "base": "hulu",
+      "color": "green",
+      "hex": "#1CE783"
+    },
+    {
+      "name": "CRUNCHYROLL",
+      "base": "crunchyroll",
+      "color": "orange",
+      "hex": "#F47521"
+    }
+  ]
+}

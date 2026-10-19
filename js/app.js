@@ -9,7 +9,7 @@ import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
 import { AIOStreamsClient } from './aiostreams-client.js';
 import { 
-  BADGE_PACKS, 
+  listBadgePacks, 
   getBadgePackById, 
   getBadgePackUrl, 
   addCustomBadgePack,
@@ -2681,7 +2681,7 @@ class AppController {
         }
       }
       if (!finalName) {
-        finalName = `Estilo Personalizado #${BADGE_PACKS.filter(p => p.isCustom).length + 1}`;
+        finalName = `Estilo Personalizado #${listBadgePacks().filter(p => p.isCustom).length + 1}`;
       }
 
       const customId = `custom-${Date.now()}`;
@@ -2744,7 +2744,7 @@ class AppController {
     const activeIds = state.preferences.activeBadgeModules || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
     const orderIds = state.preferences.badgeModulesOrder || ['gr', 'gq', 'gv', 'ga', 'gc', 'ge', 'glang', 'gsub', 'gst', 'gs', 'gms'];
 
-    container.innerHTML = BADGE_PACKS.map(pack => {
+    container.innerHTML = listBadgePacks().map(pack => {
       const isSelected = (pack.id === selectedPackId);
       const borderClass = isSelected
         ? 'border-[#ffd479] bg-white/[0.07] shadow-[0_0_25px_rgba(255,212,121,0.22)]'

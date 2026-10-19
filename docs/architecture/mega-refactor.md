@@ -120,6 +120,17 @@ Las tarjetas usan nodos y texto, validan protocolos y no interpolan datos extern
 en HTML. Se añadieron pruebas de episodios, perfiles, fallos de metadatos,
 resultados tardíos y títulos/URLs hostiles en navegador.
 
+### Catálogo y reglas de badges
+
+El catálogo de packs y los elementos de previews son datos declarativos JSON
+en `features/badges/data/`, procedentes del catálogo existente y de los assets
+de kingsizew ya acreditados en README. No contienen lógica ni efectos laterales.
+La identidad de módulos, previews, colores, filtros de idioma y compilación pura
+están separados. Se compararon 33 salidas con la implementación anterior antes
+de conectarlas. Las adiciones personalizadas tienen un dueño de estado y los
+consumidores reciben snapshots de la lista. El antiguo módulo queda temporalmente
+como puente de descarga; su política de errores todavía requiere corrección.
+
 ## Validación y seguimiento
 
 ### Limpieza de entradas de desarrollo
