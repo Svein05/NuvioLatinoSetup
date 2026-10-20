@@ -84,6 +84,40 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ## Roadmap ejecutable y criterios de cierre
 
+### Método de continuación: terminar archivos completos
+
+- Por petición del usuario, elegir un archivo heredado y migrar todas sus
+  responsabilidades antes de comenzar otro. Su tamaño no justifica solo moverlo.
+- Fijar contratos con pruebas, trasladar responsabilidades a sus capas definitivas,
+  actualizar todos los consumidores y comprobar que no quedan imports antiguos.
+- Eliminar el archivo de js/ y su entrada en baseline; no dejar una reexportación
+  de compatibilidad como sustituto de su cierre. Ajustar consumidores es parte
+  de completar ese archivo, aunque estén todavía en el legado.
+- Validar y guardar un commit revisable por archivo terminado. Las siguientes
+  unidades se eligen según dependencias; los controladores grandes siguen
+  pendientes hasta migrar todas sus responsabilidades.
+
+### Archivos cerrados durante esta continuación
+
+- `js/aiometadata-client.js` eliminado. Transporte y validación de respuestas en
+  `integrations/aiometadata`; creación y comprobación de manifiesto en workflows;
+  dependencias conectadas desde `app/metadata-configuration.js`.
+- Los cuatro contratos de éxito se probaron contra el cliente anterior y después
+  contra el nuevo. Las regresiones cubren payloads conservados, errores, timeout,
+  cancelación, URLs, respuestas inválidas y resultado desconocido de escrituras.
+- Cuenta e inyector usan las entradas nuevas. Cargas/actualizaciones existentes
+  se dirigen a la instancia del manifiesto instalado, nunca a todo el pool.
+  Creación solo cambia de instancia ante ruta explícitamente no disponible
+  (404/405); no repite escrituras ambiguas. Fallar al leer un manifiesto se
+  representa con advertencia, sin inventar una verificación exitosa.
+- El adaptador no añade contraseñas predeterminadas. Los valores heredados del
+  estado y los formularios siguen pendientes al migrar esos archivos completos.
+- Contrato contrastado con [configApi.js de AIOMetadata](https://github.com/cedya77/aiometadata/blob/dev/addon/lib/configApi.js),
+  sin copiar su implementación ni usar credenciales/servicios de escritura reales.
+- Dos recorridos de cuenta verifican instancia, conservación de ajustes y error
+  de guardado. Activan Guardar con teclado: la cabecera flotante heredada puede
+  cubrir ese control en este viewport; su disposición visual queda pendiente.
+
 ### 1. Guardados e inyección — siguiente prioridad
 
 - Extraer del cliente Nuvio transporte, DTOs y operaciones restantes de addons,
@@ -123,7 +157,7 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 - Implementar endpoints privados de sugerencias Discord y ranking Redis. Nunca
   incorporar sus secretos a configuración pública o variables que acaben en bundles.
 - Separar consultas y registro de completados del odómetro genérico; eliminar
-  éxitos ficticios y reintentos ambiguos. Completar adaptadores AIOMetadata/AIOStreams.
+  éxitos ficticios y reintentos ambiguos. Completar el adaptador AIOStreams.
 - Cierre: contratos cliente/backend probados sin servicios reales. Despliegue y
   configuración de secretos son una acción posterior que requiere autorización.
 

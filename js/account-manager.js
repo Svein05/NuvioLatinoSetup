@@ -10,7 +10,7 @@ import { presentAccountOverview } from '../src/app/account-overview.js';
  */
 import { CONFIG } from './config.js';
 import { NuvioClient } from './nuvio-client.js';
-import { AIOMetadataClient } from './aiometadata-client.js';
+import { loadMetadataConfiguration, updateMetadataConfiguration, metadataOwner } from '../src/app/metadata-configuration.js';
 import { AIOStreamsClient } from './aiostreams-client.js';
 import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
 import { 
@@ -298,22 +298,12 @@ export async function loadAioConfigByUuid(uuid, password = null) {
   const statusEl = document.getElementById('aioLoadingStatus');
   if (statusEl) statusEl.textContent = 'Cargando configuración de AIOMetadata...';
 
-  // Determinar contraseña: explícita -> accountState -> wizardSession -> master fallback
-  let passToTry = password || accountState.aioPassword;
-  if (!passToTry || passToTry === 'NuvioSetupMaster2026') {
-    try {
-      const rawWizard = sessionStorage.getItem('nuvio_wizard_auth');
-      if (rawWizard) {
-        const parsed = JSON.parse(rawWizard);
-        if (parsed?.aioPassword) passToTry = parsed.aioPassword;
-      }
-    } catch (_) {}
-  }
-  if (!passToTry) passToTry = 'NuvioSetupMaster2026';
+  const passToTry = password || accountState.aioPassword;
 
   try {
-    const res = await AIOMetadataClient.loadWithFallbacks(
-      CONFIG.AIOMETADATA_INSTANCES,
+    const owner = metadataOwner(accountState.aioAddon?.manifest_url || accountState.aioAddon?.url);
+    const res = await loadMetadataConfiguration(
+      owner.instanceUrl,
       uuid,
       passToTry
     );
@@ -369,7 +359,7 @@ export async function loadAioConfigByUuid(uuid, password = null) {
     if (password) showToast('✓ Addon AIOMetadata desbloqueado y sincronizado.', 'success');
   } catch (err) {
     console.warn('[AccountManager] AIOMetadata load:', err.message);
-    const isAuthErr = /401|invalid|password|contraseña/i.test(err.message);
+    const isAuthErr = [401, 403].includes(err.status) || /401|invalid|password|contraseña/i.test(err.message);
     if (isAuthErr) {
       accountState.aioProtected = true;
       accountState.aioUuid = uuid;
@@ -3767,8 +3757,8 @@ export async function saveAllChanges() {
         cfg.usePosterProxy = true;
       }
 
-      await AIOMetadataClient.updateWithFallbacks(
-        CONFIG.AIOMETADATA_INSTANCES,
+      await updateMetadataConfiguration(
+        metadataOwner(accountState.aioAddon?.manifest_url || accountState.aioAddon?.url).instanceUrl,
         accountState.aioUuid,
         {
           password: accountState.aioPassword,

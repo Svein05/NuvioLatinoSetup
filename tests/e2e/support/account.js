@@ -30,13 +30,15 @@ function apiResponse(url, mode, payload) {
   return { body: [] };
 }
 
-export async function prepareAccount(page, mode, { respond } = {}) {
+export async function prepareAccount(page, mode, { respond, respondExternal } = {}) {
   await page.addInitScript(() => sessionStorage.setItem('nuvio_account_session_v1', JSON.stringify({
     accessToken: 'synthetic-test-only', userId: 'synthetic-user', email: 'test@example.invalid',
   })));
   await page.route('**/*', route => {
     const url = new URL(route.request().url());
     if (url.origin === 'http://127.0.0.1:4173') return route.continue();
+    const external = respondExternal?.(url, route.request());
+    if (external) return route.fulfill({ status: external.status ?? 200, contentType: 'application/json', body: JSON.stringify(external.body) });
     if (url.hostname === 'api.nuvio.tv') {
       const payload = route.request().method() === 'POST' ? route.request().postDataJSON() : null;
       const response = respond?.(url, payload) ?? apiResponse(url, mode, payload);

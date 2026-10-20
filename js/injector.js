@@ -1,9 +1,9 @@
 /**
  * Orquestador del Pipeline de Inyección y Sincronización
- * Coordina AIOMetadataClient, NuvioClient y WizardState con logs en tiempo real.
+ * Coordina integraciones, NuvioClient y WizardState con logs en tiempo real.
  */
 import { state, isAioMetadataAddon } from './state.js';
-import { AIOMetadataClient } from './aiometadata-client.js';
+import { provisionMetadataConfiguration, inspectSavedMetadataManifest } from '../src/app/metadata-configuration.js';
 import { NuvioClient } from './nuvio-client.js';
 import { AIOStreamsClient } from './aiostreams-client.js';
 import { CONFIG } from './config.js';
@@ -56,13 +56,12 @@ export class PipelineInjector {
         state.addLog(`✓ [Simulado] Manifest URL: ${manifestUrl}`, 'success');
       } else {
         state.addLog('[1/5] Guardando configuración en AIOMetadata con pool de instancias...', 'info');
-        const saveRes = await AIOMetadataClient.saveWithFallbacks(
-          CONFIG.AIOMETADATA_INSTANCES,
-          metaPayload,
-          (instance, current, total) => {
+        const saveRes = await provisionMetadataConfiguration({
+          instances: CONFIG.AIOMETADATA_INSTANCES, payload: metaPayload,
+          onAttempt: (instance, current, total) => {
             state.addLog(`[1/5] Conectando con AIOMetadata (${current}/${total}): ${instance}...`, 'info');
           }
-        );
+        });
         manifestUrl = saveRes.manifestUrl;
         state.aiometadata.instanceUrl = saveRes.instanceUrl;
         state.addLog(`✓ Configuración guardada en ${saveRes.instanceUrl}`, 'success');
@@ -71,9 +70,10 @@ export class PipelineInjector {
 
         // Leer manifest generado para obtener Nombre oficial sin alterar el addonId canónico 'aio-metadata'
         state.addLog('Inspeccionando manifest generado...', 'info');
-        const manifest = await AIOMetadataClient.fetchManifest(manifestUrl);
-        addonName = manifest.name || addonName;
-        state.addLog(`✓ Addon verificado: "${addonName}" (ID: ${addonId})`, 'success');
+        const inspection = await inspectSavedMetadataManifest({ manifestUrl });
+        addonName = inspection.manifest?.name || addonName;
+        if (inspection.verified) state.addLog(`✓ Addon verificado: "${addonName}" (ID: ${addonId})`, 'success');
+        inspection.warnings.forEach(message => state.addLog(message, 'warning'));
       }
 
       // ========================================================
