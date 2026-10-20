@@ -4,6 +4,7 @@ import { whenDocumentReady } from '../src/shared/ui/when-document-ready.js';
 import { mountApiKeysStep } from '../src/pages/configuration/steps/api-keys.js';
 import { verifyWizardApiKeys } from '../src/app/api-key-validation.js';
 import { mountAuthStep } from '../src/pages/configuration/steps/auth.js';
+import { mountProfilesStep } from '../src/pages/configuration/steps/profiles.js';
 import { authenticateWizard } from '../src/workflows/authenticate-wizard.js';
 import { createWizardSessionStore } from '../src/workflows/wizard-session.js';
 const wizardSessionStore = createWizardSessionStore({ key: 'nuvio_wizard_auth', storage: sessionStorage });
@@ -623,653 +624,103 @@ class AppController {
   }
 
   openNewProfileModal() {
-    if (state.profiles && state.profiles.length >= 6) {
-      this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
-      return;
-    }
-    this.newProfileAvatarUrl = null;
-    const preview = document.getElementById('newProfileAvatarPreview');
-    if (preview) {
-      preview.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil';
-    }
-    const modal = document.getElementById('modalNewProfile');
-    const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      if (nameInput) {
-        nameInput.value = '';
-        nameInput.focus();
-      }
-    }
+    this.profilesStep?.openNewModal?.();
   }
 
-  closeNewProfileModal() {
-    const modal = document.getElementById('modalNewProfile');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-  }
-
-  async openWizardAvatarPicker() {
-    const modal = document.getElementById('modalWizardAvatarPicker');
-    if (!modal) return;
-    this.wizardAvatarFilters = { franchise: 'all', query: '' };
-    const searchInput = document.getElementById('inputWizardAvatarSearch');
-    if (searchInput) searchInput.value = '';
-    await loadAvatarsCatalog();
-    this.updateWizardFranchiseTriggerLabel();
-    this.renderWizardAvatarsCatalog();
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
-
-  closeWizardAvatarPicker() {
-    const modal = document.getElementById('modalWizardAvatarPicker');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-  }
-
-  async openWizardFranchisesModal() {
-    const modal = document.getElementById('modalWizardFranchises');
-    const grid = document.getElementById('wizardFranchisesListGrid');
-    if (!modal || !grid) return;
-
-    await loadAvatarsCatalog();
-    const franchises = getFranchisesSummary('all');
-    const currentId = this.wizardAvatarFilters?.franchise || 'all';
-
-    grid.innerHTML = franchises.map(f => {
-      const isAct = f.id === currentId;
-      return `
-        <button type="button" class="modal-franchise-card ${isAct ? 'is-selected' : ''}" data-franchise-id="${f.id}">
-          <div class="flex items-center gap-2.5 min-w-0">
-            <i class="fa-solid fa-masks-theater text-xs ${isAct ? 'text-[#ffd479]' : 'text-white/40'}"></i>
-            <span class="truncate">${f.name}</span>
-          </div>
-          <span class="pill-badge">${f.count}</span>
-        </button>
-      `;
-    }).join('');
-
-    grid.querySelectorAll('.modal-franchise-card').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const fId = btn.dataset.franchiseId;
-        if (fId) {
-          if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
-          this.wizardAvatarFilters.franchise = fId;
-          this.updateWizardFranchiseTriggerLabel();
-          this.closeWizardFranchisesModal();
-          this.renderWizardAvatarsCatalog();
-        }
-      });
-    });
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-  }
-
-  closeWizardFranchisesModal() {
-    const modal = document.getElementById('modalWizardFranchises');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-  }
-
-  updateWizardFranchiseTriggerLabel() {
-    const label = document.getElementById('wizardFranchiseLabel');
-    const count = document.getElementById('wizardFranchiseCount');
-    const franchises = getFranchisesSummary('all');
-    const cur = franchises.find(f => f.id === (this.wizardAvatarFilters?.franchise || 'all')) || franchises[0];
-    if (label) label.textContent = cur?.name || 'Todas las obras';
-    if (count) count.textContent = cur?.count ?? 0;
-  }
-
-  renderWizardAvatarsCatalog() {
-    const container = document.getElementById('wizardAvatarsCatalogContainer');
-    if (!container) return;
-
-    const filtered = filterAvatars(this.wizardAvatarFilters || { franchise: 'all', query: '' });
-    const selectedUrl = this.newProfileAvatarUrl;
-
-    if (filtered.length === 0) {
-      container.innerHTML = `
-        <div class="p-8 text-center bg-white/[0.02] border border-white/10 rounded-2xl max-w-md mx-auto my-6 space-y-3">
-          <div class="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto text-lg">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </div>
-          <h4 class="text-sm font-semibold text-white">Sin avatares encontrados</h4>
-          <p class="text-xs text-white/50">No hay personajes que coincidan con la búsqueda.</p>
-        </div>
-      `;
-      return;
-    }
-
-    const renderCard = (av, extraClass = '') => {
-      const cdnUrl = resolveAvatarCdnUrl(av.path);
-      const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
-      return `
-        <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
-             data-avatar-path="${av.path}" 
-             data-avatar-name="${av.character}" 
-             title="${av.character} (${av.franchiseName})">
-          <div class="avatar-circle-wrap">
-            <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
-          </div>
-          <span class="avatar-card-name-label">${av.character}</span>
-        </div>
-      `;
-    };
-
-    if (this.wizardAvatarFilters?.query) {
-      container.innerHTML = `
-        <div class="space-y-4">
-          <div class="flex items-center justify-between pb-2 border-b border-white/[0.06]">
-            <span class="text-xs text-white/60 font-medium">Resultados para "<strong class="text-white">${this.wizardAvatarFilters.query}</strong>"</span>
-            <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
-          </div>
-          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-            ${filtered.map(av => renderCard(av)).join('')}
-          </div>
-        </div>
-      `;
-    } else if (this.wizardAvatarFilters?.franchise === 'all') {
-      const groups = new Map();
-      for (const av of filtered) {
-        if (!groups.has(av.franchise)) {
-          groups.set(av.franchise, { name: av.franchiseName, items: [] });
-        }
-        groups.get(av.franchise).items.push(av);
-      }
-
-      const sortedGroups = Array.from(groups.entries()).sort((a, b) => 
-        a[1].name.localeCompare(b[1].name, 'es', { sensitivity: 'base' })
-      );
-
-      let html = '';
-      for (const [fId, group] of sortedGroups) {
-        const previewItems = group.items.slice(0, 8);
-        const previewCardsHtml = previewItems.map((av, idx) => {
-          let responsiveClass = '';
-          if (idx === 3) responsiveClass = 'hidden sm:flex';
-          else if (idx === 4 || idx === 5) responsiveClass = 'hidden md:flex';
-          else if (idx >= 6) responsiveClass = 'hidden lg:flex';
-          return renderCard(av, responsiveClass);
-        }).join('');
-
-        html += `
-          <div class="avatar-collection-block space-y-3.5">
-            <div class="flex items-center justify-between pb-3 border-b border-white/[0.06] flex-wrap gap-2">
-              <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-7 h-7 rounded-lg bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] flex items-center justify-center text-xs shrink-0">
-                  <i class="fa-solid fa-masks-theater"></i>
-                </div>
-                <div class="min-w-0">
-                  <h4 class="text-sm font-bold text-white tracking-tight truncate">${group.name}</h4>
-                  <span class="text-[11px] text-white/40 font-mono">${group.items.length} avatares</span>
-                </div>
-              </div>
-              <button type="button" class="btn-wizard-open-franchise text-xs text-[#ffd479] hover:underline flex items-center gap-1 cursor-pointer" data-open-franchise="${fId}">
-                <span>Ver todos</span>
-                <i class="fa-solid fa-arrow-right text-[10px]"></i>
-              </button>
-            </div>
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-              ${previewCardsHtml}
-            </div>
-          </div>
-        `;
-      }
-      container.innerHTML = html;
-
-      container.querySelectorAll('.btn-wizard-open-franchise').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const fId = btn.dataset.openFranchise;
-          if (fId) {
-            if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
-            this.wizardAvatarFilters.franchise = fId;
-            this.updateWizardFranchiseTriggerLabel();
-            this.renderWizardAvatarsCatalog();
-          }
-        });
-      });
-    } else {
-      const currentFranchiseName = formatFranchiseName(this.wizardAvatarFilters.franchise);
-      container.innerHTML = `
-        <div class="space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-white/[0.08] flex-wrap gap-2">
-            <button type="button" id="btnWizardBackToAllFranchises" class="text-xs text-[#ffd479] hover:underline flex items-center gap-1.5 cursor-pointer">
-              <i class="fa-solid fa-arrow-left text-xs"></i>
-              <span>Todas las obras</span>
-            </button>
-            <h4 class="text-sm font-bold text-white">${currentFranchiseName}</h4>
-            <span class="text-xs text-white/40 font-mono">${filtered.length} avatares</span>
-          </div>
-          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-            ${filtered.map(av => renderCard(av)).join('')}
-          </div>
-        </div>
-      `;
-
-      const btnBack = document.getElementById('btnWizardBackToAllFranchises');
-      if (btnBack) {
-        btnBack.addEventListener('click', () => {
-          if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
-          this.wizardAvatarFilters.franchise = 'all';
-          this.updateWizardFranchiseTriggerLabel();
-          this.renderWizardAvatarsCatalog();
-        });
-      }
-    }
-
-    // Eventos al hacer click en una tarjeta de avatar
-    container.querySelectorAll('.netflix-avatar-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const path = card.dataset.avatarPath;
-        if (path) {
-          this.newProfileAvatarUrl = resolveAvatarCdnUrl(path);
-          const preview = document.getElementById('newProfileAvatarPreview');
-          if (preview) preview.src = this.newProfileAvatarUrl;
-          this.closeWizardAvatarPicker();
-        }
-      });
-    });
-  }
+  closeNewProfileModal() {}
 
   promptDeleteProfile(profileId, profileName) {
-    if (state.profiles && state.profiles.length <= 1) {
-      this.showToast('No puedes eliminar el único perfil de tu cuenta. Nuvio requiere al menos un perfil activo.', 'warning');
-      return;
-    }
-    this.profilePendingDelete = { id: profileId, name: profileName };
-    const modal = document.getElementById('modalDeleteProfile');
-    const nameEl = document.getElementById('deleteProfileTargetName');
-    if (nameEl) nameEl.textContent = `"${profileName}"`;
-    if (modal) {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-  }
-
-  closeDeleteProfileModal() {
-    this.profilePendingDelete = null;
-    const modal = document.getElementById('modalDeleteProfile');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-  }
-
-  async confirmDeleteProfile() {
-    if (!this.profilePendingDelete) return;
-
-    if (state.profiles && state.profiles.length <= 1) {
-      this.showToast('No puedes eliminar el único perfil de tu cuenta.', 'warning');
-      this.closeDeleteProfileModal();
-      return;
-    }
-
-    if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) {
-      this.showToast('Debes haber iniciado sesión con tu cuenta de Nuvio en el Paso 1.', 'error');
-      this.closeDeleteProfileModal();
-      return;
-    }
-
-    const { id: profileId, name: profileName } = this.profilePendingDelete;
-    const btnConfirm = document.getElementById('btnConfirmDeleteProfile');
-    const originalHtml = btnConfirm ? btnConfirm.innerHTML : '';
-    if (btnConfirm) {
-      btnConfirm.disabled = true;
-      btnConfirm.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Eliminando...';
-    }
-
-    try {
-      const deleteResult = await NuvioClient.deleteProfile({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: state.nuvioAuth.accessToken,
-        userId: state.nuvioAuth.userId,
-        profileId: profileId
-      });
-
-      // Actualizar la lista en state con los perfiles reales verificados de Nuvio
-      if (Array.isArray(deleteResult?.remainingProfiles)) {
-        state.profiles = deleteResult.remainingProfiles;
-      } else {
-        state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
-      }
-
-      // Si el perfil eliminado era el seleccionado actualmente
-      if (String(state.selectedProfileId) === String(profileId)) {
-        if (state.profiles.length > 0) {
-          state.selectedProfileId = state.profiles[0].id;
-          state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
-          state.unlockStep(3);
-        } else {
-          state.selectedProfileId = null;
-          state.selectedProfileName = '';
-        }
-      }
-
-      this.closeDeleteProfileModal();
-      this.saveSession();
-      this.renderProfiles();
-      this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
-      this.updateUI();
-      this.showToast(`✓ Perfil "${profileName}" eliminado permanentemente de Nuvio.`, 'success');
-    } catch (err) {
-      console.error('[AppController] Error al eliminar perfil:', err);
-      this.showToast(`Error al eliminar perfil: ${err.message}`, 'error');
-    } finally {
-      if (btnConfirm) {
-        btnConfirm.disabled = false;
-        btnConfirm.innerHTML = originalHtml;
-      }
-    }
+    this.profilesStep?.promptDelete?.(profileId, profileName);
   }
 
   setupStep2Profiles() {
-    this.renderProfiles();
-
-    const btnOpenModal = document.getElementById('btnOpenNewProfileModal');
-    const modal = document.getElementById('modalNewProfile');
-    const btnCloseModal = document.getElementById('btnCloseNewProfileModal');
-    const btnCancelModal = document.getElementById('btnCancelNewProfile');
-    const btnConfirmModal = document.getElementById('btnConfirmNewProfile') || document.getElementById('btnCreateProfile');
-    const nameInput = document.getElementById('inputNewProfileName') || document.getElementById('newProfileName');
-
-    if (btnOpenModal) {
-      btnOpenModal.addEventListener('click', () => this.openNewProfileModal());
-    }
-
-    if (btnCloseModal) btnCloseModal.addEventListener('click', () => this.closeNewProfileModal());
-    if (btnCancelModal) btnCancelModal.addEventListener('click', () => this.closeNewProfileModal());
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) this.closeNewProfileModal();
-      });
-    }
-
-    // Modal de Eliminar Perfil
-    const modalDelete = document.getElementById('modalDeleteProfile');
-    const btnCloseDeleteModal = document.getElementById('btnCloseDeleteProfileModal');
-    const btnCancelDeleteModal = document.getElementById('btnCancelDeleteProfile');
-    const btnConfirmDeleteModal = document.getElementById('btnConfirmDeleteProfile');
-
-    if (btnCloseDeleteModal) btnCloseDeleteModal.addEventListener('click', () => this.closeDeleteProfileModal());
-    if (btnCancelDeleteModal) btnCancelDeleteModal.addEventListener('click', () => this.closeDeleteProfileModal());
-    if (modalDelete) {
-      modalDelete.addEventListener('click', (e) => {
-        if (e.target === modalDelete) this.closeDeleteProfileModal();
-      });
-    }
-    if (btnConfirmDeleteModal) {
-      btnConfirmDeleteModal.addEventListener('click', () => this.confirmDeleteProfile());
-    }
-
-    // Modal de Catálogo de Avatares en el Asistente
-    const btnPickAvatar = document.getElementById('btnPickNewProfileAvatar');
-    const btnClosePicker = document.getElementById('btnCloseWizardAvatarPicker');
-    const modalPicker = document.getElementById('modalWizardAvatarPicker');
-    const btnTriggerFranchises = document.getElementById('btnWizardFranchisesTrigger');
-    const btnCloseFranchises = document.getElementById('btnCloseWizardFranchises');
-    const modalFranchises = document.getElementById('modalWizardFranchises');
-    const inputSearch = document.getElementById('inputWizardAvatarSearch');
-
-    if (btnPickAvatar) {
-      btnPickAvatar.addEventListener('click', () => this.openWizardAvatarPicker());
-    }
-    if (btnClosePicker) {
-      btnClosePicker.addEventListener('click', () => this.closeWizardAvatarPicker());
-    }
-    if (modalPicker) {
-      modalPicker.addEventListener('click', (e) => {
-        if (e.target === modalPicker) this.closeWizardAvatarPicker();
-      });
-    }
-    if (btnTriggerFranchises) {
-      btnTriggerFranchises.addEventListener('click', () => this.openWizardFranchisesModal());
-    }
-    if (btnCloseFranchises) {
-      btnCloseFranchises.addEventListener('click', () => this.closeWizardFranchisesModal());
-    }
-    if (modalFranchises) {
-      modalFranchises.addEventListener('click', (e) => {
-        if (e.target === modalFranchises) this.closeWizardFranchisesModal();
-      });
-    }
-    if (inputSearch) {
-      inputSearch.addEventListener('input', (e) => {
-        if (!this.wizardAvatarFilters) this.wizardAvatarFilters = { franchise: 'all', query: '' };
-        this.wizardAvatarFilters.query = e.target.value.trim();
-        this.renderWizardAvatarsCatalog();
-      });
-    }
-
-    if (btnConfirmModal && nameInput) {
-      const handleCreate = async () => {
-        if (state.profiles && state.profiles.length >= 6) {
-          this.showToast('Has alcanzado el límite máximo de 6 perfiles permitidos en Nuvio. Selecciona uno existente.', 'warning');
-          this.closeNewProfileModal();
-          return;
-        }
-
-        const name = nameInput.value.trim();
-        if (!name) {
-          this.showToast('Por favor escribe un nombre para el nuevo perfil.', 'warning');
-          nameInput.focus();
-          return;
-        }
-
-        if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) {
-          this.showToast('Debes haber iniciado sesión con tu cuenta de Nuvio en el Paso 1.', 'error');
-          return;
-        }
-
-        btnConfirmModal.disabled = true;
-        const originalHtml = btnConfirmModal.innerHTML;
-        btnConfirmModal.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Creando...';
-
-        try {
+    this.disposeProfilesStep?.();
+    this.profilesStep = mountProfilesStep({
+      state,
+      actions: {
+        createProfile: async ({ name, avatarUrl }) => {
           const newProfile = await NuvioClient.createProfile({
             apiUrl: CONFIG.NUVIO_API_URL,
             apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
             accessToken: state.nuvioAuth.accessToken,
             userId: state.nuvioAuth.userId,
-            name: name,
-            avatarUrl: this.newProfileAvatarUrl || null
+            name,
+            avatarUrl: avatarUrl || null,
           });
-
-          // Agregar a la lista de perfiles y auto-seleccionar
           state.newlyCreatedProfileIds.add(String(newProfile.id));
           state.profiles.push(newProfile);
           state.selectedProfileId = newProfile.id;
           state.selectedProfileName = newProfile.name || name;
-          state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
-
-          this.closeNewProfileModal();
+          state.unlockStep(3);
           this.saveSession();
-          this.renderProfiles();
-          this.updateProfileWarning(newProfile.id, newProfile.name || name);
           this.updateUI();
-          nameInput.value = '';
-          this.showToast(`¡Perfil "${name}" creado y seleccionado con éxito!`, 'success');
-        } catch (err) {
-          console.error(err);
-          this.showToast(`Error al crear perfil: ${err.message}`, 'error');
-        } finally {
-          btnConfirmModal.disabled = false;
-          btnConfirmModal.innerHTML = originalHtml;
-        }
-      };
-
-      btnConfirmModal.addEventListener('click', handleCreate);
-      nameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          handleCreate();
-        }
-      });
-    }
-  }
-
-  async updateProfileWarning(profileId, profileName) {
-    const warningContainer = document.getElementById('profileOverwriteWarning');
-    const warningTextEl = document.getElementById('profileWarningText');
-    const warningIcon = document.getElementById('profileWarningIcon');
-    if (!warningContainer) return;
-
-    if (!profileId || state.isManualMode) {
-      warningContainer.classList.add('hidden');
-      return;
-    }
-
-    const displayName = profileName || 'seleccionado';
-    const isNew = state.isProfileNew(profileId);
-
-    if (isNew) {
-      if (warningTextEl) {
-        warningTextEl.innerHTML = `Perfil nuevo (<strong class="text-white">"${displayName}"</strong>): se aprovisionará de forma limpia con <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1) y podrás añadir tus addons de streaming en el Paso 6.`;
-      }
-      if (warningIcon) warningIcon.className = "fa-solid fa-sparkles text-[#ffd479] text-base shrink-0";
-      warningContainer.classList.remove('hidden');
-      return;
-    }
-
-    // Comprobar si ya tiene AIOMetadata en segundo plano
-    if (warningTextEl) {
-      warningTextEl.innerHTML = `Analizando addons del perfil <strong class="text-white">"${displayName}"</strong>...`;
-    }
-    warningContainer.classList.remove('hidden');
-
-    try {
-      let hasAio = false;
-      if (state.hasLoadedAddonsForProfile === profileId && state.existingAioAddon) {
-        hasAio = true;
-      } else if (state.nuvioAuth?.accessToken) {
-        const addons = await NuvioClient.listAddons({
-          apiUrl: CONFIG.NUVIO_API_URL,
-          apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
-          accessToken: state.nuvioAuth.accessToken,
-          userId: state.nuvioAuth.userId,
-          profileId: profileId
-        });
-        hasAio = (addons || []).some(isAioMetadataAddon);
-        if (state.hasLoadedAddonsForProfile !== profileId) {
-          state.setProfileAddons(addons, profileId);
-        }
-      }
-
-      if (warningTextEl) {
-        if (hasAio) {
-          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se actualizará tu configuración de <strong class="text-[#ffd479]">AIOMetadata</strong> como addon principal (#1). Todos tus addons de streaming y catálogos existentes se conservarán intactos y podrás gestionarlos en el Paso 6.`;
-          if (warningIcon) warningIcon.className = "fa-solid fa-rotate text-[#ffd479] text-base shrink-0";
-        } else {
-          warningTextEl.innerHTML = `Al seleccionar <strong class="text-white">"${displayName}"</strong>, se instalará <strong class="text-[#ffd479]">AIOMetadata</strong> como tu addon principal de metadatos (#1). Tus addons actuales de streaming se mantendrán intactos y podrás organizarlos en el Paso 6.`;
-          if (warningIcon) warningIcon.className = "fa-solid fa-circle-info text-[#ffd479] text-base shrink-0";
-        }
-      }
-    } catch (_) {
-      if (warningTextEl) {
-        warningTextEl.innerHTML = `En el perfil <strong class="text-white">"${displayName}"</strong> se conservarán intactos tus addons de streaming y se priorizará <strong class="text-[#ffd479]">AIOMetadata</strong> en la posición principal (#1).`;
-      }
-    }
+          return newProfile;
+        },
+        deleteProfile: async (profileId) => {
+          const deleteResult = await NuvioClient.deleteProfile({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken: state.nuvioAuth.accessToken,
+            userId: state.nuvioAuth.userId,
+            profileId,
+          });
+          if (Array.isArray(deleteResult?.remainingProfiles)) {
+            state.profiles = deleteResult.remainingProfiles;
+          } else {
+            state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
+          }
+          if (String(state.selectedProfileId) === String(profileId)) {
+            if (state.profiles.length > 0) {
+              state.selectedProfileId = state.profiles[0].id;
+              state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
+              state.unlockStep(3);
+            } else {
+              state.selectedProfileId = null;
+              state.selectedProfileName = '';
+            }
+          }
+          this.saveSession();
+          this.updateUI();
+          return deleteResult;
+        },
+        onSelectProfile: (id, name) => {
+          state.selectedProfileId = id;
+          state.selectedProfileName = name;
+          state.unlockStep(3);
+          this.saveSession();
+          this.updateUI();
+        },
+        checkProfileHasAio: async (profileId) => {
+          if (state.hasLoadedAddonsForProfile === profileId && state.existingAioAddon) return true;
+          if (!state.nuvioAuth?.accessToken) return false;
+          const addons = await NuvioClient.listAddons({
+            apiUrl: CONFIG.NUVIO_API_URL,
+            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
+            accessToken: state.nuvioAuth.accessToken,
+            userId: state.nuvioAuth.userId,
+            profileId,
+          });
+          const hasAio = (addons || []).some(isAioMetadataAddon);
+          if (state.hasLoadedAddonsForProfile !== profileId) {
+            state.setProfileAddons(addons, profileId);
+          }
+          return hasAio;
+        },
+        loadAvatars: loadAvatarsCatalog,
+        filterAvatars,
+        getFranchises: getFranchisesSummary,
+        resolveCdnUrl: resolveAvatarCdnUrl,
+        notify: (message, type) => this.showToast(message, type),
+      },
+    });
   }
 
   renderProfiles() {
-    const container = document.getElementById('profilesList') || document.getElementById('profilesContainer');
-    if (!container) return;
+    this.profilesStep?.render();
+  }
 
-    if (state.profiles && state.profiles.length > 0) {
-      let cardsHtml = state.profiles.map((p, idx) => {
-        const isSelected = (state.selectedProfileId !== null && state.selectedProfileId !== undefined && String(state.selectedProfileId) === String(p.id)) || (state.selectedProfileId === null && idx === 0);
-        if (isSelected && state.selectedProfileId === null) {
-          state.selectedProfileId = p.id;
-          state.selectedProfileName = p.name || p.title || `Perfil ${idx + 1}`;
-          state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
-        }
-
-        const name = p.name || p.title || `Perfil ${idx + 1}`;
-        const avatar = p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
-
-        return `
-          <div onclick="window.appController.selectProfile('${p.id}', '${name.replace(/'/g, "\\'")}')" 
-               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none min-h-[140px] w-48 sm:w-52 ${
-                 isSelected 
-                   ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5' 
-                   : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5'
-               }"
-               style="transform: translateZ(0); backface-visibility: hidden;">
-            ${isSelected ? `
-              <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#ffd479] text-[#08090c] flex items-center justify-center text-[10px] shadow-md font-bold">
-                <i class="fa-solid fa-check"></i>
-              </div>
-            ` : `
-              <div class="absolute top-2 right-2 w-4 h-4 rounded-full border border-white/20 bg-white/[0.05] flex items-center justify-center text-[8px] text-transparent group-hover:border-white/40">
-                <i class="fa-solid fa-check text-white/40"></i>
-              </div>
-            `}
-            <!-- Botón de Eliminar Perfil (visible solo si hay más de 1 perfil) -->
-            ${state.profiles.length > 1 ? `
-            <button type="button" 
-                    onclick="event.stopPropagation(); window.appController.promptDeleteProfile('${p.id}', '${name.replace(/'/g, "\\'")}')"
-                    class="absolute top-2 left-2 w-6 h-6 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/15 flex items-center justify-center transition-all opacity-70 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 z-10"
-                    title="Eliminar perfil '${name.replace(/'/g, "\\'")}'">
-              <i class="fa-solid fa-trash-can text-[10px]"></i>
-            </button>
-            ` : ''}
-            <div class="relative">
-              <img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${
-                isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'
-              }">
-            </div>
-            <div class="text-center w-full px-1">
-              <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/70 group-hover:text-white'}">${name}</div>
-              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-[#ffd479] font-mono font-bold uppercase tracking-wider' : 'text-white/40 group-hover:text-white/60'}">
-                ${isSelected ? '✓ Seleccionado' : 'Click para elegir'}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // Tarjeta interactiva "Nuevo Perfil" visible únicamente si hay menos de 6 perfiles
-      if (state.profiles.length < 6) {
-        cardsHtml += `
-          <div id="cardNewProfile" onclick="window.appController.openNewProfileModal()"
-               class="group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none border-2 border-dashed border-white/20 hover:border-white/50 bg-white/[0.02] hover:bg-white/[0.06] hover:-translate-y-0.5 min-h-[140px] w-48 sm:w-52"
-               style="transform: translateZ(0); backface-visibility: hidden;">
-            <div class="w-12 h-12 rounded-full border border-white/25 bg-white/[0.06] flex items-center justify-center text-white/70 group-hover:text-white group-hover:border-white/60 group-hover:scale-105 transition-all shadow-[var(--brillo-vidrio)]">
-              <i class="fa-solid fa-plus text-base"></i>
-            </div>
-            <div class="text-center w-full">
-              <div class="text-xs font-semibold text-white/70 group-hover:text-white transition-colors">Nuevo Perfil</div>
-              <div class="text-[10px] mt-0.5 text-white/40 group-hover:text-white/60 font-mono">${state.profiles.length}/6 perfiles</div>
-            </div>
-          </div>
-        `;
-      }
-
-      container.innerHTML = cardsHtml;
-      this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
-    } else {
-      container.innerHTML = `
-        <div class="w-full py-8 text-center bg-white/[0.03] border border-white/10 rounded-2xl p-6" style="transform: translateZ(0);">
-          <i class="fa-solid fa-user-circle text-4xl text-white/30 mb-2"></i>
-          <p class="text-sm font-medium text-white/90">No se encontraron perfiles en tu cuenta de Nuvio</p>
-          <p class="text-xs text-white/50 mt-1 mb-4">Crea tu primer perfil para comenzar a configurar tus colecciones.</p>
-          <button type="button" onclick="window.appController.openNewProfileModal()" class="lat-capsule-btn solid text-xs">
-            <i class="fa-solid fa-plus"></i>
-            <span>Crear mi primer perfil</span>
-          </button>
-        </div>
-      `;
-      this.updateProfileWarning(null, '');
-    }
+  updateProfileWarning(id, name) {
+    this.profilesStep?.updateWarning(id, name);
   }
 
   selectProfile(id, name) {
