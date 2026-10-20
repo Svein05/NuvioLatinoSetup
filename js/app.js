@@ -1,3 +1,4 @@
+import { compileUniversalBadgeRules } from '../src/app/badge-compilation.js';
 import { initializeWizard } from '../src/app/wizard-bootstrap.js';
 import { mountApiKeysStep } from '../src/pages/configuration/steps/api-keys.js';
 import { verifyWizardApiKeys } from '../src/app/api-key-validation.js';
@@ -28,8 +29,7 @@ import {
   normalizeBadgeColor,
   getCanonicalModuleId,
   isSectionActive,
-  compileUniversalBadgeRules
-} from './badge-packs.js';
+} from '../src/features/badges/index.js';
 import { initCompletionsCounterUI, recordSuccessfulCompletion } from './counter.js';
 import { 
   loadAvatarsCatalog,

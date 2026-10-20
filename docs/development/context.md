@@ -99,6 +99,9 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/badge-packs.js` eliminado: sus dos consumidores importan datos/reglas desde
+  features/badges/index.js y el compilador conectado desde app/badge-compilation.js.
+  No hay un nuevo archivo puente ni cambia el estado compartido del catálogo.
 - `js/nav-indicator.js` eliminado: las cuatro páginas cargan src/app/navigation.js;
   indicador, eventos y limpieza siguen en los componentes compartidos existentes.
 - `js/config.js` eliminado: todos sus consumidores importan la configuración

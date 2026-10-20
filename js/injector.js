@@ -1,3 +1,4 @@
+import { compileUniversalBadgeRules } from '../src/app/badge-compilation.js';
 /**
  * Orquestador del Pipeline de Inyección y Sincronización
  * Coordina integraciones, NuvioClient y WizardState con logs en tiempo real.
@@ -12,8 +13,7 @@ import {
   getBadgePackUrl,
   isSectionActive,
   getCanonicalModuleId,
-  compileUniversalBadgeRules
-} from './badge-packs.js';
+} from '../src/features/badges/index.js';
 import { recordSuccessfulCompletion } from './counter.js';
 
 export class PipelineInjector {
