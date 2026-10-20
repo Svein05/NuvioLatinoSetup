@@ -56,7 +56,8 @@ Ejemplos comprobados:
 - `src/pages/configuration/index.html` carga `js/app.js`.
 - `src/pages/account/index.html` carga `js/account-manager.js`.
 - `src/pages/modder/partials/script.html` importa `js/modder-uploader.js`.
-- Portada, cuenta y documentación aún usan contador/versión del legado.
+- Portada, cuenta y documentación aún usan el contador del legado; versión y
+  estrellas de GitHub ya se componen desde src/app.
 
 `app.js` todavía coordina perfiles, preferencias, badges, pósters, addons,
 ejecución y renderizado del asistente. Solo algunas responsabilidades se han
@@ -71,7 +72,7 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | `js/modder-uploader.js` | 2.211 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
 | `js/nuvio-client.js` | 874 | integrations/nuvio y workflows de guardado |
-| `js/avatar-suggestions.js` | 762 | avatars y adaptador Worker |
+| `js/avatar-suggestions.js` | 754 | avatars y adaptador Worker |
 | `js/state.js` | 675 | estado por feature y composición del asistente |
 | `js/avatars-data.js` | 635 | modelos de catálogo y adaptador GitHub |
 | `js/injector.js` | 483 | workflows de aprovisionamiento |
@@ -99,6 +100,9 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/webhook-config.js` eliminado: era otra configuración vacía sin productor.
+  Se retiró su rama inalcanzable. No se publicaron archivos locales privados;
+  el envío de sugerencias mediante Worker sigue pendiente.
 - `js/avatar-rank-config.js` eliminado: era un objeto vacío sin productor en CI.
   Se retiró su rama inalcanzable; el cliente y su traslado al Worker siguen pendientes.
 - `js/counter-config.js` eliminado: configuración pública en app/completions-config.js,
@@ -273,8 +277,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 224 pruebas de lógica,
-31 recorridos contra build y 30 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 238 pruebas de lógica,
+33 recorridos contra build y 32 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.

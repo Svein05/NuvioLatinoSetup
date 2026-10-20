@@ -3,13 +3,12 @@
   "js/aiostreams-client.js": 367,
   "js/app.js": 3704,
   "js/avatar-rank-client.js": 193,
-  "js/avatar-suggestions.js": 762,
+  "js/avatar-suggestions.js": 754,
   "js/avatars-data.js": 635,
   "js/counter.js": 361,
   "js/injector.js": 483,
   "js/mini-nuvio.js": 1299,
   "js/modder-uploader.js": 2211,
   "js/nuvio-client.js": 874,
-  "js/state.js": 675,
-  "js/webhook-config.js": 8
+  "js/state.js": 675
 }

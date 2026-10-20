@@ -4,8 +4,6 @@
  * o enlaces URL directos hacia un Webhook seguro de Discord con Rich Embeds.
  */
 
-import { INJECTED_WEBHOOK_CONFIG } from './webhook-config.js';
-
 const COOLDOWN_SECONDS = 120;
 const STORAGE_KEY_COOLDOWN = 'nuvio_last_avatar_suggestion';
 const MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024; // 8 MB
@@ -34,12 +32,6 @@ let cachedWebhookUrl = '';
  */
 async function getWebhookUrl() {
   if (cachedWebhookUrl) return cachedWebhookUrl;
-
-  const injected = INJECTED_WEBHOOK_CONFIG?.webhookUrl?.trim();
-  if (injected) {
-    cachedWebhookUrl = injected;
-    return injected;
-  }
 
   // 1. Cargar archivo local no versionado js/webhook-config.local.js (proveniente de .env)
   try {
