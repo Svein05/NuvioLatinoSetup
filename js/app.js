@@ -16,7 +16,7 @@ import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
 import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
 import { CONFIG } from '../src/app/config.js';
 import { MiniNuvio } from './mini-nuvio.js';
-import { NuvioClient } from './nuvio-client.js';
+import { NuvioClient } from '../src/integrations/nuvio/client.js';
 import { executePipeline, downloadCollectionsJson, downloadAioConfigJson } from '../src/app/provisioning.js';
 import { compileStreamingConfig } from '../src/features/addons/index.js';
 import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';

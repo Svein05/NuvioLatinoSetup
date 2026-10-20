@@ -9,7 +9,7 @@ import { presentAccountOverview } from '../src/app/account-overview.js';
  * Ecosistema Nuvio Metadata Latino & AIOMetadata
  */
 import { CONFIG } from '../src/app/config.js';
-import { NuvioClient } from './nuvio-client.js';
+import { NuvioClient } from '../src/integrations/nuvio/client.js';
 import { loadMetadataConfiguration, updateMetadataConfiguration, metadataOwner } from '../src/app/metadata-configuration.js';
 import { compileStreamingConfig } from '../src/features/addons/index.js';
 import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';

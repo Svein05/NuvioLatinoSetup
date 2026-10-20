@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { NuvioClient } from '../../js/nuvio-client.js';
+import { NuvioClient } from '../../src/integrations/nuvio/client.js';
 
 const context = { apiUrl: 'https://nuvio.invalid', apikey: 'public-test', accessToken: 'synthetic', profileId: 1 };
 

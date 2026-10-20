@@ -79,7 +79,6 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | `js/app.js` | 3.702 | pages/configuration/steps y composición app |
 | `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
-| `js/nuvio-client.js` | 874 | integrations/nuvio y workflows de guardado |
 | `js/state.js` | 675 | estado por feature y composición del asistente |
 
 El inventario completo y los límites efectivos viven en
@@ -105,6 +104,12 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/nuvio-client.js` eliminado: todas sus responsabilidades migradas a src/integrations/nuvio/:
+  colecciones en collections.js, credenciales de proveedores en provider-credentials.js,
+  lectura de ajustes en profile-settings-read.js, plugins en plugins.js, addons en
+  addons-read.js, addons-write.js y addons-sync.js, ensamblados en client.js.
+  Consumidores actualizados (account-manager, app y tests de regresión).
+  63 suites de test pasando (565 tests en verde) con cobertura exhaustiva de RPC y REST fallbacks.
 - `js/injector.js` eliminado: orquestación desacoplada en workflows/provision-profile.js
   dividida en pasos atómicos de única responsabilidad (< 60 líneas por función, max-depth <= 3):
   aiometadata-step, auth-step, settings-step, addons-step y collections-step.
