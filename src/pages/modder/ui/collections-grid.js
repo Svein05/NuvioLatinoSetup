@@ -1,3 +1,5 @@
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
+
 export function getCollectionPreviewLimit() {
   const grid = document.getElementById('collectionsGrid');
   const w = (typeof window !== 'undefined') ? (window.innerWidth || document.documentElement.clientWidth || 360) : 360;
@@ -24,12 +26,12 @@ function renderCollectionCard(col, maxSlots, overrides, resolveCdnUrl) {
     : '';
 
   return `
-    <div class="lat-card p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 group hover:border-amber-400/50 hover:bg-white/[0.04] transition-all cursor-pointer relative" data-collection-id="${col.id}">
+    <div class="lat-card p-4 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4 group hover:border-amber-400/50 hover:bg-white/[0.04] transition-all cursor-pointer relative" data-collection-id="${escapeHtml(col.id)}">
       <div class="flex items-start justify-between gap-2">
         <div class="space-y-1.5 text-left w-full min-w-0">
-          <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors truncate">${col.franchiseName}</h4>
+          <h4 class="text-base sm:text-lg font-bold text-white group-hover:text-amber-300 transition-colors truncate">${escapeHtml(col.franchiseName)}</h4>
           <div class="flex items-center gap-1.5 flex-wrap">
-            ${col.availableStyles.map(st => `<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-white/70 border border-white/10">${st.name} <strong class="text-white/90">(${st.count})</strong></span>`).join('')}
+            ${col.availableStyles.map(st => `<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-white/70 border border-white/10">${escapeHtml(st.name)} <strong class="text-white/90">(${st.count})</strong></span>`).join('')}
             <span class="text-xs text-white/40 font-mono ml-auto"><strong class="text-white/90">${col.avatars.length}</strong> total</span>
           </div>
         </div>
@@ -42,7 +44,7 @@ function renderCollectionCard(col, maxSlots, overrides, resolveCdnUrl) {
           const isDel = ov?.isDeleted;
           return `
             <div class="aspect-square w-full rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} relative group-hover:scale-105 transition-transform">
-              <img src="${imgUrl}" alt="${av.fileName}" class="w-full h-full object-cover" loading="lazy">
+              <img src="${escapeHtml(safeImageUrl(imgUrl))}" alt="${escapeHtml(av.fileName)}" class="w-full h-full object-cover" loading="lazy">
             </div>
           `;
         }).join('')}

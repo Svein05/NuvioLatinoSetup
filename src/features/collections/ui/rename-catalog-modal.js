@@ -8,6 +8,7 @@ export function openRenameCatalogModal({
 
   const renameEl = doc.createElement('div');
   renameEl.id = 'renameCatalogModal';
+  renameEl.setAttribute?.('role', 'dialog');
   renameEl.className = 'fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[#08090c]/85 backdrop-blur-xl';
   renameEl.innerHTML = `
     <div class="bg-[#0b0d12]/95 border border-white/10 rounded-3xl max-w-md w-full p-5 shadow-[var(--shadow-lift)] backdrop-blur-[34px] text-white/90 space-y-4">
@@ -16,7 +17,7 @@ export function openRenameCatalogModal({
           <i class="fa-solid fa-pen-to-square text-[#ffd479]"></i>
           <span>Renombrar Catálogo</span>
         </h3>
-        <button type="button" onclick="document.getElementById('renameCatalogModal').remove()" class="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10">
+        <button type="button" data-close-collection-modal class="text-white/40 hover:text-white p-1 rounded-full hover:bg-white/10">
           <i class="fa-solid fa-xmark text-sm"></i>
         </button>
       </div>
@@ -25,7 +26,7 @@ export function openRenameCatalogModal({
         <input id="renameCatalogInput" type="text" value="${currentTitle.replace(/"/g, '&quot;')}" class="w-full px-3 py-2 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-sm text-white font-medium">
       </div>
       <div class="flex justify-end gap-2 pt-2 border-t border-white/10">
-        <button type="button" onclick="document.getElementById('renameCatalogModal').remove()" class="lat-capsule-btn glass text-xs py-1.5 px-3.5">
+        <button type="button" data-close-collection-modal class="lat-capsule-btn glass text-xs py-1.5 px-3.5">
           Cancelar
         </button>
         <button id="btnSaveCatalogRename" type="button" class="lat-capsule-btn solid text-xs py-1.5 px-4">

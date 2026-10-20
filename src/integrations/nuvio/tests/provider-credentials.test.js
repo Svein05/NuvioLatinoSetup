@@ -78,12 +78,12 @@ describe('pullProviderCredentials', () => {
     expect(result).toEqual([{ provider: 'mdblist' }]);
   });
 
-  it('returns empty array when all requests fail', async () => {
+  it('reports an outage without replacing credentials with an empty array', async () => {
     const fetchImpl = vi.fn()
       .mockResolvedValueOnce(Response.json({}, { status: 500 }))
       .mockResolvedValueOnce(Response.json({}, { status: 500 }));
 
-    const result = await pullProviderCredentials({ ...context, fetchImpl });
-    expect(result).toEqual([]);
+    await expect(pullProviderCredentials({ ...context, fetchImpl })).rejects.toThrow();
+    expect(fetchImpl).toHaveBeenCalledOnce();
   });
 });

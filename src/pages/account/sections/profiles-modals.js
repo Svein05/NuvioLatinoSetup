@@ -30,12 +30,14 @@ export function closeEditProfileModal(root = document) {
 }
 
 export function openCreateProfileModal({ root = document, state, showToast }) {
+  root.getElementById?.('accountProfilePopover')?.classList.add('hidden');
   if ((state.profiles || []).length >= 6) {
     showToast?.('Has alcanzado el límite máximo de 6 perfiles en Nuvio.', 'warning');
     return;
   }
   const preview = root.getElementById?.('createProfileAvatarPreview');
   if (preview) preview.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil';
+  if (preview?.dataset) delete preview.dataset.selectedUrl;
   const modal = root.getElementById?.('modalCreateProfile');
   const nameInput = root.getElementById?.('inputCreateProfileName');
   if (!modal) return;
@@ -76,6 +78,7 @@ function bindEditForm({ root, state, config, client, showToast, refreshProfiles 
     const targetId = root.getElementById?.('editProfileTargetId')?.value;
     const newName = root.getElementById?.('inputEditProfileName')?.value.trim();
     const btnSubmit = root.getElementById?.('btnSaveEditProfile');
+    if (btnSubmit?.disabled) return;
     if (!newName || !targetId) return;
 
     if (btnSubmit) {
@@ -145,11 +148,19 @@ function bindCreateForm({ root, state, config, client, showToast, refreshProfile
   root.getElementById?.('btnCloseCreateProfileModal')?.addEventListener('click', () => closeCreateProfileModal(root));
   root.getElementById?.('btnCancelCreateProfile')?.addEventListener('click', () => closeCreateProfileModal(root));
   root.getElementById?.('btnPopoverAddProfile')?.addEventListener('click', () => openCreateProfileModal({ root, state, showToast }));
+  root.getElementById?.('btnPromptCreateProfile')?.addEventListener('click', () => {
+    root.getElementById('modalSelectProfilePrompt')?.classList.replace('flex', 'hidden');
+    openCreateProfileModal({ root, state, showToast });
+  });
+  root.getElementById?.('btnCloseSelectProfileModal')?.addEventListener('click', () => {
+    root.getElementById('modalSelectProfilePrompt')?.classList.replace('flex', 'hidden');
+  });
 
   formCreate?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = root.getElementById?.('inputCreateProfileName')?.value.trim();
     const btnSubmit = root.getElementById?.('btnSubmitCreateProfile');
+    if (btnSubmit?.disabled) return;
     if (!name) return;
 
     if (btnSubmit) {
@@ -160,6 +171,7 @@ function bindCreateForm({ root, state, config, client, showToast, refreshProfile
       const created = await client.createProfile({
         apiUrl: config.NUVIO_API_URL, apikey: config.NUVIO_PUBLIC_ANON_KEY,
         accessToken: state.session.accessToken, userId: state.session.userId, name,
+        avatarUrl: root.getElementById('createProfileAvatarPreview')?.dataset?.selectedUrl,
       });
       showToast?.('✓ Perfil creado con éxito.', 'success');
       closeCreateProfileModal(root);

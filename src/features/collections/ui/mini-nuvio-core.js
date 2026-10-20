@@ -1,6 +1,7 @@
-import { renderToolbar } from './toolbar.js';
+import { renderCollectionsView } from './collections-view.js';
+import { bindCollectionActions } from './actions.js';
+import { bindCollectionMedia } from './media-events.js';
 import { renderHeroBanner } from './hero-banner.js';
-import { renderSectionView } from './section-view.js';
 import { renderCatalogExplorerModal } from './catalog-explorer-modal.js';
 import { openRenameCatalogModal } from './rename-catalog-modal.js';
 import { openAddCatalogModalView } from './add-catalog-modal.js';
@@ -9,9 +10,11 @@ import { openFolderModalView, readFolderModalData } from './folder-modal.js';
 import { initSectionsSortable, initFolderRailsSortables, destroySortables } from './sortables.js';
 
 export class MiniNuvioCore {
-  constructor(containerId, { state } = {}) {
+  constructor(containerId, { state, notify = () => {} } = {}) {
     this.container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
     this.state = state;
+    this.notify = notify;
+    this.cleanups = [];
     this.focusedFolder = null;
     this.focusedSectionId = null;
     this.editingTarget = null;
@@ -20,11 +23,11 @@ export class MiniNuvioCore {
     this.catalogSortable = null;
 
     if (this.state?.subscribe) {
-      this.state.subscribe((_, eventType) => {
+      this.cleanups.push(this.state.subscribe((_, eventType) => {
         if (['COLLECTIONS_UPDATED', 'TEMPLATES_LOADED'].includes(eventType)) {
           this.render();
         }
-      });
+      }));
     }
   }
 
@@ -39,6 +42,8 @@ export class MiniNuvioCore {
   }
 
   init() {
+    this.cleanups.push(bindCollectionActions(document.body, this));
+    this.cleanups.push(bindCollectionMedia(document.body, this));
     this.ensureModalContainer();
     this.render();
   }
@@ -62,42 +67,8 @@ export class MiniNuvioCore {
 
   render() {
     if (!this.container) return;
-    const collections = this.state?.collections || [];
-    if (collections.length === 0) {
-      this.container.innerHTML = `
-        <div class="p-8 text-center text-white/50">
-          <i class="fa-solid fa-spinner fa-spin text-2xl text-[#ffd479] mb-2"></i>
-          <p class="text-sm">Cargando colecciones nativas de Nuvio...</p>
-        </div>
-      `;
-      return;
-    }
-
     this.resolveFocus();
-    let totalFolders = 0;
-    let activeFolders = 0;
-    collections.forEach(sec => {
-      (sec.folders || []).forEach(f => {
-        totalFolders++;
-        if (sec.enabled !== false && f.enabled !== false) activeFolders++;
-      });
-    });
-
-    this.container.innerHTML = `
-      <div class="flex flex-col gap-5">
-        ${renderToolbar({ activeFolders, totalFolders })}
-        ${renderHeroBanner(this.focusedFolder)}
-        <div id="miniNuvioSectionsList" class="space-y-6">
-          ${collections.map((s, idx) => renderSectionView({
-            section: s,
-            sIndex: idx,
-            totalSections: collections.length,
-            focusedFolder: this.focusedFolder,
-          })).join('')}
-        </div>
-      </div>
-    `;
-
+    this.container.innerHTML = renderCollectionsView(this.state?.collections || [], this.focusedFolder);
     this.initSortables();
   }
 
@@ -265,7 +236,7 @@ export class MiniNuvioCore {
       folders: sec.folders.map(folder => ({ ...folder, title: titles.get(folder.id) || folder.title })),
     });
     this.closeModal();
-    window.appController?.showToast('✓ Sección y filas guardadas con éxito', 'success');
+    this.notify('✓ Sección y filas guardadas con éxito', 'success');
   }
 
   openEditModal(sectionId, folderId) {
@@ -284,12 +255,21 @@ export class MiniNuvioCore {
 
   closeEditModal() { this.closeModal(); }
 
+  dispose() {
+    this.cleanups.forEach(cleanup => cleanup?.());
+    this.cleanups = [];
+    destroySortables([this.sectionsSortable, ...this.folderSortables, this.catalogSortable]);
+    this.closeModal();
+    document.getElementById('addCatalogModal')?.remove();
+    document.getElementById('renameCatalogModal')?.remove();
+  }
+
   saveEditModal() {
     if (!this.editingTarget) return;
     const { sectionId, folderId } = this.editingTarget;
     const data = readFolderModalData(document);
     this.state?.updateFolder(sectionId, folderId, data);
     this.closeModal();
-    window.appController?.showToast('✓ Fila actualizada con éxito', 'success');
+    this.notify('✓ Fila actualizada con éxito', 'success');
   }
 }

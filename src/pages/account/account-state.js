@@ -96,7 +96,7 @@ export function updateSaveButtonUI(root = document, state = accountState) {
 
   if (hasChanges) {
     btn.classList.add('has-changes');
-    btn.disabled = false;
+    btn.disabled = Boolean(state.isSaving || state.isLoadingProfile);
     if (badge) {
       badge.textContent = `${changedModules.length}`;
       badge.classList.remove('hidden');

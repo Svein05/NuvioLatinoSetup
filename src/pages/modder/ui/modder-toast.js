@@ -1,3 +1,5 @@
+import { escapeHtml } from '../../../shared/ui/safe-markup.js';
+
 export function showModderToast(message, type = 'info') {
   if (typeof document === 'undefined') return;
   let container = document.getElementById('modderToastContainer');
@@ -22,7 +24,7 @@ export function showModderToast(message, type = 'info') {
       : 'fa-info-circle text-amber-300';
 
   toast.className = `p-3.5 rounded-xl border backdrop-blur-md shadow-2xl text-xs flex items-center gap-2.5 transition-all transform translate-y-4 opacity-0 pointer-events-auto ${bgClass}`;
-  toast.innerHTML = `<i class="fa-solid ${iconClass} text-sm shrink-0"></i><span class="flex-1 font-medium">${message}</span>`;
+  toast.innerHTML = `<i class="fa-solid ${iconClass} text-sm shrink-0"></i><span class="flex-1 font-medium">${escapeHtml(message)}</span>`;
 
   container.appendChild(toast);
   requestAnimationFrame(() => {

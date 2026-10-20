@@ -1,3 +1,5 @@
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
+
 let _publishLogLinesCount = 0;
 
 export function appendPublishLog(type, message) {
@@ -15,7 +17,7 @@ export function appendPublishLog(type, message) {
 
   const lineEl = document.createElement('div');
   lineEl.className = `flex items-start gap-1 leading-relaxed ${colorClass}`;
-  lineEl.innerHTML = `<span class="text-white/30 shrink-0 font-mono text-[10px] select-none">[${timeStr}]</span> <span class="shrink-0">${iconHtml}</span> <span class="break-all">${message}</span>`;
+  lineEl.innerHTML = `<span class="text-white/30 shrink-0 font-mono text-[10px] select-none">[${timeStr}]</span> <span class="shrink-0">${iconHtml}</span> <span class="break-all">${escapeHtml(message)}</span>`;
   consoleEl.appendChild(lineEl);
   consoleEl.scrollTop = consoleEl.scrollHeight;
 }
@@ -63,16 +65,16 @@ export function renderPublishBreakdown(items = [], ops = {}, onDiscardItem = () 
   container.innerHTML = items.map(item => `
     <div class="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-white/20 transition-all group">
       <div class="w-10 h-10 rounded-xl bg-black/40 border border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
-        <img src="${item.previewUrl}" alt="${item.primaryText}" class="w-full h-full object-cover" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+        <img src="${item.previewUrl}" alt="${escapeHtml(item.primaryText)}" class="w-full h-full object-cover" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
       </div>
       <div class="flex-1 min-w-0 space-y-0.5">
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-xs font-mono font-medium text-white truncate max-w-[200px] sm:max-w-[280px] ${item.isStrikethrough ? 'line-through opacity-70 text-rose-300' : ''}" title="${item.primaryText}">${item.primaryText}</span>
+          <span class="text-xs font-mono font-medium text-white truncate max-w-[200px] sm:max-w-[280px] ${item.isStrikethrough ? 'line-through opacity-70 text-rose-300' : ''}" title="${escapeHtml(item.primaryText)}">${escapeHtml(item.primaryText)}</span>
           <span class="text-[9px] font-medium px-1.5 py-0.5 rounded-md border shrink-0 flex items-center gap-1 ${item.badgeClass}"><i class="${item.badgeIcon} text-[8px]"></i><span>${item.badgeLabel}</span></span>
         </div>
-        <div class="text-[10px] text-white/40 font-mono truncate flex items-center gap-1.5"><span>${item.secondaryText}</span></div>
+        <div class="text-[10px] text-white/40 font-mono truncate flex items-center gap-1.5"><span>${escapeHtml(item.secondaryText)}</span></div>
       </div>
-      <button type="button" class="btn-discard-staged-item p-2 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer shrink-0" data-item-key="${item.key}" title="Descartar este cambio"><i class="fa-solid fa-trash-can text-xs"></i></button>
+      <button type="button" class="btn-discard-staged-item p-2 text-white/40 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer shrink-0" data-item-key="${escapeHtml(item.key)}" title="Descartar este cambio"><i class="fa-solid fa-trash-can text-xs"></i></button>
     </div>
   `).join('');
 
@@ -91,7 +93,7 @@ export function showPublishSuccess(commitUrl, count, onClose) {
     <div class="text-center space-y-4 py-2">
       <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto text-2xl shadow-lg shadow-emerald-500/10"><i class="fa-solid fa-circle-check"></i></div>
       <div class="space-y-1"><h4 class="text-base sm:text-lg font-bold text-white">¡Cambios Publicados con Éxito!</h4><p class="text-xs text-white/60">Se sincronizaron <strong>${count}</strong> archivo(s) en GitHub en 1 único commit atómico.</p></div>
-      ${commitUrl ? `<div class="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3 text-xs"><span class="text-white/60 font-mono text-[11px] truncate">${commitUrl}</span><a href="${commitUrl}" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn glass text-xs py-1.5 px-3 flex items-center gap-1.5 text-amber-300 hover:text-white shrink-0"><span>Ver en GitHub</span><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a></div>` : ''}
+      ${commitUrl ? `<div class="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3 text-xs"><span class="text-white/60 font-mono text-[11px] truncate">${escapeHtml(safeImageUrl(commitUrl))}</span><a href="${escapeHtml(safeImageUrl(commitUrl))}" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn glass text-xs py-1.5 px-3 flex items-center gap-1.5 text-amber-300 hover:text-white shrink-0"><span>Ver en GitHub</span><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a></div>` : ''}
       <button id="btnFinishPublish" type="button" class="lat-capsule-btn solid text-xs py-2 px-6 font-semibold mx-auto flex items-center gap-2"><i class="fa-solid fa-check"></i><span>Entendido y Cerrar</span></button>
     </div>
   `;
@@ -110,10 +112,10 @@ export function showPublishError(title, detail, onRetry, onClose) {
     <div class="space-y-3.5 py-1 text-left">
       <div class="flex items-start gap-3 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
         <i class="fa-solid fa-triangle-exclamation text-base shrink-0 text-rose-400 mt-0.5"></i>
-        <div class="space-y-1 min-w-0"><strong class="text-white block font-semibold">${title}</strong><p class="text-rose-200/80 leading-relaxed">${detail}</p></div>
+        <div class="space-y-1 min-w-0"><strong class="text-white block font-semibold">${escapeHtml(title)}</strong><p class="text-rose-200/80 leading-relaxed">${escapeHtml(detail)}</p></div>
       </div>
       <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
-        <button id="btnRetryPublish" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 text-amber-300 border-amber-400/30 hover:border-amber-400/60 flex items-center gap-1.5"><i class="fa-solid fa-rotate-right"></i><span>Reintentar</span></button>
+        ${onRetry ? '<button id="btnRetryPublish" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 text-amber-300 border-amber-400/30 hover:border-amber-400/60 flex items-center gap-1.5"><i class="fa-solid fa-rotate-right"></i><span>Reintentar</span></button>' : ''}
         <button id="btnClosePublishError" type="button" class="lat-capsule-btn outline text-xs py-2 px-4"><span>Cerrar y Conservar Cambios</span></button>
       </div>
     </div>

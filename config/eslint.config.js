@@ -27,6 +27,9 @@ export default [
   {
     files: ['src/**/model/**/*.js', 'src/**/data/**/*.js'],
     rules: {
+      'no-restricted-properties': ['error', ...['window', 'document', 'fetch', 'localStorage', 'sessionStorage',
+        'setTimeout', 'setInterval', 'requestAnimationFrame'].map(property => ({ object: 'globalThis', property,
+        message: 'Los modelos y datos no acceden a efectos mediante globalThis; inyectar adaptadores en application.' }))],
       'no-restricted-globals': ['error', 'window', 'document', 'fetch', 'localStorage',
         'sessionStorage', 'setTimeout', 'setInterval', 'requestAnimationFrame'],
     },

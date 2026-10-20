@@ -13,7 +13,8 @@ async function copyBadgeUrl(state, notify, copyText) {
 }
 
 function checkManualCompletion(state, showCompletionModal) {
-  if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio) {
+  if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio && !state.manualCompletionShown) {
+    state.manualCompletionShown = true;
     setTimeout(() => showCompletionModal?.({ isManual: true }), 600);
   }
 }
@@ -44,7 +45,7 @@ export function createInjectionStepActions({
     downloadAioConfigJson: meta => downloadAioConfigJson(meta),
     downloadCompiledBadgeJson: () => controller.downloadCompiledBadgeJson?.(),
     recordCompletion: () => recordCompletion?.().catch(() => {}),
-    goToStep: stepNum => (typeof window !== 'undefined' ? window.goToStep?.(stepNum) : null),
+    goToStep: stepNum => controller.stepper?.goToStep(stepNum),
     executePipeline: () => executePipeline?.(),
     showCompletionModal: opt => controller.showCompletionModal?.(opt),
     checkCompletion: () => checkManualCompletion(state, opt => controller.showCompletionModal?.(opt)),

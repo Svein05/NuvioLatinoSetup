@@ -159,10 +159,12 @@ export function setupStepperNavigation({ state, actions, root = document }) {
   const goToStep = target => handleGoToStep({ targetStep: target, state, actions, closeDrawer });
   const changeStep = delta => handleChangeStep({ delta, state, actions });
 
-  if (typeof window !== 'undefined') {
-    window.goToStep = goToStep;
-    window.changeStep = changeStep;
-  }
+  root.querySelectorAll?.('[data-target-step]').forEach(button => lifetime.on(button, 'click', () => {
+    goToStep(Number(button.dataset.targetStep));
+  }));
+  root.querySelectorAll?.('[data-step-delta]').forEach(button => lifetime.on(button, 'click', () => {
+    changeStep(Number(button.dataset.stepDelta));
+  }));
 
   return {
     openDrawer,

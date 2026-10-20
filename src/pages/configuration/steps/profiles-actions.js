@@ -59,7 +59,7 @@ async function checkProfileAioStatus({ state, client, config, profileId }) {
     profileId,
   });
   const hasAio = (addons || []).some(isAioMetadataAddon);
-  if (state.hasLoadedAddonsForProfile !== profileId) {
+  if (String(state.selectedProfileId) === String(profileId) && state.hasLoadedAddonsForProfile !== profileId) {
     state.setProfileAddons(addons, profileId);
   }
   return hasAio;

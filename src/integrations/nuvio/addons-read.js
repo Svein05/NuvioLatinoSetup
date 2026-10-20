@@ -1,4 +1,4 @@
-import { createTransport } from './transport.js';
+import { createTransport, isSchemaMismatch } from './transport.js';
 
 export async function getSyncOwner(context) {
   const { userId } = context;
@@ -9,8 +9,8 @@ export async function getSyncOwner(context) {
     if (typeof data === 'string' && data.length > 5) return data;
     if (Array.isArray(data) && typeof data[0] === 'string') return data[0];
     if (data?.owner_id) return data.owner_id;
-  } catch {
-    // Retornar fallback a userId
+  } catch (error) {
+    if (!isSchemaMismatch(error)) throw error;
   }
   return userId;
 }
@@ -18,12 +18,7 @@ export async function getSyncOwner(context) {
 export async function listAddons(context) {
   const { userId, profileId } = context;
   const request = createTransport(context);
-  let ownerId = userId;
-  try {
-    ownerId = await getSyncOwner(context);
-  } catch {
-    // Usar userId si getSyncOwner falla
-  }
+  const ownerId = await getSyncOwner(context) || userId;
 
   const profId = Number(profileId) || profileId;
   const query = new URLSearchParams({
@@ -33,11 +28,7 @@ export async function listAddons(context) {
     order: 'sort_order.asc,created_at.asc',
   });
 
-  try {
-    const data = await request(`addons?${query}`, { method: 'GET' });
-    if (Array.isArray(data)) return data;
-  } catch {
-    // Retornar lista vacía ante error
-  }
-  return [];
+  const data = await request(`addons?${query}`, { method: 'GET' });
+  if (!Array.isArray(data)) throw new Error('Nuvio no devolvió una lista de addons válida.');
+  return data;
 }

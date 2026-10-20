@@ -1,3 +1,6 @@
+import { isAvatarPathSegment } from '../../../features/avatars/index.js';
+import { escapeHtml } from '../../../shared/ui/safe-markup.js';
+
 function updateModalFields({ avatar, currentOverride, resolveCdnUrl }) {
   const imgPreview = document.getElementById('modalAvatarPreview');
   const modalCharInput = document.getElementById('modalCharacterInput');
@@ -38,14 +41,14 @@ export function openEditModal({
   const validateInput = () => {
     const rawVal = (modalCharInput?.value || '').trim().replace(/\.webp$/i, '');
     const candidateFilename = rawVal ? `${rawVal}.webp` : '';
-    if (!rawVal) {
-      if (modalStatus) modalStatus.innerHTML = '<span class="text-rose-400 font-medium">El nombre no puede estar vacío.</span>';
+    if (!isAvatarPathSegment(rawVal)) {
+      if (modalStatus) modalStatus.innerHTML = '<span class="text-rose-400 font-medium">Escribe un nombre válido, sin rutas ni caracteres especiales.</span>';
       if (btnSave) { btnSave.disabled = true; btnSave.classList.add('opacity-40', 'cursor-not-allowed'); }
       return false;
     }
     const collision = checkCollision(candidateFilename);
     if (collision.hasCollision) {
-      if (modalStatus) modalStatus.innerHTML = `<span class="text-rose-400 font-medium flex items-center justify-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Ya existe "${collision.conflictingFileName}" en esta carpeta.</span>`;
+      if (modalStatus) modalStatus.innerHTML = `<span class="text-rose-400 font-medium flex items-center justify-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Ya existe "${escapeHtml(collision.conflictingFileName)}" en esta carpeta.</span>`;
       modalCharInput?.classList.add('border-rose-500/80');
       if (btnSave) { btnSave.disabled = true; btnSave.classList.add('opacity-40', 'cursor-not-allowed'); }
       return false;

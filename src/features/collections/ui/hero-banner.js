@@ -1,3 +1,4 @@
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
 const DEFAULT_BACKDROP = 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1200';
 
 function formatTypeBadges(folder) {
@@ -26,7 +27,7 @@ export function renderHeroBanner(folder) {
 
   return `
     <div id="miniNuvioHeroBanner" class="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden border border-white/10 shadow-[var(--shadow-lift)] bg-[#08090c] flex flex-col justify-end p-4 sm:p-6 transition-all duration-300">
-      <img src="${backdrop}" alt="${title}" class="absolute inset-0 w-full h-full object-cover opacity-35 filter blur-[1px] scale-105 transition-all duration-500" onerror="this.src='${DEFAULT_BACKDROP}'">
+      <img src="${escapeHtml(safeImageUrl(backdrop, DEFAULT_BACKDROP))}" alt="${escapeHtml(title)}" class="absolute inset-0 w-full h-full object-cover opacity-35 filter blur-[1px] scale-105 transition-all duration-500" data-fallback-src="${DEFAULT_BACKDROP}">
       <div class="absolute inset-0 bg-gradient-to-t from-[#08090c] via-[#08090c]/70 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-r from-[#08090c]/90 via-[#08090c]/40 to-transparent"></div>
 
@@ -41,10 +42,10 @@ export function renderHeroBanner(folder) {
         </div>
 
         <div class="flex items-center gap-3">
-          ${logo ? `<img src="${logo}" alt="${title}" class="h-8 max-w-[160px] object-contain drop-shadow-md">` : ''}
+          ${logo ? `<img src="${escapeHtml(safeImageUrl(logo))}" alt="${escapeHtml(title)}" class="h-8 max-w-[160px] object-contain drop-shadow-md">` : ''}
           <h2 class="text-xl md:text-2xl font-black text-white tracking-wide drop-shadow-md flex items-center gap-2">
-            <span>${emoji}</span>
-            <span>${title}</span>
+            <span>${escapeHtml(emoji)}</span>
+            <span>${escapeHtml(title)}</span>
           </h2>
         </div>
 

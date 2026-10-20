@@ -1,24 +1,25 @@
+import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { renderProfilesList, renderProfileWarningUI } from './profiles-view.js';
 import { createWizardAvatarPicker } from './wizard-avatar-picker.js';
 
-function bindDialogButtons(root, { closeNewModal, closeDelModal, picker, onOpenNew }) {
-  root.getElementById('btnOpenNewProfileModal')?.addEventListener('click', onOpenNew);
-  root.getElementById('btnCloseNewProfileModal')?.addEventListener('click', closeNewModal);
-  root.getElementById('btnCancelNewProfile')?.addEventListener('click', closeNewModal);
-  root.getElementById('btnCloseDeleteProfileModal')?.addEventListener('click', closeDelModal);
-  root.getElementById('btnCancelDeleteProfile')?.addEventListener('click', closeDelModal);
+function bindDialogButtons(root, { closeNewModal, closeDelModal, picker, onOpenNew }, lifetime) {
+  lifetime.on(root.getElementById('btnOpenNewProfileModal'), 'click', onOpenNew);
+  lifetime.on(root.getElementById('btnCloseNewProfileModal'), 'click', closeNewModal);
+  lifetime.on(root.getElementById('btnCancelNewProfile'), 'click', closeNewModal);
+  lifetime.on(root.getElementById('btnCloseDeleteProfileModal'), 'click', closeDelModal);
+  lifetime.on(root.getElementById('btnCancelDeleteProfile'), 'click', closeDelModal);
 
-  root.getElementById('btnPickNewProfileAvatar')?.addEventListener('click', picker.openPicker);
-  root.getElementById('btnCloseWizardAvatarPicker')?.addEventListener('click', picker.closePicker);
-  root.getElementById('btnWizardFranchisesTrigger')?.addEventListener('click', picker.openFranchises);
-  root.getElementById('btnCloseWizardFranchises')?.addEventListener('click', () => {
+  lifetime.on(root.getElementById('btnPickNewProfileAvatar'), 'click', picker.openPicker);
+  lifetime.on(root.getElementById('btnCloseWizardAvatarPicker'), 'click', picker.closePicker);
+  lifetime.on(root.getElementById('btnWizardFranchisesTrigger'), 'click', picker.openFranchises);
+  lifetime.on(root.getElementById('btnCloseWizardFranchises'), 'click', () => {
     root.getElementById('modalWizardFranchises')?.classList.replace('flex', 'hidden');
   });
-  root.getElementById('inputWizardAvatarSearch')?.addEventListener('input', (e) => picker.setFilterQuery(e.target.value.trim()));
+  lifetime.on(root.getElementById('inputWizardAvatarSearch'), 'input', (e) => picker.setFilterQuery(e.target.value.trim()));
 }
 
-function bindProfileActions(root, { actions, closeNewModal, closeDelModal, render, getAvatarUrl, getPendingDelete }) {
-  root.getElementById('btnConfirmDeleteProfile')?.addEventListener('click', async () => {
+function bindProfileActions(root, { actions, closeNewModal, closeDelModal, render, getAvatarUrl, getPendingDelete }, lifetime) {
+  lifetime.on(root.getElementById('btnConfirmDeleteProfile'), 'click', async () => {
     const pending = getPendingDelete();
     if (!pending) return;
     try {
@@ -32,9 +33,12 @@ function bindProfileActions(root, { actions, closeNewModal, closeDelModal, rende
   });
 
   const confirmCreate = async () => {
+    const button = root.getElementById('btnConfirmNewProfile') || root.getElementById('btnCreateProfile');
+    if (button?.disabled) return;
     const nameInput = root.getElementById('inputNewProfileName') || root.getElementById('newProfileName');
     const name = nameInput?.value.trim();
     if (!name) { actions.notify('Escribe un nombre para el nuevo perfil.', 'warning'); return; }
+    if (button) button.disabled = true;
     try {
       await actions.createProfile({ name, avatarUrl: getAvatarUrl() });
       closeNewModal();
@@ -42,11 +46,11 @@ function bindProfileActions(root, { actions, closeNewModal, closeDelModal, rende
       actions.notify(`✓ Perfil "${name}" creado con éxito.`, 'success');
     } catch (err) {
       actions.notify(`Error al crear perfil: ${err.message}`, 'error');
-    }
+    } finally { if (button) button.disabled = false; }
   };
 
   const btnConfirm = root.getElementById('btnConfirmNewProfile') || root.getElementById('btnCreateProfile');
-  btnConfirm?.addEventListener('click', confirmCreate);
+  lifetime.on(btnConfirm, 'click', confirmCreate);
 }
 
 function createWarningUpdater(state, actions, root) {
@@ -61,11 +65,13 @@ function createWarningUpdater(state, actions, root) {
     }
     renderProfileWarningUI({ isAnalyzing: true, displayName: profileName }, root);
     const hasAio = await actions.checkProfileHasAio(profileId).catch(() => false);
+    if (String(state.selectedProfileId) !== String(profileId)) return;
     renderProfileWarningUI({ isNew: false, hasAio, displayName: profileName }, root);
   };
 }
 
 export function mountProfilesStep({ state, actions, root = document } = {}) {
+  const lifetime = createLifetime();
   let pendingDelete = null;
   let newProfileAvatarUrl = null;
 
@@ -112,9 +118,9 @@ export function mountProfilesStep({ state, actions, root = document } = {}) {
     updateWarning(state.selectedProfileId, state.selectedProfileName);
   };
 
-  bindDialogButtons(root, { closeNewModal, closeDelModal, picker, onOpenNew });
-  bindProfileActions(root, { actions, closeNewModal, closeDelModal, render, getAvatarUrl: () => newProfileAvatarUrl, getPendingDelete: () => pendingDelete });
+  bindDialogButtons(root, { closeNewModal, closeDelModal, picker, onOpenNew }, lifetime);
+  bindProfileActions(root, { actions, closeNewModal, closeDelModal, render, getAvatarUrl: () => newProfileAvatarUrl, getPendingDelete: () => pendingDelete }, lifetime);
 
   render();
-  return { render, updateWarning, openNewModal: onOpenNew, promptDelete: onPromptDelete };
+  return { render, updateWarning, openNewModal: onOpenNew, closeNewModal, promptDelete: onPromptDelete, dispose: () => lifetime.dispose() };
 }

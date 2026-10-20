@@ -1,0 +1,37 @@
+import { expect, test } from '@playwright/test';
+import { isolateExternalServices } from './support/offline-services.js';
+
+test('manual wizard remains responsive through addons and downloads valid configuration files', async ({ page }) => {
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await isolateExternalServices(page);
+  await page.route('https://api.themoviedb.org/3/authentication?**', route => route.fulfill({ json: { success: true } }));
+  await page.route('https://api.mdblist.com/user?**', route => route.fulfill({ json: { user_id: 1, username: 'synthetic' } }));
+  await page.goto('/configuration/');
+  await page.locator('#btnContinueWithoutAccount').click();
+  await page.locator('#btnNext').click();
+  await page.locator('#keyTmdb').fill('0123456789abcdef0123456789abcdef');
+  await page.locator('#keyMdblist').fill('synthetic-mdblist-key');
+  await page.locator('#btnValidateApiKeys').click();
+  await expect(page.locator('#btnNext')).toBeEnabled();
+  await page.locator('#btnNext').click();
+  await expect(page.locator('#step-5')).toBeVisible();
+  await page.locator('#cardPosterBetter').click();
+  await page.locator('#btnNext').click();
+  await expect(page.locator('#step-6')).toBeVisible();
+  await page.locator('#btnOpenIndex').click();
+  await expect(page.locator('#indexDrawer')).toHaveClass(/open/);
+  await page.locator('#btnCloseIndex').click();
+  await page.locator('#btnNext').click();
+  await expect(page.locator('#step-7')).toBeVisible();
+  await page.locator('#aioPassword').fill('synthetic-config-password');
+  await expect(page.locator('#btnCopyAioConfig')).toBeEnabled();
+  const collections = page.waitForEvent('download');
+  await page.locator('#btnDownloadCollections').click();
+  expect((await collections).suggestedFilename()).toBe('NuvioCollections_Latino.json');
+  const metadata = page.waitForEvent('download');
+  await page.locator('#btnDownloadAioConfig').click();
+  expect((await metadata).suggestedFilename()).toBe('AIOMetadata_Latino.json');
+  await expect(page.locator('#completionModal')).toBeVisible();
+  expect(errors).toEqual([]);
+});

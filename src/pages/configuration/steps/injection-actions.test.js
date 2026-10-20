@@ -58,4 +58,19 @@ describe('injection-actions', () => {
     expect(copyText).toHaveBeenCalled();
     expect(notify).toHaveBeenCalledWith(expect.stringContaining('copiado al portapapeles'), 'success');
   });
+
+  it('announces manual completion once after both files have been exported', () => {
+    vi.useFakeTimers();
+    try {
+      const showCompletionModal = vi.fn();
+      const state = { isManualMode: true, manualCopiedCollections: true, manualCopiedAio: false };
+      const actions = createInjectionStepActions({ state, controller: { showCompletionModal } });
+      actions.checkCompletion();
+      expect(showCompletionModal).not.toHaveBeenCalled();
+      state.manualCopiedAio = true;
+      actions.checkCompletion(); actions.checkCompletion();
+      vi.runAllTimers();
+      expect(showCompletionModal).toHaveBeenCalledOnce();
+    } finally { vi.useRealTimers(); }
+  });
 });

@@ -60,11 +60,13 @@ export function mountStep5Preferences(controller, state, root) {
     },
     root: targetRoot,
   });
+  controller.disposePreferencesStep = () => controller.preferencesStep.dispose();
 }
 
 export function mountStep6Addons(controller, state, root) {
   const targetRoot = getRoot(root);
   if (!targetRoot) return;
+  controller.addonsStep?.dispose();
   controller.addonsStep = mountAddonsStep({
     state,
     actions: {

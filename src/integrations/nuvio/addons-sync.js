@@ -1,104 +1,54 @@
-import { createTransport } from './transport.js';
+import { createTransport, isSchemaMismatch } from './transport.js';
 import { getSyncOwner, listAddons } from './addons-read.js';
-import { deleteAddon, installAddon, updateAddonOrder } from './addons-write.js';
+import { deleteAddon, installAddon, updateAddon, updateAddonOrder } from './addons-write.js';
 
 function isAioMetadataMatch(addon, instances = []) {
-  const name = String(addon?.name || '').toLowerCase().trim();
-  const url = String(addon?.url || addon?.manifest_url || '').toLowerCase().trim();
+  const name = String(addon?.name || '').toLowerCase();
+  const url = String(addon?.manifest_url || addon?.url || '').toLowerCase();
   if (name.includes('aiostreams') || url.includes('aiostreams')) return false;
   if (name.includes('aiometadata') || name === 'aiometa' || url.includes('aiometadata')) return true;
-  return instances.some(inst => {
-    const host = inst.replace(/^https?:\/\//i, '').replace(/\/+$/, '').toLowerCase();
-    return host && url.includes(host);
+  return instances.some(instance => {
+    try { return new URL(url).host === new URL(instance).host; } catch { return false; }
   });
-}
-
-async function removeDuplicateAioAddons(context, matches, targetId, profId) {
-  for (const match of matches) {
-    if (match.id && String(match.id) !== String(targetId)) {
-      try {
-        await deleteAddon({ ...context, addonId: match.id, profileId: profId });
-      } catch {
-        // Ignorar fallo al eliminar duplicado
-      }
-    }
-  }
-}
-
-async function patchExistingAioAddon(context, targetAioId, manifestUrl, profId) {
-  const request = createTransport(context);
-  try {
-    await request(`addons?id=eq.${encodeURIComponent(targetAioId)}`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
-      body: { url: manifestUrl, manifest_url: manifestUrl, transport_url: manifestUrl, name: 'AIOMetadata', sort_order: 1, enabled: true },
-    });
-    return { success: true, updated: true, addonId: targetAioId };
-  } catch {
-    try {
-      await deleteAddon({ ...context, addonId: targetAioId, profileId: profId });
-    } catch {
-      // Ignorar fallo de borrado tras patch fallido
-    }
-    return null;
-  }
 }
 
 export async function installOrUpdateAioAddon(context) {
   const { profileId, manifestUrl, existingAioId, instances = [] } = context;
-  const profId = Number(profileId) || profileId;
-
-  let liveAddons = [];
-  try {
-    liveAddons = await listAddons({ ...context, profileId: profId });
-  } catch {
-    // Continuar si falla listado
-  }
-
-  const matches = liveAddons.filter(a => isAioMetadataMatch(a, instances));
-  const targetId = existingAioId || matches[0]?.id || null;
-  await removeDuplicateAioAddons(context, matches, targetId, profId);
-
+  const live = await listAddons(context);
+  const matches = live.filter(addon => isAioMetadataMatch(addon, instances));
+  const targetId = existingAioId || matches[0]?.id;
+  let result;
   if (targetId) {
-    const patched = await patchExistingAioAddon(context, targetId, manifestUrl, profId);
-    if (patched) return patched;
+    await updateAddon({ ...context, addonId: targetId, name: 'AIOMetadata', manifestUrl, sortOrder: 1, enabled: true });
+    result = { success: true, updated: true, addonId: targetId };
+  } else {
+    const installed = await installAddon({ ...context,
+      addonData: { profile_id: profileId, manifest_url: manifestUrl, name: 'AIOMetadata', sort_order: 1 } });
+    result = { success: true, installed: true, addonId: installed.addonId };
   }
-
-  const installed = await installAddon({
-    ...context,
-    addonData: { profile_id: profId, manifest_url: manifestUrl, url: manifestUrl, name: 'AIOMetadata', sort_order: 1 },
-  });
-  return { success: true, installed: true, addonId: installed?.addonId || null };
+  // Never delete the old configuration before confirming its replacement.
+  for (const addon of matches) {
+    if (String(addon.id) !== String(result.addonId)) await deleteAddon({ ...context, addonId: addon.id });
+  }
+  return result;
 }
 
 export async function syncAddonsOrder(context) {
-  const { profileId, addons = [], userId } = context;
-  const profId = Number(profileId) || profileId;
-  const request = createTransport(context);
-
-  let ownerId = userId;
-  try {
-    ownerId = await getSyncOwner(context);
-  } catch {
-    // Usar userId predeterminado
+  const { profileId, addons = [] } = context;
+  const ownerId = await getSyncOwner(context);
+  for (const addon of addons.filter(item => item.id)) {
+    await updateAddonOrder({ ...context, addonId: addon.id, sortOrder: addon.sort_order });
   }
-
-  await Promise.all(addons.filter(a => a.id).map(a => updateAddonOrder({ ...context, addonId: a.id, sortOrder: a.sort_order })));
-
+  const payload = addons.map(addon => ({
+    id: addon.id, user_id: ownerId, profile_id: profileId, name: addon.name,
+    url: addon.manifest_url || addon.url, manifest_url: addon.manifest_url || addon.url,
+    sort_order: addon.sort_order, enabled: addon.enabled !== false,
+  }));
   try {
-    const syncPayload = addons.map(a => ({
-      id: a.id || undefined,
-      user_id: ownerId,
-      profile_id: profId,
-      name: a.name,
-      url: a.manifest_url || a.url,
-      manifest_url: a.manifest_url || a.url,
-      sort_order: a.sort_order,
-      enabled: a.enabled !== false,
-    }));
-    await request('rpc/sync_push_addons', { body: { p_profile_id: profId, p_addons: syncPayload } });
-  } catch {
-    // Sincronización RPC no fatal
+    await createTransport(context)('rpc/sync_push_addons', { body: { p_profile_id: Number(profileId), p_addons: payload } });
+  } catch (error) {
+    if (!isSchemaMismatch(error)) throw error;
+    if (addons.some(addon => !addon.id)) throw error;
   }
   return { success: true };
 }

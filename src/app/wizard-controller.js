@@ -178,6 +178,7 @@ export class AppController {
         avatarCatalog: { loadAvatarsCatalog, filterAvatars, getFranchisesSummary, resolveAvatarCdnUrl },
       }),
     });
+    this.disposeProfilesStep = () => this.profilesStep.dispose();
   }
 
   selectProfile(id, name) {
@@ -205,13 +206,15 @@ export class AppController {
   async renderAddonsManager() {
     const container = document.getElementById('addonsManagerContainer');
     if (!container) return;
-    await syncProfileAddonsIfNeeded({
+    const loaded = await syncProfileAddonsIfNeeded({
       state,
       client: NuvioClient,
       config: { apiUrl: CONFIG.NUVIO_API_URL, anonKey: CONFIG.NUVIO_PUBLIC_ANON_KEY },
       container,
     });
-    this.addonsStep?.render();
+    if (loaded) this.addonsStep?.render();
+    else document.getElementById('btnRetryWizardAddons')?.addEventListener('click', () => this.renderAddonsManager(), { once: true });
+    this.updateNavigationButtons();
   }
 
   setupStep6Injection() {

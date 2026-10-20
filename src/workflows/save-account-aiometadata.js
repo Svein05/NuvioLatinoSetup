@@ -33,7 +33,8 @@ export function applyAioPosterConfig(cfg, { engine, customPosterUrl, tmdbKey = '
 }
 
 export async function saveAccountAioMetadata({ state, updateMetadataConfiguration, resolveOwnerInstanceUrl, ui = {} }) {
-  if (!state.dirty?.aiometadata || !state.aioUuid || !state.aioConfig) return;
+  if (!state.dirty?.aiometadata) return;
+  if (!state.aioUuid || !state.aioConfig) throw new Error('Carga la configuración de AIOMetadata antes de guardar.');
 
   const tmdbKeyToSave = (state.settings?.tmdb_api_key || state.originalSettings?.tmdb_api_key || '').trim();
   const mdblistKeyToSave = (state.settings?.mdblist_api_key || state.originalSettings?.mdblist_api_key || '').trim();

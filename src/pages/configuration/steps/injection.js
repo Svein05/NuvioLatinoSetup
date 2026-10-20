@@ -27,7 +27,7 @@ function bindPasswordControls({ lifetime, root, state, onSync, notify }) {
 
   if (btnGen && input) {
     lifetime.on(btnGen, 'click', () => {
-      const random = `Latino-${Math.random().toString(36).substring(2, 8)}-${Math.floor(1000 + Math.random() * 9000)}`;
+      const random = `Latino-${crypto.randomUUID().replaceAll('-', '')}-${crypto.getRandomValues(new Uint32Array(1))[0]}`;
       input.value = random;
       state.aiometadata.password = random;
       onSync();
@@ -54,7 +54,7 @@ function bindManualCopyActions({ lifetime, root, state, actions }) {
     }
     try {
       await actions.copyText(JSON.stringify(state.getSynchronizedMetadataPayload(), null, 2));
-      state.manualCopiedMetadata = true;
+      state.manualCopiedAio = true;
       actions.notify?.('✓ Archivo JSON de AIOMetadata copiado al portapapeles', 'success');
       actions.checkCompletion?.();
     } catch { actions.notify?.('No se pudo copiar automáticamente al portapapeles.', 'warning'); }
@@ -68,7 +68,8 @@ function bindManualCopyActions({ lifetime, root, state, actions }) {
 function bindManualDownloadActions({ lifetime, root, state, actions }) {
   lifetime.on(root.querySelector?.('#btnDownloadCollections'), 'click', () => {
     actions.downloadCollectionsJson?.(state.getSynchronizedNuvioCollections());
-    actions.recordCompletion?.();
+    state.manualCopiedCollections = true;
+    actions.checkCompletion?.();
   });
 
   lifetime.on(root.querySelector?.('#btnDownloadAioConfig'), 'click', () => {
@@ -78,7 +79,8 @@ function bindManualDownloadActions({ lifetime, root, state, actions }) {
       return;
     }
     actions.downloadAioConfigJson?.(state.getSynchronizedMetadataPayload());
-    actions.recordCompletion?.();
+    state.manualCopiedAio = true;
+    actions.checkCompletion?.();
   });
 
   lifetime.on(root.querySelector?.('#btnDownloadBadges'), 'click', () => actions.downloadCompiledBadgeJson?.());

@@ -1,3 +1,5 @@
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
+
 const CANONICAL_STYLES = [
   { id: 'NetflixStyle', name: 'Netflix Style' },
   { id: 'IconsStyle', name: 'Icons Style' },
@@ -56,14 +58,14 @@ function renderAvatarCard(av, override, resolveCdnUrl) {
   }
 
   return `
-    <div class="${cardClasses}" data-avatar-id="${av.id}">
+    <div class="${cardClasses}" data-avatar-id="${escapeHtml(av.id)}">
       ${badgeHtml}
       <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative flex items-center justify-center group-hover:scale-105 transition-transform">
-        <img src="${displayImg}" alt="${displayFilename}" class="w-full h-full object-cover" loading="lazy">
+        <img src="${escapeHtml(safeImageUrl(displayImg))}" alt="${escapeHtml(displayFilename)}" class="w-full h-full object-cover" loading="lazy">
       </div>
       <div class="w-full space-y-0.5">
-        <h4 class="text-xs font-mono font-medium text-white truncate max-w-full" title="${displayFilename}">${displayFilename}</h4>
-        <span class="inline-block text-[9px] text-amber-300/80 bg-amber-400/10 px-1.5 py-0.5 rounded font-mono truncate max-w-full">${av.styleName || av.style}</span>
+        <h4 class="text-xs font-mono font-medium text-white truncate max-w-full" title="${escapeHtml(displayFilename)}">${escapeHtml(displayFilename)}</h4>
+        <span class="inline-block text-[9px] text-amber-300/80 bg-amber-400/10 px-1.5 py-0.5 rounded font-mono truncate max-w-full">${escapeHtml(av.styleName || av.style)}</span>
       </div>
       <button type="button" class="mt-1 w-full py-1.5 text-[11px] rounded-xl sm:rounded-2xl ${isDeleted ? 'bg-rose-500/20 text-rose-300' : 'bg-white/5 hover:bg-amber-400 hover:text-black text-white/70'} font-medium transition-colors flex items-center justify-center gap-1.5">
         <i class="fa-solid ${isDeleted ? 'fa-rotate-left' : 'fa-pen-to-square'} text-[10px]"></i>

@@ -1,5 +1,7 @@
 import {
   checkAvatarFilenameCollision,
+  filterAvatars,
+  prepareModderBatch,
   createStagedState,
   undoLastStagedAction,
   discardStagedItem,
@@ -10,6 +12,7 @@ import { renderQueueView } from './ui/queue-view.js';
 import { renderCollectionsGrid } from './ui/collections-grid.js';
 import { renderStyleFilterButtons, renderCollectionAvatars } from './ui/collection-detail-view.js';
 import { openEditModal } from './ui/edit-modal.js';
+import { releasePreviewUrl } from '../../shared/media/image-converter.js';
 
 function buildCollectionsSummary(list) {
   const groups = new Map();
@@ -31,6 +34,8 @@ function buildCollectionsSummary(list) {
 
 function renderCatalogView({ modderState, stagedState, actions, onSelectAvatar, onRestoreAvatar, onRender }) {
   if (modderState.activeCollection) {
+    const refreshed = buildCollectionsSummary(actions.getAvatars()).find(group => group.id === modderState.activeCollection.id);
+    if (refreshed) modderState.activeCollection = refreshed;
     renderStyleFilterButtons({
       collection: modderState.activeCollection,
       activeStyle: modderState.detailActiveStyle,
@@ -42,11 +47,11 @@ function renderCatalogView({ modderState, stagedState, actions, onSelectAvatar, 
     let avatars = modderState.activeCollection.avatars;
     if (modderState.detailActiveStyle) avatars = avatars.filter(a => a.style === modderState.detailActiveStyle);
     const q = (modderState.detailSearchQuery || '').toLowerCase().trim();
-    if (q) avatars = avatars.filter(a => (a.fileName || '').toLowerCase().includes(q) || (a.characterName || '').toLowerCase().includes(q));
+    if (q) avatars = filterAvatars({ query: q }, avatars);
     renderCollectionAvatars({ avatars, overrides: stagedState.avatarOverrides, resolveCdnUrl: actions.resolveCdnUrl, onSelectAvatar, onRestoreAvatar });
   } else {
     renderCollectionsGrid({
-      collections: buildCollectionsSummary(actions.getAvatars()),
+      collections: buildCollectionsSummary(filterAvatars(modderState.catalogFilters, actions.getAvatars())),
       overrides: stagedState.avatarOverrides,
       resolveCdnUrl: actions.resolveCdnUrl,
       onSelectCollection: (col) => {
@@ -101,7 +106,7 @@ function createInitialModderState(session) {
 function renderModderQueue({ modderState, stagedState, actions, updateToolbar }) {
   const getStyle = () => modderState.selectedStyle;
   const getFranchise = () => modderState.isNewFranchise
-    ? document.getElementById('inputNewFranchise')?.value.trim().replace(/[^a-zA-Z0-9_-]/g, '') || ''
+    ? document.getElementById('inputNewFranchise')?.value.trim() || ''
     : modderState.selectedFranchise;
 
   renderQueueView({
@@ -114,13 +119,27 @@ function renderModderQueue({ modderState, stagedState, actions, updateToolbar })
     }),
     onNameChange: (idx, val) => {
       if (modderState.filesQueue[idx]) modderState.filesQueue[idx].characterName = val.trim().replace(/\.webp$/i, '');
+      const button = document.getElementById('btnSubmitBatch');
+      try {
+        prepareModderBatch({ queue: modderState.filesQueue, style: getStyle(), franchise: getFranchise(),
+          allAvatars: actions.getAvatars(), history: stagedState.history, overrides: stagedState.avatarOverrides });
+        if (button) button.disabled = false;
+      } catch { if (button) button.disabled = true; }
     },
     onRemoveItem: (idx) => {
+      releasePreviewUrl(modderState.filesQueue[idx]?.previewUrl);
       modderState.filesQueue.splice(idx, 1);
+      renderModderQueue({ modderState, stagedState, actions, updateToolbar });
       updateToolbar();
     },
     onCommitRender: () => renderModderQueue({ modderState, stagedState, actions, updateToolbar }),
   });
+}
+
+function releaseStagedPreviews(stagedState) {
+  stagedState.history.forEach(action => action.files?.forEach(file => releasePreviewUrl(file.previewUrl)));
+  stagedState.history = [];
+  stagedState.avatarOverrides.clear();
 }
 
 export function createModderController(actions) {
@@ -142,7 +161,12 @@ export function createModderController(actions) {
   });
 
   return {
-    modderState, stagedState, updateToolbar, renderCatalog,
+    modderState, stagedState, updateToolbar, renderCatalog, getAvatars: actions.getAvatars,
+    clearStaged: () => releaseStagedPreviews(stagedState),
+    dispose: () => {
+      modderState.filesQueue.forEach(item => releasePreviewUrl(item.previewUrl));
+      releasePreviewUrl(modderState.editReplacementWebp?.previewUrl); releaseStagedPreviews(stagedState);
+    },
     renderQueue: () => renderModderQueue({ modderState, stagedState, actions, updateToolbar }),
     closeDetail: () => {
       modderState.activeCollection = null;
@@ -152,10 +176,12 @@ export function createModderController(actions) {
     },
     undo: () => {
       const res = undoLastStagedAction(stagedState);
+      res?.lastAction.files?.forEach(file => releasePreviewUrl(file.previewUrl));
       if (res) { updateToolbar(); renderCatalog(); showModderToast(res.message, 'info'); }
     },
     discardItem: (key) => {
       const res = discardStagedItem(stagedState, key);
+      releasePreviewUrl(res?.removed?.previewUrl);
       if (res) { updateToolbar(); renderCatalog(); showModderToast('Cambio descartado.', 'info'); }
     },
   };

@@ -46,9 +46,9 @@ describe('pullProfileSettings', () => {
     expect(result).toEqual({ language: 'es-MX' });
   });
 
-  it('returns null when no settings are found or endpoints fail', async () => {
+  it('returns null when the legacy schema fallback confirms there are no settings', async () => {
     const fetchImpl = vi.fn()
-      .mockResolvedValueOnce(Response.json({}, { status: 500 }))
+      .mockResolvedValueOnce(Response.json({ code: 'PGRST202' }, { status: 404 }))
       .mockResolvedValueOnce(Response.json([]))
       .mockResolvedValueOnce(Response.json([]));
 

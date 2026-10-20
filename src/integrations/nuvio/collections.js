@@ -1,4 +1,4 @@
-import { createTransport } from './transport.js';
+import { createTransport, isSchemaMismatch } from './transport.js';
 
 function parseCollectionsData(data) {
   if (Array.isArray(data)) return data;
@@ -18,6 +18,7 @@ export async function pushCollections(context) {
     });
     return { success: true, method: 'rpc' };
   } catch (rpcErr) {
+    if (!isSchemaMismatch(rpcErr)) throw rpcErr;
     try {
       await request('collections', {
         headers: { Prefer: 'resolution=merge-duplicates' },

@@ -6,6 +6,7 @@ export function createTransport({ apiUrl, apikey, accessToken, fetchImpl, signal
     new URL(resource, root).href,
     {
       method, signal, fetchImpl, responseMetadata,
+      allowEmpty: ['POST', 'PATCH', 'DELETE'].includes(method) && !headers.Prefer?.includes('return=representation'),
       headers: {
         apikey,
         Authorization: `Bearer ${accessToken}`,

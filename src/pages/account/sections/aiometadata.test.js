@@ -3,7 +3,7 @@ import { renderAioSection } from './aiometadata.js';
 
 describe('aiometadata section', () => {
   it('renders unlock prompt when aioProtected is true', () => {
-    const card = { innerHTML: '' };
+    const card = { innerHTML: '', querySelectorAll: () => [], querySelector: () => null };
     const root = { getElementById: vi.fn(id => (id === 'accountAioCard' ? card : null)) };
     const state = { aioProtected: true, aioUuid: 'secret-uuid' };
 
@@ -13,7 +13,7 @@ describe('aiometadata section', () => {
   });
 
   it('renders identity and engine options when unlocked', () => {
-    const card = { innerHTML: '' };
+    const card = { innerHTML: '', querySelectorAll: () => [], querySelector: () => null };
     const root = { getElementById: vi.fn(id => (id === 'accountAioCard' ? card : null)) };
     const state = { aioProtected: false, aioUuid: 'open-uuid', posterEngine: 'betterposter' };
 

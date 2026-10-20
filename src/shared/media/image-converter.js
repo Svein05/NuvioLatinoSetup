@@ -7,6 +7,10 @@ export function formatBytes(bytes, decimals = 1) {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
 
+export function releasePreviewUrl(value) {
+  if (typeof value === 'string' && value.startsWith('blob:')) URL.revokeObjectURL(value);
+}
+
 function processCanvasWebp(img, quality) {
   const width = img.naturalWidth || 512;
   const height = img.naturalHeight || 512;

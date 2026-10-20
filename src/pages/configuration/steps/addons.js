@@ -128,7 +128,6 @@ export function mountAddonsStep({ state, actions, root = document } = {}) {
   const render = () => {
     renderAddonsContainer(root, { addons: state.profileAddons, aioDebrids: state.aiostreams?.debrids });
     enrichProfileAddons(state.profileAddons, { cache, onUpdate: () => renderAddonsContainer(root, { addons: state.profileAddons, aioDebrids: state.aiostreams?.debrids }) });
-    actions.onUpdate?.();
   };
 
   const openAdd = (url = '') => {

@@ -5,17 +5,13 @@ async function cleanDiscardedAddons({ client, config, auth, profileId, deletedId
   }
   log(`Eliminando ${deletedIds.size} addon(s) descartados del perfil...`, 'info');
   for (const addonId of deletedIds) {
-    try {
-      await client.deleteAddon({
-        apiUrl: config.nuvioApiUrl,
-        apikey: auth?.apikey || config.nuvioPublicAnonKey,
-        accessToken: auth?.accessToken,
-        addonId,
-        profileId,
-      });
-    } catch {
-      // Ignorar fallo de borrado individual
-    }
+    await client.deleteAddon({
+      apiUrl: config.nuvioApiUrl,
+      apikey: auth?.apikey || config.nuvioPublicAnonKey,
+      accessToken: auth?.accessToken,
+      addonId,
+      profileId,
+    });
   }
   log(`✓ ${deletedIds.size} addon(s) descartados eliminados correctamente.`, 'success');
 }
@@ -33,18 +29,15 @@ async function syncCredentials({ client, config, auth, profileId, apiKeys, isSim
     log(`✓ [Simulado] Credenciales de ${names} vinculadas al perfil.`, 'success');
     return;
   }
-  try {
-    await client.pushProviderCredentials({
-      apiUrl: config.nuvioApiUrl,
-      apikey: auth?.apikey || config.nuvioPublicAnonKey,
-      accessToken: auth?.accessToken,
-      profileId,
-      credentials,
-    });
-    log(`✓ Credenciales de ${names} guardadas en Nuvio.`, 'success');
-  } catch (err) {
-    log(`⚠️ Advertencia al guardar credenciales: ${err?.message || err}`, 'warning');
-  }
+
+  await client.pushProviderCredentials({
+    apiUrl: config.nuvioApiUrl,
+    apikey: auth?.apikey || config.nuvioPublicAnonKey,
+    accessToken: auth?.accessToken,
+    profileId,
+    credentials,
+  });
+  log(`✓ Credenciales de ${names} guardadas en Nuvio.`, 'success');
 }
 
 async function buildBadgeSettings(preferences, services) {

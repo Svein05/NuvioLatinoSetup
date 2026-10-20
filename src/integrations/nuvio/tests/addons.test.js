@@ -13,7 +13,7 @@ describe('nuvio addons integration', () => {
     const owner = await getSyncOwner({ ...context, fetchImpl: fetchImplSuccess });
     expect(owner).toBe('owner-uuid-42');
 
-    const fetchImplFail = vi.fn().mockResolvedValue(Response.json({}, { status: 500 }));
+    const fetchImplFail = vi.fn().mockResolvedValue(Response.json({ code: 'PGRST202' }, { status: 404 }));
     const fallbackOwner = await getSyncOwner({ ...context, fetchImpl: fetchImplFail });
     expect(fallbackOwner).toBe('user-01');
   });
@@ -111,7 +111,7 @@ describe('nuvio addons integration', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(3);
   });
 
-  it('cleans profile addons by listing, deleting individually, mass deleting and calling empty sync_push_addons', async () => {
+  it('cleans only the addons read for this profile, without repeating a destructive synchronization', async () => {
     const fetchImpl = vi.fn()
       .mockResolvedValueOnce(Response.json(['owner-uuid-42'])) // getSyncOwner
       .mockResolvedValueOnce(Response.json([{ id: 'del-1' }])) // listAddons
@@ -121,5 +121,6 @@ describe('nuvio addons integration', () => {
 
     const result = await cleanProfileAddons({ ...context, fetchImpl });
     expect(result).toEqual({ success: true });
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
   });
 });

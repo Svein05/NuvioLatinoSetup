@@ -28,7 +28,7 @@ export function attachControllerDelegates(controller) {
 
   // Step 2 Profiles
   controller.openNewProfileModal = () => prof()?.openNewModal?.();
-  controller.closeNewProfileModal = () => {};
+  controller.closeNewProfileModal = () => prof()?.closeNewModal?.();
   controller.promptDeleteProfile = (id, name) => prof()?.promptDelete?.(id, name);
   controller.renderProfiles = () => prof()?.render?.();
   controller.updateProfileWarning = (id, name) => prof()?.updateWarning?.(id, name);

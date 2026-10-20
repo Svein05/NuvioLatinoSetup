@@ -82,6 +82,7 @@ export class WizardState extends WizardCollectionsState {
     this.selectedProfileName = 'Perfil Manual';
     this.manualCopiedCollections = false;
     this.manualCopiedAio = false;
+    this.manualCompletionShown = false;
     this.unlockStep(3);
     this.currentStep = 3;
     this.notify('MANUAL_MODE_ENABLED');

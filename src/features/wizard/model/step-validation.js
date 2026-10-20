@@ -68,5 +68,9 @@ export function validateWizardStep(stepNumber, state) {
     }
     return { valid: true, error: null };
   }
+  if (stepNumber === 6 && !state.isManualMode && state.selectedProfileId
+    && String(state.hasLoadedAddonsForProfile) !== String(state.selectedProfileId)) {
+    return { valid: false, error: 'Espera a que se carguen los addons del perfil o reintenta su carga.' };
+  }
   return { valid: true, error: null };
 }

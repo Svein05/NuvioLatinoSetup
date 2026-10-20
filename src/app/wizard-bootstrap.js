@@ -1,6 +1,10 @@
 import { createLifetime } from '../shared/ui/lifetime.js';
+import { bindWizardCommands } from '../pages/configuration/commands.js';
+import { managePageDialogs } from '../shared/ui/dialog-accessibility.js';
 
 function connectWizard(controller, state, lifetime) {
+  bindWizardCommands({ controller, lifetime });
+  lifetime.add(managePageDialogs());
   controller.setupNavigation();
   controller.setupStep1Events();
   controller.setupStep2Profiles();
@@ -11,7 +15,11 @@ function connectWizard(controller, state, lifetime) {
   lifetime.add(controller.setupPasswordToggles());
   controller.restoreSession();
   lifetime.add(state.subscribe((snapshot, eventType) => controller.handleStateUpdate(snapshot, eventType)));
-  lifetime.add(() => { controller.disposeAuthStep?.(); controller.disposeApiKeys?.(); });
+  lifetime.add(() => {
+    controller.disposeAuthStep?.(); controller.disposeApiKeys?.(); controller.disposeProfilesStep?.();
+    controller.disposePreferencesStep?.(); controller.addonsStep?.dispose(); controller.injectionStep?.dispose();
+    controller.stepper?.dispose(); controller.miniNuvio?.dispose();
+  });
   controller.updateUI();
 }
 
@@ -35,9 +43,7 @@ function connectPageNavigation(controller, lifetime) {
 export async function initializeWizard({ controller, state, MiniNuvio, loadAvatarsCatalog, initCounter }) {
   const lifetime = createLifetime();
   lifetime.on(window, 'pagehide', event => { if (!event.persisted) lifetime.dispose(); });
-  controller.miniNuvio = new MiniNuvio('miniNuvioContainer');
-  window.miniNuvioInstance = controller.miniNuvio;
-  window.appController = controller;
+  controller.miniNuvio = new MiniNuvio('miniNuvioContainer', { notify: (message, type) => controller.showToast(message, type) });
   initCounter();
   loadAvatarsCatalog().catch(() => console.warn('[Wizard] Catálogo de avatares no disponible.'));
   await state.loadTemplates();

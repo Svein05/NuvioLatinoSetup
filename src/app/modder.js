@@ -15,16 +15,14 @@ import {
 } from '../features/avatars/index.js';
 import { createModderClient } from '../integrations/worker/modder-client.js';
 import { convertToWebp } from '../shared/media/image-converter.js';
+import { managePageDialogs } from '../shared/ui/dialog-accessibility.js';
 import { createModderController } from '../pages/modder/modder-controller.js';
 import { showModderToast } from '../pages/modder/ui/modder-toast.js';
 import { renderPublishBreakdown } from '../pages/modder/ui/publish-modal.js';
-import {
-  bindTabs,
-  bindUploadInputs,
-  bindBatchQueueActions,
-  bindEditModalEvents,
-  bindPublishModalEvents,
-} from './modder-events.js';
+import { bindTabs } from '../pages/modder/tabs.js';
+import { bindUploadInputs, bindBatchQueueActions } from '../pages/modder/upload-controller.js';
+import { bindEditModalEvents } from '../pages/modder/edit-controller.js';
+import { bindPublishModalEvents } from '../pages/modder/publish-controller.js';
 
 export function createModderApp() {
   const session = getModderSession();
@@ -46,7 +44,10 @@ export function createModderApp() {
 
 async function populateSelects() {
   await loadAvatarsCatalog();
+  const savedValues = new Map(['selectStyle', 'selectFranchise', 'manageStyleSelect'].map(id => [id, document.getElementById(id)?.value]));
   const styles = (getStylesSummary() || []).filter(s => s.id !== 'all');
+  const total = document.getElementById('manageTotalBadge');
+  if (total) total.textContent = String(getCompiledAvatars().length);
   const franchises = (getFranchisesSummary() || []).filter(f => f.id !== 'all');
 
   const styleSelect = document.getElementById('selectStyle');
@@ -62,6 +63,7 @@ async function populateSelects() {
   if (manageStyleSelect) {
     manageStyleSelect.innerHTML = `<option value="all">Todos los estilos (${getCompiledAvatars().length})</option>${styles.map(s => `<option value="${s.id}">${s.name} (${s.count})</option>`).join('')}`;
   }
+  savedValues.forEach((value, id) => { if (value) document.getElementById(id).value = value; });
 }
 
 function updateStep2Visibility(controller) {
@@ -93,8 +95,8 @@ async function handleIncomingFiles(controller, files) {
         fileName: `${rawBase}.webp`,
         characterName: rawBase,
       });
-    } catch (err) {
-      console.error(err);
+    } catch {
+      showModderToast('No se pudo convertir una de las imágenes a WebP.', 'error');
     }
   }
   controller.renderQueue();
@@ -123,10 +125,10 @@ function bindNavigation(controller) {
   });
 
   const refreshCatalog = async () => {
-    await loadAvatarsCatalog(true);
-    await populateSelects();
-    controller.renderCatalog();
-    showModderToast(`✓ Catálogo sincronizado con GitHub (${getCompiledAvatars().length} avatares).`, 'success');
+    try {
+      await loadAvatarsCatalog(true); await populateSelects(); controller.renderCatalog();
+      showModderToast(`✓ Catálogo sincronizado con GitHub (${getCompiledAvatars().length} avatares).`, 'success');
+    } catch (error) { showModderToast(`No se pudo sincronizar: ${error.message}`, 'error'); }
   };
   document.getElementById('btnRefreshCatalog')?.addEventListener('click', refreshCatalog);
   document.getElementById('btnRefreshDetailCatalog')?.addEventListener('click', refreshCatalog);
@@ -162,8 +164,9 @@ export async function initModderPage() {
     },
   });
   bindNavigation(controller);
-
-  await populateSelects();
+  const disposeDialogs = managePageDialogs();
+  window.addEventListener('pagehide', event => { if (!event.persisted) { controller.dispose(); disposeDialogs(); } });
+  await populateSelects().catch(error => showModderToast(`Catálogo: ${error.message}`, 'warning'));
   controller.renderCatalog();
   controller.updateToolbar();
 }

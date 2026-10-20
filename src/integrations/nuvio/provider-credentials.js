@@ -1,4 +1,4 @@
-import { createTransport } from './transport.js';
+import { createTransport, isSchemaMismatch } from './transport.js';
 
 function sanitizeCredentials(credentials) {
   return (Array.isArray(credentials) ? credentials : [])
@@ -11,14 +11,10 @@ function sanitizeCredentials(credentials) {
 
 async function pushCredentialsRest(request, profId, valid) {
   for (const cred of valid) {
-    try {
-      await request('provider_credentials', {
-        headers: { Prefer: 'resolution=merge-duplicates' },
-        body: { profile_id: profId, provider: cred.provider, credential_json: cred.credential_json },
-      });
-    } catch {
-      // Continuar con los demás proveedores
-    }
+    await request('provider_credentials', {
+      headers: { Prefer: 'resolution=merge-duplicates' },
+      body: { profile_id: profId, provider: cred.provider, credential_json: cred.credential_json },
+    });
   }
   return { success: true, method: 'rest_fallback', count: valid.length };
 }
@@ -35,11 +31,13 @@ export async function pushProviderCredentials(context) {
   try {
     await request('rpc/sync_push_provider_credentials', { body: payload });
     return { success: true, method: 'rpc', count: valid.length };
-  } catch {
+  } catch (error) {
+    if (!isSchemaMismatch(error)) throw error;
     try {
       await request('rpc/sync_seed_provider_credentials', { body: payload });
       return { success: true, method: 'rpc_seed', count: valid.length };
-    } catch {
+    } catch (error) {
+      if (!isSchemaMismatch(error)) throw error;
       return pushCredentialsRest(request, profId, valid);
     }
   }
@@ -52,18 +50,15 @@ export async function pullProviderCredentials(context) {
 
   try {
     const data = await request('rpc/sync_pull_provider_credentials', { body: { p_profile_id: profId } });
-    if (Array.isArray(data) && data.length > 0) return data;
+    if (Array.isArray(data)) return data;
     if (Array.isArray(data?.credentials)) return data.credentials;
-  } catch {
-    // Continuar a REST
+    throw new Error('Nuvio devolvió credenciales con un formato inválido.');
+  } catch (error) {
+    if (!isSchemaMismatch(error)) throw error;
   }
 
-  try {
-    const rows = await request(`provider_credentials?profile_id=eq.${encodeURIComponent(profId)}&select=*`, { method: 'GET' });
-    if (Array.isArray(rows) && rows.length > 0) return rows;
-  } catch {
-    // Retornar vacío ante fallo
-  }
+  const rows = await request(`provider_credentials?profile_id=eq.${encodeURIComponent(profId)}&select=*`, { method: 'GET' });
+  if (Array.isArray(rows)) return rows;
 
-  return [];
+  throw new Error('Nuvio devolvió credenciales con un formato inválido.');
 }

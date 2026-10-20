@@ -1,3 +1,4 @@
+import { escapeHtml } from '../../../shared/ui/safe-markup.js';
 export function formatUserCount(num) {
   const n = Number(num) || 0;
   if (n < 1000) return String(n);
@@ -26,10 +27,10 @@ export function renderModalFranchisesList({ root = document, state, getFranchise
   gridEl.innerHTML = franchises.map(f => {
     const isAct = f.id === currentFranchiseId;
     return `
-      <button type="button" class="modal-franchise-card ${isAct ? 'is-selected' : ''}" data-franchise-id="${f.id}">
+      <button type="button" class="modal-franchise-card ${isAct ? 'is-selected' : ''}" data-franchise-id="${escapeHtml(f.id)}">
         <div class="flex items-center gap-2.5 min-w-0">
           <i class="fa-solid fa-masks-theater text-xs ${isAct ? 'text-[#ffd479]' : 'text-white/40'}"></i>
-          <span class="truncate">${f.name}</span>
+          <span class="truncate">${escapeHtml(f.name)}</span>
         </div>
         <span class="pill-badge">${f.count}</span>
       </button>
@@ -53,8 +54,8 @@ export function renderAvatarStylePills({ root = document, state, getStylesSummar
   container.innerHTML = styles.map(s => {
     const isAct = s.id === currentStyle;
     return `
-      <button type="button" class="style-pill-btn ${isAct ? 'is-active' : ''}" data-style-id="${s.id}">
-        <span>${s.name}</span>
+      <button type="button" class="style-pill-btn ${isAct ? 'is-active' : ''}" data-style-id="${escapeHtml(s.id)}">
+        <span>${escapeHtml(s.name)}</span>
         <span class="pill-count">${s.count}</span>
       </button>
     `;
@@ -69,17 +70,17 @@ export function renderAvatarStylePills({ root = document, state, getStylesSummar
 
 function renderCard(av, { isSelected, cdnUrl, extraClass = '', badgeHtml = '' }) {
   return `
-    <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}" 
-         data-avatar-path="${av.path}" 
-         data-avatar-name="${av.character}" 
-         title="${av.character} (${av.franchiseName || ''})">
+    <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}"
+         data-avatar-path="${escapeHtml(av.path)}"
+         data-avatar-name="${escapeHtml(av.character)}"
+         title="${escapeHtml(av.character)} (${escapeHtml(av.franchiseName || '')})">
       <div class="relative w-full aspect-square">
         <div class="avatar-circle-wrap">
-          <img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          <img src="${escapeHtml(cdnUrl)}" alt="${escapeHtml(av.character)}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
         </div>
         ${badgeHtml}
       </div>
-      <span class="avatar-card-name-label">${av.character}</span>
+      <span class="avatar-card-name-label">${escapeHtml(av.character)}</span>
     </div>
   `;
 }

@@ -1,3 +1,4 @@
+import { collectionAction } from './actions.js';
 import { resolveCatalogTitle } from '../model/catalog-title.js';
 
 function renderReorderButtons(sectionId, folderId, idx, total) {
@@ -18,10 +19,10 @@ function renderReorderButtons(sectionId, folderId, idx, total) {
 
   return `
     <div class="flex items-center gap-0.5 bg-white/[0.05] border border-white/10 rounded-xl p-0.5 no-drag">
-      <button type="button" onclick="window.miniNuvioInstance.moveCatalog('${sectionId}', '${folderId}', ${idx}, -1)" ${isFirst ? 'disabled ' : ''}class="${upClass}" title="Subir catálogo una posición"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>
-      <button type="button" onclick="window.miniNuvioInstance.moveCatalog('${sectionId}', '${folderId}', ${idx}, 1)" ${isLast ? 'disabled ' : ''}class="${downClass}" title="Bajar catálogo una posición"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
-      <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'top')" ${isFirst ? 'disabled ' : ''}class="${topClass}" title="Mover catálogo al cielo (primera posición)"><i class="fa-solid fa-angles-up text-[10px]"></i></button>
-      <button type="button" onclick="window.miniNuvioInstance.moveCatalogExtreme('${sectionId}', '${folderId}', ${idx}, 'bottom')" ${isLast ? 'disabled ' : ''}class="${bottomClass}" title="Tirar catálogo al fondo (última posición)"><i class="fa-solid fa-angles-down text-[10px]"></i></button>
+      <button type="button" ${collectionAction('moveCatalog', sectionId, folderId, idx, -1)} ${isFirst ? 'disabled ' : ''}class="${upClass}" title="Subir catálogo una posición"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>
+      <button type="button" ${collectionAction('moveCatalog', sectionId, folderId, idx, 1)} ${isLast ? 'disabled ' : ''}class="${downClass}" title="Bajar catálogo una posición"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+      <button type="button" ${collectionAction('moveCatalogExtreme', sectionId, folderId, idx, 'top')} ${isFirst ? 'disabled ' : ''}class="${topClass}" title="Mover catálogo al cielo (primera posición)"><i class="fa-solid fa-angles-up text-[10px]"></i></button>
+      <button type="button" ${collectionAction('moveCatalogExtreme', sectionId, folderId, idx, 'bottom')} ${isLast ? 'disabled ' : ''}class="${bottomClass}" title="Tirar catálogo al fondo (última posición)"><i class="fa-solid fa-angles-down text-[10px]"></i></button>
     </div>
   `;
 }
@@ -49,8 +50,8 @@ export function renderCatalogCapsuleRow({ sectionId, folderId, source, idx, tota
       </div>
       <div class="flex items-center gap-1.5 shrink-0 no-drag">
         <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/60 font-mono">${typeLabel}</span>
-        <button type="button" onclick="window.miniNuvioInstance.renameCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="lat-capsule-btn glass text-[10px] py-1 px-2.5" title="Renombrar este catálogo"><i class="fa-solid fa-pen-to-square text-[9px] text-[#ffd479]"></i><span>Renombrar</span></button>
-        <button type="button" onclick="window.miniNuvioInstance.deleteCatalogInExplorer('${sectionId}', '${folderId}', ${idx})" class="px-2.5 py-1 rounded-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-[10px] text-red-400 hover:text-red-300 flex items-center gap-1.5 transition-colors" title="Quitar de esta colección"><i class="fa-solid fa-trash-can text-[9px]"></i><span>Quitar</span></button>
+        <button type="button" ${collectionAction('renameCatalogInExplorer', sectionId, folderId, idx)} class="lat-capsule-btn glass text-[10px] py-1 px-2.5" title="Renombrar este catálogo"><i class="fa-solid fa-pen-to-square text-[9px] text-[#ffd479]"></i><span>Renombrar</span></button>
+        <button type="button" ${collectionAction('deleteCatalogInExplorer', sectionId, folderId, idx)} class="px-2.5 py-1 rounded-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-[10px] text-red-400 hover:text-red-300 flex items-center gap-1.5 transition-colors" title="Quitar de esta colección"><i class="fa-solid fa-trash-can text-[9px]"></i><span>Quitar</span></button>
       </div>
     </div>
   `;
@@ -59,7 +60,7 @@ export function renderCatalogCapsuleRow({ sectionId, folderId, source, idx, tota
 export function renderCatalogExplorerModal({ section, folder, sources, catalogMap }) {
   const cover = folder.coverImageUrl || folder.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
   const capsulesHtml = sources.length === 0
-    ? `<div class="p-8 text-center text-white/50"><i class="fa-solid fa-film text-3xl text-white/20 mb-2"></i><p class="text-sm">Esta colección no tiene catálogos activos asignados.</p><button type="button" onclick="window.miniNuvioInstance.openAddCatalogModal('${section.id}', '${folder.id}')" class="mt-3 lat-capsule-btn solid text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Añadir Catálogo</button></div>`
+    ? `<div class="p-8 text-center text-white/50"><i class="fa-solid fa-film text-3xl text-white/20 mb-2"></i><p class="text-sm">Esta colección no tiene catálogos activos asignados.</p><button type="button" ${collectionAction('openAddCatalogModal', section.id, folder.id)} class="mt-3 lat-capsule-btn solid text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Añadir Catálogo</button></div>`
     : sources.map((s, idx) => renderCatalogCapsuleRow({ sectionId: section.id, folderId: folder.id, source: s, idx, total: sources.length, catalogMap })).join('');
 
   return `
@@ -75,16 +76,16 @@ export function renderCatalogExplorerModal({ section, folder, sources, catalogMa
           </div>
           <div class="flex items-center gap-2">
             <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.06] text-white/80 border border-white/10 text-xs font-mono"><i class="fa-solid fa-layer-group text-[#ffd479]"></i> Gestor de Catálogos</span>
-            <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="text-white/50 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            <button type="button" ${collectionAction('closeModal')} class="text-white/50 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
           </div>
         </div>
         <div id="catalogExplorerBody" class="overflow-y-auto space-y-2.5 pr-1.5 scrollbar-thin scrollbar-thumb-white/10 flex-1">${capsulesHtml}</div>
         <div class="flex flex-wrap items-center justify-between gap-2 pt-4 mt-4 border-t border-white/10 shrink-0">
           <div class="flex flex-wrap items-center gap-2">
-            <button type="button" onclick="window.miniNuvioInstance.openAddCatalogModal('${section.id}', '${folder.id}')" class="lat-capsule-btn solid text-xs"><i class="fa-solid fa-plus text-[11px]"></i><span>Añadir Catálogo</span></button>
-            <button type="button" onclick="window.miniNuvioInstance.openEditModal('${section.id}', '${folder.id}')" class="lat-capsule-btn glass text-xs"><i class="fa-solid fa-sliders text-[#ffd479]"></i><span>Personalizar Portadas y Logos</span></button>
+            <button type="button" ${collectionAction('openAddCatalogModal', section.id, folder.id)} class="lat-capsule-btn solid text-xs"><i class="fa-solid fa-plus text-[11px]"></i><span>Añadir Catálogo</span></button>
+            <button type="button" ${collectionAction('openEditModal', section.id, folder.id)} class="lat-capsule-btn glass text-xs"><i class="fa-solid fa-sliders text-[#ffd479]"></i><span>Personalizar Portadas y Logos</span></button>
           </div>
-          <button type="button" onclick="window.miniNuvioInstance.closeModal()" class="lat-capsule-btn glass text-xs">Cerrar Explorador</button>
+          <button type="button" ${collectionAction('closeModal')} class="lat-capsule-btn glass text-xs">Cerrar Explorador</button>
         </div>
       </div>
     </div>

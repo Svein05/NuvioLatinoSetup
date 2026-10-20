@@ -20,32 +20,26 @@ async function resolveAioStreamsAddon({ secAddon, state, config, services, log }
     return;
   }
   log('Compilando y generando AIOStreams Latino...', 'info');
-  try {
-    const res = await generateAioStreamsConfig({ state, config, services });
-    secAddon.manifest_url = res.manifestUrl;
-    secAddon.url = res.manifestUrl;
-    if (state.aiostreams) state.aiostreams.manifestUrl = res.manifestUrl;
-    log(`✓ AIOStreams Latino generado exitosamente: ${res.manifestUrl}`, 'success');
-  } catch (err) {
-    log(`⚠️ Advertencia: No se pudo generar AIOStreams automáticamente (${err?.message || err}).`, 'warning');
-  }
+
+  const res = await generateAioStreamsConfig({ state, config, services });
+  secAddon.manifest_url = res.manifestUrl;
+  secAddon.url = res.manifestUrl;
+  if (state.aiostreams) state.aiostreams.manifestUrl = res.manifestUrl;
+  log(`✓ AIOStreams Latino generado exitosamente: ${res.manifestUrl}`, 'success');
 }
 
 async function installMissingAddons({ client, config, auth, profileId, addons }) {
   for (const addon of addons) {
     if (addon.id || !addon.manifest_url) continue;
-    try {
-      const res = await client.installAddon({
-        apiUrl: config.nuvioApiUrl,
-        apikey: auth?.apikey || config.nuvioPublicAnonKey,
-        accessToken: auth?.accessToken,
-        userId: auth?.userId,
-        addonData: { profile_id: profileId, manifest_url: addon.manifest_url, url: addon.manifest_url, name: addon.name, sort_order: addon.sort_order },
-      });
-      if (res?.addonId) addon.id = res.addonId;
-    } catch (err) {
-      console.warn('[Pipeline] Falló registro de addon adicional:', err?.message);
-    }
+
+    const res = await client.installAddon({
+      apiUrl: config.nuvioApiUrl,
+      apikey: auth?.apikey || config.nuvioPublicAnonKey,
+      accessToken: auth?.accessToken,
+      userId: auth?.userId,
+      addonData: { profile_id: profileId, manifest_url: addon.manifest_url, url: addon.manifest_url, name: addon.name, sort_order: addon.sort_order },
+    });
+    if (res?.addonId) addon.id = res.addonId;
   }
 }
 
@@ -87,17 +81,14 @@ export async function runAddonsPhase({ state, config, services, isSimulation, ma
     { id: finalAioId, name: 'AIOMetadata', url: manifestUrl, manifest_url: manifestUrl, sort_order: 1 },
     ...installedSecondary.map((sec, idx) => ({ ...sec, sort_order: idx + 2 })),
   ];
-  try {
-    await client.syncAddonsOrder({
-      apiUrl: config.nuvioApiUrl,
-      apikey: auth?.apikey || config.nuvioPublicAnonKey,
-      accessToken: auth?.accessToken,
-      userId: auth?.userId,
-      profileId: targetProfileId,
-      addons: finalAddons,
-    });
-    log(`✓ ${secondaryAddons.length} addons organizados y sincronizados.`, 'success');
-  } catch {
-    // Sincronización no fatal
-  }
+
+  await client.syncAddonsOrder({
+    apiUrl: config.nuvioApiUrl,
+    apikey: auth?.apikey || config.nuvioPublicAnonKey,
+    accessToken: auth?.accessToken,
+    userId: auth?.userId,
+    profileId: targetProfileId,
+    addons: finalAddons,
+  });
+  log(`✓ ${secondaryAddons.length} addons organizados y sincronizados.`, 'success');
 }

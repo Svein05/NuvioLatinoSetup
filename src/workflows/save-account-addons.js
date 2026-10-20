@@ -2,11 +2,12 @@ async function deleteRemovedAddons({ client, baseParams, profId, currentAddons, 
   const currentIds = new Set(currentAddons.filter(a => a.id).map(a => String(a.id)));
   const toDelete = origAddons.filter(a => a.id && !currentIds.has(String(a.id)));
   for (const delAddon of toDelete) {
-    await client.deleteAddon({
+    const deleted = await client.deleteAddon({
       ...baseParams,
       addonId: delAddon.id,
       profileId: profId,
-    }).catch(err => console.warn('[AccountManager] Error borrando addon:', err));
+    });
+    if (deleted === false) throw new Error('No se pudo confirmar la eliminación del addon.');
   }
 }
 
@@ -24,8 +25,9 @@ async function syncSingleAddon({ client, baseParams, profId, addon, origAddon, s
         enabled: addon.enabled !== false,
         sort_order: sortOrder,
       },
-    }).catch(err => console.warn('[AccountManager] Error instalando addon:', err));
-    if (installed?.addonId) addon.id = installed.addonId;
+    });
+    if (!installed?.addonId) throw new Error('No se pudo confirmar la instalación del addon. Recarga antes de reintentar.');
+    addon.id = installed.addonId;
     return;
   }
 
@@ -33,15 +35,16 @@ async function syncSingleAddon({ client, baseParams, profId, addon, origAddon, s
   const nameChanged = origAddon && (origAddon.name !== addon.name);
   const urlChanged = origAddon && ((origAddon.manifest_url || origAddon.url) !== rawUrl);
 
-  if (origAddon && (nameChanged || urlChanged || enabledChanged)) {
-    await client.updateAddon({
+  if (!origAddon || nameChanged || urlChanged || enabledChanged) {
+    const updated = await client.updateAddon({
       ...baseParams,
       addonId: addon.id,
       name: addon.name,
       manifestUrl: rawUrl,
       enabled: addon.enabled !== false,
       sortOrder,
-    }).catch(err => console.warn('[AccountManager] Error actualizando addon:', err));
+    });
+    if (updated === false) throw new Error('No se pudo confirmar la actualización del addon.');
   }
 }
 
@@ -73,13 +76,13 @@ export async function saveAccountAddons({ state, config, client, ui = {} }) {
     userId: state.session?.userId,
     profileId: profId,
     addons: orderedAddons,
-  }).catch(err => console.warn('[AccountManager] Error sincronizando orden de addons:', err));
+  });
 
   const freshAddons = await client.listAddons({
     ...baseParams,
     userId: state.session?.userId,
     profileId: profId,
-  }).catch(() => currentAddons);
+  });
 
   state.installedAddons = JSON.parse(JSON.stringify(freshAddons));
   state.originalInstalledAddons = JSON.parse(JSON.stringify(freshAddons));

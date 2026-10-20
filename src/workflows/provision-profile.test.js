@@ -233,7 +233,7 @@ describe('executeProfileProvisioning', () => {
     }));
   });
 
-  it('tolerates non-fatal error in AIOStreams creation and continues pipeline', async () => {
+  it('does not announce completion or continue synchronization when requested AIOStreams creation fails', async () => {
     const secAddon = { name: 'AIOStreams', isAioStreams: true, manifest_url: '' };
     const state = createMockState({
       profileAddons: [secAddon],
@@ -257,8 +257,9 @@ describe('executeProfileProvisioning', () => {
 
     await executeProfileProvisioning(state, { services });
 
-    expect(state.execution.isCompleted).toBe(true);
-    expect(state.logs.some(l => l.level === 'warning' && l.msg.includes('No se pudo generar AIOStreams'))).toBe(true);
-    expect(mockClient.pushCollections).toHaveBeenCalledOnce();
+    expect(state.execution.isCompleted).toBe(false);
+    expect(state.execution.error).toContain('Servicio temporalmente caído');
+    expect(mockClient.pushCollections).not.toHaveBeenCalled();
+    expect(services.recordCompletion).not.toHaveBeenCalled();
   });
 });

@@ -1,3 +1,5 @@
+import { HttpError } from '../../shared/http/request-json.js';
+
 function cleanBaseUrl(url) {
   return String(url || '').replace(/\/+$/, '');
 }
@@ -11,7 +13,7 @@ function parseWorkerResponse(rawText, status) {
       err.code = 'WORKER_OUTDATED';
       throw err;
     }
-    throw new Error(`Respuesta no válida del servidor (${status}): ${rawText.slice(0, 150)}`);
+    throw new HttpError(`Respuesta no válida del servidor (${status}).`, { outcome: 'unknown' });
   }
 }
 
@@ -23,13 +25,14 @@ export function createModderClient({ baseUrl = '', fetchImpl = globalThis.fetch 
       const endpoint = `${root}/api/verify-auth`;
       const res = await fetchImpl(endpoint, {
         method: 'POST',
+        signal: AbortSignal.timeout(15000),
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password, email }),
       });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || 'Credenciales de Modder no válidas.');
+        throw new HttpError(data?.error || 'Credenciales de Modder no válidas.', { status: res.status });
       }
       return await res.json();
     },
@@ -38,15 +41,18 @@ export function createModderClient({ baseUrl = '', fetchImpl = globalThis.fetch 
       const endpoint = `${root}/api/save-staged-changes`;
       const res = await fetchImpl(endpoint, {
         method: 'POST',
+        signal: AbortSignal.timeout(30000),
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      });
+      }).catch(cause => { throw new HttpError('No se pudo confirmar la publicación.', { cause, outcome: 'unknown' }); });
 
       const rawText = await res.text();
       const data = parseWorkerResponse(rawText, res.status);
 
       if (!res.ok || !data?.success) {
-        throw new Error(data?.error || 'Error desconocido al guardar los cambios en GitHub.');
+        throw new HttpError(data?.error || 'Error desconocido al guardar los cambios en GitHub.', {
+          status: res.status, outcome: res.status >= 500 ? 'unknown' : 'failed',
+        });
       }
 
       return data;

@@ -1,3 +1,4 @@
+import { wizardAction } from '../commands.js';
 export function getAddonFallbackLogo(url = '', name = '') {
   const lowerUrl = String(url || '').toLowerCase();
   const lowerName = String(name || '').toLowerCase();
@@ -57,7 +58,7 @@ function renderAddonActions(addon, idx, total) {
   const isFirst = idx === 0;
   const isLast = idx === total - 1;
   const editBtn = addon.isAioStreams ? `
-    <button type="button" onclick="window.appController.openAioStreamsDebridsModal()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/60 hover:text-amber-300 hover:bg-white/[0.1] active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all" title="Editar claves Debrid de AIOStreams">
+    <button type="button" ${wizardAction('openAioStreamsDebridsModal')} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/60 hover:text-amber-300 hover:bg-white/[0.1] active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all" title="Editar claves Debrid de AIOStreams">
       <i class="fa-solid fa-gear text-[11px]"></i>
     </button>
   ` : '';
@@ -65,13 +66,13 @@ function renderAddonActions(addon, idx, total) {
   return `
     <div class="shrink-0 flex items-center gap-1.5">
       ${editBtn}
-      <button type="button" onclick="window.appController.moveAddon(${idx}, -1)" ${isFirst ? 'disabled' : ''} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isFirst ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" title="${isFirst ? 'No puede subir por encima de AIOMetadata' : 'Subir prioridad'}">
+      <button type="button" ${wizardAction('moveAddon', idx, -1)} ${isFirst ? 'disabled' : ''} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isFirst ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" title="${isFirst ? 'No puede subir por encima de AIOMetadata' : 'Subir prioridad'}">
         <i class="fa-solid fa-chevron-up text-[10px]"></i>
       </button>
-      <button type="button" onclick="window.appController.moveAddon(${idx}, 1)" ${isLast ? 'disabled' : ''} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isLast ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" title="${isLast ? 'Último elemento de la lista' : 'Bajar prioridad'}">
+      <button type="button" ${wizardAction('moveAddon', idx, 1)} ${isLast ? 'disabled' : ''} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isLast ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" title="${isLast ? 'Último elemento de la lista' : 'Bajar prioridad'}">
         <i class="fa-solid fa-chevron-down text-[10px]"></i>
       </button>
-      <button type="button" onclick="window.appController.removeAddon(${idx})" class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" title="Eliminar addon de este perfil">
+      <button type="button" ${wizardAction('removeAddon', idx)} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" title="Eliminar addon de este perfil">
         <i class="fa-solid fa-trash-can text-[10px]"></i>
       </button>
     </div>
