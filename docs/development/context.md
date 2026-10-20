@@ -281,6 +281,19 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 - `js/config.js` eliminado: todos sus consumidores importan la configuración
   pública existente en src/app/config.js. No se duplicaron constantes ni se
   cambió la configuración; se retiró el puente completo.
+- `js/app.js` eliminado (3.702 líneas originales): deconstruido progresivamente
+  por responsabilidades y contratos observables sin romper ninguna funcionalidad del asistente.
+  - Vistas y pasos modularizados en `src/pages/configuration/`: `steps/auth-actions.js`,
+    `steps/profiles-actions.js`, `steps/injection-actions.js`, `steps/addons.js`,
+    `steps/preferences.js`, `stepper.js`, `completion-modal.js`, `delegates.js`,
+    `session-sync.js`, `step-router.js`, `addons-sync.js` y `view-switch.js`.
+  - Workflow de generación de AIOStreams en `src/workflows/generate-aiostreams-manifest.js`.
+  - Composición canónica desacoplada en `src/app/wizard-controller.js` (228 líneas),
+    `src/app/wizard-steps.js` (85 líneas) y punto de entrada `src/app/wizard-entry.js` (12 líneas).
+  - `src/pages/configuration/index.html` apunta canónicamente a `../../app/wizard-entry.js`.
+  - Retirada la entrada `"js/app.js"` de `docs/architecture/legacy-baseline.json`. Todos los
+    nuevos archivos cumplen estrictamente las directivas de granularidad (< 250 líneas) y complejidad.
+  - Suites unitarias añadidas para cada módulo nuevo: 89 suites y 678 tests pasando al 100%.
 - `js/aiometadata-client.js` eliminado. Transporte y validación de respuestas en
   `integrations/aiometadata`; creación y comprobación de manifiesto en workflows;
   dependencias conectadas desde `app/metadata-configuration.js`.
