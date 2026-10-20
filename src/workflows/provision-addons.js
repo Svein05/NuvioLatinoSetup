@@ -1,4 +1,4 @@
-import { isAioMetadataAddon } from '../../features/addons/index.js';
+import { isAioMetadataAddon } from '../features/addons/index.js';
 
 async function generateAioStreamsConfig({ state, config, services }) {
   let template = state.rawAioStreamsTemplate;
@@ -49,7 +49,7 @@ async function installMissingAddons({ client, config, auth, profileId, addons })
   }
 }
 
-export async function runAddonsStep({ state, config, services, isSimulation, manifestUrl, targetProfileId, log }) {
+export async function runAddonsPhase({ state, config, services, isSimulation, manifestUrl, targetProfileId, log }) {
   log('[4/5] Registrando AIOMetadata (#1) y sincronizando orden de addons...', 'info');
   if (isSimulation) {
     await (services.delay ? services.delay(600) : Promise.resolve());

@@ -14,7 +14,7 @@ async function cleanDiscardedAddons({ client, config, auth, profileId, deletedId
         profileId,
       });
     } catch {
-      // Ignorar fallos individuales en borrado de addons huérfanos
+      // Ignorar fallo de borrado individual
     }
   }
   log(`✓ ${deletedIds.size} addon(s) descartados eliminados correctamente.`, 'success');
@@ -65,7 +65,7 @@ async function buildBadgeSettings(preferences, services) {
   };
 }
 
-export async function runSettingsStep({ state, config, services, isSimulation, targetProfileId, log }) {
+export async function runSettingsPhase({ state, config, services, isSimulation, targetProfileId, log }) {
   log('[3/5] Verificando y saneando addons del perfil...', 'info');
   const client = services.nuvioClient;
 
