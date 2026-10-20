@@ -1,5 +1,6 @@
 import { compileUniversalBadgeRules } from '../src/app/badge-compilation.js';
 import { initializeWizard } from '../src/app/wizard-bootstrap.js';
+import { whenDocumentReady } from '../src/shared/ui/when-document-ready.js';
 import { mountApiKeysStep } from '../src/pages/configuration/steps/api-keys.js';
 import { verifyWizardApiKeys } from '../src/app/api-key-validation.js';
 import { mountAuthStep } from '../src/pages/configuration/steps/auth.js';
@@ -3696,7 +3697,6 @@ class AppController {
 export const appController = new AppController();
 window.appController = appController;
 
-// Iniciar al cargar el DOM
-document.addEventListener('DOMContentLoaded', () => {
+whenDocumentReady(() => {
   appController.init();
 });
