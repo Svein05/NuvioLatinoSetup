@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 import './github-stars.js';
 
 /**

@@ -7,7 +7,7 @@ import { legacyHistory } from '../src/integrations/nuvio/profile-history.js';
  * Cliente de Integración con el Backend Supabase de Nuvio (api.nuvio.tv)
  * Maneja Autenticación, Procedimientos Almacenados (RPC), Addons y Colecciones.
  */
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 
 export class NuvioClient {
   /**

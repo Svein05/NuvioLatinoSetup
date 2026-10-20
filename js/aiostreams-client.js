@@ -3,7 +3,7 @@
  * Soporta compilación de plantilla latino, validación en vivo de APIs Debrid
  * y registro seguro de usuario en la instancia oficial de MidnightIgnite.
  */
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 
 export class AIOStreamsClient {
   /**

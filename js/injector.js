@@ -6,7 +6,7 @@ import { state, isAioMetadataAddon } from './state.js';
 import { provisionMetadataConfiguration, inspectSavedMetadataManifest } from '../src/app/metadata-configuration.js';
 import { NuvioClient } from './nuvio-client.js';
 import { AIOStreamsClient } from './aiostreams-client.js';
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 import { 
   getBadgePackById, 
   getBadgePackUrl,

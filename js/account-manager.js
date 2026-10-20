@@ -8,7 +8,7 @@ import { presentAccountOverview } from '../src/app/account-overview.js';
  * Controlador Modular del Gestor de Cuenta y Perfil (/account)
  * Ecosistema Nuvio Metadata Latino & AIOMetadata
  */
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 import { NuvioClient } from './nuvio-client.js';
 import { loadMetadataConfiguration, updateMetadataConfiguration, metadataOwner } from '../src/app/metadata-configuration.js';
 import { AIOStreamsClient } from './aiostreams-client.js';

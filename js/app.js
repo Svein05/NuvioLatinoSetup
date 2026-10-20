@@ -12,7 +12,7 @@ import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
  * Nuvio & AIOMetadata Auto-Setup Wizard
  */
 import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';

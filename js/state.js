@@ -5,7 +5,7 @@ import { selectedCollections, flattenedCollections, initializeCollections } from
  * Gestión de Estado Reactivo y Sincronización Dinámica
  * Nuvio & AIOMetadata Auto-Setup Wizard
  */
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 
 import { isAioMetadataAddon as identifyMetadata, isAioStreamsAddon, isSameManifest } from '../src/features/addons/index.js';
 export { isAioStreamsAddon };

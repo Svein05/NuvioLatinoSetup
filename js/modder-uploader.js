@@ -5,7 +5,7 @@
  * 2. Exploración, previsualización, edición, reemplazo y borrado de assets existentes.
  */
 
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 import { 
   loadAvatarsCatalog, 
   getCompiledAvatars,

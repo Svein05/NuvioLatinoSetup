@@ -99,6 +99,9 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/config.js` eliminado: todos sus consumidores importan la configuración
+  pública existente en src/app/config.js. No se duplicaron constantes ni se
+  cambió la configuración; se retiró el puente completo.
 - `js/aiometadata-client.js` eliminado. Transporte y validación de respuestas en
   `integrations/aiometadata`; creación y comprobación de manifiesto en workflows;
   dependencias conectadas desde `app/metadata-configuration.js`.

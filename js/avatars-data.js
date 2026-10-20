@@ -5,7 +5,7 @@
  * Estructura de carpetas: assets/profile_icons/{Estilo}/{Franquicia}/{Franquicia}_{Personaje}.{ext}
  */
 
-import { CONFIG } from './config.js';
+import { CONFIG } from '../src/app/config.js';
 
 let currentCatalogCommitSha = null;
 
