@@ -16,17 +16,15 @@ import { createStreamingConfiguration } from '../src/app/streaming-configuration
 import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
 import { renderVerifiedKeyStatus, renderUnverifiedKeyStatus } from '../src/shared/ui/verified-key-status.js';
 import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
-import { 
-  getCompiledAvatars, 
-  getStylesSummary, 
-  getFranchisesSummary, 
-  filterAvatars, 
-  formatCharacterName, 
-  formatFranchiseName, 
-  formatStyleName,
+import { formatCharacterName, formatFranchiseName, formatStyleName } from '../src/features/avatars/index.js';
+import {
+  getCompiledAvatars,
+  getStylesSummary,
+  getFranchisesSummary,
+  filterAvatars,
   resolveAvatarCdnUrl,
-  loadAvatarsCatalog
-} from './avatars-data.js';
+  loadAvatarsCatalog,
+} from '../src/app/avatar-catalog.js';
 import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
 import { 
   BASELINE_TOP_AVATARS,

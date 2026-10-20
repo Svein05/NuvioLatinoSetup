@@ -6,18 +6,16 @@
  */
 
 import { CONFIG } from '../src/app/config.js';
-import { 
-  loadAvatarsCatalog, 
+import { formatStyleName, formatFranchiseName, formatCharacterName } from '../src/features/avatars/index.js';
+import {
+  loadAvatarsCatalog,
   getCompiledAvatars,
-  getStylesSummary, 
+  getStylesSummary,
   getFranchisesSummary,
   filterAvatars,
   resolveAvatarCdnUrl,
-  formatStyleName,
-  formatFranchiseName,
-  formatCharacterName,
-  patchAvatarsAfterPublish
-} from './avatars-data.js';
+  patchAvatarsAfterPublish,
+} from '../src/app/avatar-catalog.js';
 
 const MODDER_SESSION_KEY = 'nuvio_modder_session';
 

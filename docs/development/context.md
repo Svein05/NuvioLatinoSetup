@@ -66,14 +66,13 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 
 | Módulo activo | Líneas al registrar este roadmap | Destino de lo pendiente |
 | --- | ---: | --- |
-| `js/account-manager.js` | 4.169 | pages/account, workflows, features e integrations |
+| `js/account-manager.js` | 4.167 | pages/account, workflows, features e integrations |
 | `js/app.js` | 3.702 | pages/configuration/steps y composición app |
-| `js/modder-uploader.js` | 2.211 | asset-manager, avatars, pages/modder e integración Worker |
+| `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
 | `js/nuvio-client.js` | 874 | integrations/nuvio y workflows de guardado |
 | `js/avatar-suggestions.js` | 754 | avatars y adaptador Worker |
 | `js/state.js` | 675 | estado por feature y composición del asistente |
-| `js/avatars-data.js` | 635 | modelos de catálogo y adaptador GitHub |
 | `js/injector.js` | 483 | workflows de aprovisionamiento |
 
 El inventario completo y los límites efectivos viven en
@@ -99,6 +98,29 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/avatars-data.js` eliminado: modelos, selectores y estado en features/avatars,
+  transporte y URLs en integrations/github, carga en workflows/load-avatar-catalog.js
+  y composición en app/avatar-catalog.js. Cuenta, asistente y publicador usan las
+  entradas nuevas. Los formateadores puros se consumen por features/avatars/index.js.
+- Treinta y ocho contratos comparados con el original: compilación, filtros,
+  búsqueda y resúmenes sobre el manifiesto de 149 entradas y los 152 archivos
+  versionados, incluidas las rutas relativas de cuenta. No se movieron imágenes.
+- Conserva caché de sesión de 30 minutos, comprobación del SHA de main y respaldo
+  por manifiesto remoto. Descarta árboles truncados; el respaldo usa la revisión
+  elegida. Un refresh fallido conserva el catálogo y rechaza la operación para
+  que el consumidor no anuncie una sincronización exitosa. El almacenamiento
+  bloqueado no convierte una consulta correcta en catálogo vacío.
+- Publicación confirmada actualiza el registro por ruta completa, sin confundir
+  archivos homónimos de franquicias distintas; recalcula variaciones y conserva
+  previews. Invalida caché y lecturas anteriores mediante revisión de estado.
+  Los selectores devuelven copias, sin permitir mutar el catálogo propietario.
+- Corrige la colisión entre archivos directos de estilo y su subcarpeta General;
+  codifica delimitadores de nombres y rechaza protocolos/previews peligrosos.
+  La UI extensa y sus interpolaciones restantes siguen pendientes al migrar
+  account-manager/app/modder completos; esta etapa no los declara finalizados.
+- Pruebas nuevas cubren modelos, publicación simulada, SHA/caché, errores,
+  cancelación y concurrencia. Tres recorridos verifican búsqueda, caché bloqueada,
+  refresh fallido y manifiesto de respaldo. No se publicaron assets reales.
 - `js/aiostreams-client.js` eliminado: compilación pura en addons/model,
   validación de cinco proveedores en integrations/debrid, creación HTTP en
   integrations/aiostreams y selección del Worker en app/streaming-configuration.js.
@@ -207,7 +229,8 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 - Extraer Mini Nuvio, sus componentes y modales a collections/ui. Sustituir handlers
   globales y gestionar suscripciones y Sortable al montar/desmontar.
-- Separar normalización, búsqueda, caché y transporte GitHub del catálogo.
+- Normalización, búsqueda, caché y transporte GitHub del catálogo ya están
+  separados. Migrar las vistas y controles restantes de los consumidores antiguos.
 - Extraer carga/conversión, cola, edición y publicación de avatares.
 - Cierre: ordenar, añadir, renombrar, borrar, cancelar y reabrir sin listeners
   duplicados; títulos/URLs externos tratados de forma segura; publicación simulada.
@@ -321,8 +344,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 363 pruebas de lógica,
-39 recorridos contra build y 38 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 413 pruebas de lógica,
+42 recorridos contra build y 41 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.

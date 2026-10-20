@@ -34,14 +34,14 @@ import {
   isSectionActive,
 } from '../src/features/badges/index.js';
 import { initCompletionsCounterUI, recordSuccessfulCompletion } from '../src/app/completions.js';
-import { 
+import { formatFranchiseName } from '../src/features/avatars/index.js';
+import {
   loadAvatarsCatalog,
-  getCompiledAvatars, 
-  filterAvatars, 
-  resolveAvatarCdnUrl, 
-  getFranchisesSummary, 
-  formatFranchiseName 
-} from './avatars-data.js';
+  getCompiledAvatars,
+  filterAvatars,
+  resolveAvatarCdnUrl,
+  getFranchisesSummary,
+} from '../src/app/avatar-catalog.js';
 
 // Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 import { DEMO_POSTERS } from '../src/features/posters/index.js';
