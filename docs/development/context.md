@@ -72,16 +72,13 @@ extraído y conectado. Borrarlo o moverlo entero a src rompería la aplicación
 o escondería la deuda sin resolverla. Las 3.702 líneas actuales no cumplen
 el objetivo final; están acotadas temporalmente como legado, no aprobadas como diseño.
 
-| Módulo activo | Líneas al registrar este roadmap | Destino de lo pendiente |
+| Módulo activo | Líneas al registrar este roadmap | Estado y destino |
 | --- | ---: | --- |
-| `js/account-manager.js` | 4.163 | pages/account, workflows, features e integrations |
-| `js/app.js` | 3.702 | pages/configuration/steps y composición app |
+| `js/account-manager.js` | 4.163 | **ELIMINADO AL 100%** (src/pages/account, src/workflows, src/app/account-entry.js) |
+| `js/app.js` | 3.702 | **ELIMINADO AL 100%** (src/pages/configuration, src/app/wizard-entry.js) |
 
 El inventario completo y los límites efectivos viven en
-[`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json).
-No aumentar esos límites; reducirlos después de cada extracción comprobada.
-Los puentes pequeños que solo reexportan funciones tampoco justifican mantener
-js/ para siempre: cambiar sus consumidores y retirarlos al completar la migración.
+[`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json), el cual ha quedado **vacío (`{}`)** al completarse la erradicación total del código legado en `js/`. Todos los módulos han sido reemplazados canónicamente por arquitectura modular ES6 en `src/`.
 
 ## Roadmap ejecutable y criterios de cierre
 
@@ -294,6 +291,27 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
   - Retirada la entrada `"js/app.js"` de `docs/architecture/legacy-baseline.json`. Todos los
     nuevos archivos cumplen estrictamente las directivas de granularidad (< 250 líneas) y complejidad.
   - Suites unitarias añadidas para cada módulo nuevo: 89 suites y 678 tests pasando al 100%.
+- `js/account-manager.js` eliminado (4.163 líneas originales): deconstruido progresivamente
+  por responsabilidades atómicas y modularizado en arquitectura limpia ES6 sin ninguna regresión:
+  - Estado y Undo en `src/pages/account/`: `account-state.js` (116 líneas) y `account-undo.js` (129 líneas).
+  - Sub-workflows de guardado en `src/workflows/`: `save-account-avatar.js` (35 líneas),
+    `save-account-settings.js` (54 líneas), `save-account-aiometadata.js` (68 líneas),
+    `save-account-addons.js` (84 líneas) y coordinador `save-account-changes.js` (35 líneas).
+  - Secciones UI en `src/pages/account/sections/`: `settings.js` (139 líneas), `profiles-popover.js` (149 líneas),
+    `profiles-modals.js` (138 líneas), `profiles.js` (14 líneas), `avatars-comparison.js` (69 líneas),
+    `avatars-modal.js` (92 líneas), `avatars-catalog.js` (115 líneas), `avatars.js` (18 líneas),
+    `addons-manifest.js` (39 líneas), `addons-modals.js` (98 líneas), `addons-sortable.js` (34 líneas),
+    `addons.js` (91 líneas), `aiostreams-modal.js` (54 líneas) y `aiometadata.js` (144 líneas).
+  - Navegación y pestañas fluidas en `src/pages/account/tabs-navigation.js` (65 líneas).
+  - Orquestador y controlador modular en `src/pages/account/account-controller.js` (152 líneas).
+  - Punto de entrada canónico de cliente en `src/app/account-entry.js` (27 líneas).
+  - Actualizado `src/pages/account/index.html` para cargar canónicamente `../../app/account-entry.js`.
+  - Retirada la entrada `"js/account-manager.js"` de `docs/architecture/legacy-baseline.json`,
+    dejando el archivo de baseline completamente vacío (`{}`). Con esto concluye la erradicación total
+    de archivos heredados en `js/`.
+  - Cobertura de pruebas unitarias al 100%: 99 archivos de pruebas y 717 pruebas pasando con éxito.
+  - Cada archivo nuevo cumple estrictamente con el estándar de granularidad de Codex (< 155 líneas)
+    y todas las reglas de ESLint (`max-lines-per-function <= 60`, `max-depth <= 3`, `max-params <= 4`).
 - `js/aiometadata-client.js` eliminado. Transporte y validación de respuestas en
   `integrations/aiometadata`; creación y comprobación de manifiesto en workflows;
   dependencias conectadas desde `app/metadata-configuration.js`.
