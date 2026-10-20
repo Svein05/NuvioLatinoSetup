@@ -14,7 +14,7 @@ import {
   isSectionActive,
   getCanonicalModuleId,
 } from '../src/features/badges/index.js';
-import { recordSuccessfulCompletion } from './counter.js';
+import { recordSuccessfulCompletion } from '../src/app/completions.js';
 
 export class PipelineInjector {
   /**

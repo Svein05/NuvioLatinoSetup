@@ -56,8 +56,7 @@ Ejemplos comprobados:
 - `src/pages/configuration/index.html` carga `js/app.js`.
 - `src/pages/account/index.html` carga `js/account-manager.js`.
 - `src/pages/modder/partials/script.html` importa `js/modder-uploader.js`.
-- Portada, cuenta y documentación aún usan el contador del legado; versión y
-  estrellas de GitHub ya se componen desde src/app.
+- Contador, versión y estrellas de GitHub ya se componen desde src/app.
 
 `app.js` todavía coordina perfiles, preferencias, badges, pósters, addons,
 ejecución y renderizado del asistente. Solo algunas responsabilidades se han
@@ -100,6 +99,25 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/counter.js` eliminado: transporte en integrations/completions, coordinación
+  en workflows/completions.js, caché y UI en features/completions, composición
+  en app/completions.js. Todos los consumidores usan la entrada nueva.
+- Conserva claves de caché y tokens, formatos, odómetro, menú y consulta cada
+  25 segundos; pausa lecturas en pestañas ocultas y libera recursos al salir.
+  Treinta comparaciones de formato coinciden con la implementación anterior.
+- Corrige la actualización en vivo que comparaba contra una caché ya modificada,
+  admite cero, tolera storage bloqueado y descarta lecturas anteriores a un registro.
+- Un hit se envía a un solo proveedor; el respaldo de escritura solo se selecciona
+  si el primario no está configurado. Timeout, red, 5xx o respuesta inválida tras
+  el hit dejan resultado desconocido, sin otro hit ni confirmación inventada.
+  El intento pendiente se recuerda durante la ventana existente de 45 minutos;
+  estos marcadores locales no constituyen protección contra abuso en el servidor.
+- Ya no suma uno localmente ante fallo ni muestra la celebración de incremento
+  sin confirmación. Sin endpoint público de hit, conserva caché/estimación y
+  devuelve estado unavailable. La configuración del usuario sigue completándose.
+- Nuevas pruebas cubren contrato HTTP, conservación, concurrencia, cancelación,
+  caché, polling y limpieza; tres recorridos verifican el contador en las cuatro
+  páginas y su funcionamiento con almacenamiento bloqueado.
 - `js/webhook-config.js` eliminado: era otra configuración vacía sin productor.
   Se retiró su rama inalcanzable. No se publicaron archivos locales privados;
   el envío de sugerencias mediante Worker sigue pendiente.
@@ -178,8 +196,10 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
   emitida por el Worker; preservar el flujo account/modder.
 - Implementar endpoints privados de sugerencias Discord y ranking Redis. Nunca
   incorporar sus secretos a configuración pública o variables que acaben en bundles.
-- Separar consultas y registro de completados del odómetro genérico; eliminar
-  éxitos ficticios y reintentos ambiguos. Completar el adaptador AIOStreams.
+- Consultas y registro de completados ya están separados del odómetro genérico;
+  los endpoints públicos externos siguen siendo opcionales. La deduplicación
+  global requiere soporte del proveedor; no atribuirla a los marcadores locales.
+  Completar el adaptador AIOStreams.
 - Cierre: contratos cliente/backend probados sin servicios reales. Despliegue y
   configuración de secretos son una acción posterior que requiere autorización.
 
@@ -277,8 +297,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 238 pruebas de lógica,
-33 recorridos contra build y 32 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 298 pruebas de lógica,
+36 recorridos contra build y 35 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.

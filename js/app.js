@@ -30,7 +30,7 @@ import {
   getCanonicalModuleId,
   isSectionActive,
 } from '../src/features/badges/index.js';
-import { initCompletionsCounterUI, recordSuccessfulCompletion } from './counter.js';
+import { initCompletionsCounterUI, recordSuccessfulCompletion } from '../src/app/completions.js';
 import { 
   loadAvatarsCatalog,
   getCompiledAvatars, 

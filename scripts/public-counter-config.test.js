@@ -25,11 +25,11 @@ it('injects only the canonical public configuration module', () => {
     COUNTER_PRIMARY_GET: 'https://counter.invalid/get',
     DISCORD_WEBHOOK_URL: 'synthetic-private-webhook',
   });
-  const importer = fileURLToPath(new URL('../js/counter.js', import.meta.url));
-  const id = plugin.resolveId('../src/app/completions-config.js', importer);
+  const importer = fileURLToPath(new URL('../src/app/completions.js', import.meta.url));
+  const id = plugin.resolveId('./completions-config.js', importer);
   expect(id).toBe('\0public-counter-config');
-  expect(plugin.resolveId('./completions-config.js', importer)).toBeUndefined();
-  expect(plugin.resolveId('../src/app/completions-config.js')).toBeUndefined();
+  expect(plugin.resolveId('../completions-config.js', importer)).toBeUndefined();
+  expect(plugin.resolveId('./completions-config.js')).toBeUndefined();
   expect(plugin.load('unrelated')).toBeUndefined();
   expect(plugin.load(id)).toBe(
     'export const PUBLIC_COMPLETIONS_CONFIG = {"primaryGet":"https://counter.invalid/get"};',
