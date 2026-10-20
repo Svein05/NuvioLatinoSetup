@@ -99,6 +99,8 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/counter-config.js` eliminado: configuración pública en app/completions-config.js,
+  sustituida por el plugin de build con su lista explícita de variables permitidas.
 - `js/version.js` eliminado: las cuatro páginas cargan app/site-version.js;
   shared/ui/version-badges.js representa etiquetas y enlaces con la misma configuración.
 - `js/github-stars.js` eliminado: consulta HTTP en integrations/github, caché en

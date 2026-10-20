@@ -8,7 +8,7 @@ export { renderOdometer, initMobileHeaderMenu, initNavOverflowMonitor };
  * Incluye Odómetro (Ruleta de Dígitos estilo YouTube Live), Live Sync y Menú Responsive
  */
 
-import { INJECTED_COUNTER_CONFIG } from './counter-config.js';
+import { PUBLIC_COMPLETIONS_CONFIG } from '../src/app/completions-config.js';
 
 const STORAGE_KEYS = {
   CACHED_COUNT: 'nuvio_completions_cached_count',
@@ -21,14 +21,14 @@ const STORAGE_KEYS = {
 const API_ENDPOINTS = {
   PRIMARY: {
     name: 'Primary',
-    get: INJECTED_COUNTER_CONFIG?.primaryGet || '',
-    hit: INJECTED_COUNTER_CONFIG?.primaryHit || '',
+    get: PUBLIC_COMPLETIONS_CONFIG?.primaryGet || '',
+    hit: PUBLIC_COMPLETIONS_CONFIG?.primaryHit || '',
     extract: (data) => (typeof data?.value === 'number' ? data.value : null)
   },
   FALLBACK: {
     name: 'Fallback',
-    get: INJECTED_COUNTER_CONFIG?.fallbackGet || '',
-    hit: INJECTED_COUNTER_CONFIG?.fallbackHit || '',
+    get: PUBLIC_COMPLETIONS_CONFIG?.fallbackGet || '',
+    hit: PUBLIC_COMPLETIONS_CONFIG?.fallbackHit || '',
     extract: (data) => (typeof data?.value === 'number' ? data.value : null)
   }
 };

@@ -1,3 +1,6 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /** These values are PUBLIC endpoints, never credentials or private service tokens. */
 export function publicCounterConfig(environment) {
   const fields = {
@@ -20,14 +23,16 @@ export function publicCounterConfig(environment) {
 
 export function injectPublicCounterConfig(environment) {
   const moduleId = '\0public-counter-config';
+  const configPath = fileURLToPath(new URL('../src/app/completions-config.js', import.meta.url));
   return {
     name: 'public-counter-config',
-    resolveId(source) {
-      if (source === './counter-config.js') return moduleId;
+    resolveId(source, importer) {
+      if (importer && source.startsWith('.')
+        && path.resolve(path.dirname(importer), source) === configPath) return moduleId;
     },
     load(id) {
       if (id !== moduleId) return;
-      return `export const INJECTED_COUNTER_CONFIG = ${JSON.stringify(publicCounterConfig(environment))};`;
+      return `export const PUBLIC_COMPLETIONS_CONFIG = ${JSON.stringify(publicCounterConfig(environment))};`;
     },
   };
 }

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
-import { publicCounterConfig } from './public-counter-config.js';
+import { fileURLToPath } from 'node:url';
+import { injectPublicCounterConfig, publicCounterConfig } from './public-counter-config.js';
 
 it('retains public counter URL compatibility without serializing unrelated secrets', () => {
   const result = publicCounterConfig({
@@ -17,4 +18,20 @@ it('retains public counter URL compatibility without serializing unrelated secre
 it('keeps explicitly configured endpoints', () => {
   expect(publicCounterConfig({ COUNTER_PRIMARY_GET: 'get', COUNTER_PRIMARY_HIT: 'hit' }))
     .toEqual({ primaryGet: 'get', primaryHit: 'hit' });
+});
+
+it('injects only the canonical public configuration module', () => {
+  const plugin = injectPublicCounterConfig({
+    COUNTER_PRIMARY_GET: 'https://counter.invalid/get',
+    DISCORD_WEBHOOK_URL: 'synthetic-private-webhook',
+  });
+  const importer = fileURLToPath(new URL('../js/counter.js', import.meta.url));
+  const id = plugin.resolveId('../src/app/completions-config.js', importer);
+  expect(id).toBe('\0public-counter-config');
+  expect(plugin.resolveId('./completions-config.js', importer)).toBeUndefined();
+  expect(plugin.resolveId('../src/app/completions-config.js')).toBeUndefined();
+  expect(plugin.load('unrelated')).toBeUndefined();
+  expect(plugin.load(id)).toBe(
+    'export const PUBLIC_COMPLETIONS_CONFIG = {"primaryGet":"https://counter.invalid/get"};',
+  );
 });
