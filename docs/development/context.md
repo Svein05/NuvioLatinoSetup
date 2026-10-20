@@ -81,7 +81,6 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
 | `js/nuvio-client.js` | 874 | integrations/nuvio y workflows de guardado |
 | `js/state.js` | 675 | estado por feature y composición del asistente |
-| `js/injector.js` | 483 | workflows de aprovisionamiento |
 
 El inventario completo y los límites efectivos viven en
 [`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json).
@@ -106,6 +105,12 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/injector.js` eliminado: orquestación desacoplada en workflows/provision-profile.js
+  dividida en pasos atómicos de única responsabilidad (< 60 líneas por función, max-depth <= 3):
+  aiometadata-step, auth-step, settings-step, addons-step y collections-step.
+  Descarga segura de blobs JSON en shared/ui/file-download.js y composición en app/provisioning.js.
+  El código nuevo en src/ no importa nada de js/. Pruebas unitarias completas en vitest
+  para cada paso, descargas y regresión de inyección.
 - `js/avatar-suggestions.js` eliminado: validación y cooldown en features/avatars,
   modal dividido en vista/controlador/eventos, coordinación en workflows y
   cliente HTTP en integrations/worker, conectado por app/avatar-suggestions.js.

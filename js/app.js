@@ -17,7 +17,7 @@ import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
 import { CONFIG } from '../src/app/config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
-import { PipelineInjector } from './injector.js';
+import { executePipeline, downloadCollectionsJson, downloadAioConfigJson } from '../src/app/provisioning.js';
 import { compileStreamingConfig } from '../src/features/addons/index.js';
 import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';
 import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
@@ -3484,13 +3484,13 @@ class AppController {
         btnExecute.disabled = true;
         btnExecute.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Aprovisionando en Nuvio...</span>';
 
-        PipelineInjector.execute();
+        executePipeline(state, { nuvioClient: NuvioClient });
       });
     }
 
     if (btnDownloadCol) {
       btnDownloadCol.addEventListener('click', () => {
-        PipelineInjector.downloadCollectionsJson();
+        downloadCollectionsJson(state.getSynchronizedNuvioCollections());
         recordSuccessfulCompletion().catch(err => {
           console.warn('[Counter] Error actualizando contador tras descargar colecciones:', err);
         });
@@ -3505,7 +3505,7 @@ class AppController {
           if (passwordInput) passwordInput.focus();
           return;
         }
-        PipelineInjector.downloadAioConfigJson();
+        downloadAioConfigJson(state.getSynchronizedMetadataPayload());
         recordSuccessfulCompletion().catch(err => {
           console.warn('[Counter] Error actualizando contador tras descargar metadata:', err);
         });
