@@ -66,7 +66,7 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 
 | Módulo activo | Líneas al registrar este roadmap | Destino de lo pendiente |
 | --- | ---: | --- |
-| `js/account-manager.js` | 4.181 | pages/account, workflows, features e integrations |
+| `js/account-manager.js` | 4.171 | pages/account, workflows, features e integrations |
 | `js/app.js` | 3.704 | pages/configuration/steps y composición app |
 | `js/modder-uploader.js` | 2.211 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
@@ -263,8 +263,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 183 pruebas de lógica,
-29 recorridos contra build y 28 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 224 pruebas de lógica,
+31 recorridos contra build y 30 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.
