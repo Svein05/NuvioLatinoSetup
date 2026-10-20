@@ -25,6 +25,7 @@ import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
 import { getBadgePackById, getBadgePackUrl } from '../src/features/badges/index.js';
 import { mountPreferencesStep } from '../src/pages/configuration/steps/preferences.js';
 import { mountAddonsStep } from '../src/pages/configuration/steps/addons.js';
+import { mountInjectionStep } from '../src/pages/configuration/steps/injection.js';
 import { initCompletionsCounterUI, recordSuccessfulCompletion } from '../src/app/completions.js';
 import { formatFranchiseName } from '../src/features/avatars/index.js';
 import {
@@ -44,6 +45,7 @@ class AppController {
     this.miniNuvio = null;
     this.preferencesStep = null;
     this.addonsStep = null;
+    this.injectionStep = null;
     this.profilePendingDelete = null;
     this.nextDemoPoster = this.nextDemoPoster.bind(this);
     this.prevDemoPoster = this.prevDemoPoster.bind(this);
@@ -922,237 +924,84 @@ class AppController {
   }
 
   setupStep7Injection() {
-    const passwordInput = document.getElementById('aioPassword');
-    const btnGenPass = document.getElementById('btnGeneratePassword');
-    const btnExecute = document.getElementById('btnExecutePipeline');
-    const btnDownloadCol = document.getElementById('btnDownloadCollections');
-    const btnDownloadAio = document.getElementById('btnDownloadAioConfig');
-    const btnCopyBadge = document.getElementById('btnCopyBadgeUrl');
-    const btnCopyBadgeCompiled = document.getElementById('btnCopyBadgeCompiledJson');
-    const btnDownloadBadges = document.getElementById('btnDownloadBadges');
-
-    // Forzar modo Real en producción
     state.execution.mode = 'real';
+    this.injectionStep = mountInjectionStep({
+      state,
+      actions: {
+        notify: (msg, type) => this.showToast(msg, type),
+        saveSession: () => this.saveSession(),
+        onUpdate: () => {
+          this.updateNavigationButtons();
+          this.updateStep7ExecuteButton();
+          this.updateManualModeButtons();
+        },
+        copyText: text => navigator.clipboard.writeText(text),
+        copyBadgeJsonUrl: async () => {
+          try {
+            const packId = state.preferences.selectedBadgePack || 'tinted';
+            const badgeUrl = getBadgePackUrl(packId);
+            const pack = getBadgePackById(packId);
+            await navigator.clipboard.writeText(badgeUrl);
+            this.showToast(`✓ Enlace JSON de badges (${pack.name}) copiado al portapapeles`, 'success');
+          } catch {
+            this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+          }
+        },
+        copyCompiledBadgeJson: () => this.copyCompiledBadgeJson(),
+        copyAioStreamsManifest: () => this.copyAioStreamsManifest(),
+        downloadCollectionsJson: col => downloadCollectionsJson(col),
+        downloadAioConfigJson: meta => downloadAioConfigJson(meta),
+        downloadCompiledBadgeJson: () => this.downloadCompiledBadgeJson(),
+        recordCompletion: () => recordSuccessfulCompletion().catch(() => {}),
+        goToStep: stepNum => window.goToStep?.(stepNum),
+        executePipeline: () => executePipeline(state, { nuvioClient: NuvioClient }),
+        showCompletionModal: opt => this.showCompletionModal(opt),
+        checkCompletion: () => {
+          if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio) {
+            setTimeout(() => this.showCompletionModal({ isManual: true }), 600);
+          }
+        },
+      },
+    });
+  }
 
-    if (passwordInput) {
-      if (state.aiometadata?.password) {
-        passwordInput.value = state.aiometadata.password;
-      } else if (passwordInput.value) {
-        state.aiometadata.password = passwordInput.value.trim();
+  async copyAioStreamsManifest() {
+    const hasPassword = Boolean(state.aiometadata?.password && state.aiometadata.password.length >= 6);
+    if (!hasPassword) {
+      this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
+      document.getElementById('aioPassword')?.focus();
+      return;
+    }
+    const btn = document.getElementById('btnCopyAioStreamsManifest');
+    const originalHtml = btn?.innerHTML;
+    try {
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-cyan-400"></i><span>Generando...</span>';
       }
-
-      const syncPassword = () => {
-        const val = passwordInput.value.trim();
-        state.aiometadata.password = val;
-        this.saveSession();
-        this.updateStep6ExecuteButton();
-        this.updateManualModeButtons();
-        this.updateNavigationButtons();
-      };
-
-      passwordInput.addEventListener('input', syncPassword);
-      passwordInput.addEventListener('change', syncPassword);
-      passwordInput.addEventListener('keyup', syncPassword);
-      passwordInput.addEventListener('focus', syncPassword);
-      passwordInput.addEventListener('blur', syncPassword);
-      passwordInput.addEventListener('paste', () => {
-        setTimeout(syncPassword, 10);
-      });
-    }
-
-
-
-
-    if (btnGenPass && passwordInput) {
-      btnGenPass.addEventListener('click', () => {
-        const randomPass = 'Latino-' + Math.random().toString(36).substring(2, 8) + '-' + Math.floor(1000 + Math.random() * 9000);
-        passwordInput.value = randomPass;
-        state.aiometadata.password = randomPass;
-        this.saveSession();
-        this.updateStep6ExecuteButton();
-        this.updateManualModeButtons();
-        this.updateNavigationButtons();
-        this.showToast('Contraseña aleatoria generada y configurada', 'info');
-      });
-    }
-
-    // Botones de Modo Manual: Copiar JSON al portapapeles
-    const btnCopyCol = document.getElementById('btnCopyCollectionsJson');
-    const btnCopyAio = document.getElementById('btnCopyAioConfig');
-
-    if (btnCopyBadge) {
-      btnCopyBadge.addEventListener('click', async () => {
-        try {
-          const packId = state.preferences.selectedBadgePack || 'tinted';
-          const badgeUrl = getBadgePackUrl(packId);
-          const pack = getBadgePackById(packId);
-          await navigator.clipboard.writeText(badgeUrl);
-          this.showToast(`✓ Enlace JSON de badges (${pack.name}) copiado al portapapeles`, 'success');
-        } catch (err) {
-          this.showToast('No se pudo copiar automáticamente al portapapeles.', 'warning');
+      let manifestUrl = state.aiostreams.manifestUrl;
+      if (!manifestUrl) {
+        this.showToast('Generando manifest de AIOStreams en la instancia oficial...', 'info');
+        let template = state.rawAioStreamsTemplate;
+        if (!template) {
+          const res = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+          template = await res.json();
+          state.rawAioStreamsTemplate = template;
         }
-      });
-    }
-
-    if (btnCopyBadgeCompiled) {
-      btnCopyBadgeCompiled.addEventListener('click', async () => {
-        await this.copyCompiledBadgeJson();
-      });
-    }
-
-    if (btnCopyCol) {
-      btnCopyCol.addEventListener('click', async () => {
-        try {
-          const colData = state.getSynchronizedNuvioCollections();
-          await navigator.clipboard.writeText(JSON.stringify(colData, null, 2));
-          state.manualCopiedCollections = true;
-          this.showToast('✓ JSON de Colecciones copiado al portapapeles', 'success');
-
-          if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio) {
-            setTimeout(() => {
-              this.showCompletionModal({ isManual: true });
-            }, 600);
-          }
-        } catch (err) {
-          this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
-        }
-      });
-    }
-
-    if (btnCopyAio) {
-      btnCopyAio.addEventListener('click', async () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
-        if (!hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
-          if (passwordInput) passwordInput.focus();
-          return;
-        }
-
-        try {
-          const aioData = state.getSynchronizedMetadataPayload();
-          await navigator.clipboard.writeText(JSON.stringify(aioData, null, 2));
-          state.manualCopiedAio = true;
-          this.showToast('✓ JSON de Metadata copiado al portapapeles', 'success');
-
-          if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio) {
-            setTimeout(() => {
-              this.showCompletionModal({ isManual: true });
-            }, 600);
-          }
-        } catch (err) {
-          this.showToast('No se pudo copiar automáticamente al portapapeles. Usa el botón de descarga.', 'warning');
-        }
-      });
-    }
-
-    const btnCopyAioStreams = document.getElementById('btnCopyAioStreamsManifest');
-    if (btnCopyAioStreams) {
-      btnCopyAioStreams.addEventListener('click', async () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
-        if (!hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
-          if (passwordInput) passwordInput.focus();
-          return;
-        }
-
-        const originalHtml = btnCopyAioStreams.innerHTML;
-        try {
-          btnCopyAioStreams.disabled = true;
-          btnCopyAioStreams.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-cyan-400"></i><span>Generando...</span>';
-
-          let manifestUrl = state.aiostreams.manifestUrl;
-          if (!manifestUrl) {
-            this.showToast('Generando manifest de AIOStreams en la instancia oficial...', 'info');
-            let template = state.rawAioStreamsTemplate;
-            if (!template) {
-              const fetchRes = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
-              template = await fetchRes.json();
-              state.rawAioStreamsTemplate = template;
-            }
-            const aioConfig = compileStreamingConfig(template, state.aiostreams.debrids);
-            const masterPass = state.aiometadata.password.trim();
-            const res = await createStreamingConfiguration(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
-            manifestUrl = res.manifestUrl;
-            state.aiostreams.manifestUrl = manifestUrl;
-          }
-
-          await navigator.clipboard.writeText(manifestUrl);
-          this.showToast('✓ Enlace del Manifiesto de AIOStreams copiado al portapapeles', 'success');
-        } catch (err) {
-          this.showToast(`Error al generar o copiar AIOStreams: ${err.message}`, 'error');
-        } finally {
-          btnCopyAioStreams.disabled = false;
-          btnCopyAioStreams.innerHTML = originalHtml;
-        }
-      });
-    }
-
-    if (btnExecute) {
-      btnExecute.addEventListener('click', () => {
-        // Sincronizar inmediatamente la contraseña si el input tiene valor
-        if (passwordInput && passwordInput.value && (!state.aiometadata?.password || state.aiometadata.password !== passwordInput.value.trim())) {
-          state.aiometadata.password = passwordInput.value.trim();
-          this.saveSession();
-        }
-
-        // Validar todos los pasos (1 a 7) antes de ejecutar
-        for (let i = 1; i <= 7; i++) {
-          const val = state.validateStep(i);
-          if (!val.valid) {
-            this.showToast(`Paso ${i} incompleto: ${val.error}`, 'error');
-            if (i < 7) window.goToStep(i);
-            if (i === 7 && passwordInput) passwordInput.focus();
-            return;
-          }
-        }
-
-        const statusContainer = document.getElementById('injectionStatusContainer');
-        const phaseTitle = document.getElementById('injectionPhaseTitle');
-        const phaseStep = document.getElementById('injectionPhaseStep');
-        const progressBar = document.getElementById('injectionProgressBar');
-        const phaseDetail = document.getElementById('injectionPhaseDetail');
-
-        if (statusContainer) statusContainer.classList.remove('hidden');
-        if (phaseTitle) phaseTitle.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-brand-400"></i><span>Iniciando inyección...</span>';
-        if (phaseStep) phaseStep.innerText = 'Fase 1 de 5';
-        if (progressBar) progressBar.style.width = '15%';
-        if (phaseDetail) phaseDetail.innerText = 'Conectando con servidores de AIOMetadata y Nuvio...';
-
-        btnExecute.disabled = true;
-        btnExecute.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Aprovisionando en Nuvio...</span>';
-
-        executePipeline(state, { nuvioClient: NuvioClient });
-      });
-    }
-
-    if (btnDownloadCol) {
-      btnDownloadCol.addEventListener('click', () => {
-        downloadCollectionsJson(state.getSynchronizedNuvioCollections());
-        recordSuccessfulCompletion().catch(err => {
-          console.warn('[Counter] Error actualizando contador tras descargar colecciones:', err);
-        });
-      });
-    }
-
-    if (btnDownloadAio) {
-      btnDownloadAio.addEventListener('click', () => {
-        const hasPassword = Boolean(state.aiometadata.password && state.aiometadata.password.length >= 6);
-        if (state.isManualMode && !hasPassword) {
-          this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
-          if (passwordInput) passwordInput.focus();
-          return;
-        }
-        downloadAioConfigJson(state.getSynchronizedMetadataPayload());
-        recordSuccessfulCompletion().catch(err => {
-          console.warn('[Counter] Error actualizando contador tras descargar metadata:', err);
-        });
-      });
-    }
-
-    if (btnDownloadBadges) {
-      btnDownloadBadges.addEventListener('click', () => {
-        this.downloadCompiledBadgeJson();
-      });
+        const aioConfig = compileStreamingConfig(template, state.aiostreams.debrids);
+        const res = await createStreamingConfiguration(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, state.aiometadata.password.trim());
+        manifestUrl = res.manifestUrl;
+        state.aiostreams.manifestUrl = manifestUrl;
+      }
+      await navigator.clipboard.writeText(manifestUrl);
+      this.showToast('✓ Enlace del Manifiesto de AIOStreams copiado al portapapeles', 'success');
+    } catch (err) {
+      this.showToast(`Error al generar o copiar AIOStreams: ${err.message}`, 'error');
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
     }
   }
 
@@ -1161,169 +1010,19 @@ class AppController {
   }
 
   refreshStep7Summary() {
-    const targetEl = document.getElementById('summaryProfileTarget');
-    const countEl = document.getElementById('summaryCollectionsCount');
-    const catalogsEl = document.getElementById('summaryCatalogsCount');
-    const posterEngineEl = document.getElementById('summaryPosterEngine');
-    const enrichmentEl = document.getElementById('summaryEnrichmentStatus');
-
-    let activeFolders = 0;
-    state.collections.forEach(sec => {
-      if (sec.enabled !== false) {
-        (sec.folders || []).forEach(f => {
-          if (f.enabled !== false) activeFolders++;
-        });
-      }
-    });
-
-    let catalogsCount = 0;
-    try {
-      const meta = state.getSynchronizedMetadataPayload();
-      catalogsCount = (meta.config?.catalogs || meta.catalogs || []).length;
-    } catch (_) {
-      catalogsCount = 0;
-    }
-
-    if (targetEl) targetEl.innerText = state.isManualMode ? 'Manual (Sin cuenta)' : (state.selectedProfileName || 'Perfil Principal');
-    if (countEl) {
-      countEl.innerText = `${activeFolders} carruseles seleccionados`;
-      countEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-    }
-    if (catalogsEl) {
-      catalogsEl.innerText = `${catalogsCount} catálogos sincronizados`;
-      catalogsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-    }
-
-    if (posterEngineEl) {
-      const engine = state.preferences?.posterEngine || 'default';
-      if (engine === 'betterposter') {
-        posterEngineEl.innerText = 'BetterPoster (es-MX)';
-      } else if (engine === 'postersplus') {
-        posterEngineEl.innerText = 'PostersPlus (Badges)';
-      } else {
-        posterEngineEl.innerText = 'Nativo / Limpio';
-      }
-      posterEngineEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-    }
-
-    if (enrichmentEl) {
-      const enr = Boolean(state.preferences?.tmdbEnrichment);
-      const rat = Boolean(state.preferences?.mdblistRatings && state.apiKeys.mdblist);
-      if (enr && rat) {
-        enrichmentEl.innerText = 'TMDB + MDBList (Activos)';
-        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-      } else if (enr) {
-        enrichmentEl.innerText = 'Solo TMDB (Activo)';
-        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-      } else if (rat) {
-        enrichmentEl.innerText = 'Solo MDBList (Activo)';
-        enrichmentEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-      } else {
-        enrichmentEl.innerText = 'Desactivados';
-        enrichmentEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
-      }
-    }
-
-    const badgesEl = document.getElementById('summaryBadgesStatus');
-    if (badgesEl) {
-      if (state.preferences && state.preferences.badgesEnabled) {
-        const pack = getBadgePackById(state.preferences.selectedBadgePack);
-        badgesEl.innerText = `${pack.name}`;
-        badgesEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-      } else {
-        badgesEl.innerText = 'Desactivado';
-        badgesEl.className = 'text-xs sm:text-sm text-white/40 font-medium block truncate';
-      }
-    }
-
-    const addonsEl = document.getElementById('summaryAddonsStatus');
-    if (addonsEl) {
-      const extraCount = state.profileAddons ? state.profileAddons.length : 0;
-      const hasAioStreams = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
-      if (hasAioStreams && extraCount === 1) {
-        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams`;
-      } else if (hasAioStreams) {
-        addonsEl.innerText = `AIOMetadata (#1) + AIOStreams + ${extraCount - 1} más`;
-      } else if (extraCount > 0) {
-        addonsEl.innerText = `AIOMetadata (#1) + ${extraCount} addons`;
-      } else {
-        addonsEl.innerText = `AIOMetadata (#1 principal)`;
-      }
-      addonsEl.className = 'text-xs sm:text-sm text-white font-medium block truncate';
-    }
+    this.injectionStep?.refreshSummary();
   }
 
   handleStateUpdate(s, eventType) {
     if (eventType === 'LOG_ADDED') {
       const lastLog = state.execution.logs[state.execution.logs.length - 1];
-      if (lastLog) {
-        const detailEl = document.getElementById('injectionPhaseDetail');
-        if (detailEl) detailEl.innerText = lastLog.message;
-
-        const match = lastLog.message.match(/\[(\d+)\/(\d+)\]/);
-        if (match) {
-          const current = parseInt(match[1], 10);
-          const total = parseInt(match[2], 10);
-          const stepEl = document.getElementById('injectionPhaseStep');
-          const barEl = document.getElementById('injectionProgressBar');
-          if (stepEl) stepEl.innerText = `Fase ${current} de ${total}`;
-          if (barEl) barEl.style.width = `${(current / total) * 100}%`;
-        }
-      }
+      this.injectionStep?.handleLog(lastLog);
     } else if (eventType === 'EXECUTION_FINISHED') {
-      const btnExecute = document.getElementById('btnExecutePipeline');
-      const titleEl = document.getElementById('injectionPhaseTitle');
-      const barEl = document.getElementById('injectionProgressBar');
-      const detailEl = document.getElementById('injectionPhaseDetail');
-
-      if (btnExecute) {
-        btnExecute.disabled = false;
-        btnExecute.innerHTML = '<i class="fa-solid fa-check"></i><span>Configuración Lista (Re-ejecutar)</span>';
-      }
-
-      if (state.execution.isCompleted) {
-        if (titleEl) {
-          titleEl.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i><span class="text-emerald-400">¡Configuración inyectada con éxito!</span>';
-        }
-        if (barEl) {
-          barEl.style.width = '100%';
-          barEl.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-300';
-        }
-        if (detailEl) {
-          detailEl.innerText = `Perfil "${state.selectedProfileName || 'Principal'}" configurado y listo en tu app Nuvio.`;
-          detailEl.className = 'text-[11px] text-emerald-300 font-medium';
-        }
-        this.showToast('🎉 ¡Aprovisionamiento completado con éxito en Nuvio!', 'success');
-
-        // Mostrar ventana emergente de finalización y recomendación
-        setTimeout(() => {
-          this.showCompletionModal({ isManual: false, profileName: state.selectedProfileName || 'Principal' });
-        }, 800);
-      } else {
-        if (titleEl) {
-          titleEl.innerHTML = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i><span class="text-rose-400 font-bold">Error durante la inyección</span>';
-        }
-        if (barEl) {
-          barEl.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-300';
-        }
-        const errorDetail = state.execution.error || 'Ocurrió un error inesperado al procesar la inyección.';
-        if (detailEl) {
-          detailEl.innerHTML = `
-            <div class="mt-2 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl space-y-1.5">
-              <div class="flex items-center gap-2 text-rose-400 font-semibold text-xs">
-                <i class="fa-solid fa-bug"></i>
-                <span>Detalle técnico del error:</span>
-              </div>
-              <p class="text-rose-200 text-xs font-mono break-words leading-relaxed select-text">${errorDetail}</p>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-2">
-              💡 Puedes reintentar o usar los botones de <strong>Descargar Colecciones JSON</strong> y <strong>Descargar Config AIOMetadata</strong> para importar manualmente.
-            </p>
-          `;
-          detailEl.className = 'text-xs text-slate-300';
-        }
-        this.showToast('Ocurrió un error durante la inyección. Revisa el detalle.', 'error');
-      }
+      this.injectionStep?.handleFinished({
+        isCompleted: state.execution.isCompleted,
+        profileName: state.selectedProfileName || 'Principal',
+        error: state.execution.error,
+      });
     } else if (eventType === 'STEP_UNLOCKED' || eventType === 'API_KEYS_VALIDATED' || eventType === 'API_KEYS_INVALIDATED') {
       this.updateUI();
     }
