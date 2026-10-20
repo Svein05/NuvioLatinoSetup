@@ -99,6 +99,8 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/avatar-rank-config.js` eliminado: era un objeto vacío sin productor en CI.
+  Se retiró su rama inalcanzable; el cliente y su traslado al Worker siguen pendientes.
 - `js/counter-config.js` eliminado: configuración pública en app/completions-config.js,
   sustituida por el plugin de build con su lista explícita de variables permitidas.
 - `js/version.js` eliminado: las cuatro páginas cargan app/site-version.js;

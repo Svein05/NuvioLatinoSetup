@@ -3,8 +3,6 @@
  * Nuvio Latino Setup - Arquitectura Jamstack / GitHub Pages ($0 Costo)
  */
 
-import { INJECTED_AVATAR_RANK_CONFIG } from './avatar-rank-config.js';
-
 const STORAGE_KEYS = {
   CACHED_TOP: 'nuvio_avatar_ranks_cached_top',
   CACHED_TS: 'nuvio_avatar_ranks_cached_ts',
@@ -26,18 +24,12 @@ export const BASELINE_TOP_AVATARS = [
 let cachedConfig = null;
 
 /**
- * Resuelve la configuración de Upstash Redis (Inyectada en CI, local en dev o en localStorage)
+ * Adaptador heredado pendiente del Worker: configuración local o en localStorage.
  */
 export async function getAvatarRankConfig() {
   if (cachedConfig) return cachedConfig;
 
-  // 1. Inyectada en producción (GitHub Actions)
-  if (INJECTED_AVATAR_RANK_CONFIG?.url && INJECTED_AVATAR_RANK_CONFIG?.token) {
-    cachedConfig = INJECTED_AVATAR_RANK_CONFIG;
-    return cachedConfig;
-  }
-
-  // 2. Configuración local generada por run.py (en .gitignore)
+  // 1. Configuración local ignorada; excluida del build público.
   try {
     const localModule = await import('./avatar-rank-config.local.js');
     if (localModule?.LOCAL_AVATAR_RANK_CONFIG?.url && localModule?.LOCAL_AVATAR_RANK_CONFIG?.token) {
@@ -46,7 +38,7 @@ export async function getAvatarRankConfig() {
     }
   } catch (_) {}
 
-  // 3. Fallback en localStorage
+  // 2. Fallback en localStorage
   try {
     const url = localStorage.getItem('nuvio_avatar_rank_url');
     const token = localStorage.getItem('nuvio_avatar_rank_token');
