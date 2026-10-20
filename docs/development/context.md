@@ -99,6 +99,8 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/nav-indicator.js` eliminado: las cuatro páginas cargan src/app/navigation.js;
+  indicador, eventos y limpieza siguen en los componentes compartidos existentes.
 - `js/config.js` eliminado: todos sus consumidores importan la configuración
   pública existente en src/app/config.js. No se duplicaron constantes ni se
   cambió la configuración; se retiró el puente completo.
