@@ -99,6 +99,8 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/version.js` eliminado: las cuatro páginas cargan app/site-version.js;
+  shared/ui/version-badges.js representa etiquetas y enlaces con la misma configuración.
 - `js/github-stars.js` eliminado: consulta HTTP en integrations/github, caché en
   workflows, representación en shared/ui y composición en app/repository-stars.js.
   Conserva caché de una hora y respaldo; indica datos estimados y tolera almacenamiento
