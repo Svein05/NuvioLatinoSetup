@@ -4,7 +4,7 @@
  * controles de reordenación, toggles, explorador de catálogos con cápsulas interactivas
  * y modal de personalización en Español Latino.
  */
-import { state } from './state.js';
+import { state } from '../src/app/wizard-state.js';
 
 export class MiniNuvio {
   constructor(containerId) {

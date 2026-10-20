@@ -79,7 +79,6 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | `js/app.js` | 3.702 | pages/configuration/steps y composición app |
 | `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
-| `js/state.js` | 675 | estado por feature y composición del asistente |
 
 El inventario completo y los límites efectivos viven en
 [`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json).
@@ -104,6 +103,17 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/state.js` eliminado: gestión reactiva y estado del asistente desacoplados en unidades
+  atómicas de alta cohesión (< 60 líneas por función, max-depth <= 3):
+  validación de pasos 1 al 7 en features/wizard/model/step-validation.js, valores por defecto
+  en features/wizard/model/wizard-defaults.js, interfaz pública en features/wizard/index.js;
+  gestión pura de addons de perfil en features/addons/model/profile-addons.js (normalización,
+  aislamiento de AIOMetadata preexistente y deduplicación, detección de AIOStreams, reordenamiento
+  con sort_order relativo >= 2 y remoción limpia); carga atómica de plantillas JSON con
+  cache buster en workflows/load-wizard-templates.js; delegación de colecciones en
+  app/wizard-state-collections.js y ensamblado del store reactivo singleton en app/wizard-state.js.
+  Consumidores migrados (js/app.js, js/account-manager.js y js/mini-nuvio.js) e imports limpios.
+  67 suites de test pasando (595 tests en verde) sin regresiones.
 - `js/nuvio-client.js` eliminado: todas sus responsabilidades migradas a src/integrations/nuvio/:
   colecciones en collections.js, credenciales de proveedores en provider-credentials.js,
   lectura de ajustes en profile-settings-read.js, plugins en plugins.js, addons en

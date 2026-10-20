@@ -15,7 +15,7 @@ import { compileStreamingConfig } from '../src/features/addons/index.js';
 import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';
 import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
 import { renderVerifiedKeyStatus, renderUnverifiedKeyStatus } from '../src/shared/ui/verified-key-status.js';
-import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
+import { state, isAioMetadataAddon, isAioStreamsAddon } from '../src/app/wizard-state.js';
 import { formatCharacterName, formatFranchiseName, formatStyleName } from '../src/features/avatars/index.js';
 import {
   getCompiledAvatars,
