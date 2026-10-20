@@ -64,7 +64,6 @@ Ejemplos comprobados:
 
 - `src/pages/configuration/index.html` carga `js/app.js`.
 - `src/pages/account/index.html` carga `js/account-manager.js`.
-- `src/pages/modder/partials/script.html` importa `js/modder-uploader.js`.
 - Contador, versión y estrellas de GitHub ya se componen desde src/app.
 
 `app.js` todavía coordina perfiles, preferencias, badges, pósters, addons,
@@ -77,7 +76,6 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | --- | ---: | --- |
 | `js/account-manager.js` | 4.163 | pages/account, workflows, features e integrations |
 | `js/app.js` | 3.702 | pages/configuration/steps y composición app |
-| `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
 
 El inventario completo y los límites efectivos viven en
 [`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json).
@@ -102,6 +100,18 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/modder-uploader.js` eliminado: subida universal por lote con conversión a WebP en el cliente
+  desacoplada en shared/media/image-converter.js (WebP vía canvas HTML5 y formatBytes); modelos
+  de modder y staging en features/avatars/model/ (modder-session.js, modder-collision.js con detección
+  de duplicados en cola y carpeta, modder-staging.js con historial reactivo y undo stack, y
+  modder-consolidation.js con consolidación de operaciones y desglose para modal); cliente Worker
+  desacoplado con fetch inyectado en integrations/worker/modder-client.js; workflow de publicación
+  atómica en workflows/publish-modder-changes.js; vistas y modales modulares en pages/modder/ui/
+  (modder-toast.js, staged-toolbar.js, queue-view.js, collections-grid.js, collection-detail-view.js,
+  edit-modal.js y publish-modal.js); orquestador desacoplado en pages/modder/modder-controller.js
+  y fachada de aplicación en app/modder.js y app/modder-events.js. Consumidor en
+  src/pages/modder/partials/script.html migrado a la nueva arquitectura. Pruebas unitarias completas
+  en vitest y 0 violaciones de arquitectura.
 - `js/mini-nuvio.js` eliminado: componente interactivo del simulador visual desacoplado en
   módulos de única responsabilidad (< 60 líneas por función, max-depth <= 3):
   resolución canónica de títulos amigables en Español Latino en features/collections/model/catalog-title.js;
