@@ -1,3 +1,4 @@
+import versionManifest from '../../version.json';
 // Determinar la ruta base relativa según el nivel de directorio actual
 const getBasePath = () => {
   if (typeof window === 'undefined' || !window.location) return './';
@@ -10,7 +11,7 @@ const getBasePath = () => {
 
 export const CONFIG = {
   // Versión oficial de la aplicación (sincronizada con version.json y GitHub Releases)
-  VERSION: "1.8.0",
+  VERSION: versionManifest.version,
   GITHUB_REPO: "Svein05/NuvioLatinoSetup",
   RELEASE_URL: "https://github.com/Svein05/NuvioLatinoSetup/releases",
 

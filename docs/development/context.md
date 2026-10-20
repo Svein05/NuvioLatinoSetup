@@ -8,6 +8,10 @@ Los documentos de contratos técnicos y los tests no son archivos de memoria.
 
 ## Instrucción primordial de arquitectura
 
+La versión pública tiene una sola fuente: version.json. La composición de
+configuración importa su versión y las plantillas de cabecera/footer la insertan
+al servir o compilar. Tras cambiarla, recompilar y publicar para producción.
+
 **Migrar por responsabilidades y contratos observables, no por mover archivos ni
 por recortar líneas. Conservar comportamiento, datos y diseño; probar antes y
 después, separar UI, estado, reglas e integraciones y eliminar el legado solo
@@ -47,6 +51,11 @@ cuando ya no tenga consumidores. No declarar completa una migración parcial.**
 <!-- git-flow:end -->
 
 ## Estado real: por qué existe todavía js/
+
+Arranque del asistente: comprobar readyState antes de esperar DOMContentLoaded.
+Una importación tardía o recarga del módulo en desarrollo puede llegar después
+del evento y dejar wizardView permanentemente inert sin registrar sus eventos.
+La utilidad whenDocumentReady cubre ambos momentos de carga.
 
 Rama de trabajo: `codex/mega-refactor`; base develop, commit `268df02`.
 La refactorización está **parcialmente implementada**. La existencia de `src/`

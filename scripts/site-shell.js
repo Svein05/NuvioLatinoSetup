@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 
 const pages = {
   'index.html': 'index',
@@ -11,6 +12,7 @@ function pageValues(current) {
   const prefix = current === 'index' ? './' : '../';
   const darkFooter = ['account', 'documentation'].includes(current);
   const values = {
+    version: JSON.parse(readFileSync(new URL('../version.json', import.meta.url), 'utf8')).version,
     'brand-title': ['index', 'documentation'].includes(current) ? 'Nuvio Metadata Latino' : 'Volver al Inicio',
     'footer-background': darkFooter ? 'bg-[#060709]' : 'bg-[#08090c]',
     'footer-description': darkFooter ? 'text-white/60' : 'text-white/50',

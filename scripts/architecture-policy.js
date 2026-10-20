@@ -28,6 +28,7 @@ function featureName(file) {
 
 export function importViolation(importer, target) {
   if (!importer.startsWith('src/')) return null;
+  if (importer === 'src/app/config.js' && target === 'version.json') return null;
   if (!target.startsWith('src/')) return 'El código nuevo no puede importar legado o backend.';
   const layer = importer.split('/')[1];
   const targetLayer = target.split('/')[1];
