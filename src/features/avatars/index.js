@@ -7,3 +7,7 @@ export { createAvatarCatalogStore } from './state/catalog.js';
 export { BASELINE_TOP_AVATARS } from './data/ranking-baseline.js';
 export { normalizeAvatarStorageKey, completeAvatarRanking } from './model/ranking.js';
 export { createAvatarRankingStore } from './application/ranking-store.js';
+export { prepareAvatarSuggestion, validateSuggestionFile, suggestionImageUrl,
+  formatSuggestionFileSize } from './model/suggestion.js';
+export { createSuggestionCooldown } from './application/suggestion-cooldown.js';
+export { mountAvatarSuggestions } from './ui/suggestion-controller.js';

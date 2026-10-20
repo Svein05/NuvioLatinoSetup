@@ -16,7 +16,7 @@ export function json(data, status = 200) {
   return Response.json(data, { status, headers: corsHeaders });
 }
 
-export async function readJson(request, limit = 25 * 1024 * 1024) {
+export async function readBodyBytes(request, limit) {
   if (Number(request.headers.get('content-length')) > limit) throw new WorkerError('El lote supera el tamaño permitido.', 413);
   const reader = request.body?.getReader();
   if (!reader) throw new WorkerError('Falta el cuerpo de la petición.');
@@ -35,6 +35,13 @@ export async function readJson(request, limit = 25 * 1024 * 1024) {
   const bytes = new Uint8Array(length);
   let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-  try { return JSON.parse(new TextDecoder().decode(bytes)); }
-  catch { throw new WorkerError('El cuerpo JSON no es válido.'); }
+  return bytes;
+}
+
+export async function readJson(request, limit = 25 * 1024 * 1024) {
+  try { return JSON.parse(new TextDecoder().decode(await readBodyBytes(request, limit))); }
+  catch (error) {
+    if (error instanceof WorkerError) throw error;
+    throw new WorkerError('El cuerpo JSON no es válido.');
+  }
 }

@@ -46,7 +46,7 @@ export function excludePrivateConfiguration() {
     },
     load(id) {
       if (id !== privateModule) return;
-      return 'export const LOCAL_WEBHOOK_CONFIG = {};';
+      return 'export {};';
     },
   };
 }

@@ -15,6 +15,6 @@ it('resolves source files outside the Vite pages root without rewriting public n
 it('replaces private local configuration with an empty virtual module', () => {
   const plugin = excludePrivateConfiguration();
   const id = plugin.resolveId('./webhook-config.local.js');
-  expect(plugin.load(id)).toContain('LOCAL_WEBHOOK_CONFIG = {}');
+  expect(plugin.load(id)).toBe('export {};');
   expect(plugin.resolveId('./public-config.js')).toBeUndefined();
 });

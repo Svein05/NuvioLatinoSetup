@@ -13,6 +13,10 @@ La refactorización no despliega este código ni cambia el Worker actualmente ac
 - `POST /api/avatars/usage`: `{ key }` y sesión Nuvio en `Authorization: Bearer`;
   devuelve `{ status: "recorded" | "duplicate", score }`. Solo se solicita tras
   confirmar un guardado de avatar o creación de perfil.
+- `POST /api/avatars/suggestions`: formulario multipart con `requestId` UUID,
+  `mode`, `characterName`, `seriesName` y `file` o `url`, más sesión Nuvio en
+  `Authorization: Bearer`. Devuelve `{ status: "sent" }` únicamente tras confirmar
+  el mensaje de Discord o reconocer un envío ya confirmado con ese identificador.
 
 Los lotes admiten hasta 100 operaciones y un cuerpo de 25 MiB. Las imágenes nuevas
 deben ser WebP, PNG o JPEG, hasta 6 MiB decodificados, con cabecera coherente con la
@@ -48,6 +52,26 @@ o sin configurar Redis, el navegador conserva caché y los ocho avatares de resp
 no simula un ranking remoto ni un voto confirmado. Si se configuraron tokens Redis
 en el navegador con versiones anteriores, retirarlos de allí y rotarlos al habilitar
 la integración privada. No copiar esos valores al repositorio ni al build público.
+
+Las sugerencias requieren además `AVATAR_SUGGESTION_WEBHOOK_URL`, configurado como
+secreto del Worker. Debe ser una URL de webhook de `https://discord.com/api/webhooks/…`
+sin parámetros. El navegador no recibe esa URL ni construye payloads de Discord.
+Se conservan PNG, WebP, JPEG y GIF de hasta 8 MiB, con comprobación de cabecera,
+y enlaces HTTPS de hasta 2048 caracteres. Personaje y obra admiten 100 caracteres.
+El cuerpo multipart se limita a 8 MiB más 16 KiB de cabeceras/campos.
+
+La reserva Redis aplica una espera de 120 segundos por cuenta y recuerda el estado
+del identificador durante 24 horas. Un envío pendiente/desconocido no se repite;
+un rechazo definitivo permite reintento explícito con el mismo identificador.
+Discord se invoca una sola vez con `wait=true`; se exige un ID de mensaje antes
+de confirmar. Las menciones están desactivadas. No se descargan URLs de imágenes
+desde el Worker; se incorporan al embed. Referencia:
+[Execute Webhook](https://docs.discord.com/developers/resources/webhook#execute-webhook).
+
+El envío privado de sugerencias tampoco está desplegado. Faltan pruebas reales
+con Discord, Redis y Cloudflare y la autorización de despliegue. Los tests no
+envían mensajes reales. La configuración antigua del webhook en localStorage o
+archivos `.local.js` ya no se utiliza ni debe volver a publicarse en el frontend.
 
 `MODDER_ACCOUNTS` admite un array JSON o lista de correos separados por comas.
 Cuando existe, el correo es obligatorio y se comprueba en ambas rutas. Sin esa

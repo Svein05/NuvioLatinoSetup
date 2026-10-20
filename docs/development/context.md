@@ -71,7 +71,6 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
 | `js/nuvio-client.js` | 874 | integrations/nuvio y workflows de guardado |
-| `js/avatar-suggestions.js` | 754 | avatars y adaptador Worker |
 | `js/state.js` | 675 | estado por feature y composición del asistente |
 | `js/injector.js` | 483 | workflows de aprovisionamiento |
 
@@ -98,6 +97,33 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/avatar-suggestions.js` eliminado: validación y cooldown en features/avatars,
+  modal dividido en vista/controlador/eventos, coordinación en workflows y
+  cliente HTTP en integrations/worker, conectado por app/avatar-suggestions.js.
+  Cuenta es su único punto de arranque; se retiró el segundo init del HTML.
+- Conserva archivo/URL, preview, confirmación explícita, cooldown de 120 segundos,
+  borrador URL al cerrar y reinicio del modo archivo. Escapa datos mediante nodos,
+  valida HTTPS y límites, restaura foco/scroll, atrapa Tab y libera listeners,
+  temporizadores y object URLs. Un envío activo bloquea cierre y edición.
+- Los dos embeds Discord se compararon con el original; coinciden salvo la
+  restricción explícita de menciones. El Worker arma el mensaje y mantiene el
+  webhook privado; el navegador ya no carga ni consulta secretos locales.
+- POST /api/avatars/suggestions verifica sesión Nuvio, limita/valida multipart,
+  comprueba MIME/cabecera y reserva el envío en Redis. La reserva aplica espera
+  por cuenta y deduplicación del requestId. Tras `wait=true` se exige un ID de
+  mensaje. No hay reintentos automáticos; un resultado desconocido conserva el
+  formulario y bloquea otro envío idéntico en esa instancia del workflow.
+- La comprobación de fingerprint usa el contenido de archivo, no su nombre.
+  Solo un envío confirmado activa el cooldown local. El Worker es la autoridad
+  de deduplicación; Redis/Lua siguen probados con respuestas simuladas.
+- Activación real PENDIENTE: configurar AVATAR_SUGGESTION_WEBHOOK_URL y los
+  ajustes Redis/Nuvio ya indicados en worker/README.md, probar los servicios
+  reales y autorizar el despliegue. No se tocó el Worker activo ni se enviaron
+  mensajes de Discord reales. Sin estas rutas, el modal conserva los datos y
+  muestra error; no anuncia envíos inexistentes.
+- Cuatro recorridos verifican envío simulado URL/archivo, datos preservados ante
+  fallo, foco/teclado y liberación de previews. El filtro de configuración privada
+  del build ahora devuelve un módulo vacío sin exports heredados.
 - `js/avatar-rank-client.js` eliminado: baseline, normalización y almacenamiento
   en features/avatars; coordinación en workflows/avatar-ranking.js; cliente HTTP
   en integrations/worker y composición en app/avatar-ranking.js. Cuenta consume
@@ -187,9 +213,10 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
   páginas y su funcionamiento con almacenamiento bloqueado.
 - `js/webhook-config.js` eliminado: era otra configuración vacía sin productor.
   Se retiró su rama inalcanzable. No se publicaron archivos locales privados;
-  el envío de sugerencias mediante Worker sigue pendiente.
+  el envío mediante Worker se preparó después como se indica arriba; su
+  configuración y activación real siguen pendientes.
 - `js/avatar-rank-config.js` eliminado: era un objeto vacío sin productor en CI.
-  Se retiró su rama inalcanzable; el cliente y su traslado al Worker siguen pendientes.
+  Se retiró su rama inalcanzable; su cliente se migró después como se indica arriba.
 - `js/counter-config.js` eliminado: configuración pública en app/completions-config.js,
   sustituida por el plugin de build con su lista explícita de variables permitidas.
 - `js/version.js` eliminado: las cuatro páginas cargan app/site-version.js;
@@ -262,9 +289,9 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 - El Worker modular de worker/ ya tiene publicación validada, pero no está desplegado.
 - Sustituir la contraseña de colaboradores persistida como token por una sesión
   emitida por el Worker; preservar el flujo account/modder.
-- Implementar el endpoint privado de sugerencias Discord. El ranking Redis ya
-  tiene rutas y cliente privados preparados; faltan pruebas con Redis/Cloudflare
-  reales, configuración de secretos y despliegue autorizado. Nunca incorporar
+- Ranking Redis y sugerencias Discord tienen rutas y clientes privados preparados;
+  faltan pruebas con Redis/Discord/Cloudflare reales, configuración de secretos y
+  despliegue autorizado. Nunca incorporar
   secretos a configuración pública o variables que acaben en bundles.
 - Consultas y registro de completados ya están separados del odómetro genérico;
   los endpoints públicos externos siguen siendo opcionales. La deduplicación
@@ -368,8 +395,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 463 pruebas de lógica,
-44 recorridos contra build y 43 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 519 pruebas de lógica,
+48 recorridos contra build y 47 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.

@@ -1,4 +1,5 @@
 import { WorkerError } from '../middleware/http.js';
+import { identityHash } from '../shared/identity-hash.js';
 
 export function avatarRankingKey(value) {
   if (typeof value !== 'string' || value.length > 512 || /[<>\\:?#]/.test(value)
@@ -22,13 +23,8 @@ if daily == 0 then redis.call('EXPIRE', KEYS[3], 172800) end
 return {'recorded', score}
 `;
 
-async function digest(value) {
-  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-  return [...new Uint8Array(bytes)].map(byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
 export async function avatarVoteCommand(userId, key, now = Date.now()) {
-  const [user, avatar] = await Promise.all([digest(userId), digest(key)]);
+  const [user, avatar] = await Promise.all([identityHash(userId), identityHash(key)]);
   return ['EVAL', RECORD_AVATAR_SCRIPT, 3, 'avatar_ranks', `avatar_rank_vote:${user}:${avatar}`,
     `avatar_rank_daily:${user}:${Math.floor(now / 86400000)}`, key];
 }

@@ -25,7 +25,7 @@ import {
   resolveAvatarCdnUrl,
   loadAvatarsCatalog,
 } from '../src/app/avatar-catalog.js';
-import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
+import { initAvatarSuggestionsUI } from '../src/app/avatar-suggestions.js';
 import { BASELINE_TOP_AVATARS, normalizeAvatarStorageKey } from '../src/features/avatars/index.js';
 import { fetchTopAvatarKeys, recordAvatarUsage } from '../src/app/avatar-ranking.js';
 
@@ -4028,10 +4028,10 @@ export async function initAccountPage() {
     btnSave.addEventListener('click', saveAllChanges);
   }
 
-  // Precargar catálogo dinámico de avatares en segundo plano (Live Server crawler o GitHub Tree)
+  // Precargar catálogo remoto de avatares mediante GitHub y caché de sesión.
   loadAvatarsCatalog().catch(() => null);
 
-  // Precargar ranking global de avatares más usados desde Upstash Redis
+  // Consultar el ranking mediante el Worker; Redis permanece en el backend.
   fetchTopAvatarKeys(8).then(keys => {
     accountState.mostUsedKeys = keys;
     if (accountState.activeSection === 'avatars') {
@@ -4040,7 +4040,7 @@ export async function initAccountPage() {
   }).catch(() => null);
 
   // Inicializar listeners del módulo de sugerencias de avatares (Discord)
-  initAvatarSuggestionsUI();
+  initAvatarSuggestionsUI({ getAccessToken: () => accountState.session?.accessToken });
 
   // 2. Revisar si hay sesión activa en sessionStorage
   const session = loadSession();
