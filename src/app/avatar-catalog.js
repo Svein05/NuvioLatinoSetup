@@ -6,14 +6,14 @@ import { avatarImageUrl } from '../integrations/github/avatar-image-url.js';
 import { createAvatarCatalogLoader } from '../workflows/load-avatar-catalog.js';
 import { createJsonStore } from '../shared/storage/json-store.js';
 
-const relativePrefix = /\/(account|configuration|documentation|modder)(?:\/|$)/.test(window.location.pathname) ? '../' : './';
+const relativePrefix = typeof window !== 'undefined' && /\/(account|configuration|documentation|modder)(?:\/|$)/.test(window.location.pathname) ? '../' : './';
 const catalog = createAvatarCatalogStore({ relativePrefix });
 const cache = createJsonStore({
   key: 'nuvio_avatars_tree_cache',
   storage: {
-    getItem: key => sessionStorage.getItem(key),
-    setItem: (key, value) => sessionStorage.setItem(key, value),
-    removeItem: key => sessionStorage.removeItem(key),
+    getItem: key => (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(key) : null),
+    setItem: (key, value) => (typeof sessionStorage !== 'undefined' ? sessionStorage.setItem(key, value) : undefined),
+    removeItem: key => (typeof sessionStorage !== 'undefined' ? sessionStorage.removeItem(key) : undefined),
   },
   reportWarning: () => console.warn('No se pudo acceder a la caché del catálogo de avatares.'),
 });
