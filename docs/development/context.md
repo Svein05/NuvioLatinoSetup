@@ -66,7 +66,7 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 
 | Módulo activo | Líneas al registrar este roadmap | Destino de lo pendiente |
 | --- | ---: | --- |
-| `js/account-manager.js` | 4.167 | pages/account, workflows, features e integrations |
+| `js/account-manager.js` | 4.163 | pages/account, workflows, features e integrations |
 | `js/app.js` | 3.702 | pages/configuration/steps y composición app |
 | `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
@@ -98,6 +98,28 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/avatar-rank-client.js` eliminado: baseline, normalización y almacenamiento
+  en features/avatars; coordinación en workflows/avatar-ranking.js; cliente HTTP
+  en integrations/worker y composición en app/avatar-ranking.js. Cuenta consume
+  las entradas nuevas. Dieciocho contratos de baseline/normalización coinciden
+  con el original; conserva claves de caché y marcas de sesión.
+- Redis ya no recibe peticiones ni lee credenciales desde el navegador. El Worker
+  incorpora GET /api/avatars/ranking y POST /api/avatars/usage, verificación remota
+  de la sesión Nuvio, validación de cuerpos y un comando EVAL con deduplicación
+  por cuenta/avatar de 24 horas y límite de 100 votos por cuenta/día UTC.
+  Mantiene avatar_ranks; las claves auxiliares usan hashes, no tokens/IDs en claro.
+- Solo marca votos confirmados o duplicados; errores HTTP y resultados ambiguos
+  no invalidan caché ni generan confirmaciones ficticias. El guardado de avatar
+  solicita el voto después de verificar su persistencia en Nuvio, no antes.
+- Despliegue y configuración del ranking siguen PENDIENTES: AVATAR_REDIS_URL,
+  AVATAR_REDIS_TOKEN y NUVIO_PUBLIC_ANON_KEY se configuran en Cloudflare conforme
+  a worker/README.md. No se tocaron secretos ni el Worker activo. Con las rutas
+  antiguas o Redis no configurado, siguen funcionando caché y ocho avatares de
+  respaldo. Las configuraciones Redis antiguas del navegador ya no se utilizan.
+- Los tests verifican autenticación, límites de entrada, contrato EVAL, errores,
+  aislamiento de claves y orden guardado/voto usando servicios simulados. La
+  ejecución real del script Lua y sus límites necesitan probarse con Redis y
+  Cloudflare antes de desplegar; no se declara esa validación real realizada.
 - `js/avatars-data.js` eliminado: modelos, selectores y estado en features/avatars,
   transporte y URLs en integrations/github, carga en workflows/load-avatar-catalog.js
   y composición en app/avatar-catalog.js. Cuenta, asistente y publicador usan las
@@ -240,8 +262,10 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 - El Worker modular de worker/ ya tiene publicación validada, pero no está desplegado.
 - Sustituir la contraseña de colaboradores persistida como token por una sesión
   emitida por el Worker; preservar el flujo account/modder.
-- Implementar endpoints privados de sugerencias Discord y ranking Redis. Nunca
-  incorporar sus secretos a configuración pública o variables que acaben en bundles.
+- Implementar el endpoint privado de sugerencias Discord. El ranking Redis ya
+  tiene rutas y cliente privados preparados; faltan pruebas con Redis/Cloudflare
+  reales, configuración de secretos y despliegue autorizado. Nunca incorporar
+  secretos a configuración pública o variables que acaben en bundles.
 - Consultas y registro de completados ya están separados del odómetro genérico;
   los endpoints públicos externos siguen siendo opcionales. La deduplicación
   global requiere soporte del proveedor; no atribuirla a los marcadores locales.
@@ -344,8 +368,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 413 pruebas de lógica,
-42 recorridos contra build y 41 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 463 pruebas de lógica,
+44 recorridos contra build y 43 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.

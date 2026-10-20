@@ -26,12 +26,8 @@ import {
   loadAvatarsCatalog,
 } from '../src/app/avatar-catalog.js';
 import { initAvatarSuggestionsUI } from './avatar-suggestions.js';
-import { 
-  BASELINE_TOP_AVATARS,
-  fetchTopAvatarKeys, 
-  recordAvatarUsage, 
-  normalizeAvatarStorageKey 
-} from './avatar-rank-client.js';
+import { BASELINE_TOP_AVATARS, normalizeAvatarStorageKey } from '../src/features/avatars/index.js';
+import { fetchTopAvatarKeys, recordAvatarUsage } from '../src/app/avatar-ranking.js';
 
 // Clave segura para sesión bajo demanda en la pestaña actual
 const accountSessionStore = createSessionStore({ key: 'nuvio_account_session_v1', storage: sessionStorage });
@@ -1183,7 +1179,7 @@ export function setupProfileModals() {
 
         showToast('✓ Perfil creado con éxito.', 'success');
         if (createProfileAvatarUrl) {
-          recordAvatarUsage(createProfileAvatarUrl).catch(() => null);
+          void recordAvatarUsage(createProfileAvatarUrl, { accessToken: accountState.session.accessToken });
         }
         closeCreateProfileModal();
 
@@ -3629,7 +3625,6 @@ export async function saveAllChanges() {
     // 0. Guardar Avatar de Perfil si cambió
     if (accountState.dirty.avatar && accountState.selectedAvatarUrl) {
       const avatarUrlToSave = resolvePublicAvatarUrl(accountState.selectedAvatarUrl);
-      recordAvatarUsage(accountState.selectedAvatarUrl).catch(() => null);
       await NuvioClient.updateProfileAvatar({
         apiUrl: CONFIG.NUVIO_API_URL,
         apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
@@ -3638,6 +3633,7 @@ export async function saveAllChanges() {
         profileId: profId,
         avatarUrl: avatarUrlToSave
       });
+      void recordAvatarUsage(accountState.selectedAvatarUrl, { accessToken: accountState.session.accessToken });
 
       // Actualizar en el estado local del perfil
       const targetProf = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === Number(profId));

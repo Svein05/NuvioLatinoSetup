@@ -1,6 +1,7 @@
 import { corsHeaders, json } from './middleware/http.js';
 import { collaboratorRoute } from './routes/collaborators.js';
 import { proxyRoute } from './routes/proxy.js';
+import { avatarRankingRoute } from './routes/avatar-ranking.js';
 
 /** Dependency injection keeps all tests offline and independent of private credentials. */
 export function createWorker({ fetchImpl = fetch } = {}) {
@@ -9,6 +10,7 @@ export function createWorker({ fetchImpl = fetch } = {}) {
       try {
         if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
         const { pathname } = new URL(request.url);
+        if (['/api/avatars/ranking', '/api/avatars/usage'].includes(pathname)) return await avatarRankingRoute(request, env, fetchImpl);
         if (['/api/verify-auth', '/api/save-staged-changes'].includes(pathname)) {
           return await collaboratorRoute(request, env, { publish: pathname.endsWith('save-staged-changes'), fetchImpl });
         }
