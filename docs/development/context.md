@@ -99,6 +99,10 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/github-stars.js` eliminado: consulta HTTP en integrations/github, caché en
+  workflows, representación en shared/ui y composición en app/repository-stars.js.
+  Conserva caché de una hora y respaldo; indica datos estimados y tolera almacenamiento
+  bloqueado. Cinco escenarios comparados con el original y dos recorridos de navegador.
 - `js/badge-packs.js` eliminado: sus dos consumidores importan datos/reglas desde
   features/badges/index.js y el compilador conectado desde app/badge-compilation.js.
   No hay un nuevo archivo puente ni cambia el estado compartido del catálogo.
