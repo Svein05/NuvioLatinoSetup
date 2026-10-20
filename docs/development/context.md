@@ -78,7 +78,6 @@ el objetivo final; están acotadas temporalmente como legado, no aprobadas como 
 | `js/account-manager.js` | 4.163 | pages/account, workflows, features e integrations |
 | `js/app.js` | 3.702 | pages/configuration/steps y composición app |
 | `js/modder-uploader.js` | 2.209 | asset-manager, avatars, pages/modder e integración Worker |
-| `js/mini-nuvio.js` | 1.299 | features/collections/ui |
 
 El inventario completo y los límites efectivos viven en
 [`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json).
@@ -103,6 +102,16 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/mini-nuvio.js` eliminado: componente interactivo del simulador visual desacoplado en
+  módulos de única responsabilidad (< 60 líneas por función, max-depth <= 3):
+  resolución canónica de títulos amigables en Español Latino en features/collections/model/catalog-title.js;
+  vistas puras desacopladas en features/collections/ui/ (toolbar.js, hero-banner.js, folder-card.js
+  y section-view.js); modales interactivos en features/collections/ui/ (catalog-explorer-modal.js,
+  rename-catalog-modal.js, add-catalog-modal.js, section-modal.js y folder-modal.js); interacciones
+  fluidas con SortableJS en features/collections/ui/sortables.js; controlador desacoplado
+  MiniNuvioCore con inyección de dependencias en features/collections/ui/mini-nuvio-core.js y fachada
+  de aplicación conectada al store reactivo en src/app/mini-nuvio.js. Consumidor migrado en js/app.js.
+  69 suites de test pasando (609 tests en verde) sin regresiones.
 - `js/state.js` eliminado: gestión reactiva y estado del asistente desacoplados en unidades
   atómicas de alta cohesión (< 60 líneas por función, max-depth <= 3):
   validación de pasos 1 al 7 en features/wizard/model/step-validation.js, valores por defecto
