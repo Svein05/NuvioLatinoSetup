@@ -4,6 +4,7 @@ import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
 import { loadProfileOverviewSources } from '../src/workflows/load-profile-overview.js';
 import { buildProfileOverview } from '../src/features/profiles/index.js';
 import { presentAccountOverview } from '../src/app/account-overview.js';
+import { saveAccountChanges } from '../src/workflows/save-account-changes.js';
 /**
  * Controlador Modular del Gestor de Cuenta y Perfil (/account)
  * Ecosistema Nuvio Metadata Latino & AIOMetadata
@@ -3607,277 +3608,48 @@ export function renderSettingsSection() {
 }
 
 export async function saveAllChanges() {
-  if (accountState.isSaving) return;
-  const changed = Object.keys(accountState.dirty).filter(k => accountState.dirty[k]);
-  if (changed.length === 0) {
-    showToast('No hay cambios pendientes por guardar.', 'info');
-    return;
-  }
-
-  accountState.isSaving = true;
-  updateSaveButton();
   const btn = document.getElementById('btnAccountSave');
-  if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Guardando...';
-
-  try {
-    const profId = accountState.selectedProfileId;
-
-    // 0. Guardar Avatar de Perfil si cambió
-    if (accountState.dirty.avatar && accountState.selectedAvatarUrl) {
-      const avatarUrlToSave = resolvePublicAvatarUrl(accountState.selectedAvatarUrl);
-      await NuvioClient.updateProfileAvatar({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        userId: accountState.session.userId,
-        profileId: profId,
-        avatarUrl: avatarUrlToSave
-      });
-      void recordAvatarUsage(accountState.selectedAvatarUrl, { accessToken: accountState.session.accessToken });
-
-      // Actualizar en el estado local del perfil
-      const targetProf = (accountState.profiles || []).find(p => Number(p.profile_index ?? p.id) === Number(profId));
-      if (targetProf) {
-        targetProf.avatar_url = avatarUrlToSave;
-      }
-      accountState.originalAvatarUrl = accountState.selectedAvatarUrl;
-
-      // Actualizar avatar en barra lateral y popover
-      const sidebarAvatar = document.getElementById('sidebarActiveAvatar');
-      if (sidebarAvatar) sidebarAvatar.src = resolveAvatarCdnUrl(avatarUrlToSave);
-
-      renderProfilePopover();
-      accountState.dirty.avatar = false;
-
-      updateAvatarComparisonUI();
-    }
-
-    // 1. Guardar Ajustes de Nuvio & Credenciales (TMDB / MDBList)
-    if (accountState.dirty.settings) {
-      // Regla de Oro: Preservar credenciales existentes si el input está vacío
-      const tmdbKeyToSave = (accountState.settings.tmdb_api_key || accountState.originalSettings.tmdb_api_key || '').trim();
-      const mdblistKeyToSave = (accountState.settings.mdblist_api_key || accountState.originalSettings.mdblist_api_key || '').trim();
-
-      const profileSettingsPayload = {
-        language: 'es-MX',
-        tmdb_language: 'es-MX',
-        enrichment_enabled: Boolean(accountState.settings.enrichment_enabled),
-        ratings_enabled: Boolean(accountState.settings.ratings_enabled),
-        tmdb_api_key: tmdbKeyToSave,
-        mdblist_api_key: mdblistKeyToSave
-      };
-
-      // Preservar badges existentes en la TV del usuario si los tenía configurados
-      if (accountState._rawStreamBadgeSettings) {
-        profileSettingsPayload.stream_badge_settings = accountState._rawStreamBadgeSettings;
-      }
-
-      for (const platform of ['tv', 'mobile', 'desktop']) {
-        await NuvioClient.pushProfileSettings({
-          apiUrl: CONFIG.NUVIO_API_URL,
-          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-          accessToken: accountState.session.accessToken,
-          profileId: profId,
-          platform,
-          settings: profileSettingsPayload
-        });
-      }
-
-      // Sincronizar credenciales oficiales de proveedores en Nuvio
-      const creds = [];
-      if (tmdbKeyToSave) {
-        creds.push({ provider: 'tmdb', credential_json: { api_key: tmdbKeyToSave } });
-      }
-      if (mdblistKeyToSave) {
-        creds.push({ provider: 'mdblist', credential_json: { api_key: mdblistKeyToSave } });
-      }
-      if (creds.length > 0) {
-        await NuvioClient.pushProviderCredentials({
-          apiUrl: CONFIG.NUVIO_API_URL,
-          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-          accessToken: accountState.session.accessToken,
-          profileId: profId,
-          credentials: creds
-        });
-      }
-
-      accountState.originalSettings = JSON.parse(JSON.stringify(accountState.settings));
-      accountState.dirty.settings = false;
-    }
-
-    // 3. Guardar AIOMetadata Addon (Motor de Pósters, URLs y Credenciales)
-    if (accountState.dirty.aiometadata && accountState.aioUuid && accountState.aioConfig) {
-      const tmdbKeyToSave = (accountState.settings.tmdb_api_key || accountState.originalSettings.tmdb_api_key || '').trim();
-      const mdblistKeyToSave = (accountState.settings.mdblist_api_key || accountState.originalSettings.mdblist_api_key || '').trim();
-
-      const cfg = accountState.aioConfig.config || accountState.aioConfig;
-      if (!cfg.apiKeys) cfg.apiKeys = {};
-      if (tmdbKeyToSave) cfg.apiKeys.tmdb = tmdbKeyToSave;
-      if (mdblistKeyToSave) cfg.apiKeys.mdblist = mdblistKeyToSave;
-
-      const engine = accountState.posterEngine || 'default';
-      if (engine === 'default') {
-        cfg.posterRatingProvider = "none";
-        cfg.customPosterUrlPattern = "";
-        cfg.enableRatingPostersForLibrary = false;
-        cfg.usePosterProxy = false;
-      } else if (engine === 'betterposter') {
-        cfg.posterRatingProvider = "custom";
-        const isBtttr = accountState.customPosterUrl && accountState.customPosterUrl.includes('btttr.cc');
-        cfg.customPosterUrlPattern = isBtttr
-          ? accountState.customPosterUrl.trim()
-          : "https://btttr.cc/poster/imdb/poster-default/{imdb_id}.jpg?lang=es-MX&rs=IM";
-        cfg.enableRatingPostersForLibrary = true;
-        cfg.usePosterProxy = true;
-      } else if (engine === 'postersplus') {
-        cfg.posterRatingProvider = "custom";
-        const tmdbKey = tmdbKeyToSave || cfg.apiKeys?.tmdb || state.apiKeys?.tmdb || '';
-        const mdblistKey = mdblistKeyToSave || cfg.apiKeys?.mdblist || state.apiKeys?.mdblist || '';
-        const tmdbEnc = encodeURIComponent(tmdbKey);
-        const mdbEnc = encodeURIComponent(mdblistKey);
-        const defaultPostersPlusPattern = `https://postersplus.stremio.ru/poster?tmdb_id={tmdb_id?}&imdb_id={imdb_id?}&stremio_id={id}&type={type}&primary_client=stremio_tv_nuvio&tmdb_key=${tmdbEnc}&mdblist_key=${mdbEnc}&top_gradient=medium&fallback_to_imdb=true&rating_display_mode=3&minimalist_append_mode=3&minimalist_mode_font_size_ratio=0.056&minimalist_mode_font_x_offset=0.065&minimalist_score_out_of_10=true&movie_weights=letterboxd%3A0.99%2Ctrakt%3A0.01&tv_weights=trakt%3A0.80%2Ctomatoes%3A0.20&logo_language=es-mx&logo_priority=native%2Cenglish%2Coriginal%2Cneutral%2Ctext&fallback_bg_style=photoreal&logo_bottom_ratio=0.23&sash_length_ratio=1.20&sash_height_ratio=0.135&badge_display_mode=0`;
-        const isPlus = accountState.customPosterUrl && accountState.customPosterUrl.includes('postersplus.stremio.ru');
-        cfg.customPosterUrlPattern = isPlus
-          ? accountState.customPosterUrl.trim()
-          : defaultPostersPlusPattern;
-        cfg.enableRatingPostersForLibrary = true;
-        cfg.usePosterProxy = true;
-      } else if (engine === 'custom_external') {
-        cfg.posterRatingProvider = "custom";
-        cfg.customPosterUrlPattern = (accountState.customPosterUrl || '').trim();
-        cfg.enableRatingPostersForLibrary = true;
-        cfg.usePosterProxy = true;
-      }
-
-      await updateMetadataConfiguration(
-        metadataOwner(accountState.aioAddon?.manifest_url || accountState.aioAddon?.url).instanceUrl,
-        accountState.aioUuid,
-        {
-          password: accountState.aioPassword,
-          config: accountState.aioConfig
-        }
-      );
-      accountState.originalAioConfig = JSON.parse(JSON.stringify(accountState.aioConfig));
-      accountState.originalPosterEngine = accountState.posterEngine;
-      accountState.originalCustomPosterUrl = cfg.customPosterUrlPattern || '';
-      accountState.dirty.aiometadata = false;
-      accountState.customPosterUrl = cfg.customPosterUrlPattern || '';
-      renderAioSection();
-    }
-
-    // 4. Guardar Addons del Perfil (Reordenar, agregar, editar y eliminar)
-    if (accountState.dirty.addons) {
-      const currentAddons = accountState.installedAddons || [];
-      const origAddons = accountState.originalInstalledAddons || [];
-
-      // A. Eliminar en Nuvio los addons removidos
-      const currentIds = new Set(currentAddons.filter(a => a.id).map(a => String(a.id)));
-      const toDelete = origAddons.filter(a => a.id && !currentIds.has(String(a.id)));
-      for (const delAddon of toDelete) {
-        await NuvioClient.deleteAddon({
-          apiUrl: CONFIG.NUVIO_API_URL,
-          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-          accessToken: accountState.session.accessToken,
-          addonId: delAddon.id,
-          profileId: profId
-        }).catch(err => console.warn('[AccountManager] Error borrando addon:', err));
-      }
-
-      // B. Instalar o actualizar addons en Nuvio
-      for (let i = 0; i < currentAddons.length; i++) {
-        const addon = currentAddons[i];
-        const rawUrl = addon.manifest_url || addon.url;
-        if (!addon.id) {
-          const installedRes = await NuvioClient.installAddon({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-            accessToken: accountState.session.accessToken,
-            userId: accountState.session.userId,
-            addonData: {
-              profile_id: profId,
-              name: addon.name,
-              manifest_url: rawUrl,
-              url: rawUrl,
-              enabled: addon.enabled !== false,
-              sort_order: i + 1
-            }
-          }).catch(err => console.warn('[AccountManager] Error instalando addon:', err));
-
-          if (installedRes?.addonId) {
-            addon.id = installedRes.addonId;
-          }
-        } else {
-          // Actualizar si cambió nombre, url o estado
-          const orig = origAddons.find(o => String(o.id) === String(addon.id));
-          const hasEnabledChanged = orig && (Boolean(orig.enabled !== false) !== Boolean(addon.enabled !== false));
-          const hasNameChanged = orig && (orig.name !== addon.name);
-          const hasUrlChanged = orig && ((orig.manifest_url || orig.url) !== rawUrl);
-
-          if (orig && (hasNameChanged || hasUrlChanged || hasEnabledChanged)) {
-            await NuvioClient.updateAddon({
-              apiUrl: CONFIG.NUVIO_API_URL,
-              apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-              accessToken: accountState.session.accessToken,
-              addonId: addon.id,
-              name: addon.name,
-              manifestUrl: rawUrl,
-              enabled: addon.enabled !== false,
-              sortOrder: i + 1
-            }).catch(err => console.warn('[AccountManager] Error actualizando addon:', err));
+  await saveAccountChanges({
+    state: accountState,
+    config: CONFIG,
+    client: NuvioClient,
+    updateMetadataConfiguration,
+    resolveOwnerInstanceUrl: (url) => metadataOwner(url).instanceUrl,
+    avatarService: {
+      resolvePublicUrl: resolvePublicAvatarUrl,
+      recordUsage,
+    },
+    ui: {
+      notify: showToast,
+      onSavingStateChange: (isSaving) => {
+        if (btn) {
+          if (isSaving) {
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Guardando...';
+          } else {
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i><span>Guardar Cambios</span><span id="accountSaveCountBadge" class="hidden ml-1.5 px-2 py-0.5 rounded-full text-[11px] bg-black text-[#ffd479] font-mono font-bold"></span>';
           }
         }
-      }
-
-      // C. Sincronizar orden global de todos los addons
-      const orderedAddonsWithSort = currentAddons.map((a, idx) => ({
-        ...a,
-        enabled: a.enabled !== false,
-        sort_order: idx + 1
-      }));
-      await NuvioClient.syncAddonsOrder({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        userId: accountState.session.userId,
-        profileId: profId,
-        addons: orderedAddonsWithSort
-      }).catch(err => console.warn('[AccountManager] Error sincronizando orden de addons:', err));
-
-      // D. Recargar lista limpia desde Nuvio para mantener IDs y estado exactos
-      const freshAddons = await NuvioClient.listAddons({
-        apiUrl: CONFIG.NUVIO_API_URL,
-        apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: accountState.session.accessToken,
-        userId: accountState.session.userId,
-        profileId: profId
-      }).catch(() => currentAddons);
-
-      accountState.installedAddons = JSON.parse(JSON.stringify(freshAddons));
-      accountState.originalInstalledAddons = JSON.parse(JSON.stringify(freshAddons));
-      accountState.dirty.addons = false;
-      accountState.addonHistory = [];
-      updateUndoButton();
-
-      if (accountState.overviewData) {
-        accountState.overviewData.addonsCount = freshAddons.length;
-        const elAddons = document.getElementById('metricAddonsCount');
-        if (elAddons) elAddons.textContent = freshAddons.length;
-      }
-
-      renderAddonsSection();
-    }
-
-    showToast('✓ Cambios guardados exitosamente con equivalencia total.', 'success');
-  } catch (err) {
-    console.error('[AccountManager] Error guardando cambios:', err);
-    showToast(`Error al guardar: ${err.message}`, 'error');
-  } finally {
-    accountState.isSaving = false;
-    if (btn) {
-      btn.innerHTML = '<i class="fa-solid fa-floppy-disk mr-1.5"></i><span>Guardar Cambios</span><span id="accountSaveCountBadge" class="hidden ml-1.5 px-2 py-0.5 rounded-full text-[11px] bg-black text-[#ffd479] font-mono font-bold"></span>';
-    }
-    updateSaveButton();
-  }
+        updateSaveButton();
+      },
+      updateAvatarUI: (avatarUrlToSave) => {
+        const sidebarAvatar = document.getElementById('sidebarActiveAvatar');
+        if (sidebarAvatar) sidebarAvatar.src = resolveAvatarCdnUrl(avatarUrlToSave);
+        renderProfilePopover();
+        updateAvatarComparisonUI();
+      },
+      renderAioSection,
+      renderAddonsSection: (freshAddons) => {
+        updateUndoButton();
+        if (accountState.overviewData) {
+          const elAddons = document.getElementById('metricAddonsCount');
+          if (elAddons) elAddons.textContent = freshAddons.length;
+        }
+        renderAddonsSection();
+      },
+    },
+  }).catch(() => {
+    // Errors handled and notified by workflow
+  });
 }
 
 export function setupScrollableTabs() {
