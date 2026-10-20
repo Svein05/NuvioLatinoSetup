@@ -5,21 +5,16 @@ import { mountApiKeysStep } from '../src/pages/configuration/steps/api-keys.js';
 import { verifyWizardApiKeys } from '../src/app/api-key-validation.js';
 import { mountAuthStep } from '../src/pages/configuration/steps/auth.js';
 import { mountProfilesStep } from '../src/pages/configuration/steps/profiles.js';
+import { createProfilesStepActions } from '../src/pages/configuration/steps/profiles-actions.js';
 import { authenticateWizard } from '../src/workflows/authenticate-wizard.js';
 import { createWizardSessionStore } from '../src/workflows/wizard-session.js';
-const wizardSessionStore = createWizardSessionStore({ key: 'nuvio_wizard_auth', storage: sessionStorage });
 import { showToast as renderToast } from '../src/shared/ui/toast/render.js';
 import { initPasswordToggles } from '../src/shared/ui/password-toggle.js';
-/**
- * Controlador Principal de la Aplicación (UI y Eventos)
- * Nuvio & AIOMetadata Auto-Setup Wizard
- */
-import { state, isAioMetadataAddon, isAioStreamsAddon } from '../src/app/wizard-state.js';
+import { state } from '../src/app/wizard-state.js';
 import { CONFIG } from '../src/app/config.js';
 import { MiniNuvio } from '../src/app/mini-nuvio.js';
 import { NuvioClient } from '../src/integrations/nuvio/client.js';
 import { executePipeline, downloadCollectionsJson, downloadAioConfigJson } from '../src/app/provisioning.js';
-import { compileStreamingConfig } from '../src/features/addons/index.js';
 import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';
 import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
 import { getBadgePackById, getBadgePackUrl } from '../src/features/badges/index.js';
@@ -29,18 +24,21 @@ import { mountInjectionStep } from '../src/pages/configuration/steps/injection.j
 import { setupStepperNavigation } from '../src/pages/configuration/stepper.js';
 import { showCompletionModal } from '../src/pages/configuration/completion-modal.js';
 import { initCompletionsCounterUI, recordSuccessfulCompletion } from '../src/app/completions.js';
-import { formatFranchiseName } from '../src/features/avatars/index.js';
 import {
   loadAvatarsCatalog,
-  getCompiledAvatars,
   filterAvatars,
   resolveAvatarCdnUrl,
   getFranchisesSummary,
 } from '../src/app/avatar-catalog.js';
-
-// Catálogo de 30 títulos icónicos para la demostración sincronizada de carátulas (Paso 5)
 import { DEMO_POSTERS } from '../src/features/posters/index.js';
+import { showLandingView, showWizardView, toggleView } from '../src/pages/configuration/view-switch.js';
+import { saveWizardSession, restoreWizardSession, setAuthBadgeUI } from '../src/pages/configuration/session-sync.js';
+import { attachControllerDelegates } from '../src/pages/configuration/delegates.js';
+import { generateAioStreamsManifest } from '../src/workflows/generate-aiostreams-manifest.js';
+
 export { DEMO_POSTERS };
+
+const wizardSessionStore = createWizardSessionStore({ key: 'nuvio_wizard_auth', storage: sessionStorage });
 
 class AppController {
   constructor() {
@@ -50,127 +48,50 @@ class AppController {
     this.injectionStep = null;
     this.stepper = null;
     this.profilePendingDelete = null;
+    attachControllerDelegates(this);
     this.nextDemoPoster = this.nextDemoPoster.bind(this);
     this.prevDemoPoster = this.prevDemoPoster.bind(this);
   }
 
   async init() {
-    return initializeWizard({ controller: this, state, MiniNuvio, loadAvatarsCatalog,
-      initCounter: initCompletionsCounterUI });
+    return initializeWizard({
+      controller: this,
+      state,
+      MiniNuvio,
+      loadAvatarsCatalog,
+      initCounter: initCompletionsCounterUI,
+    });
   }
 
-  /**
-   * Muestra la Landing Page de Presentación inicial
-   */
   showLandingView(updateHash = true) {
-    const landing = document.getElementById('landingView');
-    const wizard = document.getElementById('wizardView');
-    if (!landing && wizard) {
-      window.location.href = '../';
-      return;
-    }
-    const btnText = document.getElementById('btnToggleWizardHeaderText');
-    const btnIcon = document.querySelector('#btnToggleWizardHeader i');
-    if (landing && wizard) {
-      landing.classList.remove('hidden');
-      wizard.classList.add('hidden');
-      if (btnText) btnText.innerText = 'Iniciar Asistente';
-      if (btnIcon) btnIcon.className = 'fa-solid fa-wand-magic-sparkles text-[11px]';
-      if (updateHash && window.location.hash) {
-        history.pushState('', document.title, window.location.pathname + window.location.search);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    showLandingView(document, updateHash);
   }
 
-  /**
-   * Muestra el Asistente de Configuración (5 Pasos)
-   */
   showWizardView(updateHash = true) {
-    const landing = document.getElementById('landingView');
-    const wizard = document.getElementById('wizardView');
-    if (!landing && wizard) {
-      wizard.classList.remove('hidden');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      this.updateUI();
-      return;
-    }
-    const btnText = document.getElementById('btnToggleWizardHeaderText');
-    const btnIcon = document.querySelector('#btnToggleWizardHeader i');
-    if (landing && wizard) {
-      landing.classList.add('hidden');
-      wizard.classList.remove('hidden');
-      if (btnText) btnText.innerText = 'Ver Presentación';
-      if (btnIcon) btnIcon.className = 'fa-solid fa-house text-[11px]';
-      if (updateHash) {
-        window.location.hash = '#wizard';
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      this.updateUI();
-    }
+    showWizardView(document, updateHash, () => this.updateUI());
   }
 
-  /**
-   * Alterna dinámicamente entre la Landing y el Asistente
-   */
   toggleView() {
-    const landing = document.getElementById('landingView');
-    if (!landing) {
-      window.location.href = '../';
-      return;
-    }
-    if (!landing.classList.contains('hidden')) {
-      this.showWizardView();
-    } else {
-      this.showLandingView();
-    }
+    toggleView(document, () => this.updateUI());
   }
 
-  /**
-   * Sistema de Notificaciones Flotantes (Toasts) Cinemático LAT-ADD
-   * @param {string} message 
-   * @param {'info' | 'success' | 'warning' | 'error'} type 
-   * @param {number} duration 
-   */
-  showToast(message, type = 'info', duration = 3500) { return renderToast(message, { type, duration }); }
+  showToast(message, type = 'info', duration = 3500) {
+    return renderToast(message, { type, duration });
+  }
 
-  /**
-   * Inicializa manejadores universales para alternar visibilidad de contraseñas (ojito)
-   */
-  setupPasswordToggles() { return initPasswordToggles(); }
+  setupPasswordToggles() {
+    return initPasswordToggles();
+  }
 
   saveSession() {
-    if (!state.nuvioAuth.isAuthenticated || !state.nuvioAuth.accessToken) return;
-    wizardSessionStore.write({ auth: state.nuvioAuth, profiles: state.profiles,
-      selectedProfileId: state.selectedProfileId, selectedProfileName: state.selectedProfileName,
-      newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
-      currentStep: state.currentStep, maxUnlockedStep: state.maxUnlockedStep });
+    saveWizardSession(state, wizardSessionStore);
   }
 
   restoreSession() {
-    try {
-      if (typeof sessionStorage === 'undefined') return;
-      const data = wizardSessionStore.read();
-      if (data && data.auth && data.auth.isAuthenticated) {
-        state.nuvioAuth = { ...state.nuvioAuth, ...data.auth };
-        state.profiles = data.profiles || [];
-        state.selectedProfileId = data.selectedProfileId || null;
-        state.selectedProfileName = data.selectedProfileName || '';
-        if (Array.isArray(data.newlyCreatedProfileIds)) {
-          state.newlyCreatedProfileIds = new Set(data.newlyCreatedProfileIds.map(String));
-        }
-
-        state.maxUnlockedStep = Math.max(state.maxUnlockedStep, data.maxUnlockedStep || 2);
-        state.currentStep = Math.max(state.currentStep, data.currentStep || 2);
-        this.setAuthBadge(true);
-        if (state.profiles.length > 0 && !state.selectedProfileId) {
-          state.selectedProfileId = state.profiles[0].id;
-          state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
-          state.unlockStep(3);
-        }
-        this.updateProfileWarning(state.selectedProfileId, state.selectedProfileName);
-      }
-    } catch (_) {}
+    restoreWizardSession(state, wizardSessionStore, {
+      setAuthBadge: connected => this.setAuthBadge(connected),
+      updateProfileWarning: (id, name) => this.updateProfileWarning(id, name),
+    });
   }
 
   setupNavigation() {
@@ -252,8 +173,12 @@ class AppController {
   setupStep1Events() {
     this.disposeAuthStep?.();
     this.disposeAuthStep = mountAuthStep({
-      authenticate: ({ mode, credentials, signal }) => authenticateWizard({ mode, credentials, client: NuvioClient,
-        context: { apiUrl: CONFIG.NUVIO_API_URL, apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY, signal } }),
+      authenticate: ({ mode, credentials, signal }) => authenticateWizard({
+        mode,
+        credentials,
+        client: NuvioClient,
+        context: { apiUrl: CONFIG.NUVIO_API_URL, apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY, signal },
+      }),
       onCredentials: ({ email, password }) => {
         state.nuvioAuth.email = email;
         state.nuvioAuth.password = password;
@@ -261,8 +186,15 @@ class AppController {
       },
       onAuthenticated: ({ auth, profiles, email }) => {
         state.isManualMode = false;
-        Object.assign(state.nuvioAuth, { accessToken: auth.accessToken, userId: auth.userId, expiresAt: auth.expiresAt,
-          isAuthenticated: true, apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY, email, password: '' });
+        Object.assign(state.nuvioAuth, {
+          accessToken: auth.accessToken,
+          userId: auth.userId,
+          expiresAt: auth.expiresAt,
+          isAuthenticated: true,
+          apikey: CONFIG.NUVIO_PUBLIC_ANON_KEY,
+          email,
+          password: '',
+        });
         state.profiles = profiles;
         if (profiles.length) {
           state.selectedProfileId = profiles[0].id;
@@ -289,126 +221,34 @@ class AppController {
         this.showToast('Continuando en modo manual sin cuenta de Nuvio.', 'info');
       },
       notify: (message, type) => this.showToast(message, type),
-      onFailure: () => this.setAuthBadge(false)
+      onFailure: () => this.setAuthBadge(false),
     });
   }
 
   setAuthBadge(connected) {
-    const badge = document.getElementById('authStatusBadge');
-    if (!badge) return;
-    if (connected) {
-      badge.className = "text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5";
-      badge.innerHTML = '<i class="fa-solid fa-check"></i> Conectado';
-    } else {
-      badge.className = "text-xs bg-slate-800 text-slate-400 border border-slate-700 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5";
-      badge.innerHTML = '<i class="fa-solid fa-circle text-[8px]"></i> No autenticado';
-    }
-  }
-
-  openNewProfileModal() {
-    this.profilesStep?.openNewModal?.();
-  }
-
-  closeNewProfileModal() {}
-
-  promptDeleteProfile(profileId, profileName) {
-    this.profilesStep?.promptDelete?.(profileId, profileName);
+    setAuthBadgeUI(document, connected);
   }
 
   setupStep2Profiles() {
     this.disposeProfilesStep?.();
     this.profilesStep = mountProfilesStep({
       state,
-      actions: {
-        createProfile: async ({ name, avatarUrl }) => {
-          const newProfile = await NuvioClient.createProfile({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
-            accessToken: state.nuvioAuth.accessToken,
-            userId: state.nuvioAuth.userId,
-            name,
-            avatarUrl: avatarUrl || null,
-          });
-          state.newlyCreatedProfileIds.add(String(newProfile.id));
-          state.profiles.push(newProfile);
-          state.selectedProfileId = newProfile.id;
-          state.selectedProfileName = newProfile.name || name;
-          state.unlockStep(3);
-          this.saveSession();
-          this.updateUI();
-          return newProfile;
-        },
-        deleteProfile: async (profileId) => {
-          const deleteResult = await NuvioClient.deleteProfile({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
-            accessToken: state.nuvioAuth.accessToken,
-            userId: state.nuvioAuth.userId,
-            profileId,
-          });
-          if (Array.isArray(deleteResult?.remainingProfiles)) {
-            state.profiles = deleteResult.remainingProfiles;
-          } else {
-            state.profiles = (state.profiles || []).filter(p => String(p.id) !== String(profileId));
-          }
-          if (String(state.selectedProfileId) === String(profileId)) {
-            if (state.profiles.length > 0) {
-              state.selectedProfileId = state.profiles[0].id;
-              state.selectedProfileName = state.profiles[0].name || state.profiles[0].title || 'Principal';
-              state.unlockStep(3);
-            } else {
-              state.selectedProfileId = null;
-              state.selectedProfileName = '';
-            }
-          }
-          this.saveSession();
-          this.updateUI();
-          return deleteResult;
-        },
-        onSelectProfile: (id, name) => {
-          state.selectedProfileId = id;
-          state.selectedProfileName = name;
-          state.unlockStep(3);
-          this.saveSession();
-          this.updateUI();
-        },
-        checkProfileHasAio: async (profileId) => {
-          if (state.hasLoadedAddonsForProfile === profileId && state.existingAioAddon) return true;
-          if (!state.nuvioAuth?.accessToken) return false;
-          const addons = await NuvioClient.listAddons({
-            apiUrl: CONFIG.NUVIO_API_URL,
-            apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
-            accessToken: state.nuvioAuth.accessToken,
-            userId: state.nuvioAuth.userId,
-            profileId,
-          });
-          const hasAio = (addons || []).some(isAioMetadataAddon);
-          if (state.hasLoadedAddonsForProfile !== profileId) {
-            state.setProfileAddons(addons, profileId);
-          }
-          return hasAio;
-        },
-        loadAvatars: loadAvatarsCatalog,
-        filterAvatars,
-        getFranchises: getFranchisesSummary,
-        resolveCdnUrl: resolveAvatarCdnUrl,
+      actions: createProfilesStepActions({
+        state,
+        client: NuvioClient,
+        config: { apiUrl: CONFIG.NUVIO_API_URL, anonKey: CONFIG.NUVIO_PUBLIC_ANON_KEY },
         notify: (message, type) => this.showToast(message, type),
-      },
+        saveSession: () => this.saveSession(),
+        updateUI: () => this.updateUI(),
+        avatarCatalog: { loadAvatarsCatalog, filterAvatars, getFranchisesSummary, resolveAvatarCdnUrl },
+      }),
     });
-  }
-
-  renderProfiles() {
-    this.profilesStep?.render();
-  }
-
-  updateProfileWarning(id, name) {
-    this.profilesStep?.updateWarning(id, name);
   }
 
   selectProfile(id, name) {
     state.selectedProfileId = id;
     state.selectedProfileName = name;
-    state.unlockStep(3); // Desbloquea Paso 3 (Colecciones)
+    state.unlockStep(3);
     this.saveSession();
     this.renderProfiles();
     this.updateProfileWarning(id, name);
@@ -433,7 +273,7 @@ class AppController {
         this.updateUI();
         this.updateNavigationButtons();
       },
-      notify: (message, type) => this.showToast(message, type)
+      notify: (message, type) => this.showToast(message, type),
     });
   }
 
@@ -451,90 +291,6 @@ class AppController {
         },
       },
     });
-  }
-
-  selectPosterEngine(engine) {
-    this.preferencesStep?.selectPosterEngine?.(engine);
-  }
-
-  toggleCustomUrlInput(engine) {
-    this.preferencesStep?.toggleCustomUrlInput?.(engine);
-  }
-
-  renderBadgeModulesUI() {
-    this.preferencesStep?.renderBadgeModulesUI?.();
-  }
-
-  toggleBadgeModule(id, chk) {
-    this.preferencesStep?.toggleBadgeModule?.(id, chk);
-  }
-
-  moveBadgeModule(id, delta) {
-    this.preferencesStep?.moveBadgeModule?.(id, delta);
-  }
-
-  selectBadgePack(id) {
-    this.preferencesStep?.selectBadgePack?.(id);
-  }
-
-  copyBadgeJsonUrl(id) {
-    return this.preferencesStep?.copyBadgeJsonUrl?.(id);
-  }
-
-  getCompiledBadgeRulesJson(id) {
-    return this.preferencesStep?.getCompiledBadgeRulesJson?.(id);
-  }
-
-  copyCompiledBadgeJson(id) {
-    return this.preferencesStep?.copyCompiledBadgeJson?.(id);
-  }
-
-  downloadCompiledBadgeJson(id) {
-    return this.preferencesStep?.downloadCompiledBadgeJson?.(id);
-  }
-
-  handleImportCustomBadge() {
-    return this.preferencesStep?.handleImportCustomBadge?.();
-  }
-
-  renderBadgesGrid() {
-    this.preferencesStep?.renderBadgesGrid?.();
-  }
-
-  handleBadgeImgLoaded(img) {
-    this.preferencesStep?.handleBadgeImgLoaded?.(img);
-  }
-
-  fitBadgesDynamically() {
-    this.preferencesStep?.fitBadgesDynamically?.();
-  }
-
-  updateStep5PosterPreviews() {
-    this.preferencesStep?.updatePosterPreviews?.();
-  }
-
-  startPosterRotation() {
-    this.preferencesStep?.startPosterRotation?.();
-  }
-
-  stopPosterRotation() {
-    this.preferencesStep?.stopPosterRotation?.();
-  }
-
-  nextDemoPoster() {
-    this.preferencesStep?.nextDemoPoster?.();
-  }
-
-  prevDemoPoster() {
-    this.preferencesStep?.prevDemoPoster?.();
-  }
-
-  updatePosterCardsUI() {
-    this.preferencesStep?.updateUI();
-  }
-
-  updatePreferencesUI() {
-    this.preferencesStep?.updateUI();
   }
 
   setupStep6AddonsManager() {
@@ -565,7 +321,7 @@ class AppController {
           apikey: state.nuvioAuth.apikey || CONFIG.NUVIO_PUBLIC_ANON_KEY,
           accessToken: state.nuvioAuth.accessToken,
           userId: state.nuvioAuth.userId,
-          profileId: state.selectedProfileId
+          profileId: state.selectedProfileId,
         });
         state.setProfileAddons(addons, state.selectedProfileId);
       } catch (err) {
@@ -574,42 +330,6 @@ class AppController {
     }
 
     this.addonsStep?.render();
-  }
-
-  renderAddonsList() {
-    this.addonsStep?.render();
-  }
-
-  moveAddon(index, direction) {
-    this.addonsStep?.moveAddon(index, direction);
-  }
-
-  removeAddon(index) {
-    this.addonsStep?.removeAddon(index);
-  }
-
-  openAddAddonModal(defaultUrl = '') {
-    this.addonsStep?.openAddModal(defaultUrl);
-  }
-
-  closeAddAddonModal() {
-    this.addonsStep?.closeAddAddonModal();
-  }
-
-  openAioStreamsDebridsModal() {
-    this.addonsStep?.openAioStreamsDebridsModal();
-  }
-
-  closeAioStreamsDebridsModal() {
-    this.addonsStep?.closeAioStreamsDebridsModal();
-  }
-
-  validateDebridKeys() {
-    return this.addonsStep?.validateDebridKeys();
-  }
-
-  installAioStreamsFromModal() {
-    return this.addonsStep?.installAioStreamsFromModal();
   }
 
   setupStep6Injection() {
@@ -659,43 +379,19 @@ class AppController {
   }
 
   async copyAioStreamsManifest() {
-    const hasPassword = Boolean(state.aiometadata?.password && state.aiometadata.password.length >= 6);
-    if (!hasPassword) {
-      this.showToast('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
-      document.getElementById('aioPassword')?.focus();
-      return;
-    }
-    const btn = document.getElementById('btnCopyAioStreamsManifest');
-    const originalHtml = btn?.innerHTML;
-    try {
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-cyan-400"></i><span>Generando...</span>';
-      }
-      let manifestUrl = state.aiostreams.manifestUrl;
-      if (!manifestUrl) {
-        this.showToast('Generando manifest de AIOStreams en la instancia oficial...', 'info');
-        let template = state.rawAioStreamsTemplate;
-        if (!template) {
-          const res = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
-          template = await res.json();
-          state.rawAioStreamsTemplate = template;
-        }
-        const aioConfig = compileStreamingConfig(template, state.aiostreams.debrids);
-        const res = await createStreamingConfiguration(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, state.aiometadata.password.trim());
-        manifestUrl = res.manifestUrl;
-        state.aiostreams.manifestUrl = manifestUrl;
-      }
-      await navigator.clipboard.writeText(manifestUrl);
-      this.showToast('✓ Enlace del Manifiesto de AIOStreams copiado al portapapeles', 'success');
-    } catch (err) {
-      this.showToast(`Error al generar o copiar AIOStreams: ${err.message}`, 'error');
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = originalHtml;
-      }
-    }
+    return generateAioStreamsManifest({
+      state,
+      config: { aiostreamsInstance: CONFIG.AIOSTREAMS_INSTANCE },
+      createConfiguration: createStreamingConfiguration,
+      fetchTemplate: async () => {
+        const res = await fetch(`${CONFIG.TEMPLATES.AIOSTREAMS}?v=${Date.now()}`);
+        return res.json();
+      },
+      notify: (msg, type) => this.showToast(msg, type),
+      copyText: text => navigator.clipboard.writeText(text),
+      button: document.getElementById('btnCopyAioStreamsManifest'),
+      passwordInput: document.getElementById('aioPassword'),
+    });
   }
 
   refreshStep6Summary() {
@@ -722,7 +418,6 @@ class AppController {
   }
 }
 
-// Instanciar y exportar
 export const appController = new AppController();
 window.appController = appController;
 
