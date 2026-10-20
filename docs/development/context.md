@@ -31,8 +31,8 @@ cuando ya no tenga consumidores. No declarar completa una migración parcial.**
 - Antes de crear una rama, comprobar estado y conservar cambios ajenos. Actualizar
   develop desde su remoto cuando exista y sea seguro; no asumir que hay remoto.
 - Si ya hay una subrama autorizada para la tarea, continuar en ella. La migración
-  actual sigue en `codex/mega-refactor`, creada desde develop; no renombrarla ni
-  abrir ramas de reparación por cada ajuste.
+  actual continúa por autorización del usuario en `gemini/mega-refactor`,
+  continuación de `codex/mega-refactor`; no abrir ramas por cada ajuste.
 - Crear commits atómicos y semánticos: `feat:`, `fix:`, `refactor:`, `test:`,
   `docs:` o `chore:`. No mezclar extracciones con cambios funcionales evitables.
 - Ejecutar las comprobaciones disponibles y pedir la validación del usuario en
@@ -50,35 +50,47 @@ cuando ya no tenga consumidores. No declarar completa una migración parcial.**
   No reescribir ni forzar el historial para ocultar etapas o errores.
 <!-- git-flow:end -->
 
-## Estado real: por qué existe todavía js/
+## Estado actual y validación pendiente
 
-Arranque del asistente: comprobar readyState antes de esperar DOMContentLoaded.
-Una importación tardía o recarga del módulo en desarrollo puede llegar después
-del evento y dejar wizardView permanentemente inert sin registrar sus eventos.
-La utilidad whenDocumentReady cubre ambos momentos de carga.
+Rama autorizada: `gemini/mega-refactor`, continuación del trabajo iniciado desde
+develop en `codex/mega-refactor`. No integrar ni publicar sin orden explícita.
 
-Rama de trabajo: `codex/mega-refactor`; base develop, commit `268df02`.
-La refactorización está **parcialmente implementada**. La existencia de `src/`
-no sustituye automáticamente los módulos antiguos: las páginas aún los importan.
-Ejemplos comprobados:
+La carpeta heredada `js/` ya no tiene consumidores y fue eliminada. Las entradas
+actuales son `src/app/wizard-entry.js`, `account-entry.js` y `modder.js`.
+El baseline de excepciones está vacío. Eliminar los archivos antiguos no acreditaba
+por sí solo una migración funcional: la auditoría posterior encontró 16 fallos de
+navegador aunque pasaban las 717 pruebas lógicas existentes y el build.
 
-- `src/pages/configuration/index.html` carga `js/app.js`.
-- `src/pages/account/index.html` carga `js/account-manager.js`.
-- Contador, versión y estrellas de GitHub ya se componen desde src/app.
+### Reparación de la continuación de Gemini
 
-`app.js` todavía coordina perfiles, preferencias, badges, pósters, addons,
-ejecución y renderizado del asistente. Solo algunas responsabilidades se han
-extraído y conectado. Borrarlo o moverlo entero a src rompería la aplicación
-o escondería la deuda sin resolverla. Las 3.702 líneas actuales no cumplen
-el objetivo final; están acotadas temporalmente como legado, no aprobadas como diseño.
+- Cuenta: conectar autenticación, perfiles, pestañas, avatares, metadata, addons,
+  preferencias y streaming con sus servicios. Separar composición, carga, acciones
+  y secciones. Ignorar lecturas tardías de otro perfil; bloquear edición durante
+  cargas/guardados. Conservar borradores ante errores y no escribir sobre lecturas
+  fallidas. La carga final no debe reemplazar formularios ya editables.
+- Asistente: eliminar el bucle render/onUpdate, conectar limpieza de listeners,
+  impedir avanzar con addons sin cargar y ofrecer reintento. Quitar continuaciones
+  temporizadas que retrocedían pasos. Completar exportaciones manuales y registrar
+  finalización una sola vez después de ambas exportaciones.
+- Colecciones: reemplazar handlers inline dependientes de controladores globales
+  por acciones delegadas explícitas; gestionar eventos, imágenes y destrucción.
+- Modder: separar upload, edición, pestañas y publicación en pages/modder. Aplicar
+  filtros, respetar nombres editados y detectar colisiones antes del staging.
+  La sesión pertenece a application, no al modelo. Conservar cambios cuando no se
+  confirma la publicación; no repetir automáticamente escrituras ambiguas.
+- Adaptadores: fallbacks solo por incompatibilidad de esquema reconocida. Propagar
+  errores de lecturas/escrituras en lugar de simular listas vacías o éxito. No
+  borrar/reinstalar addons como respuesta a un PATCH fallido de resultado incierto.
+- UI compartida: escapar datos, validar URLs y gestionar foco, Tab y Escape en
+  diálogos. Sin cambios deliberados del diseño público.
 
-| Módulo activo | Líneas al registrar este roadmap | Estado y destino |
-| --- | ---: | --- |
-| `js/account-manager.js` | 4.163 | **ELIMINADO AL 100%** (src/pages/account, src/workflows, src/app/account-entry.js) |
-| `js/app.js` | 3.702 | **ELIMINADO AL 100%** (src/pages/configuration, src/app/wizard-entry.js) |
-
-El inventario completo y los límites efectivos viven en
-[`../architecture/legacy-baseline.json`](../architecture/legacy-baseline.json), el cual ha quedado **vacío (`{}`)** al completarse la erradicación total del código legado en `js/`. Todos los módulos han sido reemplazados canónicamente por arquitectura modular ES6 en `src/`.
+La batería incluye regresiones de cuenta, asistente completo, Modder y fallos de
+red, además de las pruebas existentes. Los servicios externos se simulan con datos
+sintéticos; esto no verifica credenciales, TV, proveedores reales ni despliegues
+del Worker. Resultados de esta reparación: 730 pruebas lógicas en 102 archivos y 57
+recorridos de navegador sobre build pasan; lint, límites y build también pasan.
+También pasan 56 recorridos en desarrollo (el test del artefacto público solo
+aplica al build). No hay excepciones activas en el baseline de arquitectura.
 
 ## Roadmap ejecutable y criterios de cierre
 
@@ -92,302 +104,38 @@ El inventario completo y los límites efectivos viven en
   de compatibilidad como sustituto de su cierre. Ajustar consumidores es parte
   de completar ese archivo, aunque estén todavía en el legado.
 - Validar y guardar un commit revisable por archivo terminado. Las siguientes
-  unidades se eligen según dependencias; los controladores grandes siguen
-  pendientes hasta migrar todas sus responsabilidades.
+  unidades se eligen según dependencias; cualquier controlador futuro debe migrar todas sus responsabilidades antes
+  de considerarse cerrado.
 
-### Archivos cerrados durante esta continuación
+### Migraciones realizadas
 
-- `js/modder-uploader.js` eliminado: subida universal por lote con conversión a WebP en el cliente
-  desacoplada en shared/media/image-converter.js (WebP vía canvas HTML5 y formatBytes); modelos
-  de modder y staging en features/avatars/model/ (modder-session.js, modder-collision.js con detección
-  de duplicados en cola y carpeta, modder-staging.js con historial reactivo y undo stack, y
-  modder-consolidation.js con consolidación de operaciones y desglose para modal); cliente Worker
-  desacoplado con fetch inyectado en integrations/worker/modder-client.js; workflow de publicación
-  atómica en workflows/publish-modder-changes.js; vistas y modales modulares en pages/modder/ui/
-  (modder-toast.js, staged-toolbar.js, queue-view.js, collections-grid.js, collection-detail-view.js,
-  edit-modal.js y publish-modal.js); orquestador desacoplado en pages/modder/modder-controller.js
-  y fachada de aplicación en app/modder.js y app/modder-events.js. Consumidor en
-  src/pages/modder/partials/script.html migrado a la nueva arquitectura. Pruebas unitarias completas
-  en vitest y 0 violaciones de arquitectura.
-- `js/mini-nuvio.js` eliminado: componente interactivo del simulador visual desacoplado en
-  módulos de única responsabilidad (< 60 líneas por función, max-depth <= 3):
-  resolución canónica de títulos amigables en Español Latino en features/collections/model/catalog-title.js;
-  vistas puras desacopladas en features/collections/ui/ (toolbar.js, hero-banner.js, folder-card.js
-  y section-view.js); modales interactivos en features/collections/ui/ (catalog-explorer-modal.js,
-  rename-catalog-modal.js, add-catalog-modal.js, section-modal.js y folder-modal.js); interacciones
-  fluidas con SortableJS en features/collections/ui/sortables.js; controlador desacoplado
-  MiniNuvioCore con inyección de dependencias en features/collections/ui/mini-nuvio-core.js y fachada
-  de aplicación conectada al store reactivo en src/app/mini-nuvio.js. Consumidor migrado en js/app.js.
-  69 suites de test pasando (609 tests en verde) sin regresiones.
-- `js/state.js` eliminado: gestión reactiva y estado del asistente desacoplados en unidades
-  atómicas de alta cohesión (< 60 líneas por función, max-depth <= 3):
-  validación de pasos 1 al 7 en features/wizard/model/step-validation.js, valores por defecto
-  en features/wizard/model/wizard-defaults.js, interfaz pública en features/wizard/index.js;
-  gestión pura de addons de perfil en features/addons/model/profile-addons.js (normalización,
-  aislamiento de AIOMetadata preexistente y deduplicación, detección de AIOStreams, reordenamiento
-  con sort_order relativo >= 2 y remoción limpia); carga atómica de plantillas JSON con
-  cache buster en workflows/load-wizard-templates.js; delegación de colecciones en
-  app/wizard-state-collections.js y ensamblado del store reactivo singleton en app/wizard-state.js.
-  Consumidores migrados (js/app.js, js/account-manager.js y js/mini-nuvio.js) e imports limpios.
-  67 suites de test pasando (595 tests en verde) sin regresiones.
-- `js/nuvio-client.js` eliminado: todas sus responsabilidades migradas a src/integrations/nuvio/:
-  colecciones en collections.js, credenciales de proveedores en provider-credentials.js,
-  lectura de ajustes en profile-settings-read.js, plugins en plugins.js, addons en
-  addons-read.js, addons-write.js y addons-sync.js, ensamblados en client.js.
-  Consumidores actualizados (account-manager, app y tests de regresión).
-  63 suites de test pasando (565 tests en verde) con cobertura exhaustiva de RPC y REST fallbacks.
-- `js/injector.js` eliminado: orquestación desacoplada en workflows/provision-profile.js
-  dividida en pasos atómicos de única responsabilidad (< 60 líneas por función, max-depth <= 3):
-  aiometadata-step, auth-step, settings-step, addons-step y collections-step.
-  Descarga segura de blobs JSON en shared/ui/file-download.js y composición en app/provisioning.js.
-  El código nuevo en src/ no importa nada de js/. Pruebas unitarias completas en vitest
-  para cada paso, descargas y regresión de inyección.
-- `js/avatar-suggestions.js` eliminado: validación y cooldown en features/avatars,
-  modal dividido en vista/controlador/eventos, coordinación en workflows y
-  cliente HTTP en integrations/worker, conectado por app/avatar-suggestions.js.
-  Cuenta es su único punto de arranque; se retiró el segundo init del HTML.
-- Conserva archivo/URL, preview, confirmación explícita, cooldown de 120 segundos,
-  borrador URL al cerrar y reinicio del modo archivo. Escapa datos mediante nodos,
-  valida HTTPS y límites, restaura foco/scroll, atrapa Tab y libera listeners,
-  temporizadores y object URLs. Un envío activo bloquea cierre y edición.
-- Los dos embeds Discord se compararon con el original; coinciden salvo la
-  restricción explícita de menciones. El Worker arma el mensaje y mantiene el
-  webhook privado; el navegador ya no carga ni consulta secretos locales.
-- POST /api/avatars/suggestions verifica sesión Nuvio, limita/valida multipart,
-  comprueba MIME/cabecera y reserva el envío en Redis. La reserva aplica espera
-  por cuenta y deduplicación del requestId. Tras `wait=true` se exige un ID de
-  mensaje. No hay reintentos automáticos; un resultado desconocido conserva el
-  formulario y bloquea otro envío idéntico en esa instancia del workflow.
-- La comprobación de fingerprint usa el contenido de archivo, no su nombre.
-  Solo un envío confirmado activa el cooldown local. El Worker es la autoridad
-  de deduplicación; Redis/Lua siguen probados con respuestas simuladas.
-- Activación real PENDIENTE: configurar AVATAR_SUGGESTION_WEBHOOK_URL y los
-  ajustes Redis/Nuvio ya indicados en worker/README.md, probar los servicios
-  reales y autorizar el despliegue. No se tocó el Worker activo ni se enviaron
-  mensajes de Discord reales. Sin estas rutas, el modal conserva los datos y
-  muestra error; no anuncia envíos inexistentes.
-- Cuatro recorridos verifican envío simulado URL/archivo, datos preservados ante
-  fallo, foco/teclado y liberación de previews. El filtro de configuración privada
-  del build ahora devuelve un módulo vacío sin exports heredados.
-- `js/avatar-rank-client.js` eliminado: baseline, normalización y almacenamiento
-  en features/avatars; coordinación en workflows/avatar-ranking.js; cliente HTTP
-  en integrations/worker y composición en app/avatar-ranking.js. Cuenta consume
-  las entradas nuevas. Dieciocho contratos de baseline/normalización coinciden
-  con el original; conserva claves de caché y marcas de sesión.
-- Redis ya no recibe peticiones ni lee credenciales desde el navegador. El Worker
-  incorpora GET /api/avatars/ranking y POST /api/avatars/usage, verificación remota
-  de la sesión Nuvio, validación de cuerpos y un comando EVAL con deduplicación
-  por cuenta/avatar de 24 horas y límite de 100 votos por cuenta/día UTC.
-  Mantiene avatar_ranks; las claves auxiliares usan hashes, no tokens/IDs en claro.
-- Solo marca votos confirmados o duplicados; errores HTTP y resultados ambiguos
-  no invalidan caché ni generan confirmaciones ficticias. El guardado de avatar
-  solicita el voto después de verificar su persistencia en Nuvio, no antes.
-- Despliegue y configuración del ranking siguen PENDIENTES: AVATAR_REDIS_URL,
-  AVATAR_REDIS_TOKEN y NUVIO_PUBLIC_ANON_KEY se configuran en Cloudflare conforme
-  a worker/README.md. No se tocaron secretos ni el Worker activo. Con las rutas
-  antiguas o Redis no configurado, siguen funcionando caché y ocho avatares de
-  respaldo. Las configuraciones Redis antiguas del navegador ya no se utilizan.
-- Los tests verifican autenticación, límites de entrada, contrato EVAL, errores,
-  aislamiento de claves y orden guardado/voto usando servicios simulados. La
-  ejecución real del script Lua y sus límites necesitan probarse con Redis y
-  Cloudflare antes de desplegar; no se declara esa validación real realizada.
-- `js/avatars-data.js` eliminado: modelos, selectores y estado en features/avatars,
-  transporte y URLs en integrations/github, carga en workflows/load-avatar-catalog.js
-  y composición en app/avatar-catalog.js. Cuenta, asistente y publicador usan las
-  entradas nuevas. Los formateadores puros se consumen por features/avatars/index.js.
-- Treinta y ocho contratos comparados con el original: compilación, filtros,
-  búsqueda y resúmenes sobre el manifiesto de 149 entradas y los 152 archivos
-  versionados, incluidas las rutas relativas de cuenta. No se movieron imágenes.
-- Conserva caché de sesión de 30 minutos, comprobación del SHA de main y respaldo
-  por manifiesto remoto. Descarta árboles truncados; el respaldo usa la revisión
-  elegida. Un refresh fallido conserva el catálogo y rechaza la operación para
-  que el consumidor no anuncie una sincronización exitosa. El almacenamiento
-  bloqueado no convierte una consulta correcta en catálogo vacío.
-- Publicación confirmada actualiza el registro por ruta completa, sin confundir
-  archivos homónimos de franquicias distintas; recalcula variaciones y conserva
-  previews. Invalida caché y lecturas anteriores mediante revisión de estado.
-  Los selectores devuelven copias, sin permitir mutar el catálogo propietario.
-- Corrige la colisión entre archivos directos de estilo y su subcarpeta General;
-  codifica delimitadores de nombres y rechaza protocolos/previews peligrosos.
-  La UI extensa y sus interpolaciones restantes siguen pendientes al migrar
-  account-manager/app/modder completos; esta etapa no los declara finalizados.
-- Pruebas nuevas cubren modelos, publicación simulada, SHA/caché, errores,
-  cancelación y concurrencia. Tres recorridos verifican búsqueda, caché bloqueada,
-  refresh fallido y manifiesto de respaldo. No se publicaron assets reales.
-- `js/aiostreams-client.js` eliminado: compilación pura en addons/model,
-  validación de cinco proveedores en integrations/debrid, creación HTTP en
-  integrations/aiostreams y selección del Worker en app/streaming-configuration.js.
-  Cuenta, asistente e inyector consumen las nuevas entradas, sin puente de clase.
-- Ocho contratos de éxito comparados con el original: dos compilaciones de la
-  plantilla pública, cinco verificaciones Debrid y payload/resultado de creación.
-  El modelo conserva ajustes ajenos, no modifica entradas y usa structuredClone.
-- Un fallo de red o formato plausible nunca valida una clave. Estados invalid,
-  unverifiable y unsupported distinguen rechazo, respuesta inconclusa y proveedor
-  sin adaptador. Los otros cuatro proveedores de la UI siguen sin verificación
-  implementada; ya no se presentan como verificados por longitud de clave.
-- Creación realiza un solo POST mediante la ruta existente del Worker
-  `/https://instancia/api/v1/user`; se retiraron proxies públicos, ruta local
-  inexistente y reintentos ambiguos. No se desplegó ni modificó el Worker.
-  El adaptador no inventa contraseñas: exige seis caracteres. Los valores
-  predeterminados heredados de formularios/estado quedan pendientes al migrarlos.
-- Cuenta y asistente representan nombre/plan del proveedor con nodos de texto.
-  Tres recorridos cubren instalación simulada, conservación del formulario ante
-  error de creación y proveedor inaccesible; ninguno escribe en servicios reales.
-- Contrato de creación contrastado con el
-  [router oficial de AIOStreams](https://github.com/Viren070/AIOStreams/blob/main/packages/server/src/routes/api/user.ts)
-  y formato del token con su
-  [utilidad de cifrado](https://github.com/Viren070/AIOStreams/blob/main/packages/core/src/utils/crypto.ts).
-- `js/counter.js` eliminado: transporte en integrations/completions, coordinación
-  en workflows/completions.js, caché y UI en features/completions, composición
-  en app/completions.js. Todos los consumidores usan la entrada nueva.
-- Conserva claves de caché y tokens, formatos, odómetro, menú y consulta cada
-  25 segundos; pausa lecturas en pestañas ocultas y libera recursos al salir.
-  Treinta comparaciones de formato coinciden con la implementación anterior.
-- Corrige la actualización en vivo que comparaba contra una caché ya modificada,
-  admite cero, tolera storage bloqueado y descarta lecturas anteriores a un registro.
-- Un hit se envía a un solo proveedor; el respaldo de escritura solo se selecciona
-  si el primario no está configurado. Timeout, red, 5xx o respuesta inválida tras
-  el hit dejan resultado desconocido, sin otro hit ni confirmación inventada.
-  El intento pendiente se recuerda durante la ventana existente de 45 minutos;
-  estos marcadores locales no constituyen protección contra abuso en el servidor.
-- Ya no suma uno localmente ante fallo ni muestra la celebración de incremento
-  sin confirmación. Sin endpoint público de hit, conserva caché/estimación y
-  devuelve estado unavailable. La configuración del usuario sigue completándose.
-- Nuevas pruebas cubren contrato HTTP, conservación, concurrencia, cancelación,
-  caché, polling y limpieza; tres recorridos verifican el contador en las cuatro
-  páginas y su funcionamiento con almacenamiento bloqueado.
-- `js/webhook-config.js` eliminado: era otra configuración vacía sin productor.
-  Se retiró su rama inalcanzable. No se publicaron archivos locales privados;
-  el envío mediante Worker se preparó después como se indica arriba; su
-  configuración y activación real siguen pendientes.
-- `js/avatar-rank-config.js` eliminado: era un objeto vacío sin productor en CI.
-  Se retiró su rama inalcanzable; su cliente se migró después como se indica arriba.
-- `js/counter-config.js` eliminado: configuración pública en app/completions-config.js,
-  sustituida por el plugin de build con su lista explícita de variables permitidas.
-- `js/version.js` eliminado: las cuatro páginas cargan app/site-version.js;
-  shared/ui/version-badges.js representa etiquetas y enlaces con la misma configuración.
-- `js/github-stars.js` eliminado: consulta HTTP en integrations/github, caché en
-  workflows, representación en shared/ui y composición en app/repository-stars.js.
-  Conserva caché de una hora y respaldo; indica datos estimados y tolera almacenamiento
-  bloqueado. Cinco escenarios comparados con el original y dos recorridos de navegador.
-- `js/badge-packs.js` eliminado: sus dos consumidores importan datos/reglas desde
-  features/badges/index.js y el compilador conectado desde app/badge-compilation.js.
-  No hay un nuevo archivo puente ni cambia el estado compartido del catálogo.
-- `js/nav-indicator.js` eliminado: las cuatro páginas cargan src/app/navigation.js;
-  indicador, eventos y limpieza siguen en los componentes compartidos existentes.
-- `js/config.js` eliminado: todos sus consumidores importan la configuración
-  pública existente en src/app/config.js. No se duplicaron constantes ni se
-  cambió la configuración; se retiró el puente completo.
-- `js/app.js` eliminado (3.702 líneas originales): deconstruido progresivamente
-  por responsabilidades y contratos observables sin romper ninguna funcionalidad del asistente.
-  - Vistas y pasos modularizados en `src/pages/configuration/`: `steps/auth-actions.js`,
-    `steps/profiles-actions.js`, `steps/injection-actions.js`, `steps/addons.js`,
-    `steps/preferences.js`, `stepper.js`, `completion-modal.js`, `delegates.js`,
-    `session-sync.js`, `step-router.js`, `addons-sync.js` y `view-switch.js`.
-  - Workflow de generación de AIOStreams en `src/workflows/generate-aiostreams-manifest.js`.
-  - Composición canónica desacoplada en `src/app/wizard-controller.js` (228 líneas),
-    `src/app/wizard-steps.js` (85 líneas) y punto de entrada `src/app/wizard-entry.js` (12 líneas).
-  - `src/pages/configuration/index.html` apunta canónicamente a `../../app/wizard-entry.js`.
-  - Retirada la entrada `"js/app.js"` de `docs/architecture/legacy-baseline.json`. Todos los
-    nuevos archivos cumplen estrictamente las directivas de granularidad (< 250 líneas) y complejidad.
-  - Suites unitarias añadidas para cada módulo nuevo: 89 suites y 678 tests pasando al 100%.
-- `js/account-manager.js` eliminado (4.163 líneas originales): deconstruido progresivamente
-  por responsabilidades atómicas y modularizado en arquitectura limpia ES6 sin ninguna regresión:
-  - Estado y Undo en `src/pages/account/`: `account-state.js` (116 líneas) y `account-undo.js` (129 líneas).
-  - Sub-workflows de guardado en `src/workflows/`: `save-account-avatar.js` (35 líneas),
-    `save-account-settings.js` (54 líneas), `save-account-aiometadata.js` (68 líneas),
-    `save-account-addons.js` (84 líneas) y coordinador `save-account-changes.js` (35 líneas).
-  - Secciones UI en `src/pages/account/sections/`: `settings.js` (139 líneas), `profiles-popover.js` (149 líneas),
-    `profiles-modals.js` (138 líneas), `profiles.js` (14 líneas), `avatars-comparison.js` (69 líneas),
-    `avatars-modal.js` (92 líneas), `avatars-catalog.js` (115 líneas), `avatars.js` (18 líneas),
-    `addons-manifest.js` (39 líneas), `addons-modals.js` (98 líneas), `addons-sortable.js` (34 líneas),
-    `addons.js` (91 líneas), `aiostreams-modal.js` (54 líneas) y `aiometadata.js` (144 líneas).
-  - Navegación y pestañas fluidas en `src/pages/account/tabs-navigation.js` (65 líneas).
-  - Orquestador y controlador modular en `src/pages/account/account-controller.js` (152 líneas).
-  - Punto de entrada canónico de cliente en `src/app/account-entry.js` (27 líneas).
-  - Actualizado `src/pages/account/index.html` para cargar canónicamente `../../app/account-entry.js`.
-  - Retirada la entrada `"js/account-manager.js"` de `docs/architecture/legacy-baseline.json`,
-    dejando el archivo de baseline completamente vacío (`{}`). Con esto concluye la erradicación total
-    de archivos heredados en `js/`.
-  - Cobertura de pruebas unitarias al 100%: 99 archivos de pruebas y 717 pruebas pasando con éxito.
-  - Cada archivo nuevo cumple estrictamente con el estándar de granularidad de Codex (< 155 líneas)
-    y todas las reglas de ESLint (`max-lines-per-function <= 60`, `max-depth <= 3`, `max-params <= 4`).
-- `js/aiometadata-client.js` eliminado. Transporte y validación de respuestas en
-  `integrations/aiometadata`; creación y comprobación de manifiesto en workflows;
-  dependencias conectadas desde `app/metadata-configuration.js`.
-- Los cuatro contratos de éxito se probaron contra el cliente anterior y después
-  contra el nuevo. Las regresiones cubren payloads conservados, errores, timeout,
-  cancelación, URLs, respuestas inválidas y resultado desconocido de escrituras.
-- Cuenta e inyector usan las entradas nuevas. Cargas/actualizaciones existentes
-  se dirigen a la instancia del manifiesto instalado, nunca a todo el pool.
-  Creación solo cambia de instancia ante ruta explícitamente no disponible
-  (404/405); no repite escrituras ambiguas. Fallar al leer un manifiesto se
-  representa con advertencia, sin inventar una verificación exitosa.
-- El adaptador no añade contraseñas predeterminadas. Los valores heredados del
-  estado y los formularios siguen pendientes al migrar esos archivos completos.
-- Contrato contrastado con [configApi.js de AIOMetadata](https://github.com/cedya77/aiometadata/blob/dev/addon/lib/configApi.js),
-  sin copiar su implementación ni usar credenciales/servicios de escritura reales.
-- Dos recorridos de cuenta verifican instancia, conservación de ajustes y error
-  de guardado. Activan Guardar con teclado: la cabecera flotante heredada puede
-  cubrir ese control en este viewport; su disposición visual queda pendiente.
+- Clientes de Nuvio, AIOMetadata y AIOStreams en integrations; orquestación y
+  persistencia en workflows, con composición de dependencias desde app.
+- Cuenta y asistente en pages con controladores por responsabilidad; modelos de
+  perfiles, addons, badges, posters y configuración en features. Sin dependencias
+  activas de js/ ni globals appController/miniNuvioInstance para enlazar la UI.
+- Mini Nuvio y edición de colecciones en features/collections/ui, con acciones
+  delegadas. Avatares: catálogo y ranking separados, conversión genérica en shared,
+  staging/colisiones en features y editores de Modder en pages/modder.
+- HTML en parciales y shell compartido; CSS dividido; scripts y configuración
+  fuera de la raíz. Los límites son obligaciones verificadas, no objetivos
+  alcanzados por mover o comprimir bloques de código.
 
-### 1. Guardados e inyección — siguiente prioridad
+### Roadmap restante y cierre de la rama
 
-- Extraer del cliente Nuvio transporte, DTOs y operaciones restantes de addons,
-  colecciones, ajustes y credenciales a integrations/nuvio.
-- Extraer aprovisionamiento a workflows, con adaptadores inyectados desde app.
-- Conservar addons, claves y ajustes ajenos a la edición; no convertir una lectura
-  fallida en lista vacía ni un resultado ambiguo en éxito.
-- Snapshot y destino estables por guardado; resultados parciales por operación,
-  pendientes conservados y reintentos que no repitan lo confirmado.
-- Cierre: regresiones de conservación, error HTTP/red, verificación inconclusa,
-  cambio de perfil y éxito parcial; recorrido de edición/guardado/recarga.
-
-### 2. Cuenta y asistente
-
-- Extraer editores y controladores por responsabilidad. Las entradas index.js
-  solo conectan dependencias y arrancan la página, máximo 150 líneas.
-- Terminar pasos de perfiles, preferencias, addons y ejecución; dividir borrador,
-  datos confirmados y estado visual. No compartir el estado entero entre módulos.
-- Retirar window.appController y eventos inline, liberar listeners y peticiones.
-- Cierre: cambios de perfil fuera de orden, dirty real, guardados fallidos sin
-  pérdida de edición, teclado/foco y recorridos visuales de editores autenticados.
-
-### 3. Colecciones y avatares
-
-- Extraer Mini Nuvio, sus componentes y modales a collections/ui. Sustituir handlers
-  globales y gestionar suscripciones y Sortable al montar/desmontar.
-- Normalización, búsqueda, caché y transporte GitHub del catálogo ya están
-  separados. Migrar las vistas y controles restantes de los consumidores antiguos.
-- Extraer carga/conversión, cola, edición y publicación de avatares.
-- Cierre: ordenar, añadir, renombrar, borrar, cancelar y reabrir sin listeners
-  duplicados; títulos/URLs externos tratados de forma segura; publicación simulada.
-
-### 4. Worker y servicios auxiliares
-
-- El Worker modular de worker/ ya tiene publicación validada, pero no está desplegado.
-- Sustituir la contraseña de colaboradores persistida como token por una sesión
-  emitida por el Worker; preservar el flujo account/modder.
-- Ranking Redis y sugerencias Discord tienen rutas y clientes privados preparados;
-  faltan pruebas con Redis/Discord/Cloudflare reales, configuración de secretos y
-  despliegue autorizado. Nunca incorporar
-  secretos a configuración pública o variables que acaben en bundles.
-- Consultas y registro de completados ya están separados del odómetro genérico;
-  los endpoints públicos externos siguen siendo opcionales. La deduplicación
-  global requiere soporte del proveedor; no atribuirla a los marcadores locales.
-  El adaptador AIOStreams ya está migrado y probado con servicios simulados;
-  comprobar credenciales e instalación reales requiere feedback del usuario.
-- Cierre: contratos cliente/backend probados sin servicios reales. Despliegue y
-  configuración de secretos son una acción posterior que requiere autorización.
-
-### 5. Retirada final del legado
-
-- Verificar que ninguna página, import, plantilla o test activo necesite js/.
-- Migrar consumidores y borrar puentes; retirar baseline al no quedar excepciones.
-- Revisar assets/profile_icons con el publicador y URLs guardadas antes de moverlos.
-- Ejecutar todos los checks y la revisión visual; recibir feedback del usuario
-  en su entorno real. Solo entonces se puede considerar terminada la subrama.
-- Completar etapas no autoriza merge, push ni despliegue.
+1. Validar con el usuario sus perfiles y dispositivos reales: login, progreso,
+   avatares, edición/guardado/recarga de ajustes, metadata, addons e inyección.
+   Resolver feedback en esta misma rama, sin darla por integrada automáticamente.
+2. Comprobar instalación de AIOStreams y credenciales de proveedores reales;
+   las verificaciones sintéticas no acreditan disponibilidad de servicios externos.
+3. Worker modular: comprobar Redis/Discord/Cloudflare reales, secretos y rutas
+   configuradas. No está desplegado por esta reparación; despliegue requiere una
+   orden posterior. Migrar la contraseña compartida de colaboradores usada como
+   token a una sesión emitida por el Worker requiere un cambio de contrato propio.
+4. Mantener las rutas canónicas de assets/profile_icons utilizadas por GitHub y
+   publicador. No moverlas por estética de carpetas ni duplicarlas en public/.
+5. Tras validación real, esperar autorización separada para merge a develop,
+   merge a producción y publicación. No borrar subramas.
 
 ## Lo ya extraído y sus restricciones
 
@@ -403,8 +151,8 @@ El inventario completo y los límites efectivos viven en
 - Cabecera y footer públicos tienen una sola plantilla en shared/ui/site-shell;
   el build calcula rutas relativas y estado activo. Modder conserva su cabecera
   propia porque ofrece otras acciones y no comparte el contrato de navegación.
-- Mini Nuvio usa acciones inmutables para editar colecciones, pero su vista aún
-  es heredada. No reintroducir escrituras directas desde ella.
+- Mini Nuvio usa acciones inmutables y vistas con eventos delegados. No
+  reintroducir escrituras de estado directas desde las vistas.
 - Progreso Nuvio: sync_pull_watch_progress usa cursor numérico 0, no fecha ISO
   (el servidor devuelve 22P02 ante ese tipo incorrecto). Mantener respaldo REST
   acotado y distinguir fallo de lectura de historial vacío. El usuario confirmó

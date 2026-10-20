@@ -50,4 +50,3 @@ export function extractProfileSettings({ blob, credentials = [], aioConfig, curr
     },
   };
 }
-
