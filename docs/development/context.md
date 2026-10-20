@@ -61,13 +61,13 @@ Ejemplos comprobados:
 `app.js` todavía coordina perfiles, preferencias, badges, pósters, addons,
 ejecución y renderizado del asistente. Solo algunas responsabilidades se han
 extraído y conectado. Borrarlo o moverlo entero a src rompería la aplicación
-o escondería la deuda sin resolverla. Las 3.704 líneas actuales no cumplen
+o escondería la deuda sin resolverla. Las 3.702 líneas actuales no cumplen
 el objetivo final; están acotadas temporalmente como legado, no aprobadas como diseño.
 
 | Módulo activo | Líneas al registrar este roadmap | Destino de lo pendiente |
 | --- | ---: | --- |
-| `js/account-manager.js` | 4.171 | pages/account, workflows, features e integrations |
-| `js/app.js` | 3.704 | pages/configuration/steps y composición app |
+| `js/account-manager.js` | 4.169 | pages/account, workflows, features e integrations |
+| `js/app.js` | 3.702 | pages/configuration/steps y composición app |
 | `js/modder-uploader.js` | 2.211 | asset-manager, avatars, pages/modder e integración Worker |
 | `js/mini-nuvio.js` | 1.299 | features/collections/ui |
 | `js/nuvio-client.js` | 874 | integrations/nuvio y workflows de guardado |
@@ -99,6 +99,29 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 
 ### Archivos cerrados durante esta continuación
 
+- `js/aiostreams-client.js` eliminado: compilación pura en addons/model,
+  validación de cinco proveedores en integrations/debrid, creación HTTP en
+  integrations/aiostreams y selección del Worker en app/streaming-configuration.js.
+  Cuenta, asistente e inyector consumen las nuevas entradas, sin puente de clase.
+- Ocho contratos de éxito comparados con el original: dos compilaciones de la
+  plantilla pública, cinco verificaciones Debrid y payload/resultado de creación.
+  El modelo conserva ajustes ajenos, no modifica entradas y usa structuredClone.
+- Un fallo de red o formato plausible nunca valida una clave. Estados invalid,
+  unverifiable y unsupported distinguen rechazo, respuesta inconclusa y proveedor
+  sin adaptador. Los otros cuatro proveedores de la UI siguen sin verificación
+  implementada; ya no se presentan como verificados por longitud de clave.
+- Creación realiza un solo POST mediante la ruta existente del Worker
+  `/https://instancia/api/v1/user`; se retiraron proxies públicos, ruta local
+  inexistente y reintentos ambiguos. No se desplegó ni modificó el Worker.
+  El adaptador no inventa contraseñas: exige seis caracteres. Los valores
+  predeterminados heredados de formularios/estado quedan pendientes al migrarlos.
+- Cuenta y asistente representan nombre/plan del proveedor con nodos de texto.
+  Tres recorridos cubren instalación simulada, conservación del formulario ante
+  error de creación y proveedor inaccesible; ninguno escribe en servicios reales.
+- Contrato de creación contrastado con el
+  [router oficial de AIOStreams](https://github.com/Viren070/AIOStreams/blob/main/packages/server/src/routes/api/user.ts)
+  y formato del token con su
+  [utilidad de cifrado](https://github.com/Viren070/AIOStreams/blob/main/packages/core/src/utils/crypto.ts).
 - `js/counter.js` eliminado: transporte en integrations/completions, coordinación
   en workflows/completions.js, caché y UI en features/completions, composición
   en app/completions.js. Todos los consumidores usan la entrada nueva.
@@ -199,7 +222,8 @@ js/ para siempre: cambiar sus consumidores y retirarlos al completar la migraci�
 - Consultas y registro de completados ya están separados del odómetro genérico;
   los endpoints públicos externos siguen siendo opcionales. La deduplicación
   global requiere soporte del proveedor; no atribuirla a los marcadores locales.
-  Completar el adaptador AIOStreams.
+  El adaptador AIOStreams ya está migrado y probado con servicios simulados;
+  comprobar credenciales e instalación reales requiere feedback del usuario.
 - Cierre: contratos cliente/backend probados sin servicios reales. Despliegue y
   configuración de secretos son una acción posterior que requiere autorización.
 
@@ -297,8 +321,8 @@ npm run test:e2e:dev
 npm run dev
 ```
 
-Último punto validado de esta actualización: 298 pruebas de lógica,
-36 recorridos contra build y 35 contra desarrollo, todos pasando. Actualizar
+Último punto validado de esta actualización: 363 pruebas de lógica,
+39 recorridos contra build y 38 contra desarrollo, todos pasando. Actualizar
 estas cifras solo tras ejecutar los comandos. La diferencia es el test del
 artefacto público, que no se aplica al servidor de desarrollo.
 Las pruebas usan servicios simulados; no verifican cuentas ni despliegues reales.
@@ -308,7 +332,9 @@ contexto local obsoleto en este archivo. Se comprobó que las ocho variantes
 anteriores de cabecera/footer producen el mismo marcado relevante con dos
 plantillas compartidas, añadiendo aria-current. Las pruebas de navegador verifican
 los enlaces del footer, la pestaña actual y que el build no exponga el contexto,
-las instrucciones ni configuraciones del repositorio. El CSS conserva su hash.
+las instrucciones ni configuraciones del repositorio. Las hojas CSS no se
+modificaron en la extracción de AIOStreams; el compilado añade las clases
+detectadas en los módulos nuevos y por ello cambia su hash.
 Se verificaron las exclusiones de secretos, scripts personales y resultados;
 design-reference se eliminó tras comprobar su ubicación y ausencia de enlaces.
 

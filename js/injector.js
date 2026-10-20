@@ -6,7 +6,8 @@ import { compileUniversalBadgeRules } from '../src/app/badge-compilation.js';
 import { state, isAioMetadataAddon } from './state.js';
 import { provisionMetadataConfiguration, inspectSavedMetadataManifest } from '../src/app/metadata-configuration.js';
 import { NuvioClient } from './nuvio-client.js';
-import { AIOStreamsClient } from './aiostreams-client.js';
+import { compileStreamingConfig } from '../src/features/addons/index.js';
+import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';
 import { CONFIG } from '../src/app/config.js';
 import { 
   getBadgePackById, 
@@ -337,9 +338,8 @@ export class PipelineInjector {
                   template = await fetchRes.json();
                   state.rawAioStreamsTemplate = template;
                 }
-                const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
-                const masterPassword = (state.aiometadata.password || '').trim() || 'NuvioSetupMaster2026';
-                const aioUserRes = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPassword);
+                const aioConfig = compileStreamingConfig(template, state.aiostreams.debrids);
+                const aioUserRes = await createStreamingConfiguration(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, state.aiometadata.password);
                 secAddon.manifest_url = aioUserRes.manifestUrl;
                 secAddon.url = aioUserRes.manifestUrl;
                 state.aiostreams.manifestUrl = aioUserRes.manifestUrl;

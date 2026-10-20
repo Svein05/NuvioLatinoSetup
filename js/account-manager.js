@@ -11,7 +11,10 @@ import { presentAccountOverview } from '../src/app/account-overview.js';
 import { CONFIG } from '../src/app/config.js';
 import { NuvioClient } from './nuvio-client.js';
 import { loadMetadataConfiguration, updateMetadataConfiguration, metadataOwner } from '../src/app/metadata-configuration.js';
-import { AIOStreamsClient } from './aiostreams-client.js';
+import { compileStreamingConfig } from '../src/features/addons/index.js';
+import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';
+import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
+import { renderVerifiedKeyStatus, renderUnverifiedKeyStatus } from '../src/shared/ui/verified-key-status.js';
 import { state, isAioMetadataAddon, isAioStreamsAddon } from './state.js';
 import { 
   getCompiledAvatars, 
@@ -2864,22 +2867,17 @@ export async function validateAccountDebridKeys() {
     }
 
     try {
-      const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
+      const res = await validateDebridKey(item.key, item.val);
       if (res.valid) {
         validatedCount++;
         accountState._aioStreamsDraft.validatedKeys[item.key] = true;
         accountState._aioStreamsDraft.debrids[item.key] = item.val;
-        if (statusEl) {
-          statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
-        }
+        if (statusEl) renderVerifiedKeyStatus(statusEl, res);
       } else {
         failedCount++;
         delete accountState._aioStreamsDraft.validatedKeys[item.key];
         delete accountState._aioStreamsDraft.debrids[item.key];
-        if (statusEl) {
-          const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
-          statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
-        }
+        if (statusEl) renderUnverifiedKeyStatus(statusEl, res);
       }
     } catch (err) {
       failedCount++;
@@ -2937,11 +2935,11 @@ export async function installAccountAioStreams() {
     const template = await res.json();
 
     // 2. Compilar configuración con claves Debrid
-    const aioConfig = AIOStreamsClient.compileConfig(template, activeDebrids);
+    const aioConfig = compileStreamingConfig(template, activeDebrids);
 
     // 3. Crear usuario en la instancia oficial de MidnightIgnite
     const masterPass = accountState.aioPassword || 'NuvioSetupMaster2026';
-    const userRes = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
+    const userRes = await createStreamingConfiguration(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
 
     if (!userRes?.manifestUrl) {
       throw new Error('No se recibió la URL del manifiesto de AIOStreams.');

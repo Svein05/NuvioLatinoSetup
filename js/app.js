@@ -17,7 +17,10 @@ import { CONFIG } from '../src/app/config.js';
 import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from './nuvio-client.js';
 import { PipelineInjector } from './injector.js';
-import { AIOStreamsClient } from './aiostreams-client.js';
+import { compileStreamingConfig } from '../src/features/addons/index.js';
+import { createStreamingConfiguration } from '../src/app/streaming-configuration.js';
+import { validateDebridKey } from '../src/integrations/debrid/validate-key.js';
+import { renderVerifiedKeyStatus, renderUnverifiedKeyStatus } from '../src/shared/ui/verified-key-status.js';
 import { 
   listBadgePacks, 
   getBadgePackById, 
@@ -3195,22 +3198,17 @@ class AppController {
       }
 
       try {
-        const res = await AIOStreamsClient.validateDebridKey(item.key, item.val);
+        const res = await validateDebridKey(item.key, item.val);
         if (res.valid) {
           validatedCount++;
           this._aioStreamsDraft.validatedKeys[item.key] = true;
           this._aioStreamsDraft.debrids[item.key] = item.val;
-          if (statusEl) {
-            statusEl.innerHTML = `<span class="text-emerald-400 font-medium flex items-center gap-1" title="${res.plan || 'Válido'}"><i class="fa-solid fa-check text-[10px]"></i> ${res.user || 'Válida'}</span>`;
-          }
+          if (statusEl) renderVerifiedKeyStatus(statusEl, res);
         } else {
           failedCount++;
           delete this._aioStreamsDraft.validatedKeys[item.key];
           delete this._aioStreamsDraft.debrids[item.key];
-          if (statusEl) {
-            const errText = res.error && res.error.length <= 25 ? res.error : 'Clave no válida';
-            statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${res.error || 'Inválida'}"><i class="fa-solid fa-xmark text-[10px]"></i> ${errText}</span>`;
-          }
+          if (statusEl) renderUnverifiedKeyStatus(statusEl, res);
         }
       } catch (err) {
         failedCount++;
@@ -3433,9 +3431,9 @@ class AppController {
               template = await fetchRes.json();
               state.rawAioStreamsTemplate = template;
             }
-            const aioConfig = AIOStreamsClient.compileConfig(template, state.aiostreams.debrids);
+            const aioConfig = compileStreamingConfig(template, state.aiostreams.debrids);
             const masterPass = state.aiometadata.password.trim();
-            const res = await AIOStreamsClient.createUser(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
+            const res = await createStreamingConfiguration(CONFIG.AIOSTREAMS_INSTANCE, aioConfig, masterPass);
             manifestUrl = res.manifestUrl;
             state.aiostreams.manifestUrl = manifestUrl;
           }
