@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
 import { saveWizardSession, restoreWizardSession, setAuthBadgeUI } from './session-sync.js';
 
 describe('session-sync', () => {
@@ -31,7 +31,10 @@ describe('session-sync', () => {
   });
 
   describe('restoreWizardSession', () => {
-    it('restores state from store and triggers callbacks', () => {
+    beforeEach(() => vi.stubGlobal('sessionStorage', undefined));
+    afterEach(() => vi.unstubAllGlobals());
+
+    it('restores state from the injected store without browser storage and triggers callbacks', () => {
       const state = {
         nuvioAuth: {},
         profiles: [],
