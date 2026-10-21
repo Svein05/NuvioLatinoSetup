@@ -5,7 +5,6 @@ import { parse } from 'espree';
 import { countLines, importSpecifiers, importViolation, maximumLines, relativeTarget } from './architecture-policy.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const baseline = JSON.parse(readFileSync(new URL('../docs/architecture/legacy-baseline.json', import.meta.url)));
 const violations = [];
 const graph = new Map();
 
@@ -23,18 +22,16 @@ function checkImport(file, specifier) {
   const target = relativeTarget(file, specifier);
   if (!target) return;
   if (!existsSync(path.join(root, target))) {
-    if (baseline[file] && target.endsWith('.local.js')) return;
     violations.push(`${file}: import inexistente ${specifier}`);
   }
   graph.get(file).push(target);
-  if (baseline[file]) return;
   const violation = importViolation(file, target);
   if (violation) violations.push(`${file}: ${violation} (${specifier})`);
 }
 
 function inspect(file) {
   const source = readFileSync(path.join(root, file), 'utf8');
-  const max = baseline[file] ?? maximumLines(file);
+  const max = maximumLines(file);
   const actual = countLines(source);
   if (actual > max) violations.push(`${file}: ${actual} líneas; máximo ${max}.`);
   if (!file.endsWith('.js')) return;
@@ -60,10 +57,9 @@ function checkCycles() {
   for (const file of graph.keys()) visit(file, []);
 }
 
-const legacy = Object.keys(baseline).filter(file => existsSync(path.join(root, file)));
 const files = new Set([
   ...collect('src'), ...collect('worker'), ...collect('scripts'),
-  ...collect('tests'), ...collect('config'), ...legacy,
+  ...collect('tests'), ...collect('config'),
 ]);
 for (const file of files) inspect(file);
 checkCycles();
@@ -71,5 +67,5 @@ if (violations.length) {
   console.error(violations.join('\n'));
   process.exitCode = 1;
 } else {
-  console.log(`Arquitectura y tamaños verificados: ${files.size} archivos; legado acotado explícitamente.`);
+  console.log(`Arquitectura y tamaños verificados: ${files.size} archivos.`);
 }

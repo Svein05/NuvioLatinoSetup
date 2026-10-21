@@ -163,19 +163,18 @@ contiene fuentes, configuraciones y archivos locales que no son públicos.
 - `config/`: configuración de Vite, CSS, lint y pruebas; los comandos npm indican sus rutas.
 - `worker/`: backend versionado sin secretos; contratos y configuración en su README.
 - `tests/`: regresiones heredadas y recorridos de navegador.
-- `assets/` y `js/`: fuentes heredadas en migración, con límites de crecimiento.
+- `assets/`: recursos con rutas canónicas utilizadas por el catálogo y el publicador.
 - `src/app/styles.css`: composición de estilos; cada módulo reside junto a su responsabilidad.
 
-El [contexto compartido y roadmap](docs/development/context.md) contiene el estado
-real, las reglas de arquitectura y el Git Flow obligatorio. [AGENTS.md](AGENTS.md)
-y [GEMINI.md](GEMINI.md) son entradas breves para descubrir esas instrucciones.
-La migración sigue incompleta: las páginas todavía necesitan `js/`. No eliminarlo
-hasta sustituir sus consumidores. El Worker modular no se ha desplegado.
+Las dependencias siguen una dirección: app compone páginas, flujos e integraciones;
+features contiene reglas del producto y shared ofrece infraestructura genérica.
+Los modelos no acceden al DOM, a la red ni al almacenamiento. Las comprobaciones
+verifican dependencias, ciclos, tamaños y complejidad antes de compilar.
 
-Se versionan las herramientas reproducibles de `scripts/` y la documentación de
-desarrollo en `docs/`: permiten contribuir y verificar el proyecto. Las herramientas
-personales se guardan en `.local/`; secretos, cachés y resultados se ignoran.
-No fusionar a develop/producción ni publicar cambios sin autorización explícita.
+Se versionan fuentes, pruebas, herramientas reproducibles y configuración.
+Las notas personales, secretos, cachés y resultados permanecen fuera de Git.
+La implementación mantenida del backend está en worker/; su despliegue se gestiona
+por separado.
 
 ---
 
