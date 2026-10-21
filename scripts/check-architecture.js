@@ -5,7 +5,7 @@ import { parse } from 'espree';
 import { countLines, importSpecifiers, importViolation, maximumLines, relativeTarget } from './architecture-policy.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const baseline = JSON.parse(readFileSync(new URL('../docs/architecture/legacy-baseline.json', import.meta.url)));
+const baseline = JSON.parse(readFileSync(new URL('../config/architecture/legacy-baseline.json', import.meta.url)));
 const violations = [];
 const graph = new Map();
 
