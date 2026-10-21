@@ -11,3 +11,8 @@ export { prepareAvatarSuggestion, validateSuggestionFile, suggestionImageUrl,
   formatSuggestionFileSize } from './model/suggestion.js';
 export { createSuggestionCooldown } from './application/suggestion-cooldown.js';
 export { mountAvatarSuggestions } from './ui/suggestion-controller.js';
+export { getModderSession, saveModderSession, clearModderSession } from './application/modder-session.js';
+export { checkAvatarFilenameCollision } from './model/modder-collision.js';
+export { createStagedState, rebuildAvatarOverrides, undoLastStagedAction, discardStagedItem } from './model/modder-staging.js';
+export { consolidateStagedOperations, buildStagedItemsBreakdown } from './model/modder-consolidation.js';
+export { prepareModderBatch, isAvatarPathSegment } from './model/modder-batch.js';

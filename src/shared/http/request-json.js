@@ -17,7 +17,7 @@ function rejectedResponse(response, body) {
 
 /** JSON transport. Does not retry writes or expose response bodies in errors. */
 export async function requestJson(url, options = {}) {
-  const { fetchImpl = globalThis.fetch, timeoutMs = 15000, responseMetadata = false, ...init } = options;
+  const { fetchImpl = globalThis.fetch, timeoutMs = 15000, responseMetadata = false, allowEmpty = false, ...init } = options;
   const timeout = AbortSignal.timeout(timeoutMs);
   const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
   let response;
@@ -32,7 +32,10 @@ export async function requestJson(url, options = {}) {
   if (response.status === 204) return null;
   let body;
   try {
-    body = await response.json();
+    if (allowEmpty && response.ok) {
+      const text = await response.text();
+      body = text.trim() ? JSON.parse(text) : null;
+    } else body = await response.json();
   } catch (cause) {
     if (!response.ok) throw rejectedResponse(response);
     throw new HttpError('El servidor devolvió una respuesta JSON inválida.', {

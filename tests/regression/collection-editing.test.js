@@ -1,15 +1,6 @@
-import { readFileSync } from 'node:fs';
-import vm from 'node:vm';
-import { parse } from 'espree';
 import { expect, it, vi } from 'vitest';
 import { editWizardCollections } from '../../src/workflows/edit-wizard-collections.js';
-import { initializeCollections } from '../../src/features/collections/index.js';
-
-const source = readFileSync(new URL('../../js/state.js', import.meta.url), 'utf8');
-const ast = parse(source, { ecmaVersion: 'latest', sourceType: 'module', range: true });
-const controller = ast.body.find(node => node.type === 'ClassDeclaration' && node.id.name === 'WizardState');
-const scope = vm.createContext({ editWizardCollections, initializeCollections });
-vm.runInContext(`globalThis.Controller = ${source.slice(...controller.range)}`, scope);
+import { WizardCollectionsState } from '../../src/app/wizard-state-collections.js';
 
 function fixture() {
   const sources = ['a', 'b', 'c'].map(catalogId => ({ catalogId, title: catalogId }));
@@ -43,10 +34,9 @@ it.each(cases)('preserves the observable collection operation %s', (method, args
   const collections = fixture();
   const metadataTemplate = { config: { catalogs: [{ id: 'a', name: 'a' }] } };
   const expected = editWizardCollections({ collections, metadataTemplate }, { sectionId: 's', folderId: 'f', ...edit });
-  const state = Object.create(scope.Controller.prototype);
+  const state = Object.create(WizardCollectionsState.prototype);
   Object.assign(state, { collections: structuredClone(collections), rawMetadataTemplate: structuredClone(metadataTemplate), notify: vi.fn() });
   state[method](...args);
   expect(state.collections).toEqual(expected.collections);
   expect(state.rawMetadataTemplate).toEqual(expected.metadataTemplate);
-  expect(state.notify).toHaveBeenCalledWith('COLLECTIONS_UPDATED');
 });

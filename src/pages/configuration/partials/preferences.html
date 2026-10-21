@@ -95,7 +95,7 @@
             <!-- Contenedor Desplegable de Galería de Badges (Animación Fluida) -->
             <div id="badgesGalleryContainer" class="badges-collapsible">
               <div class="badges-collapsible-inner pt-3 border-t border-white/[0.06] space-y-4">
-                
+
                 <!-- Fila Superior: Título -->
                 <div class="flex items-center justify-between gap-2.5 pb-1">
                   <div>
@@ -135,11 +135,11 @@
                     <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/[0.04]">
                       <span class="text-[10px] text-white/40 font-mono">Exportar configuración personalizada:</span>
                       <div class="flex items-center gap-2">
-                        <button type="button" onclick="window.appController.downloadCompiledBadgeJson()" class="py-1.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center gap-1.5 transition-all cursor-pointer" title="Descargar archivo JSON con tu orden y módulos activos">
+                        <button type="button" data-wizard-action="downloadCompiledBadgeJson" data-wizard-args="[]" class="py-1.5 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-white/80 hover:text-white text-xs border border-white/[0.08] flex items-center gap-1.5 transition-all cursor-pointer" title="Descargar archivo JSON con tu orden y módulos activos">
                           <i class="fa-solid fa-download text-[11px]"></i>
                           <span>Descargar JSON</span>
                         </button>
-                        <button type="button" onclick="window.appController.copyCompiledBadgeJson()" class="py-1.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-white text-xs border border-white/[0.12] flex items-center gap-1.5 transition-all font-medium cursor-pointer" title="Copiar código JSON listo para Nuvio con tus ajustes">
+                        <button type="button" data-wizard-action="copyCompiledBadgeJson" data-wizard-args="[]" class="py-1.5 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-white hover:text-white text-xs border border-white/[0.12] flex items-center gap-1.5 transition-all font-medium cursor-pointer" title="Copiar código JSON listo para Nuvio con tus ajustes">
                           <i class="fa-solid fa-copy text-[11px]"></i>
                           <span>Copiar JSON Personalizado</span>
                         </button>
@@ -167,7 +167,7 @@
                       <input id="inputCustomBadgeSource" type="text" placeholder="https://raw.githubusercontent.com/.../badges.json o pega código JSON" class="w-full lat-field text-xs py-2 px-3 rounded-xl font-mono">
                     </div>
                     <input id="inputCustomBadgeName" type="text" placeholder="Nombre (opcional)" class="sm:w-44 lat-field text-xs py-2 px-3 rounded-xl font-mono">
-                    <button id="btnAddCustomBadgePack" type="button" onclick="window.appController.handleImportCustomBadge()" class="lat-capsule-btn solid text-xs py-2 px-4 shrink-0 flex items-center justify-center gap-2 font-medium shadow-[var(--shadow-lift)]">
+                    <button id="btnAddCustomBadgePack" type="button" data-wizard-action="handleImportCustomBadge" data-wizard-args="[]" class="lat-capsule-btn solid text-xs py-2 px-4 shrink-0 flex items-center justify-center gap-2 font-medium shadow-[var(--shadow-lift)]">
                       <i class="fa-solid fa-plus"></i>
                       <span>Agregar y Comparar</span>
                     </button>
@@ -212,7 +212,7 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
 
             <!-- Opción 1: Default (AioMetadata) -->
-            <div id="cardPosterDefault" onclick="window.appController.selectPosterEngine('default')" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.06] border-2 border-white/40 shadow-[var(--shadow-lift)] cursor-pointer transition-all flex flex-col justify-between gap-3 group">
+            <div id="cardPosterDefault" data-wizard-action="selectPosterEngine" data-wizard-args="[&quot;default&quot;]" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.06] border-2 border-white/40 shadow-[var(--shadow-lift)] cursor-pointer transition-all flex flex-col justify-between gap-3 group">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-semibold text-white tracking-wide">AioMetadata</span>
@@ -233,7 +233,7 @@
             </div>
 
             <!-- Opción 2: BetterPoster -->
-            <div id="cardPosterBetter" onclick="window.appController.selectPosterEngine('betterposter')" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]">
+            <div id="cardPosterBetter" data-wizard-action="selectPosterEngine" data-wizard-args="[&quot;betterposter&quot;]" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-semibold text-white tracking-wide">BetterPoster</span>
@@ -249,22 +249,22 @@
               </div>
 
               <div class="pt-2 border-t border-white/[0.06] space-y-2">
-                <a href="https://btttr.cc" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="lat-capsule-btn glass text-[11px] py-1.5 px-3 w-full justify-center">
+                <a href="https://btttr.cc" target="_blank" rel="noopener noreferrer" data-wizard-stop class="lat-capsule-btn glass text-[11px] py-1.5 px-3 w-full justify-center">
                   <span>Personalizar en btttr.cc</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
-                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('betterposter')" class="w-full text-[10px] text-white/60 hover:text-white hover:underline flex items-center justify-center gap-1">
+                <button type="button" data-wizard-action="toggleCustomUrlInput" data-wizard-args="[&quot;betterposter&quot;]" class="w-full text-[10px] text-white/60 hover:text-white hover:underline flex items-center justify-center gap-1">
                   <i class="fa-solid fa-sliders text-[9px]"></i>
                   <span>Ingresar URL propia (opcional)</span>
                 </button>
-                <div id="customUrlContainer-betterposter" class="hidden pt-1" onclick="event.stopPropagation()">
+                <div id="customUrlContainer-betterposter" class="hidden pt-1" data-wizard-stop>
                   <input id="customUrlBetterposter" type="text" placeholder="https://btttr.cc/..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-white/[0.12] text-[11px] text-white focus:outline-none focus:border-white/40">
                 </div>
               </div>
             </div>
 
             <!-- Opción 3: Poster+ -->
-            <div id="cardPosterPlus" onclick="window.appController.selectPosterEngine('postersplus')" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]">
+            <div id="cardPosterPlus" data-wizard-action="selectPosterEngine" data-wizard-args="[&quot;postersplus&quot;]" class="poster-option-card relative p-5 rounded-[24px] bg-white/[0.03] border-2 border-white/[0.08] hover:border-white/20 cursor-pointer transition-all flex flex-col justify-between gap-3 group shadow-[var(--shadow-lift)]">
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-semibold text-white tracking-wide">Poster+</span>
@@ -280,15 +280,15 @@
               </div>
 
               <div class="pt-2 border-t border-white/[0.06] space-y-2">
-                <a href="https://postersplus.stremio.ru" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="lat-capsule-btn glass text-[11px] py-1.5 px-3 w-full justify-center">
+                <a href="https://postersplus.stremio.ru" target="_blank" rel="noopener noreferrer" data-wizard-stop class="lat-capsule-btn glass text-[11px] py-1.5 px-3 w-full justify-center">
                   <span>Personalizar en PostersPlus</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
-                <button type="button" onclick="event.stopPropagation(); window.appController.toggleCustomUrlInput('postersplus')" class="w-full text-[10px] text-white/60 hover:text-white hover:underline flex items-center justify-center gap-1">
+                <button type="button" data-wizard-action="toggleCustomUrlInput" data-wizard-args="[&quot;postersplus&quot;]" class="w-full text-[10px] text-white/60 hover:text-white hover:underline flex items-center justify-center gap-1">
                   <i class="fa-solid fa-sliders text-[9px]"></i>
                   <span>Ingresar URL propia (opcional)</span>
                 </button>
-                <div id="customUrlContainer-postersplus" class="hidden pt-1" onclick="event.stopPropagation()">
+                <div id="customUrlContainer-postersplus" class="hidden pt-1" data-wizard-stop>
                   <input id="customUrlPostersplus" type="text" placeholder="https://postersplus.stremio.ru/poster?..." class="w-full px-3 py-1.5 rounded-[12px] bg-white/[0.05] border border-white/[0.12] text-[11px] text-white focus:outline-none focus:border-white/40">
                 </div>
               </div>

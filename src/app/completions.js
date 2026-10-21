@@ -7,9 +7,9 @@ import { initNavOverflowMonitor } from '../shared/ui/navigation/overflow.js';
 
 // Access storage lazily: privacy settings may throw from the global property's getter.
 const storage = name => ({
-  getItem: key => window[name].getItem(key),
-  setItem: (key, value) => window[name].setItem(key, value),
-  removeItem: key => window[name].removeItem(key),
+  getItem: key => (typeof window !== 'undefined' && window[name] ? window[name].getItem(key) : null),
+  setItem: (key, value) => (typeof window !== 'undefined' && window[name] ? window[name].setItem(key, value) : undefined),
+  removeItem: key => (typeof window !== 'undefined' && window[name] ? window[name].removeItem(key) : undefined),
 });
 const config = PUBLIC_COMPLETIONS_CONFIG;
 const store = createCompletionStore({ local: storage('localStorage'), session: storage('sessionStorage') });
@@ -40,10 +40,12 @@ export function recordSuccessfulCompletion() {
   return initCompletionsCounterUI().record();
 }
 
-window.addEventListener('pagehide', () => {
-  mounted?.dispose();
-  mounted = null;
-  disposeMenu?.();
-  disposeOverflow?.();
-});
-window.addEventListener('pageshow', event => { if (event.persisted && started) initCompletionsCounterUI(); });
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', () => {
+    mounted?.dispose();
+    mounted = null;
+    disposeMenu?.();
+    disposeOverflow?.();
+  });
+  window.addEventListener('pageshow', event => { if (event.persisted && started) initCompletionsCounterUI(); });
+}

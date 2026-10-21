@@ -22,7 +22,7 @@ async function submitAuthentication({ state, elements, actions, lifetime, root }
     actions.onAuthenticated(result);
     actions.notify(mode === 'signup' ? '✓ ¡Cuenta creada con éxito! Bienvenido a Nuvio.' : '✓ ¡Sesión iniciada con éxito! Perfiles sincronizados.', 'success');
     result.warnings.forEach(message => actions.notify(message, 'warning'));
-    lifetime.timeout(() => actions.onContinue('profiles'), 600);
+    actions.onContinue('profiles');
   } catch (error) {
     if (lifetime.signal.aborted) return;
     actions.notify(mode === 'signup' ? error.message : `Error al conectar: ${error.message}`, 'error');
@@ -56,7 +56,7 @@ export function mountAuthStep(actions, root = document) {
   lifetime.on(elements.manual, 'click', () => {
     if (state.busy) return;
     actions.onManual();
-    lifetime.timeout(() => actions.onContinue('manual'), 300);
+    actions.onContinue('manual');
   });
   const dispose = () => {
     lifetime.dispose();
