@@ -31,8 +31,8 @@ cuando ya no tenga consumidores. No declarar completa una migración parcial.**
 - Antes de crear una rama, comprobar estado y conservar cambios ajenos. Actualizar
   develop desde su remoto cuando exista y sea seguro; no asumir que hay remoto.
 - Si ya hay una subrama autorizada para la tarea, continuar en ella. La migración
-  actual continúa por autorización del usuario en `gemini/mega-refactor`,
-  continuación de `codex/mega-refactor`; no abrir ramas por cada ajuste.
+  continúa en `codex/mega-refactor`, que integra `gemini/mega-refactor`;
+  conservar ambas ramas y resolver feedback en la subrama autorizada.
 - Crear commits atómicos y semánticos: `feat:`, `fix:`, `refactor:`, `test:`,
   `docs:` o `chore:`. No mezclar extracciones con cambios funcionales evitables.
 - Ejecutar las comprobaciones disponibles y pedir la validación del usuario en
@@ -52,8 +52,12 @@ cuando ya no tenga consumidores. No declarar completa una migración parcial.**
 
 ## Estado actual y validación pendiente
 
-Rama autorizada: `gemini/mega-refactor`, continuación del trabajo iniciado desde
-develop en `codex/mega-refactor`. No integrar ni publicar sin orden explícita.
+Subrama de refactor: `codex/mega-refactor`, con `gemini/mega-refactor` integrada
+mediante merge sin conflictos. El 21 de octubre de 2026 el usuario autorizó
+explícitamente Gemini → Codex → develop y publicar únicamente develop para su
+entorno de pruebas de Cloudflare. Esta autorización no incluye main, eliminación
+de ramas ni despliegue del Worker. Validación de integración: lint, arquitectura,
+730 pruebas y build correctos. La prueba real con cuentas sigue pendiente.
 
 La carpeta heredada `js/` ya no tiene consumidores y fue eliminada. Las entradas
 actuales son `src/app/wizard-entry.js`, `account-entry.js` y `modder.js`.
