@@ -13,7 +13,6 @@ export function saveWizardSession(state, store) {
 
 export function restoreWizardSession(state, store, { setAuthBadge, updateProfileWarning } = {}) {
   try {
-    if (typeof sessionStorage === 'undefined') return;
     const data = store.read();
     if (data?.auth?.isAuthenticated) {
       state.nuvioAuth = { ...state.nuvioAuth, ...data.auth };
