@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuvio Metadata Latino</title>
+  <link rel="icon" type="image/webp" href="/assets/logo/logo.webp" />
+  <link rel="apple-touch-icon" href="/assets/logo/logo.webp" />
+  
+  <!-- Metadatos SEO y Open Graph -->
+  <meta name="description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="author" content="Svein" />
+
+  <!-- Prevención de Caché en Navegador -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://guia.lat-add.com/configuration/" />
+  <meta property="og:title" content="Nuvio Metadata Latino" />
+  <meta property="og:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Nuvio Metadata Latino" />
+  <meta name="twitter:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
+  
+  <!-- Preload de Fuentes Instrument Sans & Serif -->
+  <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+  
+  <!-- Compiled Tailwind utilities -->
+  <link rel="stylesheet" href="../../shared/styles/tailwind.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+
+  <!-- Estilos Propios -->
+  <link rel="stylesheet" href="../../app/styles.css" />
+
+  <!-- SortableJS para Reordenación Fluida y Animada (Local con fallback CDN) -->
+  <script src="/vendor/sortable.min.js"></script>
+  <script>
+    if (typeof Sortable === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
+
+  <!-- Controlador Modular ES6 -->
+  <script type="module" src="../../app/wizard-entry.js"></script>
+  <script type="module" src="../../app/navigation.js"></script>
+</head>
+<body class="bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
+
+  <!-- Banner de Detección de Protocolo Local file:// -->
+  <div id="fileProtocolAlert" class="hidden bg-amber-950/70 border-b border-amber-600/40 text-amber-200 px-4 py-2.5 text-xs z-50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm shrink-0"></i>
+        <span>
+          <strong>Aviso de Ejecución Local:</strong> Has abierto este archivo con <code>file://</code>. Los navegadores modernos bloquean JavaScript ES6 por CORS bajo este protocolo. Para que funcione localmente, abre la consola en la carpeta del proyecto y ejecuta <code class="bg-black/60 px-2 py-0.5 rounded text-amber-300 font-mono">npm run dev</code>, o visita la <a href="https://guia.lat-add.com/configuration/" class="underline font-bold text-white hover:text-amber-200">versión oficial en la web</a>.
+        </span>
+      </div>
+      <button onclick="document.getElementById('fileProtocolAlert').remove()" class="text-amber-400 hover:text-white p-1" title="Descartar aviso">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+  <script>
+    if (window.location.protocol === 'file:') {
+      const el = document.getElementById('fileProtocolAlert');
+      if (el) el.classList.remove('hidden');
+    }
+  </script>
+
+  <!-- Barra de Navegación Flotante LAT-ADD Style -->
+  <!-- @include "../../shared/ui/site-shell/header.html" -->
+
+  <!-- Contenedor Principal del Asistente -->
+  <div class="flex-1 flex flex-col max-w-7xl w-full mx-auto px-4 md:px-6 pt-28 sm:pt-32 pb-12 gap-4">
+    
+    <!-- @include "partials/wizard-view.html" -->
+  </div>
+
+  <!-- Modal: Conflicto / Sustitución de AIOStreams (Montado en body) -->
+  <!-- @include "partials/modal-aio-streams-conflict.html" -->
+
+  <!-- Modal 1: Requisito de Debrid para AIOStreams (Montado en body) -->
+  <div id="modalAioStreamsRequirement" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
+    <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] relative text-white space-y-4 my-auto">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/[0.12] border border-emerald-500/30 flex items-center justify-center shrink-0">
+          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain" alt="AIOStreams">
+        </div>
+        <div>
+          <h3 class="font-bold text-sm sm:text-base text-white">¿Instalar AIOStreams Latino?</h3>
+          <p class="text-[11px] sm:text-xs text-white/50">Addon unificado de streaming y fuentes</p>
+        </div>
+      </div>
+      <div class="p-3.5 sm:p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] text-xs text-white/70 leading-relaxed space-y-2 shadow-[var(--brillo-vidrio)]">
+        <p>
+          Para utilizar <strong>AIOStreams</strong>, requerirás una clave de API de al menos un servicio <strong>Debrid</strong> (como TorBox, AllDebrid, Real-Debrid, Premiumize, etc.).
+        </p>
+        <p class="text-[11px] text-white/50">
+          AIOStreams unifica indexadores como Torrentio, Comet, SeaDex y MediaFusion priorizando audio e idioma español latino en tu perfil. ¿Aceptas continuar?
+        </p>
+      </div>
+      <div class="flex justify-end gap-2.5 pt-1">
+        <button id="btnCancelAioStreamsReq" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
+        <button id="btnAcceptAioStreamsReq" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-[var(--shadow-pill)]">
+          Aceptar y Configurar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Formulario de API Keys Debrid para AIOStreams (Montado en body con límites y scroll adaptativo) -->
+  <!-- @include "partials/modal-aio-streams-debrids.html" -->
+
+  <!-- Modal: Crear Nuevo Perfil en el Asistente -->
+  <!-- @include "partials/modal-new-profile.html" -->
+
+  <!-- Modal: Eliminar Perfil en el Asistente -->
+  <!-- @include "partials/modal-delete-profile.html" -->
+
+  <!-- Modal: Catálogo de Avatares en el Asistente -->
+  <!-- @include "partials/modal-wizard-avatar-picker.html" -->
+
+  <!-- Modal: Selector de Obras en el Asistente -->
+  <div id="modalWizardFranchises" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-lg w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 flex items-center justify-center text-xs text-[#ffd479]">
+            <i class="fa-solid fa-masks-theater"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Elegir Obra</h3>
+            <span class="text-[11px] text-white/50">Filtra por serie o anime</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseWizardFranchises" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div id="wizardFranchisesListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[380px] overflow-y-auto p-1 pr-1.5">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Emergente de Finalización y Comunidad -->
+  <!-- @include "partials/completion-modal.html" -->
+
+  <!-- Contenedor de notificaciones flotantes (Toasts) -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 max-w-md w-full pointer-events-none items-end"></div>
+
+  <!-- ======================================================== -->
+  <!-- FOOTER OFICIAL NUVIO STYLE (SIN LOGO, CON CRÉDITOS)      -->
+  <!-- ======================================================== -->
+  <!-- @include "../../shared/ui/site-shell/footer.html" -->
+
+  <!-- Sincronización automática de versión -->
+  <script type="module" src="../../app/site-version.js"></script>
+</body>
+</html>

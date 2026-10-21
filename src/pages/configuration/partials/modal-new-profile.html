@@ -1,0 +1,49 @@
+<div id="modalNewProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs text-emerald-400">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Nuevo Perfil</h3>
+            <span class="text-[11px] text-white/50">Crea un nuevo perfil en tu cuenta de Nuvio</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseNewProfileModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 pt-1">
+        <!-- Preview y Botón Personalizar Avatar -->
+        <div class="flex items-center gap-3.5 p-3 rounded-2xl bg-white/[0.03] border border-white/10">
+          <div class="relative shrink-0">
+            <img id="newProfileAvatarPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil" alt="Avatar" class="w-14 h-14 rounded-full border-2 border-[#ffd479] object-cover bg-black/40 shadow-md">
+          </div>
+          <div class="flex-1 min-w-0">
+            <span class="text-xs font-semibold text-white block truncate">Avatar del Perfil</span>
+            <span class="text-[11px] text-white/50 block truncate">Elige un personaje de la colección</span>
+            <button type="button" id="btnPickNewProfileAvatar" class="mt-1.5 lat-capsule-btn glass text-[11px] py-1 px-3 text-[#ffd479] border-[#ffd479]/30 hover:border-[#ffd479]/60 flex items-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+              <span>Personalizar Avatar</span>
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Perfil</label>
+          <input type="text" id="inputNewProfileName" required maxlength="30" placeholder="Ej. Familia, Cine, Anime..." class="lat-field w-full text-sm">
+        </div>
+
+        <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+          <button type="button" id="btnCancelNewProfile" class="lat-capsule-btn glass text-xs py-2 px-3">
+            Cancelar
+          </button>
+          <button type="button" id="btnConfirmNewProfile" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099]">
+            <i class="fa-solid fa-plus mr-1"></i> Crear Perfil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuvio Metadata Latino</title>
+  <link rel="icon" type="image/webp" href="/assets/logo/logo.webp" />
+  <link rel="apple-touch-icon" href="/assets/logo/logo.webp" />
+  
+  <!-- Metadatos de Descripción y Color de Tema (Discord Accent Strip) -->
+  <meta name="description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="author" content="Svein" />
+
+  <!-- Open Graph / Facebook / Discord Embed -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://guia.lat-add.com/" />
+  <meta property="og:title" content="Nuvio Metadata Latino" />
+  <meta property="og:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta property="og:image" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
+  <meta property="og:image:secure_url" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:alt" content="Nuvio Metadata Latino" />
+  <meta property="og:locale" content="es_LA" />
+
+  <!-- Twitter Card / Discord Large Banner Embed -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://guia.lat-add.com/" />
+  <meta name="twitter:title" content="Nuvio Metadata Latino" />
+  <meta name="twitter:description" content="Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones." />
+  <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
+  <meta name="twitter:image:alt" content="Nuvio Metadata Latino" />
+  <link rel="image_src" href="https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/preview/incrustacion.png" />
+  
+  <!-- Preload de Fuentes Instrument Sans & Serif -->
+  <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+  
+  <!-- Compiled Tailwind utilities -->
+  <link rel="stylesheet" href="../shared/styles/tailwind.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="../app/styles.css" />
+</head>
+<body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white overflow-x-hidden">
+
+  <!-- Barra de Navegación Flotante LAT-ADD Style -->
+  <!-- @include "../shared/ui/site-shell/header.html" -->
+
+  <!-- Hero Backdrop Cinemático de Pósters Latinos TMDB (Fixed con scroll fade) -->
+  <div id="heroBackdrop" class="fixed inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0 select-none">
+    <img src="/assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-85 filter brightness-100 contrast-105">
+    <!-- Scrim atmosférico estilo LAT-ADD: transparente arriba para ver los pósters con nitidez y fundido gradual hacia el fondo de la página -->
+    <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent via-35% to-[#08090c]"></div>
+    <div class="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[#08090c] via-[#08090c]/85 to-transparent"></div>
+  </div>
+
+  <!-- Contenedor Principal (Landing Page) -->
+  <!-- @include "partials/landing/content.html" -->
+
+  <!-- ======================================================== -->
+  <!-- FOOTER OFICIAL NUVIO STYLE (SIN LOGO, CON CRÉDITOS)      -->
+  <!-- ======================================================== -->
+  <!-- @include "../shared/ui/site-shell/footer.html" -->
+
+  <!-- Sincronización automática de versión -->
+  <script type="module" src="../app/site-version.js"></script>
+  <!-- Barra de navegación con indicador deslizante animado -->
+  <script type="module" src="../app/navigation.js"></script>
+  <!-- Inicializador del Contador Global de Configuraciones -->
+  <script type="module">
+    import { initCompletionsCounterUI } from '../app/completions.js';
+    initCompletionsCounterUI();
+  </script>
+  <!-- Listener de scroll para fade progresivo de largo recorrido y atmósfera sutil -->
+  <script>
+    (function() {
+      const backdrop = document.getElementById('heroBackdrop');
+      if (!backdrop) return;
+      const target = document.getElementById('como-funciona');
+
+      let ticking = false;
+      const updateBackdrop = () => {
+        const scrollY = window.scrollY || window.pageYOffset;
+        // Mayor recorrido de scroll para una animación pausada, fluida y cinematográfica
+        const fadeEnd = target ? Math.max(600, target.offsetTop + 120) : window.innerHeight * 1.2;
+        const rawProgress = Math.min(1, Math.max(0, scrollY / fadeEnd));
+        // Interpolación cuadrática suave (smooth-step)
+        const progress = rawProgress * rawProgress * (3 - 2 * rawProgress);
+
+        // Transición progresiva: de 0.85 a 0.15 (más negrito, fondo tenue y profesional)
+        const opacity = (0.85 - progress * 0.70).toFixed(3);
+        const blurPx = (progress * 6.0).toFixed(1);
+        const brightness = (1.0 - progress * 0.45).toFixed(2);
+
+        backdrop.style.opacity = opacity;
+        backdrop.style.filter = `blur(${blurPx}px) brightness(${brightness})`;
+        ticking = false;
+      };
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(updateBackdrop);
+          ticking = true;
+        }
+      }, { passive: true });
+
+      updateBackdrop();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Modder | Nuvio Metadata Latino</title>
+  <meta name="description" content="Gestor exclusivo para modders: subida por lote con conversión a WebP y administración integral de assets existentes en GitHub." />
+  
+  <!-- Favicon e Iconos -->
+  <link rel="icon" type="image/webp" href="/assets/logo/logo.webp" />
+  <link rel="apple-touch-icon" href="/assets/logo/logo.webp" />
+
+  <!-- Preload de Fuentes Instrument Sans & Serif -->
+  <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <!-- Compiled Tailwind utilities -->
+  <link rel="stylesheet" href="../../shared/styles/tailwind.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="../../app/styles.css" />
+</head>
+<body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white overflow-x-hidden">
+
+  <!-- Barra de Navegación Flotante LAT-ADD Style -->
+  <header class="lat-floating-nav">
+    <a href="../" class="lat-floating-pill px-2.5 sm:px-4 lg:px-5 flex items-center gap-2 transition-all hover:bg-white/[0.12] group shrink-0" title="Volver al Inicio">
+      <img src="https://nuvio.tv/assets/nuvio-app-logo-wordmark.webp" alt="Nuvio" class="h-5 sm:h-7 w-auto object-contain transition-transform group-hover:scale-105">
+      <span class="lat-brand-text text-sm sm:text-[15px] font-semibold tracking-wide text-white">Metadata Latino</span>
+      <span class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20 font-mono">Modder</span>
+    </a>
+
+    <div class="flex items-center gap-2 shrink-0 pointer-events-auto">
+      <button id="btnLogoutModder" type="button" class="lat-floating-pill px-3 sm:px-4 py-1.5 text-xs sm:text-sm text-white/80 hover:text-white hover:bg-white/[0.12] flex items-center gap-1.5 cursor-pointer transition-all" title="Cerrar sesión de modder y volver a cuenta">
+        <i class="fa-solid fa-arrow-left text-xs"></i>
+        <span>Volver a Cuenta</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="flex-1 flex flex-col justify-start items-center px-4 sm:px-6 w-full max-w-5xl mx-auto pt-28 pb-16">
+
+    <!-- Panel de Trabajo (Pestañas de Lote y Gestión) -->
+    <!-- @include "partials/modder-panel-view.html" -->
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE EDICIÓN / REEMPLAZO / BORRADO DE AVATAR          -->
+    <!-- ======================================================== -->
+    <!-- @include "partials/edit-avatar-modal.html" -->
+
+    <!-- ======================================================== -->
+    <!-- MODAL DE PUBLICACIÓN EN GITHUB (ESTILO NUVIO / LAT-CARD)  -->
+    <!-- ======================================================== -->
+    <!-- @include "partials/publish-staged-modal.html" -->
+
+  </main>
+
+  <!-- Script Controlador Principal -->
+  <!-- @include "partials/script.html" -->
+</body>
+</html>

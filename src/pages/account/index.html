@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Cuenta & Perfil | Nuvio Metadata Latino</title>
+  <meta name="description" content="Gestor integral de perfiles, avatares y addons AIOMetadata para tu cuenta de Nuvio." />
+  
+  <!-- Favicon e Iconos -->
+  <link rel="icon" type="image/webp" href="/assets/logo/logo.webp" />
+  <link rel="apple-touch-icon" href="/assets/logo/logo.webp" />
+
+  <!-- Preload de Fuentes Instrument Sans & Serif -->
+  <link rel="preload" href="/assets/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <!-- Compiled Tailwind utilities -->
+  <link rel="stylesheet" href="../../shared/styles/tailwind.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="../../app/styles.css" />
+
+  <!-- SortableJS para Reordenación Fluida y Animada (Local con fallback CDN) -->
+  <script src="/vendor/sortable.min.js"></script>
+  <script>
+    if (typeof Sortable === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
+</head>
+<body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white overflow-x-hidden">
+
+  <!-- Barra de Navegación Flotante LAT-ADD Style -->
+  <!-- @include "../../shared/ui/site-shell/header.html" -->
+
+  <!-- Contenedor Principal de la Página de Cuenta -->
+  <!-- @include "partials/account-container.html" -->
+
+  <!-- ======================================================== -->
+  <!-- FOOTER OFICIAL NUVIO STYLE                               -->
+  <!-- ======================================================== -->
+  <!-- @include "../../shared/ui/site-shell/footer.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 1: ¿QUÉ PERFIL QUIERES GESTIONAR? (WHO'S WATCHING) -->
+  <!-- ======================================================== -->
+  <div id="modalSelectProfilePrompt" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-xl w-full p-6 sm:p-7 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-6 text-center">
+      <div>
+        <span class="lat-label text-indigo-400">Nuvio Profiles</span>
+        <h3 class="text-xl sm:text-2xl font-serif text-white mt-1">¿Qué perfil quieres gestionar?</h3>
+        <p class="text-xs text-white/60 mt-1">Selecciona el perfil que deseas inspeccionar y sincronizar.</p>
+      </div>
+
+      <!-- Grid de perfiles para selección con avatares grandes -->
+      <div id="modalProfileCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5 max-h-[55vh] overflow-y-auto p-1">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-between text-xs text-white/50">
+        <button type="button" id="btnPromptCreateProfile" class="lat-capsule-btn glass text-xs py-2 px-3 text-emerald-400 border-emerald-500/30 hover:border-emerald-500/60 hover:bg-emerald-500/10">
+          <i class="fa-solid fa-plus mr-1"></i> Nuevo Perfil
+        </button>
+        <button type="button" id="btnCloseSelectProfileModal" class="lat-capsule-btn glass text-xs py-2 px-3.5">
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL 2: EDITAR PERFIL (CAMBIAR NOMBRE / ELIMINAR)       -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-edit-profile.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 3: CREAR NUEVO PERFIL (REUTILIZANDO ESTILO SETUP)   -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-create-profile.html" -->
+
+  <!-- Modal: Selector de Avatar para Crear Perfil en Cuenta -->
+  <!-- @include "partials/modal-create-profile-avatar-picker.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 4: SELECCIONAR OBRA / FRANQUICIA (PANTALLA LIMPIA)  -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-avatar-franchises.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL: SUGERIR AVATAR (SUBIDA DIRECTA O ENLACE + DISCORD)  -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-avatar-suggestion.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 5: CONFIRMACIÓN Y PREVISUALIZACIÓN DE URL DE AVATAR -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-confirm-avatar-url.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 6: AGREGAR ADDON (URL DE MANIFIESTO)               -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-account-add-addon.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 7: EDITAR ADDON (NOMBRE, MANIFEST URL Y ESTADO)     -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-account-edit-addon.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 8: CONFIRMAR ELIMINAR ADDON INDIVIDUAL             -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-account-delete-addon.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 9: CONFIRMAR ELIMINAR TODOS LOS ADDONS            -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-account-delete-all-addons.html" -->
+
+  <!-- ======================================================== -->
+  <!-- MODAL 10: PROVEEDORES DEBRID DE AIOSTREAMS               -->
+  <!-- ======================================================== -->
+  <!-- @include "partials/modal-account-aio-streams-debrids.html" -->
+
+  <!-- Sincronización automática de versión -->
+  <script type="module" src="../../app/site-version.js"></script>
+  <!-- Barra de navegación con indicador deslizante animado -->
+  <script type="module" src="../../app/navigation.js"></script>
+  <!-- Contador Global de Configuraciones -->
+  <script type="module">
+    import { initCompletionsCounterUI } from '../../app/completions.js';
+    initCompletionsCounterUI();
+  </script>
+  <!-- Controlador Modular del Gestor de Cuenta -->
+  <script type="module" src="../../app/account-entry.js"></script>
+
+</body>
+</html>

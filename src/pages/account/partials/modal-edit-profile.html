@@ -1,0 +1,40 @@
+<div id="modalEditProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-xs text-indigo-400">
+            <i class="fa-solid fa-user-pen"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Editar Perfil</h3>
+            <span id="modalEditProfileSub" class="text-[11px] text-white/50">Personaliza el nombre de tu perfil</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseEditProfileModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <form id="formEditProfile" class="space-y-4 pt-1">
+        <input type="hidden" id="editProfileTargetId">
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Perfil</label>
+          <input type="text" id="inputEditProfileName" required maxlength="30" placeholder="Nombre en Nuvio" class="lat-field w-full text-sm">
+        </div>
+
+        <div class="border-t border-white/[0.08] pt-3 flex items-center justify-between gap-2">
+          <button type="button" id="btnDeleteProfileInModal" class="lat-capsule-btn glass text-xs py-2 px-3 text-rose-400/90 border-rose-500/30 hover:border-rose-500/60 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
+            <i class="fa-regular fa-trash-can mr-1"></i> Eliminar
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnCancelEditProfile" class="lat-capsule-btn glass text-xs py-2 px-3">
+              Cancelar
+            </button>
+            <button type="submit" id="btnSaveEditProfile" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold">
+              <i class="fa-solid fa-check mr-1"></i> Guardar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>

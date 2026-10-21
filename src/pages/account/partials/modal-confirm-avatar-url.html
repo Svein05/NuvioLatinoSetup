@@ -1,0 +1,51 @@
+<div id="modalConfirmAvatarUrl" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-5 text-center">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 text-left">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 flex items-center justify-center text-xs text-[#ffd479]">
+            <i class="fa-solid fa-image"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Previsualizar Imagen</h3>
+            <span class="text-[11px] text-white/50">Comprobando enlace de avatar</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseConfirmAvatarUrlModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <!-- Previsualización Centrada -->
+      <div class="flex flex-col items-center justify-center py-2 space-y-3">
+        <div class="relative">
+          <div id="confirmAvatarUrlLoading" class="w-24 h-24 rounded-full border-2 border-white/20 bg-black/40 flex items-center justify-center text-[#ffd479]">
+            <i class="fa-solid fa-spinner fa-spin text-xl"></i>
+          </div>
+          <img id="confirmAvatarUrlPreview" src="" alt="Previsualización" class="hidden w-24 h-24 rounded-full border-2 border-[#ffd479] object-cover bg-black/50 shadow-[0_0_30px_rgba(255,212,121,0.25)]">
+        </div>
+
+        <div id="confirmAvatarUrlStatusSuccess" class="hidden space-y-1">
+          <h4 class="text-base font-bold text-white">¿Esta es la imagen que se verá, estás de acuerdo?</h4>
+          <p class="text-xs text-white/60 max-w-xs mx-auto">
+            Verifica que cargue con nitidez. Al aceptarla, se previsualizará en tu perfil y podrás guardarla pulsando <span class="text-[#ffd479] font-medium">"Guardar Cambios"</span>.
+          </p>
+        </div>
+
+        <div id="confirmAvatarUrlStatusError" class="hidden space-y-1.5 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+          <i class="fa-solid fa-triangle-exclamation text-rose-400 text-base"></i>
+          <p class="font-medium">No se pudo cargar la imagen desde este enlace.</p>
+          <p class="text-[11px] text-rose-300/70">Asegúrate de que sea un enlace directo que termine en .jpg, .png o .webp y provenga de un host accesible sin bloqueos.</p>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2.5">
+        <button type="button" id="btnCancelConfirmAvatarUrl" class="lat-capsule-btn glass text-xs py-2 px-3.5">
+          Cancelar
+        </button>
+        <button type="button" id="btnAcceptConfirmAvatarUrl" disabled class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099] disabled:opacity-40 disabled:pointer-events-none transition-all">
+          <i class="fa-solid fa-check mr-1.5"></i> Sí, usar este avatar
+        </button>
+      </div>
+    </div>
+  </div>

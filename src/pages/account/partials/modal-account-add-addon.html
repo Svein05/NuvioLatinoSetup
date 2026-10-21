@@ -1,0 +1,35 @@
+<div id="modalAccountAddAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 flex items-center justify-center text-xs text-[#ffd479]">
+            <i class="fa-solid fa-puzzle-piece"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Agregar Addon</h3>
+            <span class="text-[11px] text-white/50">Instalar mediante URL de manifiesto</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseAccountAddAddonModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 pt-1">
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">URL del Manifiesto (.json)</label>
+          <input type="url" id="inputAccountAddonManifestUrl" placeholder="https://.../manifest.json" class="lat-field w-full text-xs font-mono">
+          <p class="text-[11px] text-white/40 mt-1">Pega el enlace de manifiesto o instalación (stremio:// o https://).</p>
+        </div>
+      </div>
+
+      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+        <button type="button" id="btnCancelAccountAddAddon" class="lat-capsule-btn glass text-xs py-2 px-3">
+          Cancelar
+        </button>
+        <button type="button" id="btnConfirmAccountAddAddon" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099]">
+          <i class="fa-solid fa-plus mr-1"></i> Agregar a la Lista
+        </button>
+      </div>
+    </div>
+  </div>

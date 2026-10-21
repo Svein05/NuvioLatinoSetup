@@ -1,0 +1,53 @@
+<div id="modalAccountEditAddon" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xs text-cyan-400">
+            <i class="fa-solid fa-pen"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Editar Addon</h3>
+            <span class="text-[11px] text-white/50">Modifica el nombre, estado y enlace de manifiesto</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseAccountEditAddonModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 pt-1">
+        <!-- Toggle de Estado Activo / Desactivado (Estilo iOS / Switch Nuvio) -->
+        <div class="flex items-center justify-between p-3 rounded-2xl bg-white/[0.03] border border-white/[0.08] transition-all">
+          <div class="flex items-center gap-2.5">
+            <span id="accountEditAddonStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 transition-colors"></span>
+            <div>
+              <span class="text-xs font-medium text-white block">Estado del Addon</span>
+              <span id="accountEditAddonStatusLabel" class="text-[11px] text-white/50 block">Activo en este perfil</span>
+            </div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="inputAccountEditAddonEnabled" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+          </label>
+        </div>
+
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Addon</label>
+          <input type="text" id="inputAccountEditAddonName" maxlength="40" placeholder="Ej. AIOStreams, AnimeSub..." class="lat-field w-full text-xs">
+        </div>
+        <div>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium">URL del Manifiesto (.json)</label>
+          <input type="url" id="inputAccountEditAddonUrl" placeholder="https://.../manifest.json" class="lat-field w-full text-xs font-mono">
+        </div>
+      </div>
+
+      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+        <button type="button" id="btnCancelAccountEditAddon" class="lat-capsule-btn glass text-xs py-2 px-3">
+          Cancelar
+        </button>
+        <button type="button" id="btnConfirmAccountEditAddon" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099]">
+          <i class="fa-solid fa-check mr-1"></i> Aplicar Cambios
+        </button>
+      </div>
+    </div>
+  </div>

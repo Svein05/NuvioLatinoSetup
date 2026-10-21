@@ -1,0 +1,160 @@
+/* Selector / Disparador del Modal de Obras */
+.avatar-dropdown-trigger {
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.avatar-dropdown-trigger:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 212, 121, 0.4);
+  box-shadow: 0 0 14px rgba(255, 212, 121, 0.15);
+}
+
+.avatar-dropdown-trigger .pill-badge {
+  font-size: 0.65rem;
+  font-family: monospace;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffd479;
+}
+
+/* Tarjetas de obras dentro del modal de selección */
+.modal-franchise-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  background-clip: padding-box;
+}
+
+.modal-franchise-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 212, 121, 0.4);
+  color: #ffffff;
+}
+
+.modal-franchise-card.is-selected {
+  background: rgba(255, 212, 121, 0.12);
+  border-color: #ffd479;
+  color: #ffd479;
+  box-shadow: 0 0 0 1px rgba(255, 212, 121, 0.35), 0 0 16px rgba(255, 212, 121, 0.2);
+}
+
+.modal-franchise-card .pill-badge {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.modal-franchise-card.is-selected .pill-badge {
+  background: #ffd479;
+  color: #08090c;
+  font-weight: 700;
+}
+
+/* Bloques de colección tipo escaparate con padding garantizado */
+.avatar-collection-block {
+  padding: 1.5rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.24s ease;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .avatar-collection-block {
+    padding: 1.15rem;
+    border-radius: 20px;
+  }
+}
+
+.avatar-collection-block:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Botón interactivo "Abrir colección de avatares" */
+.btn-open-avatar-collection {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 212, 121, 0.08);
+  border: 1px solid rgba(255, 212, 121, 0.25);
+  color: #ffd479;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.btn-open-avatar-collection:hover {
+  background: #ffd479;
+  color: #08090c;
+  border-color: #ffd479;
+  box-shadow: 0 0 16px rgba(255, 212, 121, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-open-avatar-collection i {
+  transition: transform 0.2s ease;
+}
+
+.btn-open-avatar-collection:hover i {
+  transform: translateX(2px);
+}
+
+/* Botón "Volver a todas las obras" */
+.btn-back-all-collections {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-back-all-collections:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 212, 121, 0.35);
+  color: #ffd479;
+}

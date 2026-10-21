@@ -1,0 +1,33 @@
+{
+  "name": "nuvio-latino-setup",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite --config config/vite.config.js --host 127.0.0.1",
+    "build": "vite build --config config/vite.config.js",
+    "preview": "vite preview --config config/vite.config.js --host 127.0.0.1",
+    "lint": "eslint --config config/eslint.config.js src scripts tests config worker/src worker/tests",
+    "check:architecture": "node scripts/check-architecture.js",
+    "test": "vitest run --config config/vitest.config.js",
+    "test:watch": "vitest --config config/vitest.config.js",
+    "test:e2e": "playwright test --config config/playwright.config.js",
+    "test:e2e:dev": "playwright test --config config/playwright.dev.config.js",
+    "check": "npm run lint && npm run check:architecture && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "@playwright/test": "^1.64.1",
+    "autoprefixer": "^10.6.1",
+    "eslint": "^10.13.0",
+    "espree": "^11.2.0",
+    "globals": "^17.13.0",
+    "postcss": "^8.5.31",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.3.4",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "nuvio-proxy",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-19",
+  "vars": {
+    "GITHUB_OWNER": "Svein05",
+    "GITHUB_REPOSITORY": "NuvioLatinoSetup",
+    "GITHUB_BRANCH": "main"
+  }
+}

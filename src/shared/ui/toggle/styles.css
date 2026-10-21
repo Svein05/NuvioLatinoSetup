@@ -1,0 +1,61 @@
+/* ============================================================ */
+/* SWITCHES DE ALTO CONTRASTE (ON DORADO / OFF TRASLÚCIDO)     */
+/* ============================================================ */
+
+.lat-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.lat-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.lat-switch-track {
+  width: 2.75rem;
+  height: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-capsule);
+  transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  position: relative;
+  box-shadow: var(--brillo-vidrio);
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+.lat-switch-thumb {
+  width: 1.2rem;
+  height: 1.2rem;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.55);
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), background-color 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
+}
+
+.lat-switch input:checked + .lat-switch-track {
+  background-color: #ffd479;
+  border-color: rgba(255, 212, 121, 0.8);
+  box-shadow: 0 0 16px rgba(255, 212, 121, 0.45);
+}
+
+.lat-switch input:checked + .lat-switch-track .lat-switch-thumb {
+  transform: translateX(1.22rem);
+  background-color: #08090c;
+}
