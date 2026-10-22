@@ -1,19 +1,19 @@
-import { accountProgress, chapterProgress, clamp } from './scene-progress.js';
+import { accountProgress, chapterProgress, chapterTimeline, clamp, pinnedProgress } from './scene-progress.js';
 
 function renderChapter(story, chapters, viewportHeight) {
   const state = chapterProgress(chapters.map(chapter => chapter.getBoundingClientRect()), viewportHeight);
-  const chapter = chapters[state.index];
-  const steps = chapter.dataset.steps.split(',');
-  story.dataset.activeChapter = chapter.dataset.chapter;
-  story.querySelectorAll('[data-scene]').forEach(scene => {
-    const active = scene.dataset.scene === chapter.dataset.chapter;
-    scene.classList.toggle('is-active', active);
-    if (!active) return;
-    scene.style.setProperty('--progress', state.progress.toFixed(4));
-    scene.style.setProperty('--spread', state.spread.toFixed(4));
-  });
-  story.querySelectorAll('[data-step]').forEach(step => {
-    step.classList.toggle('is-current', steps.includes(step.dataset.step));
+  story.dataset.activeChapter = chapters[state.index].dataset.chapter;
+  chapters.forEach(chapter => {
+    const progress = pinnedProgress(chapter.getBoundingClientRect(), viewportHeight);
+    const scene = chapter.querySelector('[data-scene]');
+    scene.classList.add('is-active');
+    scene.style.setProperty('--progress', progress.toFixed(4));
+    const timeline = chapterTimeline(progress);
+    Object.entries(timeline).forEach(([phase, value]) => scene.style.setProperty(`--${phase}`, value.toFixed(4)));
+    const steps = chapter.dataset.steps.split(',');
+    chapter.querySelectorAll('[data-step]').forEach(step => {
+      step.classList.toggle('is-current', steps.includes(step.dataset.step));
+    });
   });
 }
 
@@ -58,7 +58,7 @@ export function initLandingPresentation(documentRoot = document) {
   const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
   const configure = () => {
     story.classList.toggle('is-enhanced', desktop.matches && !reduced.matches);
-    account.classList.toggle('is-enhanced', !reduced.matches);
+    account.classList.toggle('is-enhanced', desktop.matches && !reduced.matches);
     schedule();
   };
   const observer = new IntersectionObserver(entries => {

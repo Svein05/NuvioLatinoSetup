@@ -183,26 +183,6 @@
   font-size: 10px;
   color: var(--color-ink-muted);
 }
-@media (min-width: 1024px) {
-  .is-enhanced .scene-account-tag {
-    transform: translateY(calc(var(--spread, 0) * -18px));
-  }
-  .is-enhanced .scene-profile-panel {
-    transform: perspective(1000px) rotateY(calc(var(--spread, 0) * -5deg));
-  }
-  .is-enhanced .scene-footnote {
-    transform: translateY(calc(var(--spread, 0) * 16px));
-  }
-  .is-enhanced .scene-collection-grid > div:nth-child(1) {
-    transform: translateY(calc(var(--spread, 0) * -10px));
-  }
-  .is-enhanced .scene-collection-grid > div:nth-child(3) {
-    transform: translateY(calc(var(--spread, 0) * 10px));
-  }
-  .is-enhanced .scene-connections {
-    transform: translateY(calc(var(--spread, 0) * 18px));
-  }
-}
 @media (max-width: 639px) {
   .scene-profiles {
     gap: 16px;

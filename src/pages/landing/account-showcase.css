@@ -1,9 +1,11 @@
 .landing-account {
+  padding: 80px 0;
+  border-top: 1px solid var(--color-hairline);
+}
+.account-showcase-frame {
   display: grid;
   gap: 48px;
   align-items: center;
-  padding: 80px 0;
-  border-top: 1px solid var(--color-hairline);
 }
 .account-showcase-copy {
   min-width: 0;
@@ -154,20 +156,25 @@
   opacity: var(--avatar-change, 1);
 }
 @media (min-width: 1024px) {
-  .landing-account {
+  .account-showcase-frame {
     grid-template-columns: .9fr 1.1fr;
     gap: 80px;
-    min-height: 90svh;
   }
-  .account-showcase-scene {
-    transform: perspective(1200px) rotateY(calc((1 - var(--activity-reveal, 1)) * -4deg));
+  .landing-account.is-enhanced {
+    height: 190svh;
+    padding: 0;
+  }
+  .is-enhanced .account-showcase-frame {
+    position: sticky;
+    top: 120px;
+    height: calc(100svh - 150px);
   }
 }
 @media (max-width: 639px) {
   .landing-account {
     padding: 48px 0;
-    gap: 32px;
   }
+  .account-showcase-frame { gap: 32px; }
   .account-showcase-scene {
     padding: 18px;
   }

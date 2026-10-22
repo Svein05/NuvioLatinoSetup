@@ -11,7 +11,8 @@ async function openLanding(page) {
 async function revealChapter(page, chapter, progress = .4) {
   await page.locator(`[data-chapter="${chapter}"]`).evaluate((element, value) => {
     const rectangle = element.getBoundingClientRect();
-    window.scrollTo(0, window.scrollY + rectangle.top + rectangle.height * value - innerHeight * .45);
+    const frame = element.querySelector('.story-frame');
+    window.scrollTo(0, window.scrollY + rectangle.top - 120 + (rectangle.height - frame.offsetHeight) * value);
   }, progress);
   await expect(page.locator('.landing-story')).toHaveAttribute('data-active-chapter', chapter);
 }
@@ -23,7 +24,7 @@ test('four scroll chapters explain seven steps and reverse without application w
     if (!['GET', 'HEAD'].includes(request.method())) writes.push(request.url());
   });
   await expect(page.locator('.landing-story')).toHaveClass(/is-enhanced/);
-  await expect(page.locator('[data-step]')).toHaveCount(7);
+  await expect(page.locator('[data-chapter="profile"] [data-step]')).toHaveCount(7);
   for (const chapter of ['profile', 'library', 'style', 'assembly', 'library']) {
     await revealChapter(page, chapter);
     await expect(page.locator(`[data-scene="${chapter}"]`)).toHaveClass(/is-active/);
@@ -31,12 +32,13 @@ test('four scroll chapters explain seven steps and reverse without application w
   }
   await revealChapter(page, 'style');
   await expect(page.locator('[data-scene="style"]')).toHaveCSS('opacity', '1');
-  const stage = page.locator('.story-stage');
+  const stage = page.locator('[data-chapter="style"] .story-stage');
   await expect(stage).toBeInViewport();
   expect((await stage.boundingBox()).y).toBeGreaterThanOrEqual(120);
   await page.screenshot({ path: testInfo.outputPath('desktop-style.png') });
   await page.locator('#explora-cuenta').evaluate(element => {
-    window.scrollTo(0, window.scrollY + element.getBoundingClientRect().top - 120);
+    const frame = element.querySelector('.account-showcase-frame');
+    window.scrollTo(0, window.scrollY + element.getBoundingClientRect().top - 120 + (element.offsetHeight - frame.offsetHeight) * .85);
   });
   await expect(page.locator('.landing-account')).toHaveCSS('--avatar-change', '1.0000');
   await expect(page.locator('.landing-account-links a').first()).toHaveAttribute('href', './account/');
@@ -60,7 +62,7 @@ test('natural scrolling, mobile stacking and reduced motion retain every explana
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.locator('.landing-story')).not.toHaveClass(/is-enhanced/);
   for (const chapter of ['profile', 'library', 'style', 'assembly']) {
-    const text = await page.locator(`[data-chapter="${chapter}"]`).boundingBox();
+    const text = await page.locator(`[data-chapter="${chapter}"] .story-copy`).boundingBox();
     const scene = await page.locator(`[data-scene="${chapter}"]`).boundingBox();
     expect(scene.y).toBeGreaterThanOrEqual(text.y + text.height);
   }
@@ -113,7 +115,57 @@ test('presentation content and local assets remain usable without JavaScript', a
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.setViewportSize({ width: 1440, height: 900 });
-  await expect(page.locator('.story-stage')).toHaveCSS('display', 'contents');
+  await expect(page.locator('.story-stage').first()).toHaveCSS('display', 'flex');
   for (const scene of await page.locator('[data-scene]').all()) await expect(scene).toBeVisible();
   await context.close();
+});
+
+test('text and scene stay pinned together, alternate sides and hold their finished state', async ({ page }, testInfo) => {
+  await openLanding(page);
+  for (const [index, name] of ['profile', 'library', 'style', 'assembly'].entries()) {
+    const chapter = page.locator(`[data-chapter="${name}"]`);
+    await revealChapter(page, name, .3);
+    const initial = await chapter.locator('.story-copy').boundingBox();
+    await expect(chapter.locator('[data-scene]')).toHaveCSS('--finish', '0.0000');
+    await revealChapter(page, name, .85);
+    await expect(chapter.locator('[data-scene]')).toHaveCSS('--finish', '1.0000');
+    const final = await chapter.locator('.story-copy').boundingBox();
+    const scene = await chapter.locator('.story-stage').boundingBox();
+    expect(Math.abs(initial.y - final.y)).toBeLessThan(1);
+    expect(final.y).toBeGreaterThanOrEqual(120);
+    expect(final.y + final.height).toBeLessThanOrEqual(870);
+    expect(scene.y + scene.height).toBeLessThanOrEqual(870);
+    expect(index % 2 ? scene.x < final.x : scene.x > final.x).toBe(true);
+    await revealChapter(page, name, .95);
+    expect(Math.abs((await chapter.locator('.story-copy').boundingBox()).y - final.y)).toBeLessThan(1);
+    await page.screenshot({ path: testInfo.outputPath(`finished-${name}.png`) });
+  }
+  await revealChapter(page, 'style', .3);
+  await expect(page.locator('[data-scene="style"]')).toHaveCSS('--finish', '0.0000');
+});
+
+test('pinned compositions stay below navigation on short desktop screens', async ({ page }) => {
+  await openLanding(page);
+  for (const viewport of [{ width: 1024, height: 650 }, { width: 1440, height: 700 }]) {
+    await page.setViewportSize(viewport);
+    await revealChapter(page, 'style', .85);
+    const copy = await page.locator('[data-chapter="style"] .story-copy').boundingBox();
+    const stage = await page.locator('[data-chapter="style"] .story-stage').boundingBox();
+    expect(copy.y).toBeGreaterThanOrEqual(120);
+    expect(copy.y + copy.height).toBeLessThanOrEqual(viewport.height - 20);
+    expect(stage.y + stage.height).toBeLessThanOrEqual(viewport.height - 20);
+    const badges = await page.locator('.scene-stream-card').boundingBox();
+    const addons = await page.locator('[data-scene="style"] .scene-addon-stack').boundingBox();
+    expect(addons.y).toBeGreaterThanOrEqual(badges.y + badges.height);
+    await page.locator('#explora-cuenta').evaluate(element => {
+      const frame = element.querySelector('.account-showcase-frame');
+      window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 120 + (element.offsetHeight - frame.offsetHeight) * .85);
+    });
+    await expect(page.locator('.landing-account')).toHaveCSS('--avatar-change', '1.0000');
+    for (const selector of ['.account-showcase-copy', '.account-showcase-scene']) {
+      const rectangle = await page.locator(selector).boundingBox();
+      expect(rectangle.y).toBeGreaterThanOrEqual(120);
+      expect(rectangle.y + rectangle.height).toBeLessThanOrEqual(viewport.height - 20);
+    }
+  }
 });

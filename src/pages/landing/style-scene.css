@@ -181,43 +181,7 @@
   margin-top: 5px;
   font-size: 11px;
 }
-@media (min-width: 1024px) {
-  .is-enhanced .scene-poster {
-    transform: perspective(1000px) rotateY(calc(var(--spread, 0) * -8deg)) translateX(calc(var(--spread, 0) * -10px));
-  }
-  .is-enhanced .scene-style-options {
-    transform: translateX(calc(var(--spread, 0) * 12px));
-  }
-  .is-enhanced .scene-poster-original {
-    opacity: calc(1 - clamp(0, (var(--progress, 1) - .15) * 1.6667, 1));
-  }
-  .is-enhanced .scene-poster-enhanced {
-    opacity: clamp(0, (var(--progress, 1) - .15) * 1.6667, 1);
-  }
-  .is-enhanced .scene-badges {
-    opacity: calc(.2 + var(--progress, 0) * .8);
-    transform: translateY(calc((1 - var(--progress, 0)) * 12px));
-  }
-  .is-enhanced .scene-addon-stack {
-    transform: translateY(calc(var(--spread, 0) * 12px));
-  }
-  .is-enhanced .scene-assembly-pieces {
-    transform: translateY(calc(var(--spread, 0) * -16px));
-    opacity: calc(1 - var(--progress, 0) * .45);
-  }
-  .is-enhanced .scene-result {
-    transform: scale(calc(.94 + var(--progress, 0) * .06));
-  }
-}
-@media (max-width: 1023px) {
-  .story-scene[data-scene="style"] {
-    min-height: 440px;
-  }
-}
 @media (max-width: 639px) {
-  .story-scene[data-scene="style"] {
-    min-height: 480px;
-  }
   .scene-style-options {
     padding: 14px 10px;
   }
