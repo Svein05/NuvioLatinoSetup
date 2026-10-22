@@ -13,8 +13,8 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #ffffff;
   box-shadow: var(--shadow-lift), var(--brillo-vidrio);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 500;
