@@ -1,4 +1,29 @@
 import { expect, test } from '@playwright/test';
+import { isolateExternalServices } from './support/offline-services.js';
+
+test('compiled glass styles preserve the standard backdrop filter', async ({ page }) => {
+  await isolateExternalServices(page);
+  await page.goto('/');
+  const declarations = await page.evaluate(() => {
+    const selectors = ['.lat-floating-pill', '.lat-mobile-dropdown', '.lat-card',
+      '.lat-toast', '.account-content-card'];
+    const result = {};
+    function inspect(rules) {
+      for (const rule of rules) {
+        if (selectors.includes(rule.selectorText) && rule.style?.getPropertyValue('backdrop-filter')) {
+          result[rule.selectorText] = rule.style.getPropertyValue('backdrop-filter');
+        }
+        if (rule.cssRules) inspect(rule.cssRules);
+      }
+    }
+    for (const sheet of document.styleSheets) inspect(sheet.cssRules);
+    return result;
+  });
+  for (const selector of ['.lat-floating-pill', '.lat-mobile-dropdown', '.lat-card',
+    '.lat-toast', '.account-content-card']) {
+    expect(declarations[selector], selector).toContain('blur(');
+  }
+});
 
 test('serves public templates and assets without exposing repository files', async ({ request }) => {
   const manifest = await request.get('/templates/NuvioCollections.json');
