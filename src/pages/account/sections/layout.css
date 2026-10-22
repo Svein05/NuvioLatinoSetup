@@ -208,7 +208,6 @@
 }
 
 @keyframes save-pulse {
-  0% { transform: scale(1); box-shadow: 0 0 14px rgba(255, 212, 121, 0.35); }
-  50% { transform: scale(1.02); box-shadow: 0 0 24px rgba(255, 212, 121, 0.65); }
-  100% { transform: scale(1); box-shadow: 0 0 14px rgba(255, 212, 121, 0.35); }
+  0%, 100% { box-shadow: 0 0 14px rgba(255, 212, 121, 0.35); }
+  50% { box-shadow: 0 0 24px rgba(255, 212, 121, 0.65); }
 }
