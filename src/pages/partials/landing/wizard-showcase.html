@@ -1,0 +1,60 @@
+<section class="landing-story" id="explora-asistente" aria-labelledby="story-title">
+  <header class="landing-intro">
+    <p class="landing-kicker">De una idea a tu pantalla</p>
+    <h2 id="story-title">Así toma forma tu Nuvio.</h2>
+    <p>Un perfil, tus colecciones y un estilo propio. Mira cómo encaja cada pieza antes de empezar.</p>
+  </header>
+  <nav class="story-chapter-links" aria-label="Capítulos del asistente">
+    <a href="#tu-perfil" data-chapter-link="profile">Tu perfil</a>
+    <a href="#tu-biblioteca" data-chapter-link="library">Tu biblioteca</a>
+    <a href="#tu-estilo" data-chapter-link="style">Tu estilo</a>
+    <a href="#todo-encaja" data-chapter-link="assembly">El resultado</a>
+  </nav>
+  <p class="landing-example-note">Vista previa ilustrativa con datos de ejemplo.</p>
+  <div class="story-layout">
+    <div class="story-narrative">
+      <article class="story-chapter" id="tu-perfil" data-chapter="profile" data-steps="1,2">
+        <p class="story-step-label">Pasos 1 y 2 · Conexión y perfiles</p>
+        <h3>Tu perfil,<br>tu espacio.</h3>
+        <p>Conecta tu cuenta y elige dónde comenzar. Puedes crear un perfil para esta configuración o usar uno que ya tengas.</p>
+        <p class="story-detail">¿Prefieres hacerlo por tu cuenta? El modo manual te permite preparar los archivos sin iniciar sesión.</p>
+      </article>
+      <article class="story-chapter" id="tu-biblioteca" data-chapter="library" data-steps="3,4">
+        <p class="story-step-label">Pasos 3 y 4 · Colecciones y API keys</p>
+        <h3>Menos desorden.<br>Más por descubrir.</h3>
+        <p>Organiza las colecciones en Mini Nuvio y conecta tus servicios de metadatos. Tus películas y series, con información en español latino.</p>
+        <p class="story-detail">Elige qué mostrar y en qué orden. La configuración se adapta a tu biblioteca.</p>
+      </article>
+      <article class="story-chapter" id="tu-estilo" data-chapter="style" data-steps="5,6">
+        <p class="story-step-label">Pasos 5 y 6 · Ajustes y addons</p>
+        <h3>El contenido cambia.<br>Tu estilo se queda.</h3>
+        <p>Combina pósters, elige un pack de badges y organiza tus addons. Cada detalle tiene su lugar.</p>
+        <p class="story-detail">Previsualiza las opciones y decide qué acompaña a tus colecciones.</p>
+      </article>
+      <article class="story-chapter" id="todo-encaja" data-chapter="assembly" data-steps="7">
+        <p class="story-step-label">Paso 7 · Configuración final</p>
+        <h3>Todo encaja.<br>Ahora, a disfrutar.</h3>
+        <p>Revisa el resumen y aplica la configuración al perfil elegido. Si usas el modo manual, descarga los archivos para importarlos.</p>
+        <a class="lat-capsule-btn solid" href="./configuration/">Crear mi configuración <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+      </article>
+    </div>
+    <div class="story-stage" aria-hidden="true">
+      <div class="story-stage-heading"><span class="story-status-dot"></span> Tu configuración, pieza a pieza <span>Preview</span></div>
+      <div class="story-scenes">
+        <!-- @include "scenes/profile.html" -->
+        <!-- @include "scenes/library.html" -->
+        <!-- @include "scenes/style.html" -->
+        <!-- @include "scenes/assembly.html" -->
+      </div>
+      <ol class="story-progress">
+        <li data-step="1"><span>1</span>Conexión</li>
+        <li data-step="2"><span>2</span>Perfiles</li>
+        <li data-step="3"><span>3</span>Colecciones</li>
+        <li data-step="4"><span>4</span>API keys</li>
+        <li data-step="5"><span>5</span>Ajustes</li>
+        <li data-step="6"><span>6</span>Addons</li>
+        <li data-step="7"><span>7</span>Final</li>
+      </ol>
+    </div>
+  </div>
+</section>
