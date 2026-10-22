@@ -4,7 +4,6 @@ const focusable = 'button:not([disabled]), a[href], input:not([disabled]), selec
 export function manageDialog(modal) {
   let open = false;
   let opener;
-  let frame;
   const isOpen = () => !modal.classList.contains('hidden');
   const targets = () => [...modal.querySelectorAll(focusable)].filter(node => node.getClientRects().length);
   function synchronize() {
@@ -14,9 +13,8 @@ export function manageDialog(modal) {
     modal.setAttribute('aria-hidden', String(!open));
     if (open) {
       opener = modal.ownerDocument.activeElement;
-      frame = requestAnimationFrame(() => { if (isOpen() && !modal.contains(modal.ownerDocument.activeElement)) (targets()[0] || modal).focus(); });
+      if (!modal.contains(modal.ownerDocument.activeElement)) (targets()[0] || modal).focus();
     } else {
-      cancelAnimationFrame(frame);
       if (modal.contains(modal.ownerDocument.activeElement) && opener?.isConnected) opener.focus();
     }
   }
@@ -40,7 +38,7 @@ export function manageDialog(modal) {
   observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
   modal.addEventListener('keydown', onKey);
   synchronize();
-  return () => { observer.disconnect(); cancelAnimationFrame(frame); modal.removeEventListener('keydown', onKey); };
+  return () => { observer.disconnect(); modal.removeEventListener('keydown', onKey); };
 }
 
 export function managePageDialogs(root = document) {

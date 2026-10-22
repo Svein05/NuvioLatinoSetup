@@ -62,3 +62,17 @@ test('profile creation and avatar picker open, preserve focus and close with Esc
   await page.locator('#btnAccountProfileTrigger').click();
   await expect(page.locator('#accountProfilePopover')).toBeVisible();
 });
+
+test('opening a profile dialog transfers focus before the next animation frame', async ({ page }) => {
+  await prepareAccount(page, 'rpc');
+  await page.locator('#btnAccountProfileTrigger').click();
+  const focused = await page.locator('#btnPopoverAddProfile').evaluate(button => {
+    button.click();
+    return new Promise(resolve => queueMicrotask(() => {
+      resolve(document.getElementById('modalCreateProfile').contains(document.activeElement));
+    }));
+  });
+  expect(focused).toBe(true);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#modalCreateProfile')).toBeHidden();
+});
