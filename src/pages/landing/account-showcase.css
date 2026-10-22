@@ -133,9 +133,6 @@
 .preview-avatar-tray > small {
   font-size: 11px;
 }
-.preview-avatar-caption {
-  display: none;
-}
 .preview-avatar-confirmation {
   color: var(--color-estrella);
 }

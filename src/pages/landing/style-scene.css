@@ -1,47 +1,72 @@
 .scene-poster {
   top: 8%;
-  left: 9%;
-  width: 42%;
-  height: 68%;
+  left: 6%;
+  width: 40%;
+  height: 84%;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
   overflow: hidden;
 }
 .scene-poster > img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 72% center;
-}
-.scene-poster-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(transparent, rgba(8, 9, 12, .95));
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-poster);
 }
-.scene-poster-title {
+.scene-poster-original {
+  opacity: 0;
+}
+.scene-poster-enhanced {
+  opacity: 1;
+}
+.scene-style-details {
   position: absolute;
-  left: 14px;
-  right: 8px;
-  bottom: 54px;
-  font: 30px/1 var(--font-serif);
-}
-.scene-badges {
-  position: absolute;
-  bottom: 16px;
-  left: 12px;
-  display: flex;
-  gap: 5px;
-}
-.scene-badges span {
-  border: 1px solid var(--borde-4k);
-  background: var(--fondo-4k);
-  color: var(--color-estrella);
-  padding: 4px 6px;
-  font-size: 9px;
-  border-radius: 6px;
-}
-.scene-style-options {
-  top: 18%;
+  top: 8%;
+  bottom: 6%;
   right: 6%;
   width: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+}
+.scene-style-details > .scene-layer {
+  position: relative;
+  inset: auto;
+  width: 100%;
+}
+.scene-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 16px 0;
+}
+.scene-badges span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffd500;
+  background: rgba(255, 213, 0, .125);
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+.scene-badges img {
+  display: block;
+  height: 14px;
+  width: auto;
+  object-fit: contain;
+}
+.scene-badges .scene-badge-language {
+  border-color: #bbdefb;
+  background: rgba(187, 222, 251, .14);
+}
+.scene-badge-language img {
+  width: 21px;
+}
+.scene-style-options {
   padding: 18px;
 }
 .scene-style-options strong {
@@ -53,28 +78,34 @@
   font-size: 10px;
   margin-top: 12px;
 }
-.scene-swatches {
+.scene-poster-providers {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
-.scene-swatches span {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--color-estrella);
-  outline: 1px solid var(--color-hairline-strong);
-  outline-offset: 3px;
+.scene-poster-providers span {
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: var(--radius-capsule);
+  padding: 5px 8px;
+  font-size: 10px;
+  color: var(--color-ink-muted);
 }
-.scene-swatches span:nth-child(2) {
-  background: #e8e6e3;
+.scene-poster-providers span:last-child {
+  border-color: var(--borde-4k);
+  color: var(--color-estrella);
 }
-.scene-swatches span:nth-child(3) {
-  background: #9584b8;
+.scene-stream-card {
+  padding: 18px;
+}
+.scene-stream-card > strong {
+  margin-top: 6px;
+  font-size: 13px;
+}
+.scene-stream-card > small {
+  font-size: 10px;
+  color: var(--color-ink-muted);
 }
 .scene-addon-stack {
-  left: 26%;
-  bottom: 7%;
-  width: 65%;
   padding: 12px 16px;
 }
 .scene-addon-stack > span {
@@ -157,8 +188,11 @@
   .is-enhanced .scene-style-options {
     transform: translateX(calc(var(--spread, 0) * 12px));
   }
-  .is-enhanced .scene-poster > img {
-    filter: saturate(calc(.35 + var(--progress, 0) * .65));
+  .is-enhanced .scene-poster-original {
+    opacity: calc(1 - clamp(0, (var(--progress, 1) - .15) * 1.6667, 1));
+  }
+  .is-enhanced .scene-poster-enhanced {
+    opacity: clamp(0, (var(--progress, 1) - .15) * 1.6667, 1);
   }
   .is-enhanced .scene-badges {
     opacity: calc(.2 + var(--progress, 0) * .8);
@@ -175,9 +209,14 @@
     transform: scale(calc(.94 + var(--progress, 0) * .06));
   }
 }
+@media (max-width: 1023px) {
+  .story-scene[data-scene="style"] {
+    min-height: 440px;
+  }
+}
 @media (max-width: 639px) {
-  .scene-poster-title {
-    font-size: 24px;
+  .story-scene[data-scene="style"] {
+    min-height: 480px;
   }
   .scene-style-options {
     padding: 14px 10px;
@@ -186,12 +225,23 @@
     font-size: 12px;
   }
   .scene-badges {
-    left: 8px;
-    gap: 3px;
+    gap: 4px;
+    margin: 10px 0;
   }
   .scene-badges span {
-    padding: 3px;
-    font-size: 8px;
+    padding: 4px 6px;
+  }
+  .scene-stream-card {
+    padding: 12px 10px;
+  }
+  .scene-stream-card > strong {
+    font-size: 11px;
+  }
+  .scene-addon-stack {
+    padding: 8px 10px;
+  }
+  .scene-addon-stack > span {
+    font-size: 10px;
   }
   .scene-result {
     padding: 18px 12px;

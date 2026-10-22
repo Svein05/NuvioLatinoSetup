@@ -12,10 +12,6 @@ function renderChapter(story, chapters, viewportHeight) {
     scene.style.setProperty('--progress', state.progress.toFixed(4));
     scene.style.setProperty('--spread', state.spread.toFixed(4));
   });
-  story.querySelectorAll('[data-chapter-link]').forEach(link => {
-    if (link.dataset.chapterLink === chapter.dataset.chapter) link.setAttribute('aria-current', 'step');
-    else link.removeAttribute('aria-current');
-  });
   story.querySelectorAll('[data-step]').forEach(step => {
     step.classList.toggle('is-current', steps.includes(step.dataset.step));
   });

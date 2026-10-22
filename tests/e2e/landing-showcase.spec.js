@@ -28,7 +28,6 @@ test('four scroll chapters explain seven steps and reverse without application w
     await revealChapter(page, chapter);
     await expect(page.locator(`[data-scene="${chapter}"]`)).toHaveClass(/is-active/);
     await expect(page.locator(`[data-scene="${chapter}"]`)).toHaveCSS('opacity', '1');
-    await expect(page.locator(`[data-chapter-link="${chapter}"]`)).toHaveAttribute('aria-current', 'step');
   }
   await revealChapter(page, 'style');
   await expect(page.locator('[data-scene="style"]')).toHaveCSS('opacity', '1');
@@ -46,9 +45,9 @@ test('four scroll chapters explain seven steps and reverse without application w
   expect(writes).toEqual([]);
 });
 
-test('chapter anchors, mobile stacking and reduced motion retain every explanation', async ({ page }, testInfo) => {
+test('natural scrolling, mobile stacking and reduced motion retain every explanation', async ({ page }, testInfo) => {
   await openLanding(page);
-  await page.locator('[data-chapter-link="library"]').click();
+  await page.goto('/#tu-biblioteca');
   await expect(page).toHaveURL(/#tu-biblioteca$/);
   await expect(page.locator('.landing-story')).toHaveAttribute('data-active-chapter', 'library');
   await page.evaluate(() => {
@@ -74,6 +73,30 @@ test('chapter anchors, mobile stacking and reduced motion retain every explanati
   await expect(page.locator('.landing-account')).not.toHaveClass(/is-enhanced/);
   await expect(page.locator('[data-scene]')).toHaveCount(4);
   await expect(page.locator('.preview-avatar-crossfade img').last()).toHaveCSS('opacity', '1');
+});
+
+test('finished landing copy uses genuine portrait artwork and catalog badges', async ({ page }, testInfo) => {
+  await openLanding(page);
+  await expect(page.locator('.landing-intro, .story-chapter-links, .landing-example-note')).toHaveCount(0);
+  for (const section of await page.locator('.landing-story, .landing-account').all()) {
+    await expect(section).not.toContainText(/preview|vista previa|de ejemplo|así se vería|así quedaría/i);
+  }
+  await revealChapter(page, 'style', .85);
+  const enhanced = page.locator('.scene-poster-enhanced');
+  await expect(enhanced).toHaveCSS('opacity', '1');
+  await expect(enhanced).toHaveCSS('object-fit', 'contain');
+  await expect.poll(() => enhanced.evaluate(image => image.naturalHeight / image.naturalWidth)).toBe(1.5);
+  await expect(page.locator('.scene-stream-card .scene-badges img')).toHaveCount(3);
+  for (const image of await page.locator('.scene-stream-card .scene-badges img').all()) {
+    await expect.poll(() => image.evaluate(node => node.complete && node.naturalWidth > 0)).toBe(true);
+  }
+  await expect(page.locator('[data-scene="style"]')).toHaveCSS('opacity', '1');
+  await page.screenshot({ path: testInfo.outputPath('real-poster-desktop.png') });
+  await page.setViewportSize({ width: 390, height: 844 });
+  const stream = await page.locator('.scene-stream-card').boundingBox();
+  const addons = await page.locator('[data-scene="style"] .scene-addon-stack').boundingBox();
+  expect(addons.y).toBeGreaterThanOrEqual(stream.y + stream.height);
+  await page.locator('[data-scene="style"]').screenshot({ path: testInfo.outputPath('real-poster-mobile.png') });
 });
 
 test('presentation content and local assets remain usable without JavaScript', async ({ browser }) => {
