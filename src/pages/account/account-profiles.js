@@ -5,7 +5,7 @@ export function updateProfileHeader(root, state, resolveAvatar) {
   const profile = state.profiles.find(p => Number(p.profile_index ?? p.id) === Number(state.selectedProfileId));
   const avatar = root.getElementById?.('sidebarActiveAvatar');
   const name = root.getElementById?.('sidebarActiveName');
-  if (profile && avatar) avatar.src = resolveAvatar(profile.avatar_url);
+  if (profile && avatar) avatar.src = resolveAvatar(profile.avatar_url) || '/assets/logo/logo.webp';
   if (profile && name) name.textContent = profile.name;
 }
 

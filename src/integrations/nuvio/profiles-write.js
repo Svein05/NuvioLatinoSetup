@@ -45,7 +45,7 @@ export async function createProfile(context) {
   const created = { profile_index: index, name, avatar_color_hex: '#6366F1',
     avatar_url: context.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`,
     avatar_id: null, uses_primary_addons: false, uses_primary_plugins: false };
-  try { await pushProfiles(context, [...existing, created]); }
+  try { await pushProfiles(context, [created]); }
   catch (error) {
     if (!isSchemaMismatch(error)) throw error;
     await createTransport(context)('profiles', { body: { user_id: context.userId, ...profileDocument(created), profile_id: index },
@@ -61,7 +61,8 @@ async function updateFields(context, fields) {
   const existing = await readProfiles(context);
   const target = existing.find(profile => profile.profile_index === index);
   if (!target) throw new Error('El perfil de destino ya no existe.');
-  const updated = existing.map(profile => profile === target ? { ...profile, ...fields } : profile);
+  // sync_push_profiles upserts only the supplied indexes; unrelated profiles remain untouched.
+  const updated = [{ ...target, ...fields }];
   try { await pushProfiles(context, updated); }
   catch (error) {
     if (!isSchemaMismatch(error)) throw error;

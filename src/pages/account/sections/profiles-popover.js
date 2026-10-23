@@ -56,7 +56,7 @@ export function renderProfilePopover({ root = document, state, resolveAvatarCdnU
   list.innerHTML = profiles.map(p => {
     const id = Number(p.profile_index ?? p.id);
     const isSelected = id === Number(state.selectedProfileId);
-    const avatarUrl = resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url;
+    const avatarUrl = (resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url) || '/assets/logo/logo.webp';
 
     return `
       <div class="popover-profile-row ${isSelected ? 'is-active' : ''}" data-profile-id="${id}">
@@ -105,7 +105,7 @@ export function showSelectProfilePrompt({ root = document, state, resolveAvatarC
   grid.innerHTML = profiles.map(p => {
     const id = Number(p.profile_index ?? p.id);
     const isSelected = id === Number(state.selectedProfileId);
-    const avatarUrl = resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url;
+    const avatarUrl = (resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url) || '/assets/logo/logo.webp';
     return `
       <div class="p-4 rounded-2xl bg-white/[0.04] border ${isSelected ? 'border-[#ffd479] bg-white/[0.08]' : 'border-white/10'} hover:border-[#ffd479]/60 hover:bg-white/[0.08] transition-all cursor-pointer flex flex-col items-center gap-2.5 group select-none shadow-sm" data-profile-id="${id}">
         <div class="relative">

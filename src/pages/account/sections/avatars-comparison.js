@@ -18,8 +18,8 @@ export function updateAvatarComparisonUI(root = document, state, resolveCdn = u 
   const modBadge = root.getElementById?.('avatarModifiedBadge');
   const headerMainWrap = root.getElementById?.('avatarHeaderMainWrap');
 
-  const origUrl = resolveCdn(state.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio');
-  const selectedUrl = resolveCdn(state.selectedAvatarUrl || origUrl);
+  const origUrl = resolveCdn(state.originalAvatarUrl || '') || '/assets/logo/logo.webp';
+  const selectedUrl = resolveCdn(state.selectedAvatarUrl || origUrl) || origUrl;
   const isChanged = Boolean(state.selectedAvatarUrl && !areAvatarUrlsEqual(state.selectedAvatarUrl, state.originalAvatarUrl, resolveCdn));
 
   if (origPreview) origPreview.src = origUrl;

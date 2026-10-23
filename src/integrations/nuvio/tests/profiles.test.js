@@ -15,7 +15,12 @@ function backend({ profiles = [original], failure, dataOnly = false } = {}) {
     if (failed) return failed;
     if (operation === 'sync_pull_profiles' || operation === 'profiles') return Response.json(rows);
     if (operation === 'sync_push_profiles') {
-      rows = body.p_profiles.map(profile => ({ ...profile, id: `synthetic-uuid-${profile.profile_index}` }));
+      for (const profile of body.p_profiles) {
+        const index = rows.findIndex(row => row.profile_index === profile.profile_index);
+        const updated = { ...profile, id: `synthetic-uuid-${profile.profile_index}` };
+        if (index < 0) rows.push(updated);
+        else rows[index] = { ...rows[index], ...updated };
+      }
       return Response.json({ success: true });
     }
     if (operation === 'sync_delete_profile_data') {
@@ -44,7 +49,9 @@ it('preserves existing avatar and inheritance settings when adding a profile', a
   const data = backend();
   expect(await createProfile({ ...data, name: 'New' })).toMatchObject({ profile_index: 1, name: 'New' });
   const write = data.fetchImpl.mock.calls.find(([url]) => url.endsWith('/sync_push_profiles'));
-  expect(JSON.parse(write[1].body).p_profiles[0]).toMatchObject({ avatar_color_hex: '#ABCDEF', avatar_id: 4,
+  expect(JSON.parse(write[1].body).p_profiles).toHaveLength(1);
+  expect(JSON.parse(write[1].body).p_profiles[0].profile_index).toBe(1);
+  expect((await readProfiles(data)).find(profile => profile.profile_index === 2)).toMatchObject({ avatar_color_hex: '#ABCDEF', avatar_id: 4,
     uses_primary_addons: true, uses_primary_plugins: true });
 });
 
@@ -96,4 +103,27 @@ it('does not claim a verified deletion when the verification read fails', async 
   } });
   await expect(deleteProfile(data)).rejects.toMatchObject({ outcome: 'unknown' });
   expect(data.fetchImpl.mock.calls.some(([url]) => url.endsWith('/sync_push_profiles'))).toBe(false);
+});
+
+
+it('never synthesizes a URL for native Nuvio avatars or sends unrelated profiles during writes', async () => {
+  const native = { ...original, profile_index: 3, name: 'Native', avatar_url: null, avatar_id: 'nuvio-native-7' };
+  const data = backend({ profiles: [original, native] });
+  expect((await readProfiles(data)).find(profile => profile.id === 3)).toMatchObject({ avatar_url: null, avatar_id: 'nuvio-native-7' });
+  await updateProfile({ ...data, name: 'Renamed' });
+  await updateProfileAvatar({ ...data, avatarUrl: 'https://example.invalid/new.webp' });
+  await createProfile({ ...data, name: 'New profile' });
+  const writes = data.fetchImpl.mock.calls.filter(([url]) => url.endsWith('/sync_push_profiles'));
+  for (const [, options] of writes) {
+    const profiles = JSON.parse(options.body).p_profiles;
+    expect(profiles).toHaveLength(1);
+    expect(profiles.some(profile => profile.profile_index === 3)).toBe(false);
+  }
+  expect((await readProfiles(data)).find(profile => profile.id === 3)).toMatchObject({ name: 'Native', avatar_url: null, avatar_id: 'nuvio-native-7' });
+});
+
+it('renames a native-avatar profile while preserving its native ID and null URL', async () => {
+  const data = backend({ profiles: [{ ...original, avatar_url: null, avatar_id: 7 }] });
+  await updateProfile({ ...data, name: 'Native renamed' });
+  expect((await readProfiles(data))[0]).toMatchObject({ name: 'Native renamed', avatar_url: null, avatar_id: 7 });
 });

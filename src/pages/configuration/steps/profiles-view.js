@@ -1,6 +1,6 @@
 function renderSingleProfileCard(p, idx, isSelected, canDelete) {
   const name = p.name || p.title || `Perfil ${idx + 1}`;
-  const avatar = p.avatar_url || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+  const avatar = p.avatar_url || '/assets/logo/logo.webp';
   const cardBorder = isSelected
     ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5'
     : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5';
