@@ -10,10 +10,6 @@ function renderChapter(story, chapters, viewportHeight) {
     const scene = chapter.querySelector('[data-scene]');
     const bounds = scene.getBoundingClientRect();
     renderScene(scene, chapter.dataset.chapter, progress, bounds.top < viewportHeight && bounds.bottom > 0);
-    const steps = chapter.dataset.steps.split(',');
-    chapter.querySelectorAll('[data-step]').forEach(step => {
-      step.classList.toggle('is-current', steps.includes(step.dataset.step));
-    });
   });
 }
 
@@ -21,7 +17,8 @@ function renderAccount(account, viewportHeight) {
   const progress = account.classList.contains('is-enhanced')
     ? accountProgress(account.getBoundingClientRect(), viewportHeight)
     : { activity: 1, avatar: 1, change: 1 };
-  account.dataset.accountState = progress.avatar > .5 ? 'avatars' : 'overview';
+  account.style.setProperty('--addon-order', progress.avatar.toFixed(4));
+  account.style.setProperty('--addon-config', progress.change.toFixed(4));
   account.style.setProperty('--activity-reveal', progress.activity.toFixed(4));
   account.style.setProperty('--avatar-reveal', progress.avatar.toFixed(4));
   account.style.setProperty('--avatar-change', progress.change.toFixed(4));
@@ -56,11 +53,13 @@ export function initLandingPresentation(documentRoot = document) {
     frame = 0;
     renderBackdrop(backdrop, story, reduced.matches);
     if (visible.has(story)) renderChapter(story, chapters, window.innerHeight);
+    account.classList.toggle('has-scene-motion', !reduced.matches && visible.has(account));
     if (!reduced.matches && visible.has(account)) renderAccount(account, window.innerHeight);
   };
   const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
   const visibility = () => {
     story.classList.toggle('is-document-hidden', documentRoot.hidden);
+    account.classList.toggle('is-document-hidden', documentRoot.hidden);
     schedule();
   };
   const configure = () => {
@@ -93,6 +92,7 @@ export function initLandingPresentation(documentRoot = document) {
     desktop.removeEventListener('change', configure);
     story.classList.remove('is-enhanced');
     story.classList.remove('has-scene-motion');
-    account.classList.remove('is-enhanced');
+    account.classList.remove('is-enhanced', 'has-scene-motion', 'is-document-hidden');
+    story.classList.remove('is-document-hidden');
   };
 }

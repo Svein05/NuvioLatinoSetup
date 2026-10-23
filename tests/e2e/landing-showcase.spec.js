@@ -9,7 +9,7 @@ test('four scroll chapters explain seven steps and reverse without application w
     if (!['GET', 'HEAD'].includes(request.method())) writes.push(request.url());
   });
   await expect(page.locator('.landing-story')).toHaveClass(/is-enhanced/);
-  await expect(page.locator('[data-chapter="profile"] [data-step]')).toHaveCount(7);
+  await expect(page.locator('.story-progress, [data-step]')).toHaveCount(0);
   for (const chapter of ['profile', 'library', 'style', 'assembly', 'library']) {
     await revealChapter(page, chapter);
     await expect(page.locator(`[data-scene="${chapter}"]`)).toHaveClass(/is-active/);
@@ -154,7 +154,7 @@ test('pinned compositions stay below navigation on short desktop screens', async
       window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 120 + (element.offsetHeight - frame.offsetHeight) * .85);
     });
     await expect(page.locator('.landing-account')).toHaveCSS('--avatar-change', '1.0000');
-    for (const selector of ['.account-showcase-copy', '.account-showcase-scene']) {
+    for (const selector of ['.account-showcase-copy', '.account-showcase-scene', '.account-addon-scene']) {
       const rectangle = await page.locator(selector).boundingBox();
       expect(rectangle.y).toBeGreaterThanOrEqual(120);
       expect(rectangle.y + rectangle.height).toBeLessThanOrEqual(viewport.height - 20);

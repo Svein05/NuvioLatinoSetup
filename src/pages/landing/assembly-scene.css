@@ -45,11 +45,11 @@
   width: 38%;
   transform: translate(-50%,-50%);
   text-align: center;
-  border: 1px solid var(--borde-4k);
+
   border-radius: 28px;
   padding: 24px 12px;
-  background: var(--color-panel);
-  box-shadow: 0 0 70px rgba(255,212,121,.08);
+  background: transparent;
+
 }
 .config-core > i {
   display: block;

@@ -1,5 +1,6 @@
 .collection-browser {
-  top: 12%;
+  top: 50%;
+  transform: translateY(-50%);
   left: 5%;
   width: 90%;
   padding: 22px 16px;
@@ -46,7 +47,7 @@
 .api-complete-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(8,9,12,.72);
+  background: transparent;
   display: grid;
   place-items: center;
 }
@@ -124,4 +125,11 @@
     width: 85%;
     padding: 24px 14px;
   }
+}
+
+.collection-browser {
+  opacity: 0;
+}
+.is-enhanced .collection-browser {
+  opacity: calc(1 - var(--api-ready,1));
 }

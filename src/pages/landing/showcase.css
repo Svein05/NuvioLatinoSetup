@@ -57,10 +57,6 @@
   min-width: 0;
   height: 510px;
   overflow: hidden;
-  background: var(--color-panel);
-  border: 1px solid var(--color-hairline-strong);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-lift);
 }
 .story-scenes {
   position: relative;
@@ -71,37 +67,6 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-}
-.story-progress {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  padding: 18px 12px;
-  margin: 0;
-  border-top: 1px solid var(--color-hairline);
-  list-style: none;
-}
-.story-progress li {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  font-size: 10px;
-  color: var(--color-ink-muted);
-}
-.story-progress li > span {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--color-hairline-strong);
-  border-radius: 50%;
-}
-.story-progress li.is-current { color: var(--color-estrella); }
-.story-progress li.is-current > span {
-  background: var(--fondo-4k);
-  border-color: var(--borde-4k);
 }
 @media (min-width: 1024px) {
   .story-frame {
@@ -132,8 +97,6 @@
   }
   .story-stage { height: 470px; }
   [data-chapter="style"] .story-stage { height: 560px; }
-  .story-progress { gap: 9px; padding: 14px 8px; }
-  .story-progress li { font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
