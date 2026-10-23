@@ -1,3 +1,4 @@
+import { loadAvatarsCatalog, resolveAvatarCdnUrl } from './avatar-catalog.js';
 import { loadBundledAvatars } from '../integrations/github/bundled-avatars.js';
 import { initAvatarCarousel } from '../pages/landing/avatar-carousel.js';
 import { initLandingPresentation } from '../pages/landing/presentation.js';
@@ -11,7 +12,14 @@ function initialize() {
   let carousel = () => {};
   loadBundledAvatars(request.signal).then(manifest => {
     if (!request.signal.aborted) carousel = initAvatarCarousel(manifest);
-  }).catch(() => {});
+  }).catch(() => {}).finally(() => {
+    if (request.signal.aborted) return;
+    loadAvatarsCatalog().then(avatars => {
+      if (request.signal.aborted || !avatars.length) return;
+      carousel();
+      carousel = initAvatarCarousel(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)));
+    }).catch(() => {});
+  });
   dispose = () => { request.abort(); presentation(); carousel(); };
 }
 function suspend() { dispose?.(); }

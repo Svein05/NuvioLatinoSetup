@@ -1,4 +1,5 @@
 export function avatarPaths(manifest) {
+  if (Array.isArray(manifest)) return manifest;
   return manifest.styles.flatMap(({ style, franchises }) =>
     franchises.flatMap(({ franchise, files }) => files.map(file =>
       `/assets/profile_icons/${[style, franchise, file].map(encodeURIComponent).join('/')}`)));

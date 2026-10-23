@@ -13,7 +13,7 @@ function applyProfileReads(state, result, notify) {
   if (result.addons.status === 'fulfilled') {
     state.installedAddons = structuredClone(result.addons.value);
     state.originalInstalledAddons = structuredClone(result.addons.value);
-    state.aioAddon = state.installedAddons.find(isAioMetadataAddon) || null;
+    state.aioAddon = state.installedAddons.find(addon => isAioMetadataAddon(addon)) || null;
     const url = state.aioAddon?.manifest_url || state.aioAddon?.url || '';
     state.aioUuid = url.match(/\/stremio\/([^/]+)\/manifest\.json/)?.[1] || null;
   }
@@ -46,7 +46,8 @@ export function createAccountProfileLoader({ state, client, config, metadata, no
       if (!isCurrent()) return;
       applyProfileReads(state, result, notify);
       if (state.aioUuid) await metadata.load(state.aioUuid, state.aioPassword, isCurrent)
-        .catch(error => { if (isCurrent()) notify(`AIOMetadata: ${error.message}`, 'warning'); });
+        .catch(error => { if (isCurrent()) notify([401, 403].includes(error.status)
+          ? 'AIOMetadata requiere su contraseña. Desbloquéalo desde su sección.' : error.message, 'warning'); });
       if (!isCurrent()) return;
       await services.presentOverview?.({
         data: state.overviewData, settings: state.settings,

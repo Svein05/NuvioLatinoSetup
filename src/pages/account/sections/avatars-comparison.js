@@ -8,6 +8,8 @@ export function areAvatarUrlsEqual(urlA, urlB, resolveCdn = u => u) {
 }
 
 export function updateAvatarComparisonUI(root = document, state, resolveCdn = u => u) {
+  const profileName = root.getElementById?.('avatarCurrentProfileName');
+  if (profileName) profileName.textContent = state.profiles?.find(profile => profile.id === state.selectedProfileId)?.name || 'Tu perfil';
   const origPreview = root.getElementById?.('avatarOriginalPreview');
   const currentPreview = root.getElementById?.('avatarCurrentPreview');
   const arrow = root.getElementById?.('avatarTransitionArrow');

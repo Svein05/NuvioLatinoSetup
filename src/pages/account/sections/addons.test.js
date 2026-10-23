@@ -44,7 +44,7 @@ describe('addons section', () => {
     const root = {
       getElementById: vi.fn(id => {
         if (id === 'accountAddonsListContainer') return container;
-        if (id === 'accountAddonsCountBadge') return countBadge;
+        if (id === 'accountAddonsCountLabel') return countBadge;
         return null;
       }),
     };
@@ -55,7 +55,7 @@ describe('addons section', () => {
     };
 
     renderAddonsSection(state, { root });
-    expect(countBadge.textContent).toBe('1');
+    expect(countBadge.textContent).toBe('1 addons instalados');
     expect(container.innerHTML).toContain('Cinemeta');
     expect(container.innerHTML).toContain('https://v3-cinemeta.strem.io/manifest.json');
   });

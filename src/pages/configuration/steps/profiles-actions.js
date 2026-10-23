@@ -58,7 +58,7 @@ async function checkProfileAioStatus({ state, client, config, profileId }) {
     userId: state.nuvioAuth.userId,
     profileId,
   });
-  const hasAio = (addons || []).some(isAioMetadataAddon);
+  const hasAio = (addons || []).some(addon => isAioMetadataAddon(addon));
   if (String(state.selectedProfileId) === String(profileId) && state.hasLoadedAddonsForProfile !== profileId) {
     state.setProfileAddons(addons, profileId);
   }

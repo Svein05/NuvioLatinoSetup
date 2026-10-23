@@ -2,6 +2,19 @@ import { expect, test } from '@playwright/test';
 import { openLanding, revealChapter } from './support/landing.js';
 import { readFileSync } from 'node:fs';
 
+test('landing refreshes its avatar strip from the shared public GitHub catalog', async ({ page }) => {
+  await openLanding(page);
+  const sha = 'b'.repeat(40);
+  await page.route('https://api.github.com/**', route => {
+    const body = route.request().url().includes('/git/ref/') ? { object: { sha } }
+      : { tree: [{ type: 'blob', path: 'assets/profile_icons/NetflixStyle/Naruto/Naruto.webp' }] };
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
+  });
+  await page.reload();
+  await expect(page.locator('[data-avatar-carousel] img')).toHaveCount(1);
+  await expect(page.locator('[data-avatar-carousel] img')).toHaveAttribute('src', new RegExp(`Naruto.webp\\?v=${sha}$`));
+});
+
 test('translucent scenes avoid opaque panels and keep profile and library centered', async ({ page }) => {
   await openLanding(page);
   await expect(page.locator('.story-progress, .account-scene-tabs')).toHaveCount(0);
