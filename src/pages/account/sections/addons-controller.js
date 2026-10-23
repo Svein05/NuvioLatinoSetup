@@ -1,3 +1,4 @@
+import { hydrateAddonLogos } from './addon-logos.js';
 import { renderAddonsSection } from './addons.js';
 import { moveAddon, setupAddonsSortable } from './addons-sortable.js';
 import { pushAddonsHistory } from '../account-undo.js';
@@ -63,11 +64,13 @@ export function createAccountAddons({ root, state, services, lifetime, notify, u
       onMoveAddon: (index, direction) => moveAddon({ ...context, index, direction }),
     });
     setupAddonsSortable({ ...context, Sortable: services.Sortable });
+    hydrateAddonLogos({ root, cache: state.manifestCache, requestJson: services.requestJson, signal: lifetime.signal });
   }
   bindAddonDialogs({ root, state, lifetime, context, render, notify });
   lifetime.on(root.getElementById('btnAccountOpenAddAioStreams'), 'click', streaming.open);
   lifetime.on(root.getElementById('btnAccountRefreshAddons'), 'click', () => {
     if (state.dirty.addons) { notify('Guarda o deshaz tus cambios antes de recargar.', 'warning'); return; }
+    state.manifestCache.clear();
     reload();
   });
   lifetime.add(() => root.getElementById('accountAddonsListContainer')?._sortableInstance?.destroy());
