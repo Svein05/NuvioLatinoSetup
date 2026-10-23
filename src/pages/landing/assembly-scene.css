@@ -1,0 +1,118 @@
+.story-scene[data-scene="assembly"] {
+  --orbit-distance: clamp(95px,14vw,180px);
+}
+.config-orbit-guide {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--orbit-distance) * 2);
+  height: calc(var(--orbit-distance) * 2);
+  transform: translate(-50%,-50%);
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: 50%;
+}
+.config-orbit {
+  position: absolute;
+  inset: 0;
+}
+.config-orbit-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%) rotate(calc(var(--node) * 72deg + var(--orbit-angle,180) * 1deg)) translateX(calc(var(--orbit-radius,1) * var(--orbit-distance,190px))) rotate(calc(var(--node) * -72deg - var(--orbit-angle,180) * 1deg));
+}
+.config-orbit-node > span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: 16px;
+  background: var(--color-panel-card);
+  color: var(--color-ink);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.config-orbit-node i {
+  color: var(--color-estrella);
+  font-size: 18px;
+}
+.config-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 38%;
+  transform: translate(-50%,-50%);
+  text-align: center;
+  border: 1px solid var(--borde-4k);
+  border-radius: 28px;
+  padding: 24px 12px;
+  background: var(--color-panel);
+  box-shadow: 0 0 70px rgba(255,212,121,.08);
+}
+.config-core > i {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--color-estrella);
+  font-size: 22px;
+}
+.config-core strong {
+  display: block;
+  font: 30px/1.1 var(--font-serif);
+}
+.config-core > span {
+  display: block;
+  color: var(--color-ink-muted);
+  font-size: 11px;
+  margin-top: 12px;
+}
+.config-create-flash {
+  position: absolute;
+  width: 32%;
+  aspect-ratio: 1;
+  left: 34%;
+  top: 30%;
+  border-radius: 50%;
+  background: var(--color-estrella);
+  filter: blur(35px);
+  opacity: 0;
+}
+.is-enhanced .config-core {
+  opacity: var(--config-create,1);
+  transform: translate(-50%,-50%) scale(calc(.55 + var(--config-create,1) * .45));
+}
+.is-enhanced .config-create-flash {
+  opacity: calc(var(--config-flash,0) * .45);
+}
+.has-scene-motion .is-in-view[data-orbit-state="orbiting"] .config-orbit {
+  animation: config-orbit-idle 36s linear infinite;
+}
+.has-scene-motion .is-in-view[data-orbit-state="orbiting"] .config-orbit-node > span {
+  animation: config-orbit-idle 36s linear infinite reverse;
+}
+.is-document-hidden .config-orbit, .is-document-hidden .config-orbit-node > span {
+  animation-play-state: paused !important;
+}
+@keyframes config-orbit-idle {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 639px) {
+  .config-orbit-node > span {
+    font-size: 9px;
+    padding: 9px;
+    gap: 5px;
+  }
+  .config-orbit-node i {
+    font-size: 14px;
+  }
+  .config-core {
+    width: 43%;
+    padding: 20px 8px;
+  }
+  .config-core strong {
+    font-size: 25px;
+  }
+}

@@ -1,15 +1,15 @@
-import { accountProgress, chapterProgress, chapterTimeline, clamp, pinnedProgress } from './scene-progress.js';
+import { accountProgress, chapterProgress, clamp, pinnedProgress } from './scene-progress.js';
+import { renderScene } from './render-scene.js';
 
 function renderChapter(story, chapters, viewportHeight) {
   const state = chapterProgress(chapters.map(chapter => chapter.getBoundingClientRect()), viewportHeight);
   story.dataset.activeChapter = chapters[state.index].dataset.chapter;
   chapters.forEach(chapter => {
-    const progress = pinnedProgress(chapter.getBoundingClientRect(), viewportHeight);
+    const rectangle = chapter.getBoundingClientRect();
+    const progress = story.classList.contains('is-enhanced') ? pinnedProgress(rectangle, viewportHeight) : 1;
     const scene = chapter.querySelector('[data-scene]');
-    scene.classList.add('is-active');
-    scene.style.setProperty('--progress', progress.toFixed(4));
-    const timeline = chapterTimeline(progress);
-    Object.entries(timeline).forEach(([phase, value]) => scene.style.setProperty(`--${phase}`, value.toFixed(4)));
+    const bounds = scene.getBoundingClientRect();
+    renderScene(scene, chapter.dataset.chapter, progress, bounds.top < viewportHeight && bounds.bottom > 0);
     const steps = chapter.dataset.steps.split(',');
     chapter.querySelectorAll('[data-step]').forEach(step => {
       step.classList.toggle('is-current', steps.includes(step.dataset.step));
@@ -18,7 +18,10 @@ function renderChapter(story, chapters, viewportHeight) {
 }
 
 function renderAccount(account, viewportHeight) {
-  const progress = accountProgress(account.getBoundingClientRect(), viewportHeight);
+  const progress = account.classList.contains('is-enhanced')
+    ? accountProgress(account.getBoundingClientRect(), viewportHeight)
+    : { activity: 1, avatar: 1, change: 1 };
+  account.dataset.accountState = progress.avatar > .5 ? 'avatars' : 'overview';
   account.style.setProperty('--activity-reveal', progress.activity.toFixed(4));
   account.style.setProperty('--avatar-reveal', progress.avatar.toFixed(4));
   account.style.setProperty('--avatar-change', progress.change.toFixed(4));
@@ -56,8 +59,13 @@ export function initLandingPresentation(documentRoot = document) {
     if (!reduced.matches && visible.has(account)) renderAccount(account, window.innerHeight);
   };
   const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
+  const visibility = () => {
+    story.classList.toggle('is-document-hidden', documentRoot.hidden);
+    schedule();
+  };
   const configure = () => {
     story.classList.toggle('is-enhanced', desktop.matches && !reduced.matches);
+    story.classList.toggle('has-scene-motion', !reduced.matches);
     account.classList.toggle('is-enhanced', desktop.matches && !reduced.matches);
     schedule();
   };
@@ -71,6 +79,7 @@ export function initLandingPresentation(documentRoot = document) {
   [story, account].forEach(element => observer.observe(element));
   window.addEventListener('scroll', schedule, { passive: true });
   window.addEventListener('resize', schedule);
+  documentRoot.addEventListener('visibilitychange', visibility);
   reduced.addEventListener('change', configure);
   desktop.addEventListener('change', configure);
   configure();
@@ -79,9 +88,11 @@ export function initLandingPresentation(documentRoot = document) {
     observer.disconnect();
     window.removeEventListener('scroll', schedule);
     window.removeEventListener('resize', schedule);
+    documentRoot.removeEventListener('visibilitychange', visibility);
     reduced.removeEventListener('change', configure);
     desktop.removeEventListener('change', configure);
     story.classList.remove('is-enhanced');
+    story.classList.remove('has-scene-motion');
     account.classList.remove('is-enhanced');
   };
 }

@@ -1,21 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { isolateExternalServices } from './support/offline-services.js';
-
-async function openLanding(page) {
-  await isolateExternalServices(page);
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/');
-  await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
-}
-
-async function revealChapter(page, chapter, progress = .4) {
-  await page.locator(`[data-chapter="${chapter}"]`).evaluate((element, value) => {
-    const rectangle = element.getBoundingClientRect();
-    const frame = element.querySelector('.story-frame');
-    window.scrollTo(0, window.scrollY + rectangle.top - 120 + (rectangle.height - frame.offsetHeight) * value);
-  }, progress);
-  await expect(page.locator('.landing-story')).toHaveAttribute('data-active-chapter', chapter);
-}
+import { openLanding, revealChapter } from './support/landing.js';
 
 test('four scroll chapters explain seven steps and reverse without application writes', async ({ page }, testInfo) => {
   await openLanding(page);
@@ -75,6 +60,8 @@ test('natural scrolling, mobile stacking and reduced motion retain every explana
   await expect(page.locator('.landing-account')).not.toHaveClass(/is-enhanced/);
   await expect(page.locator('[data-scene]')).toHaveCount(4);
   await expect(page.locator('.preview-avatar-crossfade img').last()).toHaveCSS('opacity', '1');
+  await expect(page.locator('.badge-carousel-track').first()).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.config-orbit')).toHaveCSS('animation-name', 'none');
 });
 
 test('finished landing copy uses genuine portrait artwork and catalog badges', async ({ page }, testInfo) => {
@@ -88,16 +75,21 @@ test('finished landing copy uses genuine portrait artwork and catalog badges', a
   await expect(enhanced).toHaveCSS('opacity', '1');
   await expect(enhanced).toHaveCSS('object-fit', 'contain');
   await expect.poll(() => enhanced.evaluate(image => image.naturalHeight / image.naturalWidth)).toBe(1.5);
-  await expect(page.locator('.scene-stream-card .scene-badges img')).toHaveCount(3);
-  for (const image of await page.locator('.scene-stream-card .scene-badges img').all()) {
-    await expect.poll(() => image.evaluate(node => node.complete && node.naturalWidth > 0)).toBe(true);
+  await expect(page.locator('.scene-stream-card .catalog-badge img')).toHaveCount(74);
+  for (const row of await page.locator('.badge-carousel-window').all()) {
+    await expect.poll(() => row.evaluate(element => {
+      const window = element.getBoundingClientRect();
+      return [...element.querySelectorAll('img')].some(image => {
+        const box = image.getBoundingClientRect();
+        return box.right > window.left && box.left < window.right && image.complete && image.naturalWidth > 0;
+      });
+    })).toBe(true);
   }
   await expect(page.locator('[data-scene="style"]')).toHaveCSS('opacity', '1');
   await page.screenshot({ path: testInfo.outputPath('real-poster-desktop.png') });
   await page.setViewportSize({ width: 390, height: 844 });
-  const stream = await page.locator('.scene-stream-card').boundingBox();
-  const addons = await page.locator('[data-scene="style"] .scene-addon-stack').boundingBox();
-  expect(addons.y).toBeGreaterThanOrEqual(stream.y + stream.height);
+  await expect(page.locator('.scene-addon-stack, .preview-profile-tag')).toHaveCount(0);
+  await expect(page.locator('.landing-account-links a')).toHaveCount(1);
   await page.locator('[data-scene="style"]').screenshot({ path: testInfo.outputPath('real-poster-mobile.png') });
 });
 
@@ -155,8 +147,8 @@ test('pinned compositions stay below navigation on short desktop screens', async
     expect(copy.y + copy.height).toBeLessThanOrEqual(viewport.height - 20);
     expect(stage.y + stage.height).toBeLessThanOrEqual(viewport.height - 20);
     const badges = await page.locator('.scene-stream-card').boundingBox();
-    const addons = await page.locator('[data-scene="style"] .scene-addon-stack').boundingBox();
-    expect(addons.y).toBeGreaterThanOrEqual(badges.y + badges.height);
+    const posterOptions = await page.locator('.scene-style-options').boundingBox();
+    expect(badges.y).toBeGreaterThanOrEqual(posterOptions.y + posterOptions.height);
     await page.locator('#explora-cuenta').evaluate(element => {
       const frame = element.querySelector('.account-showcase-frame');
       window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 120 + (element.offsetHeight - frame.offsetHeight) * .85);
