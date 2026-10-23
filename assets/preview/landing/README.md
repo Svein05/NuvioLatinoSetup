@@ -10,3 +10,5 @@ These fixed presentation assets use the same poster providers and badge pack ava
 - `latino.png`: the canonical Latino language badge from the same badge repository, included alongside the catalog carousel.
 
 Artwork and badge rights remain with their respective owners. The project's MIT license does not relicense third-party artwork. Keep these source credits when replacing or updating the assets.
+
+- The Godfather: https://image.tmdb.org/t/p/w342/3bhkrj58Vtu7enYsRolD1fZdja1.jpg (TMDB public poster snapshot).

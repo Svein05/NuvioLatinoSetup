@@ -81,7 +81,7 @@
 }
 .preview-activity-grid {
   display: grid;
-  grid-template-columns: repeat(3,minmax(0,146px));
+  grid-template-columns: repeat(4,minmax(0,146px));
   justify-content: start;
   gap: 16px;
 }
@@ -108,6 +108,9 @@
 }
 .preview-activity-grid > div:nth-child(3) .preview-watch-progress {
   width: 80%;
+}
+.preview-activity-grid > div:nth-child(4) .preview-watch-progress {
+  width: 45%;
 }
 .preview-activity-grid strong {
   display: block;
@@ -201,7 +204,7 @@
     margin-top: 10px;
   }
   .preview-activity-grid {
-    grid-template-columns: repeat(3,minmax(0,86px));
+    grid-template-columns: repeat(4,minmax(0,86px));
   }
   .preview-account-header {
     padding-bottom: 0;
