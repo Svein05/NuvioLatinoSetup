@@ -28,7 +28,8 @@
   display: grid;
   grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr);
   align-items: center;
-  gap: 64px;
+  gap: 40px;
+  padding: 24px;
   width: 100%;
 }
 .account-showcase-scene {
@@ -81,8 +82,8 @@
 .preview-activity-grid {
   display: grid;
   grid-template-columns: repeat(3,minmax(0,146px));
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: start;
+  gap: 16px;
 }
 .preview-activity-grid > div {
   min-width: 0;
@@ -177,8 +178,12 @@
   }
 }
 @media (min-width: 1024px) and (max-height: 800px) {
+  .account-showcase-panels {
+    padding: 8px 16px;
+    gap: 28px;
+  }
   .account-showcase-frame {
-    gap: 18px;
+    gap: 12px;
   }
   .account-showcase-copy h2 {
     font-size: 32px;
@@ -225,6 +230,9 @@
   }
 }
 @media (max-width: 639px) {
+  .account-showcase-panels {
+    padding: 18px;
+  }
   .landing-account {
     padding: 40px 0;
   }

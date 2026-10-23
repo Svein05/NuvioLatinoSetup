@@ -51,6 +51,13 @@
   font-size: 14px !important;
 }
 .story-copy > a { margin-top: 28px; }
+.story-stage, .account-showcase-panels {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: var(--radius-card);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
 .story-stage {
   display: flex;
   flex-direction: column;

@@ -2,12 +2,12 @@ import { expect, test } from '@playwright/test';
 import { openLanding, revealChapter } from './support/landing.js';
 import { readFileSync } from 'node:fs';
 
-test('floating scenes have no enclosing panels and keep profile and library centered', async ({ page }) => {
+test('translucent scenes avoid opaque panels and keep profile and library centered', async ({ page }) => {
   await openLanding(page);
   await expect(page.locator('.story-progress, .account-scene-tabs')).toHaveCount(0);
   for (const name of ['profile', 'library', 'style', 'assembly']) {
     await revealChapter(page, name, .85);
-    await expect(page.locator(`[data-chapter="${name}"] .story-stage`)).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(page.locator(`[data-chapter="${name}"] .story-stage`)).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.035)');
   }
   for (const [name, selector, progress] of [
     ['profile', '.profile-picker', .05],
@@ -52,6 +52,10 @@ test('avatar strip cycles the complete catalog with bounded images and addons re
   await expect(page.locator('.account-addon-settings')).toHaveCSS('opacity', '1');
   expect((await page.locator('.addon-metadata').boundingBox()).y).toBeLessThan((await page.locator('.addon-streams').boundingBox()).y);
   await expect(page.locator('.avatar-showcase-track')).toHaveCSS('animation-play-state', 'running');
+  const cards = await page.locator('.preview-activity-grid > div').all();
+  const first = await cards[0].boundingBox();
+  const second = await cards[1].boundingBox();
+  expect(second.x - first.x - first.width).toBeLessThanOrEqual(17);
   const account = await page.locator('.account-showcase-scene').boundingBox();
   const addons = await page.locator('.account-addon-scene').boundingBox();
   expect(addons.x).toBeGreaterThan(account.x + account.width);
