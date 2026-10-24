@@ -7,7 +7,6 @@ export function createMetricView(element) {
   const status = element.querySelector('[data-metric-status]');
   const accessible = element.querySelector('[data-metric-accessible]');
   const label = element.querySelector('h2').textContent;
-  const avatars = element.dataset.metric === 'avatars';
   let latest;
   let painted;
   let cleanup = () => {};
@@ -27,7 +26,7 @@ export function createMetricView(element) {
       const known = ['network', 'cache'].includes(result.source) && Number.isSafeInteger(result.count) && result.count >= 0;
       latest = known ? result : null;
       status.textContent = !known ? 'Sin datos confirmados' : result.source === 'cache'
-        ? 'Último dato guardado' : avatars ? 'Usos registrados' : '';
+        ? 'Último dato guardado' : '';
       accessible.textContent = `${label}: ${known ? format(result.count) : 'sin datos confirmados'}. ${status.textContent}`;
       element.dataset.source = known ? result.source : 'unavailable';
       if (!known) { cleanup(); value.textContent = '—'; painted = undefined; }
