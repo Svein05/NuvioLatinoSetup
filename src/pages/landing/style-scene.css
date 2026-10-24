@@ -77,11 +77,12 @@
 .badge-carousel {
   display: grid;
   gap: 10px;
+  padding-block: .25em;
+  mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
 }
 .badge-carousel-window {
-  overflow: hidden;
-  padding-block: 2px;
-  mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
+  overflow-x: clip;
+  overflow-y: visible;
 }
 .badge-carousel-track {
   display: flex;
