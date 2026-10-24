@@ -89,7 +89,7 @@ export function mountStep7Injection(controller, state, root) {
       controller,
       notify: (msg, type) => controller.showToast(msg, type),
       executePipeline: () => executePipeline(state, { nuvioClient: NuvioClient }),
-      recordCompletion: () => recordSuccessfulCompletion(),
+      recordCompletion: () => recordSuccessfulCompletion(state.manualCompletionId ||= crypto.randomUUID()),
       downloadCollectionsJson: col => downloadCollectionsJson(col),
       downloadAioConfigJson: meta => downloadAioConfigJson(meta),
     }),

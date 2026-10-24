@@ -140,7 +140,10 @@ export class AppController {
   showCompletionModal(options = {}) {
     showCompletionModal(document, {
       ...options,
-      onRecordCompletion: () => recordSuccessfulCompletion().catch(() => {}),
+      onRecordCompletion: () => {
+        state.manualCompletionId ||= crypto.randomUUID();
+        return recordSuccessfulCompletion(state.manualCompletionId).catch(() => {});
+      },
     });
   }
 

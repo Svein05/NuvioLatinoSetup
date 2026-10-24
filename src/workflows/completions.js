@@ -15,31 +15,28 @@ async function loadCount(context, options) {
       reportWarning('No se pudo consultar un proveedor del contador.');
     }
   }
-  return { ...store.snapshot(), warning: 'Conteo sin confirmar: se muestra caché o una estimación.' };
+  return { ...store.snapshot(), warning: 'No se pudo confirmar el contador; se conserva el último dato disponible.' };
 }
 
-async function recordCount(context) {
+async function recordCount(context, completionId) {
   const { endpoints, incrementCount, store } = context;
-  if (context.confirmed || store.recorded()) return { ...store.snapshot(), status: 'duplicate' };
-  if (context.uncertain || store.pending()) return {
+  if (store.recorded(completionId)) return { ...store.snapshot(), status: 'duplicate' };
+  if (context.uncertain.has(completionId)) return {
     ...store.snapshot(), status: 'unknown', warning: 'Hay un incremento pendiente de confirmación; no se repetirá automáticamente.',
   };
   const endpoint = endpoints.find(item => item.hit);
   if (!endpoint) return {
     ...store.snapshot(), status: 'unavailable', warning: 'El registro remoto del contador no está configurado.',
   };
-  store.begin();
   try {
-    const count = await incrementCount(endpoint.hit);
-    context.confirmed = true;
-    store.confirm(count);
-    return { count, source: 'network', status: 'confirmed' };
+    const result = await incrementCount(endpoint.hit, completionId);
+    store.confirm(result.value, completionId);
+    return { count: result.value, source: 'network', status: result.status };
   } catch (error) {
-    context.uncertain = error.outcome === 'unknown';
-    if (!context.uncertain) store.release();
+    if (error.outcome === 'unknown') context.uncertain.add(completionId);
     return {
-      ...store.snapshot(), status: context.uncertain ? 'unknown' : 'failed',
-      warning: context.uncertain ? 'No se pudo confirmar el incremento remoto; no se repetirá automáticamente.'
+      ...store.snapshot(), status: context.uncertain.has(completionId) ? 'unknown' : 'failed',
+      warning: context.uncertain.has(completionId) ? 'No se pudo confirmar el incremento remoto; no se repetirá automáticamente.'
         : 'No se pudo registrar el incremento remoto del contador.',
     };
   }
@@ -48,17 +45,21 @@ async function recordCount(context) {
 /** Read failover is safe; a mutation uses one provider and never invents a confirmed total. */
 export function createCompletions({ endpoints, readCount, incrementCount, store, reportWarning = console.warn }) {
   const context = { endpoints, readCount, incrementCount, store, reportWarning,
-    confirmed: false, uncertain: false, revision: 0, loadId: 0 };
-  let pending;
+    uncertain: new Set(), revision: 0, loadId: 0 };
+  const pending = new Map();
   return {
     snapshot: () => store.snapshot(),
     refresh: (options = {}) => loadCount(context, options),
-    record() {
-      if (!pending) {
-        context.revision++;
-        pending = recordCount(context).finally(() => { pending = null; });
+    record(completionId) {
+      if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(completionId || '')) {
+        return Promise.resolve({ ...store.snapshot(), status: 'unavailable' });
       }
-      return pending;
+      if (!pending.has(completionId)) {
+        context.revision++;
+        const task = recordCount(context, completionId).finally(() => pending.delete(completionId));
+        pending.set(completionId, task);
+      }
+      return pending.get(completionId);
     },
   };
 }

@@ -1,3 +1,4 @@
+import { requireMetricsScope } from '../../shared/storage/metrics-scope.js';
 import { HttpError, requestJson } from '../../shared/http/request-json.js';
 
 async function readSummary(root, fetchImpl, { limit, signal }) {
@@ -5,6 +6,7 @@ async function readSummary(root, fetchImpl, { limit, signal }) {
   if (!Number.isInteger(limit) || limit < 1 || limit > 32) throw new Error('Límite de ranking inválido.');
   const data = await requestJson(`${root}/api/avatars/ranking?limit=${limit}`, { fetchImpl, signal,
     credentials: 'omit', redirect: 'error', timeoutMs: 2500 });
+  requireMetricsScope(data);
   if (!Array.isArray(data?.items) || data.items.some(item => typeof item?.key !== 'string'
     || !Number.isSafeInteger(item.score) || item.score < 0)) throw new HttpError('Ranking inválido.');
   const totalUsage = data.totalUsage ?? null;
