@@ -32,7 +32,11 @@ export function chapterTimeline(progress) {
 }
 
 export function accountProgress(rectangle, viewportHeight) {
-  const timeline = chapterTimeline(pinnedProgress(rectangle, viewportHeight));
+  return accountTimeline(pinnedProgress(rectangle, viewportHeight));
+}
+
+export function accountTimeline(progress) {
+  const timeline = chapterTimeline(progress);
   return {
     activity: timeline.reveal,
     avatar: timeline.detail,

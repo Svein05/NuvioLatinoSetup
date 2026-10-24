@@ -34,18 +34,26 @@ test('activity posters have minimal rounding and inset finite progress tracks at
   }
 });
 
-test('fast wheel input is paced only inside the story and keyboard/reduced-motion remain native', async ({ page }) => {
+test('wheel remains native while scene animation catches up slowly to its target', async ({ page }) => {
   await openLanding(page);
   await page.mouse.move(700, 400);
   await page.mouse.wheel(0, 300);
   await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(200);
   await revealChapter(page, 'profile', .1);
+  expect(await page.evaluate(() => {
+    const event = new WheelEvent('wheel', { deltaY: 2400, bubbles: true, cancelable: true });
+    document.body.dispatchEvent(event);
+    return event.defaultPrevented;
+  })).toBe(false);
   const start = await page.evaluate(() => scrollY);
-  await page.mouse.wheel(0, 2400);
-  await page.waitForTimeout(200);
-  const paced = await page.evaluate(() => scrollY);
-  expect(paced - start).toBeGreaterThan(0);
-  expect(paced - start).toBeLessThan(100);
+  await page.mouse.wheel(0, 700);
+  await expect.poll(() => page.evaluate(value => scrollY - value, start)).toBeGreaterThan(500);
+  await revealChapter(page, 'style', .05);
+  await revealChapter(page, 'style', .6);
+  const position = await page.evaluate(() => scrollY);
+  expect(await page.locator('[data-scene="style"]').evaluate(scene => Number(scene.style.getPropertyValue('--poster-turn')))).toBeLessThan(1);
+  await expect(page.locator('[data-scene="style"]')).toHaveCSS('--poster-turn', '1.0000');
+  expect(await page.evaluate(() => scrollY)).toBe(position);
   await page.keyboard.press('End');
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollHeight - innerHeight - scrollY)).toBeLessThan(2);
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -98,7 +106,7 @@ test('mobile surfaces avoid live backdrop blur and do not rewrite static scene c
   await page.waitForTimeout(150);
   const travel = await page.evaluate(() => scrollY);
   expect(travel - start).toBeGreaterThan(0);
-  expect(travel - start).toBeLessThan(120);
+  expect(travel - start).toBeGreaterThan(120);
   await page.locator('.preview-activity').scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('mobile-dpr3.png') });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

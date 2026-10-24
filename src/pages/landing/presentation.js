@@ -1,22 +1,25 @@
-import { accountProgress, chapterProgress, pinnedProgress } from './scene-progress.js';
+import { accountTimeline, chapterProgress, pinnedProgress } from './scene-progress.js';
 import { renderScene } from './render-scene.js';
+import { createScenePlayback } from './scene-playback.js';
 
-function renderChapter(story, chapters, viewportHeight) {
+function renderChapter({ story, chapters, viewportHeight, playback }) {
   const state = chapterProgress(chapters.map(chapter => chapter.getBoundingClientRect()), viewportHeight);
   story.dataset.activeChapter = chapters[state.index].dataset.chapter;
   chapters.forEach(chapter => {
     const rectangle = chapter.getBoundingClientRect();
-    const progress = story.classList.contains('is-enhanced') ? pinnedProgress(rectangle, viewportHeight) : 1;
+    const enhanced = story.classList.contains('is-enhanced');
+    const target = enhanced ? pinnedProgress(rectangle, viewportHeight) : 1;
     const scene = chapter.querySelector('[data-scene]');
     const bounds = scene.getBoundingClientRect();
-    renderScene(scene, chapter.dataset.chapter, progress, bounds.top < viewportHeight && bounds.bottom > 0);
+    const inView = bounds.top < viewportHeight && bounds.bottom > 0;
+    const progress = playback.value(scene, target, !enhanced || !inView || document.hidden);
+    renderScene(scene, chapter.dataset.chapter, progress, inView);
   });
 }
 
-function renderAccount(account, viewportHeight) {
-  const progress = account.classList.contains('is-enhanced')
-    ? accountProgress(account.getBoundingClientRect(), viewportHeight)
-    : { activity: 1, avatar: 1, change: 1 };
+function renderAccount({ account, viewportHeight, playback }) {
+  const target = pinnedProgress(account.getBoundingClientRect(), viewportHeight);
+  const progress = accountTimeline(playback.value(account, target, document.hidden));
   account.style.setProperty('--addon-order', progress.avatar.toFixed(4));
   account.style.setProperty('--addon-config', progress.change.toFixed(4));
   account.style.setProperty('--activity-reveal', progress.activity.toFixed(4));
@@ -33,12 +36,15 @@ export function initLandingPresentation(documentRoot = document) {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const desktop = window.matchMedia('(min-width: 1024px) and (min-height: 650px)');
   const visible = new Set([story, account]);
+  const playback = createScenePlayback();
   let frame = 0;
-  const update = () => {
+  const update = time => {
     frame = 0;
-    if (visible.has(story)) renderChapter(story, chapters, window.innerHeight);
+    playback.begin(time);
+    if (visible.has(story)) renderChapter({ story, chapters, viewportHeight: window.innerHeight, playback });
     account.classList.toggle('has-scene-motion', !reduced.matches && visible.has(account));
-    if (!reduced.matches && visible.has(account) && account.classList.contains('is-enhanced')) renderAccount(account, window.innerHeight);
+    if (!reduced.matches && visible.has(account) && account.classList.contains('is-enhanced')) renderAccount({ account, viewportHeight: window.innerHeight, playback });
+    if (playback.pending() && !documentRoot.hidden) schedule();
   };
   const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
   const visibility = () => {
