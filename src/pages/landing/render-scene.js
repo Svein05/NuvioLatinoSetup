@@ -14,6 +14,9 @@ export function renderScene(scene, name, progress, inView) {
   for (const [key, value] of Object.entries({ ...state.timeline, ...state.variables })) {
     scene.style.setProperty(`--${key}`, value.toFixed(4));
   }
+  if (name === 'style') {
+    scene.classList.toggle('is-badges-settled', state.variables['badges-show'] >= .9999);
+  }
   Object.assign(scene.dataset, state.attributes);
   if (name === 'profile') {
     const nameField = scene.querySelector('[data-profile-name]');

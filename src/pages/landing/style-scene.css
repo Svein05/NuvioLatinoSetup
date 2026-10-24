@@ -1,9 +1,26 @@
+.story-chapter[data-chapter="style"] .story-stage {
+  height: auto;
+  min-height: min(580px, calc(100svh - 170px));
+}
+.story-chapter[data-chapter="style"] .story-scenes {
+  flex: none;
+  min-height: inherit;
+}
+.story-scene[data-scene="style"] {
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.075fr);
+  align-items: center;
+  gap: 3%;
+  padding: 4%;
+  min-height: inherit;
+  overflow: visible;
+}
 .scene-poster {
-  position: absolute;
-  top: 8%;
-  left: 6%;
-  width: 40%;
-  height: 84%;
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 2/3;
   perspective: 1000px;
 }
 .poster-cube {
@@ -27,21 +44,16 @@
   display: none;
 }
 .scene-style-details {
-  position: absolute;
-  top: 10%;
-  bottom: 10%;
-  right: 5%;
-  width: 43%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  min-width: 0;
+  display: grid;
+  align-content: center;
   gap: 20px;
 }
 .scene-style-details > .scene-layer {
   position: relative;
   padding: 20px 16px;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 .scene-style-options h4 {
   margin-bottom: 18px;
@@ -76,15 +88,18 @@
 }
 .badge-carousel {
   display: grid;
-  gap: 10px;
-}
-.badge-carousel-window {
+  gap: 2px;
+  padding-block: 4px;
   overflow: hidden;
   mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
+}
+.badge-carousel-window {
+  overflow: visible;
 }
 .badge-carousel-track {
   display: flex;
   width: max-content;
+  padding-block: 4px;
   animation: badge-carousel 28s linear infinite;
   animation-play-state: paused;
 }
@@ -107,12 +122,15 @@
   padding: 5px 8px;
   height: 30px;
   flex-shrink: 0;
+  overflow: visible;
 }
 .catalog-badge img {
+  display: block;
   height: 16px;
   width: auto;
   max-width: 96px;
   object-fit: contain;
+  overflow: visible;
 }
 .is-enhanced .poster-cube {
   transform: translateY(-50%) translateZ(calc(var(--poster-depth,120px) * -1)) rotateY(calc(var(--poster-turn,1) * -90deg));
@@ -127,6 +145,9 @@
 .is-enhanced .scene-stream-card {
   opacity: var(--badges-show,1);
   transform: translateY(calc((1 - var(--badges-show,1)) * 12px));
+}
+.is-enhanced .is-badges-settled .scene-stream-card {
+  transform: none;
 }
 .has-scene-motion .is-in-view .badge-carousel-track {
   animation-play-state: running;
