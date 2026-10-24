@@ -85,11 +85,17 @@
 .is-enhanced .config-create-flash {
   opacity: calc(var(--config-flash,0) * .45);
 }
-.has-scene-motion .is-in-view[data-orbit-state="orbiting"] .config-orbit {
+.has-scene-motion [data-orbit-state="orbiting"] .config-orbit {
   animation: config-orbit-idle 36s linear infinite;
+  animation-play-state: paused;
 }
-.has-scene-motion .is-in-view[data-orbit-state="orbiting"] .config-orbit-node > span {
+.has-scene-motion [data-orbit-state="orbiting"] .config-orbit-node > span {
   animation: config-orbit-idle 36s linear infinite reverse;
+  animation-play-state: paused;
+}
+.has-scene-motion .is-in-view[data-orbit-state="orbiting"] .config-orbit,
+.has-scene-motion .is-in-view[data-orbit-state="orbiting"] .config-orbit-node > span {
+  animation-play-state: running;
 }
 .is-document-hidden .config-orbit, .is-document-hidden .config-orbit-node > span {
   animation-play-state: paused !important;

@@ -16,7 +16,10 @@ export function initPosterWall({ root, feed, storage }) {
   let resizeTimer;
   let width = window.innerWidth;
   const interior = root.dataset.posterTheme === 'interior';
-  const ready = () => root.classList.add('is-ready');
+  const ready = () => {
+    const images = [...root.querySelectorAll('.poster-wall-track img')];
+    if (images.length && images.every(image => image.complete && image.naturalWidth > 0)) root.classList.add('is-ready');
+  };
   const paint = () => {
     frame = 0;
     const progress = interior ? 0 : Math.min(1, window.scrollY / Math.max(600, window.innerHeight));

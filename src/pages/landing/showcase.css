@@ -105,6 +105,15 @@
   .story-stage { height: 470px; }
   [data-chapter="style"] .story-stage { height: 560px; }
 }
+@media (max-width: 1023px) {
+  .story-stage, .account-showcase-panels {
+    /* Avoid continuously re-rasterizing translucent surfaces over moving images. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(25,28,34,.66);
+  }
+  .config-create-flash { filter: none; }
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto !important; }
   .landing-story *, .landing-account * { transition: none !important; animation: none !important; }

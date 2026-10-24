@@ -6,12 +6,15 @@ import { loadAvatarsCatalog, resolveAvatarCdnUrl } from './avatar-catalog.js';
 import { loadBundledAvatars } from '../integrations/github/bundled-avatars.js';
 import { initAvatarCarousel } from '../pages/landing/avatar-carousel.js';
 import { initLandingPresentation } from '../pages/landing/presentation.js';
+import { initPresentationScroll } from '../pages/landing/scroll-pacing.js';
 import { whenDocumentReady } from '../shared/ui/when-document-ready.js';
 
 let dispose;
 function initialize() {
   dispose?.();
   const presentation = initLandingPresentation();
+  const pacing = initPresentationScroll({ zones: [...document.querySelectorAll('.landing-story, .landing-account')],
+    reduced: window.matchMedia('(prefers-reduced-motion: reduce)') });
   const request = new AbortController();
   let carousel = () => {};
   const ranking = fetchTopAvatarKeys(32);
@@ -25,7 +28,7 @@ function initialize() {
       carousel = initAvatarCarousel(rankedCarouselPaths(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)), entries));
     }).catch(() => {});
   });
-  dispose = () => { request.abort(); presentation(); carousel(); };
+  dispose = () => { request.abort(); presentation(); pacing(); carousel(); };
 }
 function suspend() { dispose?.(); }
 function restore(event) { if (event.persisted) initialize(); }

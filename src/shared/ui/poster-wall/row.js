@@ -1,5 +1,5 @@
 export function createPosterRow({ row, queue, reverse, onReady }) {
-  const width = Math.ceil(window.innerHeight / 3);
+  const width = Math.ceil(row.clientHeight * 2 / 3);
   const count = Math.ceil(window.innerWidth / width) + 3;
   const track = row.querySelector('.poster-wall-track') || document.createElement('div');
   track.className = 'poster-wall-track';

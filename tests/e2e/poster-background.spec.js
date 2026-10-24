@@ -124,3 +124,37 @@ test('navigation restores the same images and animation phase before deferred ap
   expect(reads()).toBe(1);
   await expect(page.locator('.poster-wall-fallback')).toHaveCSS('opacity', '0');
 });
+
+test('initial poster wall does not reveal a partly loaded mosaic on slow image responses', async ({ page }) => {
+  await prepare(page);
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('https://image.tmdb.org/**/synthetic_8.jpg', async route => {
+    await gate;
+    await route.fulfill({ path: 'assets/preview/landing/inception.jpg' });
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('.poster-wall-track')).toHaveCount(2);
+  await expect.poll(() => page.locator('.poster-wall-track img').evaluateAll(images =>
+    images.filter(image => image.complete && image.naturalWidth > 0).length)).toBeGreaterThan(1);
+  await expect(page.locator('[data-poster-wall]')).not.toHaveClass(/is-ready/);
+  release();
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+});
+
+test('mobile browser toolbar height changes preserve cached poster composition between pages', async ({ page }) => {
+  await prepare(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.addInitScript(() => {
+    if (location.pathname !== '/') Object.defineProperty(window, 'innerHeight', { get: () => 720 });
+  });
+  await page.goto('/');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  const before = await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src));
+  await page.goto('/account/');
+  await expect(page.locator('[data-poster-wall]')).toHaveAttribute('data-poster-restored', 'true');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  expect(await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src))).toEqual(before);
+  expect(await page.locator('.poster-wall-track').first().evaluate(track => parseFloat(track.style.getPropertyValue('--poster-width')))).toBe(282);
+});

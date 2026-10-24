@@ -38,7 +38,7 @@ export function initLandingPresentation(documentRoot = document) {
     frame = 0;
     if (visible.has(story)) renderChapter(story, chapters, window.innerHeight);
     account.classList.toggle('has-scene-motion', !reduced.matches && visible.has(account));
-    if (!reduced.matches && visible.has(account)) renderAccount(account, window.innerHeight);
+    if (!reduced.matches && visible.has(account) && account.classList.contains('is-enhanced')) renderAccount(account, window.innerHeight);
   };
   const schedule = () => { if (!frame) frame = window.requestAnimationFrame(update); };
   const visibility = () => {

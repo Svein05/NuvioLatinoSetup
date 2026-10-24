@@ -1,7 +1,12 @@
 import { sceneState } from './scene-state.js';
 
+const rendered = new WeakMap();
+
 /** Render decorative scene state only. Never mount functional application controllers. */
 export function renderScene(scene, name, progress, inView) {
+  const signature = [name, progress.toFixed(4), inView, window.innerWidth, window.innerHeight].join(':');
+  if (rendered.get(scene) === signature) return;
+  rendered.set(scene, signature);
   const state = sceneState(name, progress);
   scene.classList.add('is-active');
   scene.classList.toggle('is-in-view', inView);
@@ -11,7 +16,8 @@ export function renderScene(scene, name, progress, inView) {
   }
   Object.assign(scene.dataset, state.attributes);
   if (name === 'profile') {
-    scene.querySelector('[data-profile-name]').textContent = state.name;
+    const nameField = scene.querySelector('[data-profile-name]');
+    if (nameField.textContent !== state.name) nameField.textContent = state.name;
     scene.querySelectorAll('[data-avatar-option]').forEach((avatar, index) => {
       avatar.classList.toggle('is-chosen', index === state.avatar);
     });
