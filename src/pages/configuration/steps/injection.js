@@ -147,7 +147,6 @@ export function mountInjectionStep({ state, actions, root = document } = {}) {
       if (isCompleted) {
         renderExecutionSuccess(root, profileName);
         actions.notify?.('🎉 ¡Aprovisionamiento completado con éxito en Nuvio!', 'success');
-        setTimeout(() => actions.showCompletionModal?.({ isManual: false, profileName }), 800);
       } else {
         renderExecutionError(root, error || 'Ocurrió un error inesperado al procesar la inyección.');
         actions.notify?.('Ocurrió un error durante la inyección. Revisa el detalle.', 'error');

@@ -13,8 +13,7 @@ import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from '../integrations/nuvio/client.js';
 import { createStreamingConfiguration } from './streaming-configuration.js';
 import { setupStepperNavigation } from '../pages/configuration/stepper.js';
-import { showCompletionModal } from '../pages/configuration/completion-modal.js';
-import { initCompletionsCounterUI, recordSuccessfulCompletion } from './completions.js';
+import { initCompletionsCounterUI } from './completions.js';
 import {
   loadAvatarsCatalog,
   filterAvatars,
@@ -135,16 +134,6 @@ export class AppController {
 
   updateManualModeButtons() {
     this.injectionStep?.updateUI();
-  }
-
-  showCompletionModal(options = {}) {
-    showCompletionModal(document, {
-      ...options,
-      onRecordCompletion: () => {
-        state.manualCompletionId ||= crypto.randomUUID();
-        return recordSuccessfulCompletion(state.manualCompletionId).catch(() => {});
-      },
-    });
   }
 
   setupStep1Events() {

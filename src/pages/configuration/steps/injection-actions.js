@@ -12,10 +12,11 @@ async function copyBadgeUrl(state, notify, copyText) {
   }
 }
 
-function checkManualCompletion(state, showCompletionModal) {
+function checkManualCompletion(state, { recordCompletion, notify }) {
   if (state.isManualMode && state.manualCopiedCollections && state.manualCopiedAio && !state.manualCompletionShown) {
     state.manualCompletionShown = true;
-    setTimeout(() => showCompletionModal?.({ isManual: true }), 600);
+    notify?.('¡Archivos de configuración listos!', 'success');
+    void recordCompletion?.().catch(() => {});
   }
 }
 
@@ -47,7 +48,6 @@ export function createInjectionStepActions({
     recordCompletion: () => recordCompletion?.().catch(() => {}),
     goToStep: stepNum => controller.stepper?.goToStep(stepNum),
     executePipeline: () => executePipeline?.(),
-    showCompletionModal: opt => controller.showCompletionModal?.(opt),
-    checkCompletion: () => checkManualCompletion(state, opt => controller.showCompletionModal?.(opt)),
+    checkCompletion: () => checkManualCompletion(state, { recordCompletion, notify }),
   };
 }
