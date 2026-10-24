@@ -35,3 +35,23 @@ test('blocked local and session storage leaves the counter and mobile menu usabl
   await page.keyboard.press('Escape');
   await expect(page.locator('#mobileHeaderDropdown')).not.toHaveClass(/is-open/);
 });
+
+test('reads the Worker total in both landing metrics and header with one shared request', async ({ page }) => {
+  await isolateExternalServices(page);
+  let reads = 0;
+  await page.route('**/api/completions', route => {
+    expect(route.request().method()).toBe('GET');
+    reads++;
+    return route.fulfill({ contentType: 'application/json', body: '{"value":55}' });
+  });
+  await page.goto('/');
+  const pill = page.locator('.completions-counter-pill').first();
+  await expect(pill).toHaveAttribute('data-source', 'network');
+  await expect.poll(() => pill.locator('.completions-count-compact .odometer-digit-slot')
+    .evaluateAll(slots => slots.map(slot => slot.dataset.digit).join(''))).toBe('55');
+  const metric = page.locator('[data-metric="setups"]');
+  await metric.scrollIntoViewIfNeeded();
+  await expect(metric).toHaveAttribute('data-source', 'network');
+  await expect(metric.locator('[data-metric-accessible]')).toContainText('55');
+  expect(reads).toBe(1);
+});
