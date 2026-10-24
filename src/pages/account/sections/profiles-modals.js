@@ -1,3 +1,5 @@
+import { recordCreatedProfileAvatar } from '../../../workflows/record-created-profile-avatar.js';
+
 export function openEditProfileModal({ root = document, state, profileId }) {
   const modal = root.getElementById?.('modalEditProfile');
   const targetIdInput = root.getElementById?.('editProfileTargetId');
@@ -62,10 +64,12 @@ export function setupProfileModals({
   showToast,
   refreshProfiles,
   selectProfile,
+  recordAvatarUsage,
+  onAvatarRecorded,
 }) {
   bindEditForm({ root, state, config, client, showToast, refreshProfiles });
   bindDeleteButton({ root, state, config, client, showToast, refreshProfiles, selectProfile });
-  bindCreateForm({ root, state, config, client, showToast, refreshProfiles, selectProfile });
+  bindCreateForm({ root, state, config, client, showToast, refreshProfiles, selectProfile, recordAvatarUsage, onAvatarRecorded });
 }
 
 function bindEditForm({ root, state, config, client, showToast, refreshProfiles }) {
@@ -143,7 +147,7 @@ function bindDeleteButton({ root, state, config, client, showToast, refreshProfi
   });
 }
 
-function bindCreateForm({ root, state, config, client, showToast, refreshProfiles, selectProfile }) {
+function bindCreateForm({ root, state, config, client, showToast, refreshProfiles, selectProfile, recordAvatarUsage, onAvatarRecorded }) {
   const formCreate = root.getElementById?.('formCreateProfile');
   root.getElementById?.('btnCloseCreateProfileModal')?.addEventListener('click', () => closeCreateProfileModal(root));
   root.getElementById?.('btnCancelCreateProfile')?.addEventListener('click', () => closeCreateProfileModal(root));
@@ -167,12 +171,14 @@ function bindCreateForm({ root, state, config, client, showToast, refreshProfile
       btnSubmit.disabled = true;
       btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Creando...';
     }
+    const accessToken = state.session?.accessToken;
+    const avatarUrl = root.getElementById('createProfileAvatarPreview')?.dataset?.selectedUrl;
     try {
       const created = await client.createProfile({
         apiUrl: config.NUVIO_API_URL, apikey: config.NUVIO_PUBLIC_ANON_KEY,
-        accessToken: state.session.accessToken, userId: state.session.userId, name,
-        avatarUrl: root.getElementById('createProfileAvatarPreview')?.dataset?.selectedUrl,
+        accessToken, userId: state.session.userId, name, avatarUrl,
       });
+      recordCreatedProfileAvatar({ profile: created, avatarUrl, accessToken, recordUsage: recordAvatarUsage, onRecorded: onAvatarRecorded });
       showToast?.('✓ Perfil creado con éxito.', 'success');
       closeCreateProfileModal(root);
       await refreshProfiles?.();

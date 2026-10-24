@@ -48,6 +48,19 @@
   display: none !important;
 }
 
+.mini-folder-actions { gap: 6px; }
+.mini-folder-actions .lat-capsule-btn {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 18px;
+  gap: 6px;
+}
+.draggable-card:focus-within .card-hover-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
   .card-hover-overlay {
     display: flex !important;

@@ -1,3 +1,4 @@
+import { scopedMetricsStorage } from '../shared/storage/metrics-scope.js';
 import { CONFIG } from './config.js';
 import { createCompletionStore, mountLiveCounter, createCompletionIdentity } from '../features/completions/index.js';
 import { createCompletions } from '../workflows/completions.js';
@@ -6,12 +7,12 @@ import { initMobileHeaderMenu } from '../shared/ui/navigation/menu.js';
 import { initNavOverflowMonitor } from '../shared/ui/navigation/overflow.js';
 
 // Access storage lazily: privacy settings may throw from the global property's getter.
-const storage = name => ({
+const storage = name => scopedMetricsStorage({
   getItem: key => (typeof window !== 'undefined' && window[name] ? window[name].getItem(key) : null),
   setItem: (key, value) => (typeof window !== 'undefined' && window[name] ? window[name].setItem(key, value) : undefined),
   removeItem: key => (typeof window !== 'undefined' && window[name] ? window[name].removeItem(key) : undefined),
 });
-const store = createCompletionStore({ local: storage('localStorage'), session: storage('sessionStorage') });
+const store = createCompletionStore({ local: storage('localStorage') });
 const transport = createWorkerCounter(CONFIG.WORKER_API_URL, {
   clientId: createCompletionIdentity({ storage: storage('localStorage') }),
 });
@@ -46,9 +47,8 @@ export function initCompletionsCounterUI() {
   return mounted;
 }
 
-export function recordSuccessfulCompletion() {
-  if (window.location.origin !== 'https://guia.lat-add.com') return Promise.resolve({ ...counter.snapshot(), status: 'unavailable' });
-  return initCompletionsCounterUI().record();
+export function recordSuccessfulCompletion(completionId) {
+  return initCompletionsCounterUI().record(completionId);
 }
 
 if (typeof window !== 'undefined') {

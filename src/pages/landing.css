@@ -59,16 +59,3 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-card);
 }
-
-.faq-details summary {
-  cursor: pointer;
-  list-style: none;
-}
-
-.faq-details summary::-webkit-details-marker {
-  display: none;
-}
-
-.faq-details[open] summary .faq-icon {
-  transform: rotate(180deg);
-}

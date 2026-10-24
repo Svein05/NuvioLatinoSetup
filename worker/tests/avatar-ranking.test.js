@@ -24,7 +24,7 @@ it('reads ranked pairs without requiring an account and never returns Redis secr
   const fetchImpl = backend({ result: [key, '4'] });
   const response = await createWorker({ fetchImpl }).fetch(new Request('https://worker.invalid/api/avatars/ranking?limit=8'), env);
   expect(response.status).toBe(200);
-  expect(await response.json()).toEqual({ items: [{ key, score: 4 }], totalUsage: 4 });
+  expect(await response.json()).toEqual({ items: [{ key, score: 4 }], totalUsage: 4, environment: 'production' });
   const [url, init] = fetchImpl.mock.calls[0];
   expect(url).toBe('https://synthetic.upstash.io/');
   expect(init.headers.Authorization).toBe('Bearer synthetic-redis-secret');
@@ -135,7 +135,7 @@ it('sums every stored avatar before limiting the public top, without mutating Re
 
 it('reports confirmed zero for an empty ranking and rejects unsafe aggregate totals', async () => {
   const request = new Request('https://worker.invalid/api/avatars/ranking');
-  expect(await (await createWorker({ fetchImpl: backend({ result: [] }) }).fetch(request, env)).json()).toEqual({ items: [], totalUsage: 0 });
+  expect(await (await createWorker({ fetchImpl: backend({ result: [] }) }).fetch(request, env)).json()).toEqual({ items: [], totalUsage: 0, environment: 'production' });
   const result = [key, String(Number.MAX_SAFE_INTEGER), 'IconsStyle/Other.webp', '1'];
   expect((await createWorker({ fetchImpl: backend({ result }) }).fetch(request, env)).status).toBe(502);
 });
@@ -147,9 +147,25 @@ it.each([null, '', true])('does not turn an invalid score into a confirmed zero:
 it('blocks testing avatar increments and validates production sessions without following redirects', async () => {
   const fetchImpl = backend();
   const testing = vote();
-  testing.headers.set('Origin', 'https://testing-latinosetup.pages.dev');
+  testing.headers.set('Origin', 'https://unknown.invalid');
   expect((await createWorker({ fetchImpl }).fetch(testing, env)).status).toBe(403);
   expect(fetchImpl).not.toHaveBeenCalled();
   await createWorker({ fetchImpl }).fetch(vote(), env);
   expect(fetchImpl.mock.calls[0][1].redirect).toBe('manual');
+});
+
+it('isolates testing avatar reads, authenticated writes and deduplication keys', async () => {
+  const origin = 'http://localhost:5173';
+  const fetchImpl = backend({ result: [key, '4'] });
+  const worker = createWorker({ fetchImpl });
+  const response = await worker.fetch(new Request('https://worker.invalid/api/avatars/ranking', { headers: { Origin: origin } }), env);
+  expect(await response.json()).toEqual({ items: [{ key, score: 4 }], totalUsage: 4, environment: 'testing' });
+  expect(JSON.parse(fetchImpl.mock.calls[0][1].body)[1]).toBe('avatar_ranks:testing');
+  const writing = backend();
+  const req = vote();
+  req.headers.set('Origin', origin);
+  expect((await createWorker({ fetchImpl: writing }).fetch(req, env)).status).toBe(200);
+  const command = JSON.parse(writing.mock.calls[1][1].body);
+  expect(command.slice(3, 6).every(value => value.endsWith(':testing'))).toBe(true);
+  expect(writing.mock.calls[0][0]).toBe('https://api.nuvio.tv/auth/v1/user');
 });

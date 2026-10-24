@@ -13,8 +13,8 @@ import { MiniNuvio } from './mini-nuvio.js';
 import { NuvioClient } from '../integrations/nuvio/client.js';
 import { createStreamingConfiguration } from './streaming-configuration.js';
 import { setupStepperNavigation } from '../pages/configuration/stepper.js';
-import { showCompletionModal } from '../pages/configuration/completion-modal.js';
-import { initCompletionsCounterUI, recordSuccessfulCompletion } from './completions.js';
+import { initCompletionsCounterUI } from './completions.js';
+import { recordAvatarUsage } from './avatar-ranking.js';
 import {
   loadAvatarsCatalog,
   filterAvatars,
@@ -137,13 +137,6 @@ export class AppController {
     this.injectionStep?.updateUI();
   }
 
-  showCompletionModal(options = {}) {
-    showCompletionModal(document, {
-      ...options,
-      onRecordCompletion: () => recordSuccessfulCompletion().catch(() => {}),
-    });
-  }
-
   setupStep1Events() {
     this.disposeAuthStep?.();
     this.disposeAuthStep = mountAuthStep(createAuthStepMountOptions({
@@ -176,6 +169,7 @@ export class AppController {
         saveSession: () => this.saveSession(),
         updateUI: () => this.updateUI(),
         avatarCatalog: { loadAvatarsCatalog, filterAvatars, getFranchisesSummary, resolveAvatarCdnUrl },
+        recordAvatarUsage,
       }),
     });
     this.disposeProfilesStep = () => this.profilesStep.dispose();

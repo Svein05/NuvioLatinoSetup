@@ -50,6 +50,7 @@ export class WizardState extends WizardCollectionsState {
     this.apiKeysValidated = false;
     this.apiKeysValidationStatus = {};
     this.isManualMode = false;
+    this.manualCompletionId = null;
     this.manualCopiedCollections = false;
     this.manualCopiedAio = false;
     this.rawMetadataTemplate = null;
@@ -80,6 +81,7 @@ export class WizardState extends WizardCollectionsState {
     this.isManualMode = true;
     this.selectedProfileId = 'manual-profile';
     this.selectedProfileName = 'Perfil Manual';
+    this.manualCompletionId = null;
     this.manualCopiedCollections = false;
     this.manualCopiedAio = false;
     this.manualCompletionShown = false;

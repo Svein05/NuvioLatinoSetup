@@ -16,5 +16,5 @@ it.each(['0', '151', '-1', '151garbage', '', '1.5'])('validates a cached count: 
   const local = { getItem: () => raw };
   const store = createCompletionStore({ local, session: local, reportWarning: vi.fn() });
   const valid = raw === '0' || raw === '151';
-  expect(store.snapshot()).toEqual(valid ? { count: Number(raw), source: 'cache' } : { count: 150, source: 'estimate' });
+  expect(store.snapshot()).toEqual(valid ? { count: Number(raw), source: 'cache' } : { count: null, source: 'unavailable' });
 });

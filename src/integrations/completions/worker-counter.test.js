@@ -6,11 +6,11 @@ it('reads zero and records via POST without exposing Redis credentials', async (
     .mockResolvedValueOnce(Response.json({ value: 56, status: 'recorded' }));
   const client = createWorkerCounter('https://worker.invalid', { fetchImpl, clientId: () => 'synthetic-id' });
   expect(await client.read()).toBe(0);
-  expect(await client.increment()).toBe(56);
+  expect(await client.increment(undefined, 'execution-id')).toEqual({ value: 56, status: 'recorded' });
   expect(fetchImpl.mock.calls[0][0]).toBe('https://worker.invalid/api/completions');
   const init = fetchImpl.mock.calls[1][1];
   expect(init.method).toBe('POST');
-  expect(JSON.parse(init.body)).toEqual({ clientId: 'synthetic-id' });
+  expect(JSON.parse(init.body)).toEqual({ clientId: 'synthetic-id', completionId: 'execution-id' });
   expect(init.credentials).toBe('omit');
   expect(init.headers).not.toHaveProperty('Authorization');
 });

@@ -38,6 +38,7 @@ function bindPasswordControls({ lifetime, root, state, onSync, notify }) {
 
 function bindManualCopyActions({ lifetime, root, state, actions }) {
   lifetime.on(root.querySelector?.('#btnCopyCollectionsJson'), 'click', async () => {
+    state.manualCompletionId ||= crypto.randomUUID();
     try {
       await actions.copyText(JSON.stringify(state.getSynchronizedNuvioCollections(), null, 2));
       state.manualCopiedCollections = true;
@@ -52,6 +53,7 @@ function bindManualCopyActions({ lifetime, root, state, actions }) {
       root.querySelector?.('#aioPassword')?.focus();
       return;
     }
+    state.manualCompletionId ||= crypto.randomUUID();
     try {
       await actions.copyText(JSON.stringify(state.getSynchronizedMetadataPayload(), null, 2));
       state.manualCopiedAio = true;
@@ -67,12 +69,14 @@ function bindManualCopyActions({ lifetime, root, state, actions }) {
 
 function bindManualDownloadActions({ lifetime, root, state, actions }) {
   lifetime.on(root.querySelector?.('#btnDownloadCollections'), 'click', () => {
+    state.manualCompletionId ||= crypto.randomUUID();
     actions.downloadCollectionsJson?.(state.getSynchronizedNuvioCollections());
     state.manualCopiedCollections = true;
     actions.checkCompletion?.();
   });
 
   lifetime.on(root.querySelector?.('#btnDownloadAioConfig'), 'click', () => {
+    state.manualCompletionId ||= crypto.randomUUID();
     if (state.isManualMode && (!state.aiometadata?.password || state.aiometadata.password.length < 6)) {
       actions.notify?.('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
       root.querySelector?.('#aioPassword')?.focus();
@@ -143,7 +147,6 @@ export function mountInjectionStep({ state, actions, root = document } = {}) {
       if (isCompleted) {
         renderExecutionSuccess(root, profileName);
         actions.notify?.('🎉 ¡Aprovisionamiento completado con éxito en Nuvio!', 'success');
-        setTimeout(() => actions.showCompletionModal?.({ isManual: false, profileName }), 800);
       } else {
         renderExecutionError(root, error || 'Ocurrió un error inesperado al procesar la inyección.');
         actions.notify?.('Ocurrió un error durante la inyección. Revisa el detalle.', 'error');

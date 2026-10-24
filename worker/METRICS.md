@@ -1,28 +1,37 @@
-# Production metrics
+# Metrics environments and completion events
 
-The browser uses `nuvio-proxy` for both completion counts and avatar ranking. Redis credentials belong only in Worker secrets `AVATAR_REDIS_URL` and `AVATAR_REDIS_TOKEN`. No Redis or legacy counter environment variables are consumed by the frontend build or Pages workflow.
+The browser reads and writes metrics through nuvio-proxy. Redis credentials remain exclusively in AVATAR_REDIS_URL and AVATAR_REDIS_TOKEN Worker secrets. No Redis credentials or legacy counter URLs are injected into the frontend build.
 
-## Completion migration
+## Environment routing
 
-`GET /api/completions` returns `{ value }`. It reads `nuvio:completions:production`; an absent key means the operator-confirmed migration baseline of **55**, not an outage fallback. A failed Redis request fails the endpoint. Existing values, including zero, are preserved.
+The Worker derives scope from Origin, never from a client-selected body field:
 
-`POST /api/completions` accepts only `{ clientId }`, a browser-generated UUID v4. One atomic Lua command initializes the key with `SET NX 55`, deduplicates the hashed network/browser identity for 24 hours, caps each hashed network at ten accepted completions per UTC day, and increments the total. An existing total is never reset. Replies contain `{ value, status: "recorded" | "duplicate" }`; rate limits return 429. Network-ambiguous writes are never retried automatically.
+- https://guia.lat-add.com: production.
+- https://testing-latinosetup.pages.dev and HTTP localhost/127.0.0.1 (any port): shared testing.
+- Other origins may read public production totals; their writes are rejected.
 
-Both manual and automatic wizard completion paths use this endpoint after their existing success conditions. A visit, metric read or scene animation never increments it. The server does not verify that an anonymous visitor actually completed a manual export: these are abuse-limited usage statistics, not audited transactions. Origin filtering isolates normal browsers; it is not authentication and can be forged by a custom client.
+Responses for metric routes use Vary: Origin and Cache-Control: no-store. Reads identify their environment. Frontend caches are scoped and versioned, and testing clients reject older unscoped production responses instead of showing real data as test data. Production keys and historical totals are preserved. Testing starts at zero on confirmed absent keys; an outage is never treated as zero.
 
-## Avatar usage
+Completion keys: nuvio:completions:production and nuvio:completions:testing. The confirmed production migration baseline is 55 only when its key is absent. Avatar production keeps avatar_ranks; testing uses avatar_ranks:testing, including separate deduplication and rate-limit keys. Avatar writes still require a verified Nuvio session.
 
-Existing `GET /api/avatars/ranking` returns `{ items, totalUsage }`. The total sums every valid stored score before limiting the displayed ranking. Existing `avatar_ranks` is preserved; no copying, reseeding or clearing is needed when the configured Upstash database is the same.
+## Completion contract
 
-`POST /api/avatars/usage` remains authenticated against Nuvio, using the Worker's public `NUVIO_PUBLIC_ANON_KEY` binding and the caller's access token. Atomic account/avatar deduplication and daily limits remain unchanged. The public key is not a secret; Redis credentials never go to the browser. Nuvio authentication uses manual redirects, rejecting redirect responses instead of forwarding credentials.
+GET /api/completions returns { value, environment }.
 
-Both increment endpoints accept the production browser origin `https://guia.lat-add.com` only. Local development and Pages testing may read production totals but cannot increment them through normal browser requests. Add a separately namespaced counter if write-enabled testing is needed; do not allow testing origins onto production counters.
+POST /api/completions accepts { clientId, completionId }. Both are UUID v4 values. completionId identifies one execution, originates when the run begins, and must remain unchanged when that execution's registration is retried. The atomic Redis command initializes an absent counter without overwriting it, checks the scoped hashed completion ID, enforces ten accepted writes per hashed network per UTC day, and increments. Event IDs are retained permanently: one execution cannot be counted twice. No raw IP or client ID is stored in keys.
 
-## Operator cutover
+Replies contain { value, status: recorded | duplicate, environment }. An uncertain network result is not automatically retried. Registration failure does not turn an otherwise successful setup into a failure. The display uses confirmed server totals and never fabricates previous + 1.
 
-1. Review and deploy the Worker with `--keep-vars`, preserving all dashboard secrets, collaborator variables, KV and weekly poster schedule. Confirm read-only totals and configuration. No artificial production increment is required for verification.
-2. Publish the migrated website through the authorized Git Flow. Until the production website has changed, its old build still uses its old counter and Redis injection. If its completion total grows beyond 55 before cutover, reconcile the baseline before enabling the new website; do not overwrite an already active Redis total.
-3. Verify an actual user-confirmed successful setup/avatar save. Fixture tests do not verify private sessions or real devices.
-4. Remove obsolete GitHub secrets `COUNTER_PRIMARY_GET`, `COUNTER_PRIMARY_HIT`, `COUNTER_FALLBACK_GET`, `COUNTER_FALLBACK_HIT`, `COUNTER_API_URL`, `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` after confirming no remaining workflow consumes them. The old production branch included Redis credentials in its browser build: rotate that old token and update the Worker secret after cutover, without deleting the database or ranking. Removing a GitHub secret alone does not invalidate an already published token.
+For temporary backwards compatibility, requests containing only clientId retain legacy browser/network 24-hour deduplication. New executions use completionId and are not blocked by the old session-wide counter flags. Production legacy clients remain compatible while the frontend is rolled out.
 
-Worker publication, website integration/publication, secret removal and credential rotation are separate operations requiring applicable operator authorization.
+Completion counts are abuse-limited usage statistics, not audited proof of execution. Anonymous clients can forge Origin outside browsers; origin filtering provides browser-environment isolation, not authentication.
+
+## Presentation
+
+The green star follows a newly recorded completion only. It waits for progress to finish, travels to the visible counter, triggers a bounded green expansion, then updates the odometer. Duplicates synchronize without replaying the effect. Reduced motion, missing visible targets and cancellation settle confirmed data without a flight. Polling does not race presentation.
+
+## Rollout and review
+
+Worker changes require explicit deployment approval and --keep-vars. Website integration/publication requires its own Git Flow authorization. Until this Worker version is deployed, local/testing clients show unavailable/cache rather than accepting production replies. No production reset or test increment is required to deploy.
+
+Before production frontend cutover, reconcile any old setup increments after 55. After cutover, remove obsolete GitHub counter/Redis secrets only after confirming no consumers remain, and rotate the formerly browser-bundled Redis token without deleting its database. Removing GitHub secrets alone does not revoke published credentials.

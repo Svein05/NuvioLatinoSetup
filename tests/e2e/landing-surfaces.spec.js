@@ -91,7 +91,7 @@ test('landing carousel uses most-used avatars without recording usage', async ({
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
   });
   await page.route('**/api/avatars/ranking**', route => route.fulfill({
-    contentType: 'application/json', body: JSON.stringify({ items: [
+    contentType: 'application/json', body: JSON.stringify({ environment: 'testing', items: [
       { key: 'NetflixStyle/Show/B.webp', score: 20 }, { key: 'NetflixStyle/Show/A.webp', score: 10 },
     ] }),
   }));

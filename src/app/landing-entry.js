@@ -8,12 +8,14 @@ import { loadBundledAvatars } from '../integrations/github/bundled-avatars.js';
 import { initAvatarCarousel } from '../pages/landing/avatar-carousel.js';
 import { initLandingPresentation } from '../pages/landing/presentation.js';
 import { initLandingMetrics } from '../pages/landing/metrics.js';
+import { initLandingFaq } from '../pages/landing/faq.js';
 import { whenDocumentReady } from '../shared/ui/when-document-ready.js';
 
 let dispose;
 function initialize() {
   dispose?.();
   const presentation = initLandingPresentation();
+  const faq = initLandingFaq();
   const request = new AbortController();
   let carousel = () => {};
   const ranking = fetchAvatarRankingSummary(32, { signal: request.signal });
@@ -28,7 +30,7 @@ function initialize() {
       carousel = initAvatarCarousel(rankedCarouselPaths(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)), summary.items));
     }).catch(() => {});
   });
-  dispose = () => { request.abort(); presentation(); metrics(); carousel(); };
+  dispose = () => { request.abort(); presentation(); metrics(); carousel(); faq(); };
 }
 function suspend() { dispose?.(); }
 function restore(event) { if (event.persisted) initialize(); }

@@ -1,6 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { mountLiveCounter } from '../ui/live-counter.js';
 
+const createCelebration = () => ({ play: async commit => commit(), dispose() {} });
 const disposals = [];
 afterEach(() => { disposals.splice(0).forEach(dispose => dispose()); vi.useRealTimers(); });
 
@@ -11,12 +12,12 @@ function fixture() {
   const counter = {
     snapshot: () => ({ count: 150, source: 'cache' }),
     refresh: vi.fn().mockResolvedValue({ count: 151, source: 'network' }),
-    record: vi.fn().mockResolvedValue({ count: 152, source: 'network', status: 'confirmed' }),
+    record: vi.fn().mockResolvedValue({ count: 152, source: 'network', status: 'recorded' }),
   };
   const view = { render: vi.fn(), celebrate: vi.fn(), dispose: vi.fn() };
   const reportWarning = vi.fn();
   const mount = () => {
-    const instance = mountLiveCounter({ counter, createView: () => view, reportWarning }, root);
+    const instance = mountLiveCounter({ counter, createCelebration, createView: () => view, reportWarning }, root);
     disposals.push(instance.dispose);
     return instance;
   };
@@ -84,19 +85,39 @@ it('shows the increment celebration only after a confirmed write', async () => {
   const f = fixture();
   const instance = f.mount();
   await instance.record();
-  expect(f.view.celebrate).toHaveBeenCalledOnce();
-  expect(f.view.render).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'confirmed', count: 152 }), true);
+  expect(f.view.celebrate).not.toHaveBeenCalled();
+  expect(f.view.render).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'recorded', count: 152 }), true);
 });
 
 it('publishes initial, refresh and record results without creating another polling loop', async () => {
   const f = fixture();
   const onUpdate = vi.fn();
-  const instance = mountLiveCounter({ counter: f.counter, createView: () => f.view, onUpdate }, f.root);
+  const instance = mountLiveCounter({ counter: f.counter, createCelebration, createView: () => f.view, onUpdate }, f.root);
   disposals.push(instance.dispose);
   expect(onUpdate).toHaveBeenCalledWith({ count: 150, source: 'cache' });
   await vi.advanceTimersByTimeAsync(0);
   expect(onUpdate).toHaveBeenLastCalledWith({ count: 151, source: 'network' });
   await instance.record();
-  expect(onUpdate).toHaveBeenLastCalledWith({ count: 152, source: 'network', status: 'confirmed' });
+  expect(onUpdate).toHaveBeenLastCalledWith({ count: 152, source: 'network', status: 'recorded' });
   expect(f.counter.refresh).toHaveBeenCalledTimes(1);
+});
+
+it('defers the odometer until arrival, pauses polling and skips duplicate effects', async () => {
+  const f = fixture();
+  let arrive, finish;
+  const play = vi.fn(commit => new Promise(resolve => { arrive = commit; finish = resolve; }));
+  const instance = mountLiveCounter({ counter: f.counter, createView: () => f.view,
+    createCelebration: () => ({ play, dispose() {} }) }, f.root);
+  disposals.push(instance.dispose);
+  await vi.advanceTimersByTimeAsync(0);
+  const task = instance.record('first');
+  await vi.advanceTimersByTimeAsync(75000);
+  expect(play).toHaveBeenCalledOnce();
+  expect(f.counter.refresh).toHaveBeenCalledOnce();
+  expect(f.view.render).toHaveBeenLastCalledWith({ count: 151, source: 'network' }, true);
+  arrive(); finish(); await task;
+  expect(f.view.render).toHaveBeenLastCalledWith(expect.objectContaining({ count: 152 }), true);
+  f.counter.record.mockResolvedValueOnce({ count: 152, source: 'network', status: 'duplicate' });
+  await instance.record('duplicate');
+  expect(play).toHaveBeenCalledOnce();
 });

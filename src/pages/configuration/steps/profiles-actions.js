@@ -1,14 +1,17 @@
 import { isAioMetadataAddon } from '../../../features/addons/index.js';
+import { recordCreatedProfileAvatar } from '../../../workflows/record-created-profile-avatar.js';
 
-async function executeProfileCreation({ state, client, config, sync, name, avatarUrl }) {
+async function executeProfileCreation({ state, client, config, sync, name, avatarUrl, recordAvatarUsage }) {
+  const accessToken = state.nuvioAuth.accessToken;
   const newProfile = await client.createProfile({
     apiUrl: config.apiUrl,
     apikey: state.nuvioAuth.apikey || config.anonKey,
-    accessToken: state.nuvioAuth.accessToken,
+    accessToken,
     userId: state.nuvioAuth.userId,
     name,
     avatarUrl: avatarUrl || null,
   });
+  recordCreatedProfileAvatar({ profile: newProfile, avatarUrl, accessToken, recordUsage: recordAvatarUsage });
   state.newlyCreatedProfileIds.add(String(newProfile.id));
   state.profiles.push(newProfile);
   state.selectedProfileId = newProfile.id;
@@ -73,10 +76,11 @@ export function createProfilesStepActions({
   saveSession,
   updateUI,
   avatarCatalog,
+  recordAvatarUsage,
 }) {
   const sync = () => { saveSession?.(); updateUI?.(); };
   return {
-    createProfile: ({ name, avatarUrl }) => executeProfileCreation({ state, client, config, sync, name, avatarUrl }),
+    createProfile: ({ name, avatarUrl }) => executeProfileCreation({ state, client, config, sync, name, avatarUrl, recordAvatarUsage }),
     deleteProfile: profileId => executeProfileDeletion({ state, client, config, sync, profileId }),
     onSelectProfile: (id, name) => {
       state.selectedProfileId = id;

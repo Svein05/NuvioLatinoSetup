@@ -28,10 +28,11 @@ function bindNavigation({ root, state, lifetime, activate, actions, logout }) {
 }
 
 function initializeAccountUI(context) {
-  const { root, state, lifetime, profiles, deps, notify, actions, activate, logout } = context;
+  const { root, state, lifetime, profiles, deps, notify, actions, activate, logout, onAvatarRecorded } = context;
   setupScrollableTabs(root);
   setupProfilePopover({ root, onToggle: profiles.render });
   setupProfileModals({ root, state, client: deps.client, config: deps.config, showToast: notify,
+    recordAvatarUsage: deps.recordAvatarUsage, onAvatarRecorded,
     refreshProfiles: async () => { await profiles.fetchProfiles(); profiles.render(); }, selectProfile: profiles.select });
   bindProfileAvatarPicker({ root, services: deps.services, lifetime, notify });
   lifetime.add(managePageDialogs(root));
@@ -72,7 +73,8 @@ export function createAccountController(deps = {}) {
     if (disposePasswords) lifetime.add(disposePasswords);
     sections = createAccountSections({ root, state, services, client, config, lifetime,
       notify, updateUI, setupPasswordToggles });
-    initializeAccountUI({ root, state, lifetime, profiles, deps: { ...deps, config }, notify, actions, activate, logout });
+    initializeAccountUI({ root, state, lifetime, profiles, deps: { ...deps, config }, notify, actions, activate, logout,
+      onAvatarRecorded: () => { if (!lifetime.signal.aborted) return sections.avatars.refresh(); } });
     sections.avatars.refresh();
     const session = loadSession(state);
     showAccountSession(root, Boolean(session?.accessToken));

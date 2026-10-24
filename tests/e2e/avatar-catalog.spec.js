@@ -20,7 +20,7 @@ test('most-used avatars remain style-filtered, preserve scores and fill unranked
       'assets/profile_icons/IconsStyle/Robot.webp'].map(path => ({ path, type: 'blob' })) } };
     if (url.pathname === '/api/avatars/ranking') {
       expect(url.searchParams.get('limit')).toBe('32');
-      return { body: { items: ranked, totalUsage: 24 } };
+      return { body: { environment: 'testing', items: ranked, totalUsage: 24 } };
     }
     if (url.pathname === '/api/avatars/usage') votes.push(request.postDataJSON());
   } });

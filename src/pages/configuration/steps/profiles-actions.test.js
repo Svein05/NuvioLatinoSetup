@@ -12,13 +12,15 @@ describe('profiles-actions', () => {
       unlockStep: vi.fn(),
     };
     const client = {
-      createProfile: vi.fn().mockResolvedValue({ id: 'p2', name: 'Kid' }),
+      createProfile: vi.fn().mockResolvedValue({ id: 'p2', name: 'Kid', avatar_url: 'NetflixStyle/Naruto/Naruto.webp' }),
     };
     const config = { apiUrl: 'https://api.test', anonKey: 'anon' };
     const saveSession = vi.fn();
     const updateUI = vi.fn();
 
+    const recordAvatarUsage = vi.fn().mockResolvedValue({ status: 'recorded' });
     const actions = createProfilesStepActions({
+      recordAvatarUsage,
       state,
       client,
       config,
@@ -28,8 +30,10 @@ describe('profiles-actions', () => {
       avatarCatalog: {},
     });
 
-    const created = await actions.createProfile({ name: 'Kid', avatarUrl: 'https://img.test' });
+    const created = await actions.createProfile({ name: 'Kid', avatarUrl: 'NetflixStyle/Naruto/Naruto.webp' });
     expect(created.id).toBe('p2');
+    await Promise.resolve();
+    expect(recordAvatarUsage).toHaveBeenCalledExactlyOnceWith('NetflixStyle/Naruto/Naruto.webp', { accessToken: 'token' });
     expect(state.selectedProfileId).toBe('p2');
     expect(state.unlockStep).toHaveBeenCalledWith(3);
     expect(saveSession).toHaveBeenCalled();

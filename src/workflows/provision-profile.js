@@ -128,6 +128,8 @@ async function runCollectionsPhase({ state, config, services, isSimulation, targ
 }
 
 function setupExecution(state, log) {
+  state.execution.completionId = crypto.randomUUID();
+  state.execution.error = null;
   state.execution.isRunning = true;
   state.execution.isCompleted = false;
   state.execution.result = null;
@@ -156,7 +158,7 @@ export async function executeProfileProvisioning(state, { config = {}, services 
     log('🎉 ¡Configuración completada con éxito! Tu Nuvio está listo.', 'success');
 
     if (!isSimulation && services.recordCompletion) {
-      services.recordCompletion().catch(err => console.warn('[Pipeline] Error en contador:', err));
+      services.recordCompletion(state.execution.completionId).catch(err => console.warn('[Pipeline] Error en contador:', err));
     }
   } catch (err) {
     const errMsg = err?.message || String(err);
