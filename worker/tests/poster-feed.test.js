@@ -7,16 +7,22 @@ const source = Array.from({ length: 16 }, (_, index) => ({ id: index + 1, title:
 const snapshot = () => normalizePosterSources([source.map(item => ({ ...item, mediaType: 'movie' }))]);
 const backend = () => ({ POSTER_FEED_KV: { get: vi.fn().mockResolvedValue(snapshot()), put: vi.fn() }, TMDB_READ_ACCESS_TOKEN: 'synthetic-token' });
 
-it('weekly refresh uses four fixed sources and stores one validated snapshot', async () => {
+it('weekly refresh localizes artwork after four fixed sources and stores one validated snapshot', async () => {
   const env = backend();
-  const fetchImpl = vi.fn().mockImplementation(async () => Response.json({ results: source }));
+  const fetchImpl = vi.fn().mockImplementation(async url => {
+    if (!url.includes('/images?')) return Response.json({ results: source });
+    const id = new URL(url).pathname.split('/')[3];
+    const type = new URL(url).pathname.split('/')[2];
+    return Response.json({ posters: [{ file_path: `/${type}_${id}.jpg`, iso_639_1: 'es',
+      width: 500, aspect_ratio: 0.667 }] });
+  });
   await refreshPosterFeed(env, { fetchImpl });
-  expect(fetchImpl).toHaveBeenCalledTimes(4);
+  expect(fetchImpl).toHaveBeenCalledTimes(36);
   expect(env.POSTER_FEED_KV.put).toHaveBeenCalledTimes(1);
-  expect(JSON.parse(env.POSTER_FEED_KV.put.mock.calls[0][1]).items).toHaveLength(16);
+  expect(JSON.parse(env.POSTER_FEED_KV.put.mock.calls[0][1]).items).toHaveLength(32);
   for (const [url, options] of fetchImpl.mock.calls) {
     expect(url).toContain('api.themoviedb.org/3/');
-    expect(url).toContain('language=es-MX');
+    expect(url).toContain(url.includes('/images?') ? 'language=es' : 'language=es-MX');
     expect(url).not.toContain('synthetic-token');
     expect(options.headers.Authorization).toBe('Bearer synthetic-token');
   }

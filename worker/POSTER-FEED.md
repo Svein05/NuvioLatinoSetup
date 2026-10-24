@@ -9,13 +9,15 @@ Do not replace the active Worker until its existing proxy, collaborator, avatar 
 1. Configure the Worker secret named TMDB_READ_ACCESS_TOKEN with a project-owned TMDB API read access token. It is not a user's wizard API key. Never place its value in Wrangler configuration or browser code.
 2. Bind a KV namespace as POSTER_FEED_KV. Add the real namespace ID to the deployment configuration. No invented namespace ID is bundled here.
 3. worker/wrangler.jsonc schedules Monday at 12:00 UTC. Preserve the other bindings and secrets when deploying. Test environments must use their own bindings and initially omit cron until verified.
-4. Seed the first snapshot; deployment itself does not call TMDB. Set TMDB_READ_ACCESS_TOKEN privately in the operator's process and run node scripts/seed-poster-feed.js from the repository root. This makes four provider GET requests and creates .local/poster-feed.json, which is ignored by Git. It refuses to overwrite an existing snapshot file.
+4. Seed the first snapshot; deployment itself does not call TMDB. Set TMDB_READ_ACCESS_TOKEN privately in the operator's process and run node scripts/seed-poster-feed.js from the repository root. This makes at most 44 provider GET requests and creates .local/poster-feed.json, which is ignored by Git. It refuses to overwrite an existing snapshot file. A dashboard secret cannot be downloaded by the seed script; supplying it to this local process is a separate operator action.
 5. After explicit deployment/storage authorization, upload that file to the testing namespace key poster-feed:v1 using the Cloudflare KV dashboard or the current Wrangler KV key put command with --path. Select the correct environment and remote namespace explicitly. Never upload to production by default.
 6. Verify GET, HEAD, conditional ETag reads and the website on the testing URL. Check all existing Worker routes before requesting production authorization.
 
 ## Data and failures
 
-The scheduled refresh requests weekly movie trends, weekly TV trends, popular movies for MX, and popular TV. All use es-MX. Four baseline metadata requests per scheduled refresh are independent of visitor count; operator seeding adds four more. Poster image downloads are separate CDN traffic.
+The scheduled refresh requests weekly movie trends, weekly TV trends, popular movies for MX, and popular TV. All use es-MX. It then requests image lists for at most forty distinct titles, with four concurrent reads. Spanish-tagged portrait artwork takes priority; language-neutral artwork is the fallback. Titles with only foreign-language artwork are omitted. TMDB does not distinguish regional Spanish variants for image selection, and language-neutral tags do not guarantee that an image contains no text.
+
+Each refresh therefore makes at most 44 provider requests, independent of visitor count; operator seeding has the same bound. Poster image downloads are separate CDN traffic. An artwork lookup failure aborts publication, retaining the last good snapshot.
 
 Only a complete valid batch containing at least twelve distinct non-adult posters replaces the previous snapshot. Failed provider responses, malformed data, insufficient items and storage errors retain the last good record. There is no public refresh endpoint and no automatic request-path retry. The KV record has no expiry that could erase the fallback before the next schedule.
 
