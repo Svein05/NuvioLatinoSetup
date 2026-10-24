@@ -1,3 +1,4 @@
+import './poster-background.js';
 import { fetchTopAvatarKeys } from './avatar-ranking.js';
 import { rankedCarouselPaths } from '../pages/landing/ranked-carousel.js';
 import { avatarPaths } from '../pages/landing/avatar-carousel.js';

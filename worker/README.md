@@ -92,3 +92,7 @@ la rama, verificar el repositorio antes de reintentar: el servidor no repite esc
 ni modifica servicios reales. El runtime de Cloudflare y un despliegue de prueba
 siguen requiriendo comprobación antes de sustituir el Worker activo. Wrangler no es
 una dependencia instalada del proyecto actualmente.
+
+## Weekly poster feed
+
+See [POSTER-FEED.md](POSTER-FEED.md) for the read-only feed contract, weekly refresh, testing prerequisites and operator-only initialization.

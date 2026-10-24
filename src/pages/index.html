@@ -53,18 +53,12 @@
   <link rel="stylesheet" href="./landing/account-showcase.css" />
   <link rel="stylesheet" href="./landing/account-addons.css" />
 </head>
-<body class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
+<body data-poster-page="landing" class="relative bg-[#08090c] text-white min-h-screen flex flex-col font-sans antialiased selection:bg-white/20 selection:text-white">
 
   <!-- Barra de Navegación Flotante LAT-ADD Style -->
   <!-- @include "../shared/ui/site-shell/header.html" -->
 
-  <!-- Hero Backdrop Cinemático de Pósters Latinos TMDB (Fixed con scroll fade) -->
-  <div id="heroBackdrop" class="fixed inset-x-0 top-0 h-screen pointer-events-none overflow-hidden z-0 select-none">
-    <img src="/assets/preview/hero-posters-backdrop.webp" alt="Colecciones Latinas Nuvio" class="w-full h-full object-cover object-top opacity-85 filter brightness-100 contrast-105">
-    <!-- Scrim atmosférico estilo LAT-ADD: transparente arriba para ver los pósters con nitidez y fundido gradual hacia el fondo de la página -->
-    <div class="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent via-35% to-[#08090c]"></div>
-    <div class="absolute inset-x-0 bottom-0 h-72 bg-gradient-to-t from-[#08090c] via-[#08090c]/85 to-transparent"></div>
-  </div>
+  <!-- @include "../shared/ui/poster-wall/background.html" -->
 
   <!-- Contenedor Principal (Landing Page) -->
   <!-- @include "partials/landing/content.html" -->

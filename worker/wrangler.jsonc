@@ -2,9 +2,17 @@
   "name": "nuvio-proxy",
   "main": "src/index.js",
   "compatibility_date": "2026-10-19",
+  "preview_urls": false,
+  "observability": { "logs": { "enabled": true } },
+  "kv_namespaces": [{ "binding": "POSTER_FEED_KV", "id": "e7f5ba3ffa334e11b7cef0ab8e8dbbc1" }],
   "vars": {
     "GITHUB_OWNER": "Svein05",
     "GITHUB_REPOSITORY": "NuvioLatinoSetup",
     "GITHUB_BRANCH": "main"
+  },
+  "triggers": {
+    "crons": [
+      "0 12 * * 1"
+    ]
   }
 }
