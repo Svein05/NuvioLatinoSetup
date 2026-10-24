@@ -10,7 +10,7 @@
     const count = Math.ceil(innerWidth / width) + 3;
     const valid = saved.rows.every(row => row.sources?.length === count && Number.isFinite(row.phase)
       && row.phase >= 0 && row.phase < 1 && row.sources.every(source =>
-        /^https:\/\/image\.tmdb\.org\/t\/p\/w(185|342)\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(source)));
+        /^https:\/\/image\.tmdb\.org\/t\/p\/w(185|342|500|780)\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(source)));
     if (!valid) return;
     const interior = /^\/(account|configuration)(?:\/|$)/.test(location.pathname);
     root.dataset.posterTheme = interior ? 'interior' : 'landing';

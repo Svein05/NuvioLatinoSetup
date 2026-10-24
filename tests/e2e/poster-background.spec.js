@@ -158,3 +158,46 @@ test('mobile browser toolbar height changes preserve cached poster composition b
   expect(await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src))).toEqual(before);
   expect(await page.locator('.poster-wall-track').first().evaluate(track => parseFloat(track.style.getPropertyValue('--poster-width')))).toBe(282);
 });
+
+test('high-density mobile requests sharper images without increasing poster nodes or metadata calls', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
+  const page = await context.newPage();
+  await prepare(page);
+  await page.goto('/');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  const sources = await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src));
+  expect(sources.length).toBeLessThanOrEqual(12);
+  expect(sources.every(source => source.includes('/w780/'))).toBe(true);
+  await page.goto('/configuration/');
+  await expect(page.locator('[data-poster-wall]')).toHaveAttribute('data-poster-restored', 'true');
+  expect(await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src))).toEqual(sources);
+  await context.close();
+});
+
+test('legacy small cached images stay visible until the sharper replacement is decoded', async ({ page }) => {
+  await prepare(page);
+  await page.addInitScript(() => {
+    if (location.pathname !== '/account/') return;
+    const saved = JSON.parse(sessionStorage.getItem('nuvio_poster_view_v1'));
+    if (!saved) return;
+    saved.rows.forEach(row => { row.sources = row.sources.map(source => source.replace(/\/w(342|500|780)\//, '/w185/')); });
+    sessionStorage.setItem('nuvio_poster_view_v1', JSON.stringify(saved));
+  });
+  let blocked = false;
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('https://image.tmdb.org/**', async route => {
+    if (blocked && !route.request().url().includes('/w185/')) await gate;
+    await route.fulfill({ path: 'assets/preview/landing/inception.jpg' });
+  });
+  await page.goto('/');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  blocked = true;
+  await page.goto('/account/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-poster-wall]')).toHaveAttribute('data-poster-restored', 'true');
+  await expect(page.locator('.poster-wall-track img').first()).toHaveAttribute('src', /\/w185\//);
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  release();
+  await expect(page.locator('.poster-wall-track img').first()).toHaveAttribute('src', /\/w(342|500|780)\//);
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+});
