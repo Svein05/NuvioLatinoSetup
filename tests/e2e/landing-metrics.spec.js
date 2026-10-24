@@ -5,12 +5,12 @@ const avatar = { key: 'NetflixStyle/Naruto/Naruto.webp', score: 4 };
 async function prepare(page, { totalUsage = 1234, cachedSetups, oldWorker = false } = {}) {
   await isolateExternalServices(page);
   if (cachedSetups !== undefined) await page.addInitScript(count => {
-    localStorage.setItem('nuvio_completions_cached_count', String(count));
+    localStorage.setItem('nuvio_metrics_v2:testing:nuvio_completions_cached_count', String(count));
   }, cachedSetups);
   let reads = 0;
   await page.route('**/api/avatars/ranking**', route => {
     reads++;
-    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ items: [avatar], ...(oldWorker ? {} : { totalUsage }) }) });
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ environment: 'testing', items: [avatar], ...(oldWorker ? {} : { totalUsage }) }) });
   });
   return () => reads;
 }
@@ -58,7 +58,7 @@ test('missing setup data never turns the header estimate into a metric, and olde
     await expect(metric.locator('[data-metric-value]')).toHaveText('—');
     await expect(metric.locator('[data-metric-status]')).toHaveText('Sin datos confirmados');
   }
-  await expect(page.locator('.completions-count-compact').first()).toHaveText('150');
+  await expect(page.locator('.completions-count-compact').first()).toHaveText('--');
 });
 
 test('late zero animates when visible; reduced motion immediately settles and bfcache does not replay', async ({ page }) => {
@@ -67,7 +67,7 @@ test('late zero animates when visible; reduced motion immediately settles and bf
   const gate = new Promise(resolve => { release = resolve; });
   await page.route('**/api/avatars/ranking**', async route => {
     await gate;
-    await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ items: [], totalUsage: 0 }) });
+    await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ environment: 'testing', items: [], totalUsage: 0 }) });
   });
   await page.goto('/');
   const avatars = page.locator('[data-metric="avatars"]');
@@ -87,7 +87,7 @@ test('late zero animates when visible; reduced motion immediately settles and bf
 
 test('cached avatar totals survive failures without fabricating a zero', async ({ page }) => {
   await isolateExternalServices(page);
-  await page.addInitScript(() => localStorage.setItem('nuvio_avatar_ranks_cached_summary', JSON.stringify({ totalUsage: 87 })));
+  await page.addInitScript(() => localStorage.setItem('nuvio_metrics_v2:testing:nuvio_avatar_ranks_cached_summary', JSON.stringify({ totalUsage: 87 })));
   await page.goto('/');
   const metric = page.locator('[data-metric="avatars"]');
   await metric.scrollIntoViewIfNeeded();

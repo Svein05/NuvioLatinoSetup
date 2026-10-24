@@ -62,15 +62,15 @@ describe('injection-actions', () => {
   it('announces manual completion once after both files have been exported', () => {
     vi.useFakeTimers();
     try {
-      const showCompletionModal = vi.fn();
+      const recordCompletion = vi.fn().mockResolvedValue();
       const state = { isManualMode: true, manualCopiedCollections: true, manualCopiedAio: false };
-      const actions = createInjectionStepActions({ state, controller: { showCompletionModal } });
+      const actions = createInjectionStepActions({ state, controller: {}, recordCompletion });
       actions.checkCompletion();
-      expect(showCompletionModal).not.toHaveBeenCalled();
+      expect(recordCompletion).not.toHaveBeenCalled();
       state.manualCopiedAio = true;
       actions.checkCompletion(); actions.checkCompletion();
       vi.runAllTimers();
-      expect(showCompletionModal).toHaveBeenCalledOnce();
+      expect(recordCompletion).toHaveBeenCalledOnce();
     } finally { vi.useRealTimers(); }
   });
 });

@@ -21,11 +21,11 @@ for (const failProfileSave of [false, true]) {
       respondExternal(url, request) {
         if (url.pathname.includes('/git/ref/')) return { body: { object: { sha } } };
         if (url.pathname.includes('/git/trees/')) return { body: { tree: [{ type: 'blob', path: `assets/profile_icons/${key}` }] } };
-        if (url.pathname === '/api/avatars/ranking') return { body: { items: [{ key, score: 7 }] } };
+        if (url.pathname === '/api/avatars/ranking') return { body: { environment: 'testing', items: [{ key, score: 7 }] } };
         if (url.pathname === '/api/avatars/usage') {
           events.push('vote');
           votes.push({ body: request.postDataJSON(), authorization: request.headers().authorization });
-          return { body: { status: 'recorded', score: 8 } };
+          return { body: { environment: 'testing', status: 'recorded', score: 8 } };
         }
       },
     });

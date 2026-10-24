@@ -4,10 +4,10 @@ import { createCounterView } from './counter-view.js';
 
 /** Single mounted polling loop; hidden tabs and overlapping refreshes do not request data. */
 export function mountLiveCounter({ counter, reportWarning = console.warn, intervalMs = 25000,
-  createView = createCounterView, onUpdate = () => {} }, root = document) {
+  createView = createCounterView, createCelebration = createCompletionCelebration, onUpdate = () => {} }, root = document) {
   const lifetime = createLifetime();
   const view = createView(root);
-  const celebration = createCompletionCelebration(root);
+  const celebration = createCelebration(root);
   const records = new Map();
   let presenting = 0;
   let loading = false;
