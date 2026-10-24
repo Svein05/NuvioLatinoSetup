@@ -22,10 +22,12 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
     renderAvatarsCatalog({ root, state, filterAvatars: services.filterAvatars,
       resolveAvatarCdnUrl: services.resolveAvatarCdnUrl, onSelectAvatar: select, onResetFilters: reset,
       onOpenFranchise: franchise => { state.avatarFilters.franchise = franchise; render(); } });
-    if (Object.values(state.avatarFilters).every(value => value === 'all' || value === '')) {
+    if (state.avatarFilters.franchise === 'all' && !state.avatarFilters.query) {
       const container = root.getElementById('avatarsCatalogContainer');
       const top = root.createElement('div');
-      renderRankedAvatars(top, { avatars: services.getCompiledAvatars(), ranking: state.mostUsedKeys,
+      const avatars = services.getCompiledAvatars().filter(avatar =>
+        state.avatarFilters.style === 'all' || avatar.style === state.avatarFilters.style);
+      renderRankedAvatars(top, { avatars, ranking: state.mostUsedKeys,
         resolveUrl: services.resolveAvatarCdnUrl, selectedUrl: state.selectedAvatarUrl, onSelect: select });
       container?.prepend(top);
     }
@@ -41,7 +43,7 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
   setupAvatarUrlConfirmModal({ root, onConfirm: select, showToast: notify });
   async function refresh(force = false) {
     try {
-      const [, ranking] = await Promise.all([services.loadAvatarsCatalog(force), services.fetchTopAvatarKeys(8)]);
+      const [, ranking] = await Promise.all([services.loadAvatarsCatalog(force), services.fetchTopAvatarKeys(32)]);
       state.mostUsedKeys = ranking;
       if (!lifetime.signal.aborted) render();
     } catch (error) { notify(`No se pudo sincronizar el catálogo: ${error.message}`, 'warning'); }
