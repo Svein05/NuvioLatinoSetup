@@ -90,10 +90,11 @@
   display: grid;
   gap: 2px;
   padding-block: 4px;
-}
-.badge-carousel-window {
   overflow: hidden;
   mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
+}
+.badge-carousel-window {
+  overflow: visible;
 }
 .badge-carousel-track {
   display: flex;
@@ -121,12 +122,15 @@
   padding: 5px 8px;
   height: 30px;
   flex-shrink: 0;
+  overflow: visible;
 }
 .catalog-badge img {
+  display: block;
   height: 16px;
   width: auto;
   max-width: 96px;
   object-fit: contain;
+  overflow: visible;
 }
 .is-enhanced .poster-cube {
   transform: translateY(-50%) translateZ(calc(var(--poster-depth,120px) * -1)) rotateY(calc(var(--poster-turn,1) * -90deg));
@@ -141,6 +145,9 @@
 .is-enhanced .scene-stream-card {
   opacity: var(--badges-show,1);
   transform: translateY(calc((1 - var(--badges-show,1)) * 12px));
+}
+.is-enhanced .is-badges-settled .scene-stream-card {
+  transform: none;
 }
 .has-scene-motion .is-in-view .badge-carousel-track {
   animation-play-state: running;

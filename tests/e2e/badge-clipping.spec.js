@@ -50,7 +50,8 @@ for (const density of [1, 1.25, 2, 3]) {
         await expect(card.locator('h4')).toBeVisible();
         const rows = page.locator('.badge-carousel-window');
         for (const row of await rows.all()) {
-          await expect(row).toHaveCSS('overflow', 'hidden');
+          await expect(row).toHaveCSS('overflow-y', 'visible');
+          await expect(row).toHaveCSS('mask-image', 'none');
         }
         const clearance = await card.locator('.badge-carousel').evaluate(carousel => {
           const bounds = carousel.getBoundingClientRect();
