@@ -1,9 +1,26 @@
+.story-chapter[data-chapter="style"] .story-stage {
+  height: auto;
+  min-height: min(580px, calc(100svh - 170px));
+}
+.story-chapter[data-chapter="style"] .story-scenes {
+  flex: none;
+  min-height: inherit;
+}
+.story-scene[data-scene="style"] {
+  position: relative;
+  inset: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.075fr);
+  align-items: center;
+  gap: 3%;
+  padding: 4%;
+  min-height: inherit;
+  overflow: visible;
+}
 .scene-poster {
-  position: absolute;
-  top: 8%;
-  left: 6%;
-  width: 40%;
-  height: 84%;
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 2/3;
   perspective: 1000px;
 }
 .poster-cube {
@@ -27,21 +44,16 @@
   display: none;
 }
 .scene-style-details {
-  position: absolute;
-  top: 10%;
-  bottom: 10%;
-  right: 5%;
-  width: 43%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  min-width: 0;
+  display: grid;
+  align-content: center;
   gap: 20px;
 }
 .scene-style-details > .scene-layer {
   position: relative;
   padding: 20px 16px;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 .scene-style-options h4 {
   margin-bottom: 18px;
