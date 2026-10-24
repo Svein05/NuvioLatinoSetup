@@ -1,5 +1,7 @@
 # Worker
 
+See [METRICS.md](METRICS.md) for the Worker-only completion/avatar storage contract, the 55-setup migration baseline, production/testing isolation and operator cutover order.
+
 Fuentes versionadas del backend, separadas del build público de GitHub Pages.
 La refactorización no despliega este código ni cambia el Worker actualmente activo.
 

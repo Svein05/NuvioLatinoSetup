@@ -5,7 +5,7 @@ import { avatarVoteCommand, rankedAvatars } from '../src/services/avatar-ranking
 const key = 'NetflixStyle/One Piece/Hero.webp';
 const env = { AVATAR_REDIS_URL: 'https://synthetic.upstash.io', AVATAR_REDIS_TOKEN: 'synthetic-redis-secret', NUVIO_PUBLIC_ANON_KEY: 'synthetic-public-key' };
 const vote = (body = { key }, token = 'synthetic-user-token') => new Request('https://worker.invalid/api/avatars/usage', {
-  method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: JSON.stringify(body),
+  method: 'POST', headers: { Origin: 'https://guia.lat-add.com', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(body),
 });
 
 function backend({ authStatus = 200, user = { id: 'synthetic-user', is_anonymous: false }, redisStatus = 200,
@@ -142,4 +142,14 @@ it('reports confirmed zero for an empty ranking and rejects unsafe aggregate tot
 
 it.each([null, '', true])('does not turn an invalid score into a confirmed zero: %j', score => {
   expect(() => rankedAvatars([key, score])).toThrow();
+});
+
+it('blocks testing avatar increments and validates production sessions without following redirects', async () => {
+  const fetchImpl = backend();
+  const testing = vote();
+  testing.headers.set('Origin', 'https://testing-latinosetup.pages.dev');
+  expect((await createWorker({ fetchImpl }).fetch(testing, env)).status).toBe(403);
+  expect(fetchImpl).not.toHaveBeenCalled();
+  await createWorker({ fetchImpl }).fetch(vote(), env);
+  expect(fetchImpl.mock.calls[0][1].redirect).toBe('manual');
 });
