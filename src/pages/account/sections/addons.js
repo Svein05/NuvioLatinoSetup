@@ -1,3 +1,4 @@
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
 export {
   isDuplicateManifestUrl,
   normalizeManifestUrl,
@@ -25,10 +26,10 @@ function buildAddonRowHtml(addon, idx, isFirst, isLast) {
     <div class="p-3 sm:p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between gap-3 group" data-index="${idx}">
       <div class="flex items-center gap-3 min-w-0 flex-1">
         <i class="fa-solid fa-grip-vertical text-white/20 hover:text-white/60 cursor-grab active:cursor-grabbing sortable-drag-handle p-1"></i>
-        <img src="${addon.logo || 'https://api.dicebear.com/7.x/identicon/svg?seed=Addon'}" alt="${addon.name}" class="w-8 h-8 rounded-lg object-contain bg-black/40 border border-white/10 shrink-0">
+        <img data-addon-manifest="${escapeHtml(addon.manifest_url || addon.url || '')}" src="${escapeHtml(safeImageUrl(addon.logo, `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(addon.name || 'Addon')}`))}" alt="${escapeHtml(addon.name)}" class="w-8 h-8 rounded-lg object-contain bg-black/40 border border-white/10 shrink-0">
         <div class="min-w-0 flex-1">
-          <h5 class="text-xs sm:text-sm font-semibold text-white truncate">${addon.name}</h5>
-          <span class="text-[11px] font-mono text-white/40 truncate block">${addon.manifest_url || addon.url || ''}</span>
+          <h5 class="text-xs sm:text-sm font-semibold text-white truncate">${escapeHtml(addon.name)}</h5>
+          <span class="text-[11px] font-mono text-white/40 truncate block">${escapeHtml(addon.manifest_url || addon.url || '')}</span>
         </div>
         <span class="w-2 h-2 rounded-full shrink-0 ${isEnabled ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
       </div>
@@ -52,11 +53,11 @@ function buildAddonRowHtml(addon, idx, isFirst, isLast) {
 
 export function renderAddonsSection(state, { root = document, onEditAddon, onDeleteAddon, onMoveAddon } = {}) {
   const container = root.getElementById?.('accountAddonsListContainer');
-  const countBadge = root.getElementById?.('accountAddonsCountBadge');
+  const countBadge = root.getElementById?.('accountAddonsCountLabel');
   if (!container) return;
 
   const addons = state.installedAddons || [];
-  if (countBadge) countBadge.textContent = `${addons.length}`;
+  if (countBadge) countBadge.textContent = `${addons.length} addons instalados`;
 
   if (addons.length === 0) {
     container.innerHTML = `

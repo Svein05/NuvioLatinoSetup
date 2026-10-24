@@ -20,7 +20,8 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
     renderModalFranchisesList({ root, state, getFranchisesSummary: services.getFranchisesSummary,
       onSelectFranchise: franchise => { state.avatarFilters.franchise = franchise; closeFranchises(); render(); } });
     renderAvatarsCatalog({ root, state, filterAvatars: services.filterAvatars,
-      resolveAvatarCdnUrl: services.resolveAvatarCdnUrl, onSelectAvatar: select, onResetFilters: reset });
+      resolveAvatarCdnUrl: services.resolveAvatarCdnUrl, onSelectAvatar: select, onResetFilters: reset,
+      onOpenFranchise: franchise => { state.avatarFilters.franchise = franchise; render(); } });
     if (Object.values(state.avatarFilters).every(value => value === 'all' || value === '')) {
       const container = root.getElementById('avatarsCatalogContainer');
       const top = root.createElement('div');

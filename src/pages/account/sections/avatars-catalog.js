@@ -1,3 +1,4 @@
+import { areAvatarUrlsEqual } from './avatars-comparison.js';
 import { escapeHtml } from '../../../shared/ui/safe-markup.js';
 export function formatUserCount(num) {
   const n = Number(num) || 0;
@@ -54,14 +55,14 @@ export function renderAvatarStylePills({ root = document, state, getStylesSummar
   container.innerHTML = styles.map(s => {
     const isAct = s.id === currentStyle;
     return `
-      <button type="button" class="style-pill-btn ${isAct ? 'is-active' : ''}" data-style-id="${escapeHtml(s.id)}">
+      <button type="button" class="avatar-filter-pill ${isAct ? 'is-active' : ''}" data-style-id="${escapeHtml(s.id)}">
         <span>${escapeHtml(s.name)}</span>
-        <span class="pill-count">${s.count}</span>
+        <span class="pill-badge">${s.count}</span>
       </button>
     `;
   }).join('');
 
-  container.querySelectorAll('.style-pill-btn').forEach(btn => {
+  container.querySelectorAll('.avatar-filter-pill').forEach(btn => {
     btn.addEventListener('click', () => {
       onSelectStyle?.(btn.dataset.styleId);
     });
@@ -91,7 +92,7 @@ export function renderAvatarsCatalog({
   filterAvatars,
   resolveAvatarCdnUrl = u => u,
   onSelectAvatar,
-  _onOpenFranchise,
+  onOpenFranchise,
   onResetFilters,
 }) {
   const container = root.getElementById?.('avatarsCatalogContainer');
@@ -113,14 +114,26 @@ export function renderAvatarsCatalog({
     return;
   }
 
-  container.innerHTML = `
-    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-      ${filtered.map(av => renderCard(av, {
-        isSelected: av.path === activeAvatar,
-        cdnUrl: resolveAvatarCdnUrl(av.path),
-      })).join('')}
-    </div>
-  `;
+  const grouped = !state.avatarFilters?.query && (!state.avatarFilters?.franchise || state.avatarFilters.franchise === 'all');
+  const groups = new Map();
+  for (const avatar of filtered) {
+    const key = grouped ? avatar.franchise : 'results';
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(avatar);
+  }
+  container.innerHTML = [...groups].map(([key, avatars]) => {
+    const cards = (grouped ? avatars.slice(0, 8) : avatars).map(av => renderCard(av, {
+      isSelected: areAvatarUrlsEqual(av.path, activeAvatar, resolveAvatarCdnUrl),
+      cdnUrl: resolveAvatarCdnUrl(av.path),
+    })).join('');
+    const heading = grouped ? `<div class="flex items-center justify-between gap-3 mb-5">
+      <div><h4 class="text-sm font-semibold">${escapeHtml(avatars[0].franchiseName)}</h4><small>${avatars.length} avatares</small></div>
+      <button type="button" class="btn-open-avatar-collection" data-open-franchise="${escapeHtml(key)}">Abrir colección de avatares <span aria-hidden="true">→</span></button></div>` : '';
+    return `<div class="avatar-collection-block">${heading}<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">${cards}</div></div>`;
+  }).join('');
+  container.querySelectorAll('[data-open-franchise]').forEach(button => {
+    button.addEventListener('click', () => onOpenFranchise?.(button.dataset.openFranchise));
+  });
 
   container.querySelectorAll('.netflix-avatar-card').forEach(card => {
     card.addEventListener('click', () => onSelectAvatar?.(card.dataset.avatarPath));

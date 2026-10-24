@@ -8,6 +8,8 @@ export function areAvatarUrlsEqual(urlA, urlB, resolveCdn = u => u) {
 }
 
 export function updateAvatarComparisonUI(root = document, state, resolveCdn = u => u) {
+  const profileName = root.getElementById?.('avatarCurrentProfileName');
+  if (profileName) profileName.textContent = state.profiles?.find(profile => profile.id === state.selectedProfileId)?.name || 'Tu perfil';
   const origPreview = root.getElementById?.('avatarOriginalPreview');
   const currentPreview = root.getElementById?.('avatarCurrentPreview');
   const arrow = root.getElementById?.('avatarTransitionArrow');
@@ -16,8 +18,8 @@ export function updateAvatarComparisonUI(root = document, state, resolveCdn = u 
   const modBadge = root.getElementById?.('avatarModifiedBadge');
   const headerMainWrap = root.getElementById?.('avatarHeaderMainWrap');
 
-  const origUrl = resolveCdn(state.originalAvatarUrl || 'https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio');
-  const selectedUrl = resolveCdn(state.selectedAvatarUrl || origUrl);
+  const origUrl = resolveCdn(state.originalAvatarUrl || '') || '/assets/logo/logo.webp';
+  const selectedUrl = resolveCdn(state.selectedAvatarUrl || origUrl) || origUrl;
   const isChanged = Boolean(state.selectedAvatarUrl && !areAvatarUrlsEqual(state.selectedAvatarUrl, state.originalAvatarUrl, resolveCdn));
 
   if (origPreview) origPreview.src = origUrl;

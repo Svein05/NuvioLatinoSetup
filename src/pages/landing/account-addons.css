@@ -1,0 +1,114 @@
+.account-addon-scene {
+  --addon-row-height: 72px;
+  min-width: 0;
+}
+.account-addon-scene > h4 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 28px;
+}
+.account-addon-list {
+  position: relative;
+  height: calc(var(--addon-row-height) * 3);
+}
+.account-addon-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-hairline);
+  height: 72px;
+}
+.account-addon-row > i {
+  color: var(--color-estrella);
+}
+.account-addon-row > i:last-child {
+  margin-left: auto;
+}
+.account-addon-row strong, .account-addon-row small {
+  display: block;
+}
+.account-addon-row strong {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.account-addon-row small {
+  font-size: 11px;
+  color: var(--color-ink-muted);
+}
+.addon-metadata {
+  transform: translateY(0);
+}
+.addon-streams {
+  transform: translateY(var(--addon-row-height));
+}
+.addon-catalog {
+  transform: translateY(calc(var(--addon-row-height) * 2));
+}
+.is-enhanced .addon-metadata {
+  transform: translate(calc(sin(var(--addon-order,1) * 180deg) * 18px),calc((1 - var(--addon-order,1)) * var(--addon-row-height)));
+}
+.is-enhanced .addon-streams {
+  transform: translateY(calc(var(--addon-order,1) * 72px));
+}
+.account-addon-settings {
+  margin-top: 18px;
+}
+.account-addon-settings > strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+.account-addon-settings > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  padding: 10px 0;
+}
+.account-addon-settings > div > span:first-child {
+  color: var(--color-ink-muted);
+}
+.account-addon-settings i {
+  color: var(--color-estrella);
+  margin-left: 8px;
+}
+.account-addon-settings > p {
+  color: var(--color-estrella);
+  font-size: 12px;
+  margin-top: 20px;
+}
+.is-enhanced .account-addon-settings {
+  opacity: var(--addon-config,1);
+  transform: translateY(calc((1 - var(--addon-config,1)) * 18px));
+}
+.is-enhanced .account-addon-settings > div i {
+  opacity: var(--addon-config,1);
+}
+@media (min-width: 1024px) and (max-height: 800px) {
+  .account-addon-scene > h4 {
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .account-addon-scene {
+    --addon-row-height: 48px;
+  }
+  .account-addon-row {
+    padding: 6px 0;
+  }
+  .account-addon-settings {
+    margin-top: 0;
+  }
+  .account-addon-settings > strong {
+    margin-bottom: 4px;
+  }
+  .account-addon-settings > div {
+    padding: 5px 0;
+  }
+  .account-addon-settings > p {
+    margin-top: 8px;
+  }
+}
