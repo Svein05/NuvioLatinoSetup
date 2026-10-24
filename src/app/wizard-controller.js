@@ -14,6 +14,7 @@ import { NuvioClient } from '../integrations/nuvio/client.js';
 import { createStreamingConfiguration } from './streaming-configuration.js';
 import { setupStepperNavigation } from '../pages/configuration/stepper.js';
 import { initCompletionsCounterUI } from './completions.js';
+import { recordAvatarUsage } from './avatar-ranking.js';
 import {
   loadAvatarsCatalog,
   filterAvatars,
@@ -168,6 +169,7 @@ export class AppController {
         saveSession: () => this.saveSession(),
         updateUI: () => this.updateUI(),
         avatarCatalog: { loadAvatarsCatalog, filterAvatars, getFranchisesSummary, resolveAvatarCdnUrl },
+        recordAvatarUsage,
       }),
     });
     this.disposeProfilesStep = () => this.profilesStep.dispose();
