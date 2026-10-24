@@ -11,9 +11,10 @@ export function createWorker({ fetchImpl = fetch, now = Date.now } = {}) {
   return {
     async scheduled(_event, env) {
       try { return await refreshPosterFeed(env, { fetchImpl, now }); }
-      catch {
+      catch (error) {
         console.error('Weekly poster refresh failed; previous snapshot retained.');
-        throw new Error('Weekly poster refresh failed');
+        if (/^Poster (feed|source|artwork)|^Invalid poster|^Insufficient valid poster/.test(error.message)) console.error(error.message);
+        throw new Error('Weekly poster refresh failed', { cause: error });
       }
     },
     async fetch(request, env) {

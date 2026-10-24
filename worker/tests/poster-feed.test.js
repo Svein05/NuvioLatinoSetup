@@ -25,6 +25,7 @@ it('weekly refresh localizes artwork after four fixed sources and stores one val
     expect(url).toContain(url.includes('/images?') ? 'language=es' : 'language=es-MX');
     expect(url).not.toContain('synthetic-token');
     expect(options.headers.Authorization).toBe('Bearer synthetic-token');
+    expect(options.redirect).toBe('manual');
   }
 });
 
@@ -52,6 +53,7 @@ it('many reads and arbitrary query strings never fetch TMDB, and support HEAD an
   expect(fetchImpl).not.toHaveBeenCalled();
   const etag = responses[0].headers.get('etag');
   expect(etag).toBeTruthy();
+  expect((await worker.fetch(new Request('https://worker.invalid/api/poster-feed', { headers: { 'If-None-Match': 'W/' + etag } }), env)).status).toBe(304);
   expect((await worker.fetch(new Request('https://worker.invalid/api/poster-feed', { headers: { 'If-None-Match': etag } }), env)).status).toBe(304);
   expect(await (await worker.fetch(new Request('https://worker.invalid/api/poster-feed', { method: 'HEAD' }), env)).text()).toBe('');
   expect((await worker.fetch(new Request('https://worker.invalid/api/poster-feed', { method: 'POST' }), env)).status).toBe(405);

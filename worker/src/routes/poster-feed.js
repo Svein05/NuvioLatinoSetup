@@ -14,7 +14,9 @@ export async function posterFeedRoute(request, env) {
     const body = JSON.stringify(feed);
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
     headers.ETag = '"' + [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('') + '"';
-    if (request.headers.get('If-None-Match') === headers.ETag) return new Response(null, { status: 304, headers });
+    const matches = (request.headers.get('If-None-Match') || '').split(',')
+      .some(value => value.trim() === '*' || value.trim().replace(/^W\//, '') === headers.ETag);
+    if (matches) return new Response(null, { status: 304, headers });
     return new Response(request.method === 'HEAD' ? null : body, { headers });
   } catch {
     headers['Cache-Control'] = 'public, max-age=60';

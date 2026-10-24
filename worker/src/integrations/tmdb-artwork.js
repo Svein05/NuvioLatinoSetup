@@ -14,9 +14,9 @@ async function localizedPoster(item, token, fetchImpl) {
   url.searchParams.set('include_image_language', 'es,null');
   const response = await fetchImpl(url.href, {
     headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
-    signal: AbortSignal.timeout(10000), redirect: 'error',
+    signal: AbortSignal.timeout(10000), redirect: 'manual',
   });
-  if (!response.ok) throw new Error('Poster artwork unavailable');
+  if (!response.ok) throw new Error('Poster artwork unavailable (HTTP ' + response.status + ')');
   const data = await response.json();
   if (!Array.isArray(data?.posters)) throw new Error('Invalid poster artwork');
   return { ...item, poster_path: selectPoster(data.posters) };

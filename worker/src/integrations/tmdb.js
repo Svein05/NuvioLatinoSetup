@@ -11,9 +11,9 @@ export async function fetchPosterSources(token, fetchImpl = fetch) {
     if (path === 'movie/popular') url.searchParams.set('region', 'MX');
     const response = await fetchImpl(url.href, {
       headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
-      signal: AbortSignal.timeout(10000), redirect: 'error',
+      signal: AbortSignal.timeout(10000), redirect: 'manual',
     });
-    if (!response.ok) throw new Error('Poster source unavailable');
+    if (!response.ok) throw new Error('Poster source unavailable (HTTP ' + response.status + ')');
     const data = await response.json();
     if (!Array.isArray(data?.results) || data.results.length > 20) throw new Error('Invalid poster source');
     return data.results.map(item => ({ ...item, mediaType }));
