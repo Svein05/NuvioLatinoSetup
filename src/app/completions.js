@@ -26,13 +26,24 @@ let mounted;
 let disposeMenu;
 let disposeOverflow;
 let started = false;
+let lastResult = counter.snapshot();
+const listeners = new Set();
+const publish = result => { lastResult = result; listeners.forEach(listener => listener(result)); };
+
+export function subscribeCompletionCount(listener) {
+  const alreadyMounted = Boolean(mounted);
+  listeners.add(listener);
+  initCompletionsCounterUI();
+  if (alreadyMounted) listener(lastResult);
+  return () => listeners.delete(listener);
+}
 
 export function initCompletionsCounterUI() {
   started = true;
   if (mounted) return mounted;
   disposeMenu = initMobileHeaderMenu();
   disposeOverflow = initNavOverflowMonitor();
-  mounted = mountLiveCounter({ counter });
+  mounted = mountLiveCounter({ counter, onUpdate: publish });
   return mounted;
 }
 

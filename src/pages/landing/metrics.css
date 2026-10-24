@@ -1,0 +1,28 @@
+.landing-metrics {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 40px;
+  width: min(1000px,calc(100% - 48px));
+  margin: 64px auto 0;
+  padding: 56px 0 32px;
+  text-align: center;
+}
+.landing-metric { min-width: 0; }
+.landing-metric-value {
+  min-height: 1.15em;
+  font: 400 clamp(48px,7vw,88px)/1.15 var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.045em;
+  color: var(--color-estrella);
+}
+.landing-metric h2 { font-size: clamp(18px,2vw,24px); font-weight: 500; margin-top: 16px; }
+.landing-metric-status {
+  min-height: 1.5em;
+  margin-top: 8px;
+  color: var(--color-ink-muted);
+  font-size: 12px;
+}
+@media (max-width: 639px) {
+  .landing-metrics { grid-template-columns: minmax(0,1fr); gap: 40px; padding-top: 24px; margin-top: 24px; }
+  .landing-metric-value { font-size: 60px; }
+}
