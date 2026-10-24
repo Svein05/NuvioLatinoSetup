@@ -4,7 +4,17 @@ import { isolateExternalServices } from './support/offline-services.js';
 async function expectUnclippedBadges(page) {
   const violations = await page.locator('.badge-carousel-window').evaluateAll(rows => rows.flatMap(row => {
     const badge = row.querySelector('.catalog-badge').getBoundingClientRect();
+    const track = row.querySelector('.badge-carousel-track').getBoundingClientRect();
+    const rowBounds = row.getBoundingClientRect();
     const clipped = [];
+    // Verify vertical clearance within the animated track layer (GPU composition texture safety)
+    if (badge.top < track.top + 1.5 || badge.bottom > track.bottom - 1.5) {
+      clipped.push(`track-layer-clearance:${row.className}`);
+    }
+    // Verify vertical clearance within the row container
+    if (badge.top < rowBounds.top + 1.5 || badge.bottom > rowBounds.bottom - 1.5) {
+      clipped.push(`row-container-clearance:${row.className}`);
+    }
     for (let parent = row; parent; parent = parent.parentElement) {
       const style = getComputedStyle(parent);
       if (!['hidden', 'clip', 'auto', 'scroll'].includes(style.overflowY) && style.maskImage === 'none') continue;
@@ -40,8 +50,7 @@ for (const density of [1, 1.25, 2, 3]) {
         await expect(card.locator('h4')).toBeVisible();
         const rows = page.locator('.badge-carousel-window');
         for (const row of await rows.all()) {
-          await expect(row).toHaveCSS('overflow-y', 'visible');
-          await expect(row).toHaveCSS('mask-image', 'none');
+          await expect(row).toHaveCSS('overflow', 'hidden');
         }
         const clearance = await card.locator('.badge-carousel').evaluate(carousel => {
           const bounds = carousel.getBoundingClientRect();

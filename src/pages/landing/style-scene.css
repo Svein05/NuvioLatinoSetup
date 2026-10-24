@@ -88,17 +88,17 @@
 }
 .badge-carousel {
   display: grid;
-  gap: 10px;
-  padding-block: .25em;
-  mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
+  gap: 2px;
+  padding-block: 4px;
 }
 .badge-carousel-window {
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: hidden;
+  mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
 }
 .badge-carousel-track {
   display: flex;
   width: max-content;
+  padding-block: 4px;
   animation: badge-carousel 28s linear infinite;
   animation-play-state: paused;
 }
