@@ -1,6 +1,6 @@
 import { usablePosterFeed } from '../shared/media/poster-feed.js';
 
-const KEY = 'nuvio_poster_feed_v1';
+const KEY = 'nuvio_poster_feed_v2';
 
 export function createPosterFeedLoader({ read, storage, now = Date.now }) {
   let pending;

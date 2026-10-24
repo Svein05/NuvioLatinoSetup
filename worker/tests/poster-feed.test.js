@@ -7,7 +7,7 @@ const source = Array.from({ length: 16 }, (_, index) => ({ id: index + 1, title:
 const snapshot = () => normalizePosterSources([source.map(item => ({ ...item, mediaType: 'movie' }))]);
 const backend = () => ({ POSTER_FEED_KV: { get: vi.fn().mockResolvedValue(snapshot()), put: vi.fn() }, TMDB_READ_ACCESS_TOKEN: 'synthetic-token' });
 
-it('weekly refresh localizes artwork after four fixed sources and stores one validated snapshot', async () => {
+it('weekly refresh uses ranked movie and TV trends only and stores one localized snapshot', async () => {
   const env = backend();
   const fetchImpl = vi.fn().mockImplementation(async url => {
     if (!url.includes('/images?')) return Response.json({ results: source });
@@ -17,9 +17,14 @@ it('weekly refresh localizes artwork after four fixed sources and stores one val
       width: 500, aspect_ratio: 0.667 }] });
   });
   await refreshPosterFeed(env, { fetchImpl });
-  expect(fetchImpl).toHaveBeenCalledTimes(36);
+  expect(fetchImpl).toHaveBeenCalledTimes(34);
   expect(env.POSTER_FEED_KV.put).toHaveBeenCalledTimes(1);
   expect(JSON.parse(env.POSTER_FEED_KV.put.mock.calls[0][1]).items).toHaveLength(32);
+  const titles = JSON.parse(env.POSTER_FEED_KV.put.mock.calls[0][1]).items;
+  expect(titles.slice(0, 4).map(item => item.mediaType + ':' + item.id))
+    .toEqual(['movie:1', 'tv:1', 'movie:2', 'tv:2']);
+  expect(fetchImpl.mock.calls.slice(0, 2).map(([url]) => new URL(url).pathname))
+    .toEqual(['/3/trending/movie/week', '/3/trending/tv/week']);
   for (const [url, options] of fetchImpl.mock.calls) {
     expect(url).toContain('api.themoviedb.org/3/');
     expect(url).toContain(url.includes('/images?') ? 'language=es' : 'language=es-MX');

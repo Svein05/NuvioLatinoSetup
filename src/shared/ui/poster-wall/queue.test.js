@@ -3,9 +3,10 @@ import { createPosterQueue } from './queue.js';
 const items = Array.from({ length: 30 }, (_, index) => ({ id: index + 1, mediaType: 'movie' }));
 
 it('consumes the pool before repeating and avoids immediately repeated titles across cycles', () => {
-  const queue = createPosterQueue(items, { random: () => .5 });
+  const queue = createPosterQueue(items);
   const first = Array.from({ length: 30 }, () => queue.next().id);
   expect(new Set(first).size).toBe(30);
+  expect(first).toEqual(items.map(item => item.id));
   expect(first.slice(-12)).not.toContain(queue.next().id);
 });
 

@@ -29,7 +29,7 @@ export async function localizePosterSources(sources, token, fetchImpl = fetch) {
       title: item?.title || item?.name, posterPath: item?.poster_path };
     if (item?.adult !== true && isPosterItem(value)) unique.set(value.mediaType + ':' + value.id, item);
   }
-  // Bound the refresh to 44 provider requests, with at most four image reads in flight.
+  // Bound the refresh to 42 provider requests, with at most four image reads in flight.
   const candidates = [...unique.values()].slice(0, 40);
   const localized = [];
   for (let offset = 0; offset < candidates.length; offset += 4) {
