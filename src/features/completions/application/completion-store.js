@@ -20,6 +20,9 @@ export function createCompletionStore({ local, reportWarning = console.warn }) {
     },
     save,
     recorded: id => acknowledged.has(id) || access('getItem', 'completion:' + id) === 'confirmed',
+    pending: id => access('getItem', 'completion:' + id) === 'pending',
+    begin: id => access('setItem', 'completion:' + id, 'pending'),
+    release: id => access('removeItem', 'completion:' + id),
     confirm(count, id) {
       save(count);
       acknowledged.add(id);

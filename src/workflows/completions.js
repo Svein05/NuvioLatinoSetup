@@ -21,19 +21,21 @@ async function loadCount(context, options) {
 async function recordCount(context, completionId) {
   const { endpoints, incrementCount, store } = context;
   if (store.recorded(completionId)) return { ...store.snapshot(), status: 'duplicate' };
-  if (context.uncertain.has(completionId)) return {
+  if (context.uncertain.has(completionId) || store.pending(completionId)) return {
     ...store.snapshot(), status: 'unknown', warning: 'Hay un incremento pendiente de confirmación; no se repetirá automáticamente.',
   };
   const endpoint = endpoints.find(item => item.hit);
   if (!endpoint) return {
     ...store.snapshot(), status: 'unavailable', warning: 'El registro remoto del contador no está configurado.',
   };
+  store.begin(completionId);
   try {
     const result = await incrementCount(endpoint.hit, completionId);
     store.confirm(result.value, completionId);
     return { count: result.value, source: 'network', status: result.status };
   } catch (error) {
     if (error.outcome === 'unknown') context.uncertain.add(completionId);
+    else store.release(completionId);
     return {
       ...store.snapshot(), status: context.uncertain.has(completionId) ? 'unknown' : 'failed',
       warning: context.uncertain.has(completionId) ? 'No se pudo confirmar el incremento remoto; no se repetirá automáticamente.'
