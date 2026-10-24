@@ -161,3 +161,16 @@ test('pinned compositions stay below navigation on short desktop screens', async
     }
   }
 });
+
+test('completed scenes remain pinned through additional native scroll travel', async ({ page }) => {
+  await openLanding(page);
+  await revealChapter(page, 'style', 1);
+  const scene = page.locator('[data-scene="style"]');
+  await expect(scene).toHaveCSS('--finish', '1.0000');
+  const stage = page.locator('[data-chapter="style"] .story-stage');
+  const before = await stage.boundingBox();
+  await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'instant' }));
+  await expect(scene).toHaveCSS('--finish', '1.0000');
+  expect(Math.abs((await stage.boundingBox()).y - before.y)).toBeLessThan(1);
+  await expect(scene).toBeInViewport();
+});

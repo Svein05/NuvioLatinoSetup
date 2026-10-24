@@ -8,7 +8,7 @@ function renderChapter({ story, chapters, viewportHeight, playback }) {
   chapters.forEach(chapter => {
     const rectangle = chapter.getBoundingClientRect();
     const enhanced = story.classList.contains('is-enhanced');
-    const target = enhanced ? pinnedProgress(rectangle, viewportHeight) : 1;
+    const target = enhanced ? pinnedProgress(rectangle, viewportHeight, viewportHeight * .7) : 1;
     const scene = chapter.querySelector('[data-scene]');
     const bounds = scene.getBoundingClientRect();
     const inView = bounds.top < viewportHeight && bounds.bottom > 0;
@@ -18,7 +18,7 @@ function renderChapter({ story, chapters, viewportHeight, playback }) {
 }
 
 function renderAccount({ account, viewportHeight, playback }) {
-  const target = pinnedProgress(account.getBoundingClientRect(), viewportHeight);
+  const target = pinnedProgress(account.getBoundingClientRect(), viewportHeight, viewportHeight * .7);
   const progress = accountTimeline(playback.value(account, target, document.hidden));
   account.style.setProperty('--addon-order', progress.avatar.toFixed(4));
   account.style.setProperty('--addon-config', progress.change.toFixed(4));

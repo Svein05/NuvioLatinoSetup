@@ -186,7 +186,7 @@
 }
 @media (min-width: 1024px) {
   .landing-account.is-enhanced {
-    height: 190svh;
+    height: 260svh;
     padding: 0;
   }
   .is-enhanced .account-showcase-frame {

@@ -3,9 +3,9 @@ export function clamp(value) {
 }
 
 /** Native sticky travel: both columns remain visible through the final hold. */
-export function pinnedProgress(rectangle, viewportHeight) {
+export function pinnedProgress(rectangle, viewportHeight, finalHold = 0) {
   const frameHeight = viewportHeight - 150;
-  return clamp((120 - rectangle.top) / Math.max(1, rectangle.height - frameHeight));
+  return clamp((120 - rectangle.top) / Math.max(1, rectangle.height - frameHeight - finalHold));
 }
 
 export function chapterProgress(rectangles, viewportHeight) {
