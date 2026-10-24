@@ -1,4 +1,4 @@
-import { accountProgress, chapterProgress, clamp, pinnedProgress } from './scene-progress.js';
+import { accountProgress, chapterProgress, pinnedProgress } from './scene-progress.js';
 import { renderScene } from './render-scene.js';
 
 function renderChapter(story, chapters, viewportHeight) {
@@ -24,34 +24,18 @@ function renderAccount(account, viewportHeight) {
   account.style.setProperty('--avatar-change', progress.change.toFixed(4));
 }
 
-function renderBackdrop(backdrop, story, reduced) {
-  if (!backdrop) return;
-  if (reduced) {
-    backdrop.style.removeProperty('opacity');
-    backdrop.style.removeProperty('filter');
-    return;
-  }
-  const end = Math.max(600, story.getBoundingClientRect().top + window.scrollY + 120);
-  const raw = clamp(window.scrollY / end);
-  const progress = raw * raw * (3 - 2 * raw);
-  backdrop.style.opacity = (.85 - progress * .70).toFixed(3);
-  backdrop.style.filter = `blur(${(progress * 6).toFixed(1)}px) brightness(${(1 - progress * .45).toFixed(2)})`;
-}
-
 /** Presentation only: no sessions, account controllers, storage or service adapters. */
 export function initLandingPresentation(documentRoot = document) {
   const story = documentRoot.querySelector('.landing-story');
   const account = documentRoot.querySelector('.landing-account');
   if (!story || !account || !window.IntersectionObserver) return () => {};
   const chapters = [...story.querySelectorAll('[data-chapter]')];
-  const backdrop = documentRoot.getElementById('heroBackdrop');
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const desktop = window.matchMedia('(min-width: 1024px) and (min-height: 650px)');
   const visible = new Set([story, account]);
   let frame = 0;
   const update = () => {
     frame = 0;
-    renderBackdrop(backdrop, story, reduced.matches);
     if (visible.has(story)) renderChapter(story, chapters, window.innerHeight);
     account.classList.toggle('has-scene-motion', !reduced.matches && visible.has(account));
     if (!reduced.matches && visible.has(account)) renderAccount(account, window.innerHeight);

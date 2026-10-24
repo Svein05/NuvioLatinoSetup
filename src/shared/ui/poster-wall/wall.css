@@ -1,0 +1,87 @@
+body[data-poster-page] { isolation: isolate; }
+.poster-wall {
+  position: fixed;
+  inset: 0;
+  height: 100svh;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--wall-visibility,.85);
+}
+.poster-wall-fallback, .poster-wall-rows, .poster-wall-scrim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.poster-wall-fallback {
+  object-fit: cover;
+  object-position: top;
+}
+.poster-wall-rows {
+  opacity: 0;
+}
+.poster-wall.is-ready .poster-wall-rows { opacity: 1; }
+.poster-wall.is-ready .poster-wall-fallback { opacity: 0; }
+.poster-wall-rows > div {
+  height: 50%;
+  overflow: hidden;
+}
+.poster-wall-track {
+  display: flex;
+  height: 100%;
+  width: max-content;
+  animation: poster-wall-left var(--poster-step,10s) linear infinite;
+}
+.poster-wall-track img {
+  flex: 0 0 var(--poster-width);
+  width: var(--poster-width);
+  height: 100%;
+  object-fit: cover;
+}
+.poster-wall-track.is-reversed {
+  animation-name: poster-wall-right;
+}
+.poster-wall-scrim {
+  background: linear-gradient(to bottom,rgba(8,9,12,.22),rgba(8,9,12,.35) 45%,#08090c);
+}
+[data-poster-theme="interior"] .poster-wall-scrim {
+  background: rgba(8,9,12,.45);
+}
+.poster-wall.is-paused .poster-wall-track { animation-play-state: paused; }
+.poster-wall-pause {
+  position: fixed;
+  left: max(16px,env(safe-area-inset-left));
+  bottom: max(16px,env(safe-area-inset-bottom));
+  z-index: 30;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  background: rgba(16,18,24,.65);
+  color: white;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.poster-wall-pause[hidden] { display: none; }
+.poster-wall-pause:focus-visible { outline: 2px solid #ffd479; outline-offset: 4px; }
+@keyframes poster-wall-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-1 * var(--poster-width))); }
+}
+@keyframes poster-wall-right {
+  from { transform: translateX(calc(-1 * var(--poster-width))); }
+  to { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .poster-wall-track { animation: none; }
+  .poster-wall-pause { display: none; }
+}
+
+[data-poster-page="interior"] .poster-wall { --wall-visibility: .22; }
+
+.tmdb-credit { margin-top: 16px; }
+.tmdb-credit img { width: 80px; height: auto; }
+.tmdb-credit p { max-width: 260px; margin-top: 8px; font-size: 10px; color: rgba(255,255,255,.5); }
+
+body > footer { position: relative; z-index: 1; }

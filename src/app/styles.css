@@ -28,3 +28,5 @@
 @import '../features/avatars/ui/collections.css';
 @import '../features/addons/ui/drag.css';
 @import '../features/avatars/ui/comparison.css';
+
+@import '../shared/ui/poster-wall/wall.css';

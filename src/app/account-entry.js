@@ -1,3 +1,4 @@
+import './poster-background.js';
 import { CONFIG } from './config.js';
 import { NuvioClient } from '../integrations/nuvio/client.js';
 import { updateMetadataConfiguration, metadataOwner } from './metadata-configuration.js';
