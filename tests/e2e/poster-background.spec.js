@@ -102,3 +102,30 @@ test('missing feed does not block wizard interaction', async ({ page }) => {
   await expect(page.locator('[data-poster-pause-control]')).toBeHidden();
   await expect(page.locator('body')).not.toContainText('Poster feed unavailable');
 });
+
+test('navigation restores the same images and animation phase before deferred app startup', async ({ page }) => {
+  const reads = await prepare(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  await page.locator('[data-poster-pause-control]').click();
+  await page.evaluate(() => {
+    document.querySelectorAll('.poster-wall-track').forEach(track => {
+      const animation = track.getAnimations()[0];
+      animation.currentTime = Number(animation.effect.getTiming().duration) * .4;
+    });
+  });
+  const before = await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src));
+  await page.route('**/*', route => {
+    if (route.request().resourceType() === 'script') return route.abort();
+    return route.fallback();
+  });
+  await page.goto('/account/');
+  await expect(page.locator('[data-poster-wall]')).toHaveAttribute('data-poster-restored', 'true');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  expect(await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src))).toEqual(before);
+  const delay = await page.locator('.poster-wall-track').first().evaluate(track => parseFloat(track.style.animationDelay));
+  expect(delay).toBeCloseTo(-.4 * 105 / 8, 1);
+  expect(reads()).toBe(1);
+  await expect(page.locator('.poster-wall-fallback')).toHaveCSS('opacity', '0');
+});

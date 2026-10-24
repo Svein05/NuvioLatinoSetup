@@ -85,3 +85,11 @@ body[data-poster-page] { isolation: isolate; }
 .tmdb-credit p { max-width: 260px; margin-top: 8px; font-size: 10px; color: rgba(255,255,255,.5); }
 
 body > footer { position: relative; z-index: 1; }
+
+@view-transition { navigation: auto; }
+.poster-wall { view-transition-name: poster-background; }
+::view-transition-group(poster-background) { animation-duration: 180ms; }
+::view-transition-old(poster-background), ::view-transition-new(poster-background) { mix-blend-mode: normal; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+}

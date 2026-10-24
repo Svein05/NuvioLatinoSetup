@@ -3,9 +3,16 @@ import { createPosterRow } from './row.js';
 
 const PAUSE_KEY = 'nuvio_poster_wall_paused';
 
+function prepareFeed(root, feed) {
+  if (!feed) return;
+  if (root.dataset.posterStamp !== feed.generatedAt) root.querySelectorAll('.poster-wall-track').forEach(track => track.remove());
+  root.dataset.posterStamp = feed.generatedAt;
+}
+
 export function initPosterWall({ root, button, feed, storage }) {
   const media = window.matchMedia('(prefers-reduced-motion: reduce)');
   const queue = feed ? createPosterQueue(feed.items, { storage }) : null;
+  prepareFeed(root, feed);
   let paused = false;
   try { paused = storage.getItem(PAUSE_KEY) === 'true'; } catch { /* Use the default preference. */ }
   let rows = [];
@@ -49,16 +56,16 @@ export function initPosterWall({ root, button, feed, storage }) {
   window.addEventListener('resize', resize);
   media.addEventListener('change', paint);
   build();
-  return () => {
+  return preserve => {
     cancelAnimationFrame(frame);
     clearTimeout(resizeTimer);
-    rows.forEach(dispose => dispose());
+    rows.forEach(dispose => dispose(preserve));
     button.hidden = true;
     button.removeEventListener('click', toggle);
     document.removeEventListener('visibilitychange', paint);
     window.removeEventListener('scroll', schedule);
     window.removeEventListener('resize', resize);
     media.removeEventListener('change', paint);
-    root.classList.remove('is-ready');
+    if (!preserve) root.classList.remove('is-ready');
   };
 }

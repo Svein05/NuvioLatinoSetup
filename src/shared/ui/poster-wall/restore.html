@@ -1,0 +1,38 @@
+<script>
+(() => {
+  // Restore cached images while HTML is parsed, before the deferred application starts.
+  const root = document.currentScript.parentElement;
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('nuvio_poster_view_v1'));
+    if (!saved || Date.now() - saved.at > 3600000 || Date.now() < saved.at
+      || saved.width !== innerWidth || saved.height !== innerHeight || saved.rows?.length !== 2) return;
+    const width = Math.ceil(innerHeight / 3);
+    const count = Math.ceil(innerWidth / width) + 3;
+    const valid = saved.rows.every(row => row.sources?.length === count && Number.isFinite(row.phase)
+      && row.phase >= 0 && row.phase < 1 && row.sources.every(source =>
+        /^https:\/\/image\.tmdb\.org\/t\/p\/w(185|342)\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(source)));
+    if (!valid) return;
+    const interior = /^\/(account|configuration)(?:\/|$)/.test(location.pathname);
+    root.dataset.posterTheme = interior ? 'interior' : 'landing';
+    root.dataset.posterStamp = saved.stamp;
+    root.dataset.posterRestored = 'true';
+    saved.rows.forEach((state, index) => {
+      const track = document.createElement('div');
+      const duration = (interior ? 105 : 75) / 8;
+      track.className = 'poster-wall-track' + (index ? ' is-reversed' : '');
+      track.style.setProperty('--poster-width', width + 'px');
+      track.style.setProperty('--poster-step', duration + 's');
+      track.style.animationDelay = -state.phase * duration + 's';
+      state.sources.forEach(source => {
+        const image = document.createElement('img');
+        image.alt = ''; image.width = width; image.height = Math.ceil(width * 1.5);
+        image.decoding = 'sync'; image.src = source;
+        track.append(image);
+      });
+      root.querySelectorAll('[data-poster-row]')[index].append(track);
+    });
+    root.classList.add('is-ready');
+    if (sessionStorage.getItem('nuvio_poster_wall_paused') === 'true') root.classList.add('is-paused');
+  } catch { /* Invalid or unavailable storage keeps the normal static fallback. */ }
+})();
+</script>

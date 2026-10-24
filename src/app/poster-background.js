@@ -2,6 +2,7 @@ import { CONFIG } from './config.js';
 import { fetchPosterFeed } from '../integrations/worker/poster-feed.js';
 import { createPosterFeedLoader } from '../workflows/load-poster-feed.js';
 import { initPosterWall } from '../shared/ui/poster-wall/wall.js';
+import { savePosterWall } from '../shared/ui/poster-wall/continuity.js';
 import { whenDocumentReady } from '../shared/ui/when-document-ready.js';
 
 const storage = name => ({
@@ -18,16 +19,28 @@ function start() {
   const button = document.querySelector('[data-poster-pause-control]');
   const interior = /^\/(account|configuration)(?:\/|$)/.test(window.location.pathname);
   root.dataset.posterTheme = interior ? 'interior' : 'landing';
-  let wall = initPosterWall({ root, button, feed: null, storage: storage('sessionStorage') });
+  let wall = root.dataset.posterRestored ? () => {} : initPosterWall({ root, button, feed: null, storage: storage('sessionStorage') });
   const request = new AbortController();
-  dispose = () => { request.abort(); wall(); };
+  dispose = preserve => { request.abort(); wall(preserve); };
   load({ signal: request.signal }).then(feed => {
-    if (!feed || request.signal.aborted) return;
+    if (request.signal.aborted) return;
+    if (!feed) return;
     wall();
     wall = initPosterWall({ root, button, feed, storage: storage('sessionStorage') });
   });
 }
 whenDocumentReady(start);
-window.addEventListener('pagehide', () => dispose());
+const save = () => {
+  const root = document.querySelector('[data-poster-wall]');
+  if (root) savePosterWall(root, storage('sessionStorage'));
+};
+window.addEventListener('pageswap', save);
+window.addEventListener('pagehide', () => {
+  save();
+  const root = document.querySelector('[data-poster-wall].is-ready');
+  if (root) root.dataset.posterRestored = 'true';
+  dispose(true);
+  dispose = () => {};
+});
 window.addEventListener('pageshow', event => { if (event.persisted) start(); });
 if (import.meta.hot) import.meta.hot.dispose(() => dispose());

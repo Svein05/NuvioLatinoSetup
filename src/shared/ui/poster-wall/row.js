@@ -1,7 +1,7 @@
 export function createPosterRow({ row, queue, reverse, onReady }) {
   const width = Math.ceil(window.innerHeight / 3);
   const count = Math.ceil(window.innerWidth / width) + 3;
-  const track = document.createElement('div');
+  const track = row.querySelector('.poster-wall-track') || document.createElement('div');
   track.className = 'poster-wall-track';
   track.style.setProperty('--poster-width', width + 'px');
   track.style.setProperty('--poster-step', (row.closest('[data-poster-theme="interior"]') ? 105 : 75) / 8 + 's');
@@ -29,7 +29,8 @@ export function createPosterRow({ row, queue, reverse, onReady }) {
     fill(image);
     return image;
   };
-  track.replaceChildren(...Array.from({ length: count }, makeImage));
+  if (!track.children.length) track.replaceChildren(...Array.from({ length: count }, makeImage));
+  else track.querySelectorAll('img').forEach(image => { image.onload = onReady; image.onerror = failed; });
   const cycle = event => {
     if (event.target !== track) return;
     const image = reverse ? track.lastElementChild : track.firstElementChild;
@@ -38,10 +39,10 @@ export function createPosterRow({ row, queue, reverse, onReady }) {
     else track.append(image);
   };
   track.addEventListener('animationiteration', cycle);
-  row.replaceChildren(track);
-  return () => {
+  if (track.parentElement !== row) row.replaceChildren(track);
+  return preserve => {
     track.removeEventListener('animationiteration', cycle);
     track.querySelectorAll('img').forEach(image => { image.onload = null; image.onerror = null; });
-    track.remove();
+    if (!preserve) track.remove();
   };
 }
