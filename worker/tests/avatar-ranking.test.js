@@ -24,11 +24,12 @@ it('reads ranked pairs without requiring an account and never returns Redis secr
   const fetchImpl = backend({ result: [key, '4'] });
   const response = await createWorker({ fetchImpl }).fetch(new Request('https://worker.invalid/api/avatars/ranking?limit=8'), env);
   expect(response.status).toBe(200);
-  expect(await response.json()).toEqual({ items: [{ key, score: 4 }] });
+  expect(await response.json()).toEqual({ items: [{ key, score: 4 }], totalUsage: 4 });
   const [url, init] = fetchImpl.mock.calls[0];
   expect(url).toBe('https://synthetic.upstash.io/');
   expect(init.headers.Authorization).toBe('Bearer synthetic-redis-secret');
-  expect(JSON.parse(init.body)).toEqual(['ZREVRANGE', 'avatar_ranks', 0, 7, 'WITHSCORES']);
+  expect(JSON.parse(init.body)).toEqual(['ZREVRANGE', 'avatar_ranks', 0, -1, 'WITHSCORES']);
+  expect(init.redirect).toBe('manual');
 });
 
 it.each(['recorded', 'duplicate'])('authenticates the session and reports an atomic %s vote', async status => {
@@ -119,4 +120,26 @@ it('drops invalid legacy members without accepting invalid score data', () => {
   expect(rankedAvatars(['../unsafe', '5', key, '4'])).toEqual([{ key, score: 4 }]);
   expect(() => rankedAvatars([key, '-1'])).toThrow();
   expect(() => rankedAvatars([key])).toThrow();
+});
+
+it('sums every stored avatar before limiting the public top, without mutating Redis', async () => {
+  const entries = Array.from({ length: 45 }, (_, index) => ['IconsStyle/Avatar' + index + '.webp', String(index + 1)]).flat();
+  const fetchImpl = backend({ result: entries });
+  const response = await createWorker({ fetchImpl }).fetch(new Request('https://worker.invalid/api/avatars/ranking?limit=8'), env);
+  const data = await response.json();
+  expect(data.items).toHaveLength(8);
+  expect(data.totalUsage).toBe(1035);
+  expect(fetchImpl).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(fetchImpl.mock.calls[0][1].body)[0]).toBe('ZREVRANGE');
+});
+
+it('reports confirmed zero for an empty ranking and rejects unsafe aggregate totals', async () => {
+  const request = new Request('https://worker.invalid/api/avatars/ranking');
+  expect(await (await createWorker({ fetchImpl: backend({ result: [] }) }).fetch(request, env)).json()).toEqual({ items: [], totalUsage: 0 });
+  const result = [key, String(Number.MAX_SAFE_INTEGER), 'IconsStyle/Other.webp', '1'];
+  expect((await createWorker({ fetchImpl: backend({ result }) }).fetch(request, env)).status).toBe(502);
+});
+
+it.each([null, '', true])('does not turn an invalid score into a confirmed zero: %j', score => {
+  expect(() => rankedAvatars([key, score])).toThrow();
 });

@@ -10,7 +10,7 @@ export function avatarRedis(env, fetchImpl) {
     let response;
     let body;
     try {
-      response = await fetchImpl(url.href, { method: 'POST', redirect: 'error', signal: AbortSignal.timeout(5000),
+      response = await fetchImpl(url.href, { method: 'POST', redirect: 'manual', signal: AbortSignal.timeout(5000),
         headers: { Authorization: `Bearer ${env.AVATAR_REDIS_TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify(command) });
       body = await response.json();
     } catch { throw new WorkerError('No se pudo confirmar la respuesta del ranking.', 502, write ? 'unknown' : 'failed'); }

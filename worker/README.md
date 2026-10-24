@@ -96,3 +96,11 @@ una dependencia instalada del proyecto actualmente.
 ## Weekly poster feed
 
 See [POSTER-FEED.md](POSTER-FEED.md) for the read-only feed contract, weekly refresh, testing prerequisites and operator-only initialization.
+
+## Avatar usage total
+
+GET /api/avatars/ranking?limit=8 now returns { items, totalUsage }. The limit still controls only the displayed top (1–32); totalUsage sums every valid stored avatar score before slicing. Empty confirmed storage returns zero. Invalid scores or an unsafe sum fail the read rather than returning a partial total. Invalid legacy member names remain excluded consistently with the existing ranking validator.
+
+The total represents recorded usage under the existing account/avatar 24-hour deduplication rules, not unique people, current profiles or an exact history of all profile saves. This change does not alter voting or authentication rules. Redis uses manual redirect handling to avoid following credentials to another host.
+
+Configure AVATAR_REDIS_URL and secret AVATAR_REDIS_TOKEN on the Worker for reads. Usage writes additionally require NUVIO_PUBLIC_ANON_KEY as described above. The landing shares one ranking read between its carousel and metric, never increments usage, and caches only a last-confirmed total. Older Workers without totalUsage keep the carousel functional while the metric uses confirmed cache or an unavailable state. Deployment and live Redis verification are separate operator actions; automated tests use synthetic data only.
