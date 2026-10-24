@@ -32,4 +32,11 @@ describe('landing scene progress', () => {
     expect(pinnedProgress({ top: 120, height: 1710 }, 900)).toBe(0);
     expect(pinnedProgress({ top: -840, height: 1710 }, 900)).toBe(1);
   });
+
+  it('adds a final hold without stretching the preceding animation travel', () => {
+    const original = pinnedProgress({ top: -532.8, height: 1710 }, 900);
+    expect(pinnedProgress({ top: -532.8, height: 2340 }, 900, 630)).toBeCloseTo(original);
+    expect(pinnedProgress({ top: -840, height: 2340 }, 900, 630)).toBe(1);
+    expect(pinnedProgress({ top: -1300, height: 2340 }, 900, 630)).toBe(1);
+  });
 });

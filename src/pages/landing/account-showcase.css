@@ -88,29 +88,44 @@
 .preview-activity-grid > div {
   min-width: 0;
 }
-.preview-activity-grid img {
+.preview-watch-poster {
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  aspect-ratio: 2/3;
+}
+.preview-watch-poster img {
+  display: block;
   width: 100%;
   aspect-ratio: 2/3;
   object-fit: contain;
   object-position: bottom;
-  border-radius: 12px;
+  border-radius: inherit;
 }
 .preview-watch-progress {
-  position: relative;
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
   display: block;
-  width: 65%;
   height: 3px;
-  margin-top: -3px;
+  background: rgba(170,174,181,.65);
+}
+.preview-watch-progress::before {
+  content: '';
+  display: block;
+  width: var(--watch-progress,65%);
+  height: 100%;
   background: var(--color-estrella);
 }
 .preview-activity-grid > div:nth-child(2) .preview-watch-progress {
-  width: 35%;
+  --watch-progress: 35%;
 }
 .preview-activity-grid > div:nth-child(3) .preview-watch-progress {
-  width: 80%;
+  --watch-progress: 80%;
 }
 .preview-activity-grid > div:nth-child(4) .preview-watch-progress {
-  width: 45%;
+  --watch-progress: 45%;
 }
 .preview-activity-grid strong {
   display: block;
@@ -171,7 +186,7 @@
 }
 @media (min-width: 1024px) {
   .landing-account.is-enhanced {
-    height: 190svh;
+    height: 260svh;
     padding: 0;
   }
   .is-enhanced .account-showcase-frame {
@@ -233,6 +248,8 @@
   }
 }
 @media (max-width: 639px) {
+  .preview-watch-poster { border-radius: 2px; }
+  .preview-watch-progress { left: 2px; right: 2px; bottom: 3px; height: 2px; }
   .account-showcase-panels {
     padding: 18px;
   }

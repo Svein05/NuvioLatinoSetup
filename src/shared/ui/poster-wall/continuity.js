@@ -8,6 +8,6 @@ export function savePosterWall(root, storage) {
       phase: duration ? (time % duration) / duration : 0 };
   });
   try { storage.setItem('nuvio_poster_view_v1', JSON.stringify({ rows, at: Date.now(),
-    width: window.innerWidth, height: window.innerHeight, stamp: root.dataset.posterStamp })); }
+    width: window.innerWidth, height: root.clientHeight, stamp: root.dataset.posterStamp })); }
   catch { /* Navigation remains available when storage is blocked. */ }
 }

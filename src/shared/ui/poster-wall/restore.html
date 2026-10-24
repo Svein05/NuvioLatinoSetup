@@ -5,8 +5,8 @@
   try {
     const saved = JSON.parse(sessionStorage.getItem('nuvio_poster_view_v1'));
     if (!saved || Date.now() - saved.at > 3600000 || Date.now() < saved.at
-      || saved.width !== innerWidth || saved.height !== innerHeight || saved.rows?.length !== 2) return;
-    const width = Math.ceil(innerHeight / 3);
+      || saved.width !== innerWidth || saved.height !== root.clientHeight || saved.rows?.length !== 2) return;
+    const width = Math.ceil(root.clientHeight / 3);
     const count = Math.ceil(innerWidth / width) + 3;
     const valid = saved.rows.every(row => row.sources?.length === count && Number.isFinite(row.phase)
       && row.phase >= 0 && row.phase < 1 && row.sources.every(source =>
