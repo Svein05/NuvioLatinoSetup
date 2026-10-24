@@ -33,7 +33,9 @@ export function rankedAvatars(raw) {
   if (!Array.isArray(raw) || raw.length % 2) throw new WorkerError('Respuesta de ranking inválida.', 502);
   const items = [];
   for (let index = 0; index < raw.length; index += 2) {
-    const score = Number(raw[index + 1]);
+    const value = raw[index + 1];
+    if (!['string', 'number'].includes(typeof value) || String(value).trim() === '') throw new WorkerError('Puntuación de ranking inválida.', 502);
+    const score = Number(value);
     if (!Number.isSafeInteger(score) || score < 0) throw new WorkerError('Puntuación de ranking inválida.', 502);
     try { items.push({ key: avatarRankingKey(raw[index]), score }); }
     catch { /* Ignore obsolete legacy members with non-avatar keys, without rendering them. */ }

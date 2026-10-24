@@ -1,7 +1,7 @@
-import { PUBLIC_COMPLETIONS_CONFIG } from './completions-config.js';
-import { createCompletionStore, mountLiveCounter } from '../features/completions/index.js';
+import { CONFIG } from './config.js';
+import { createCompletionStore, mountLiveCounter, createCompletionIdentity } from '../features/completions/index.js';
 import { createCompletions } from '../workflows/completions.js';
-import { requestCounterValue } from '../integrations/completions/counter-endpoint.js';
+import { createWorkerCounter } from '../integrations/completions/worker-counter.js';
 import { initMobileHeaderMenu } from '../shared/ui/navigation/menu.js';
 import { initNavOverflowMonitor } from '../shared/ui/navigation/overflow.js';
 
@@ -11,32 +11,43 @@ const storage = name => ({
   setItem: (key, value) => (typeof window !== 'undefined' && window[name] ? window[name].setItem(key, value) : undefined),
   removeItem: key => (typeof window !== 'undefined' && window[name] ? window[name].removeItem(key) : undefined),
 });
-const config = PUBLIC_COMPLETIONS_CONFIG;
 const store = createCompletionStore({ local: storage('localStorage'), session: storage('sessionStorage') });
+const transport = createWorkerCounter(CONFIG.WORKER_API_URL, {
+  clientId: createCompletionIdentity({ storage: storage('localStorage') }),
+});
 const counter = createCompletions({
-  endpoints: [
-    { get: config.primaryGet, hit: config.primaryHit },
-    { get: config.fallbackGet, hit: config.fallbackHit },
-  ],
-  readCount: requestCounterValue,
-  incrementCount: endpoint => requestCounterValue(endpoint, { increment: true }),
+  endpoints: [{ get: 'worker', hit: 'worker' }],
+  readCount: transport.read,
+  incrementCount: transport.increment,
   store,
 });
 let mounted;
 let disposeMenu;
 let disposeOverflow;
 let started = false;
+let lastResult = counter.snapshot();
+const listeners = new Set();
+const publish = result => { lastResult = result; listeners.forEach(listener => listener(result)); };
+
+export function subscribeCompletionCount(listener) {
+  const alreadyMounted = Boolean(mounted);
+  listeners.add(listener);
+  initCompletionsCounterUI();
+  if (alreadyMounted) listener(lastResult);
+  return () => listeners.delete(listener);
+}
 
 export function initCompletionsCounterUI() {
   started = true;
   if (mounted) return mounted;
   disposeMenu = initMobileHeaderMenu();
   disposeOverflow = initNavOverflowMonitor();
-  mounted = mountLiveCounter({ counter });
+  mounted = mountLiveCounter({ counter, onUpdate: publish });
   return mounted;
 }
 
 export function recordSuccessfulCompletion() {
+  if (window.location.origin !== 'https://guia.lat-add.com') return Promise.resolve({ ...counter.snapshot(), status: 'unavailable' });
   return initCompletionsCounterUI().record();
 }
 

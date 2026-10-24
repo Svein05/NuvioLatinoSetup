@@ -32,12 +32,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - run: npm ci
       - run: npm run check
-        env:
-          COUNTER_PRIMARY_GET: ${{ secrets.COUNTER_PRIMARY_GET }}
-          COUNTER_PRIMARY_HIT: ${{ secrets.COUNTER_PRIMARY_HIT }}
-          COUNTER_FALLBACK_GET: ${{ secrets.COUNTER_FALLBACK_GET }}
-          COUNTER_FALLBACK_HIT: ${{ secrets.COUNTER_FALLBACK_HIT }}
-          COUNTER_API_URL: ${{ secrets.COUNTER_API_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -5,6 +5,29 @@ const feed = () => ({ schemaVersion: 1, generatedAt: new Date().toISOString(),
   items: Array.from({ length: 30 }, (_, index) => ({ id: index + 1, mediaType: index % 2 ? 'movie' : 'tv',
     title: 'Synthetic title ' + index, posterPath: '/synthetic_' + index + '.jpg' })) });
 
+for (const width of [1440, 390]) {
+  test(`landing posters ease to a continuous slow drift at ${width}px and accelerate on return`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await prepare(page);
+    await page.goto('/');
+    await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+    const rates = () => page.locator('.poster-wall-track').evaluateAll(tracks => tracks.map(track => track.getAnimations()[0].playbackRate));
+    await expect.poll(rates).toEqual([1, 1]);
+    const end = await page.evaluate(() => document.querySelector('[data-chapter]').getBoundingClientRect().top
+      + scrollY - document.querySelector('[data-poster-wall]').clientHeight * .18);
+    await page.evaluate(y => scrollTo(0, y), end / 2);
+    await expect.poll(async () => (await rates())[0]).toBeCloseTo(.64, 2);
+    await page.evaluate(y => scrollTo(0, y), end + 200);
+    await expect.poll(async () => (await rates())[0]).toBeCloseTo(.28, 2);
+    await expect(page.locator('[data-poster-wall]')).not.toHaveClass(/is-paused/);
+    const time = () => page.locator('.poster-wall-track').first().evaluate(track => track.getAnimations()[0].currentTime);
+    const before = await time();
+    await expect.poll(time).toBeGreaterThan(before + 15);
+    await page.evaluate(() => scrollTo(0, 0));
+    await expect.poll(rates).toEqual([1, 1]);
+  });
+}
+
 async function prepare(page, { offline = false } = {}) {
   await isolateExternalServices(page);
   let reads = 0;
@@ -157,4 +180,47 @@ test('mobile browser toolbar height changes preserve cached poster composition b
   await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
   expect(await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src))).toEqual(before);
   expect(await page.locator('.poster-wall-track').first().evaluate(track => parseFloat(track.style.getPropertyValue('--poster-width')))).toBe(282);
+});
+
+test('high-density mobile requests sharper images without increasing poster nodes or metadata calls', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 });
+  const page = await context.newPage();
+  await prepare(page);
+  await page.goto('/');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  const sources = await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src));
+  expect(sources.length).toBeLessThanOrEqual(12);
+  expect(sources.every(source => source.includes('/w780/'))).toBe(true);
+  await page.goto('/configuration/');
+  await expect(page.locator('[data-poster-wall]')).toHaveAttribute('data-poster-restored', 'true');
+  expect(await page.locator('.poster-wall-track img').evaluateAll(images => images.map(image => image.src))).toEqual(sources);
+  await context.close();
+});
+
+test('legacy small cached images stay visible until the sharper replacement is decoded', async ({ page }) => {
+  await prepare(page);
+  await page.addInitScript(() => {
+    if (location.pathname !== '/account/') return;
+    const saved = JSON.parse(sessionStorage.getItem('nuvio_poster_view_v1'));
+    if (!saved) return;
+    saved.rows.forEach(row => { row.sources = row.sources.map(source => source.replace(/\/w(342|500|780)\//, '/w185/')); });
+    sessionStorage.setItem('nuvio_poster_view_v1', JSON.stringify(saved));
+  });
+  let blocked = false;
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route('https://image.tmdb.org/**', async route => {
+    if (blocked && !route.request().url().includes('/w185/')) await gate;
+    await route.fulfill({ path: 'assets/preview/landing/inception.jpg' });
+  });
+  await page.goto('/');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  blocked = true;
+  await page.goto('/account/', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('[data-poster-wall]')).toHaveAttribute('data-poster-restored', 'true');
+  await expect(page.locator('.poster-wall-track img').first()).toHaveAttribute('src', /\/w185\//);
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  release();
+  await expect(page.locator('.poster-wall-track img').first()).toHaveAttribute('src', /\/w(342|500|780)\//);
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
 });

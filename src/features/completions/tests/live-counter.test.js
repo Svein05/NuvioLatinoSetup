@@ -87,3 +87,16 @@ it('shows the increment celebration only after a confirmed write', async () => {
   expect(f.view.celebrate).toHaveBeenCalledOnce();
   expect(f.view.render).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'confirmed', count: 152 }), true);
 });
+
+it('publishes initial, refresh and record results without creating another polling loop', async () => {
+  const f = fixture();
+  const onUpdate = vi.fn();
+  const instance = mountLiveCounter({ counter: f.counter, createView: () => f.view, onUpdate }, f.root);
+  disposals.push(instance.dispose);
+  expect(onUpdate).toHaveBeenCalledWith({ count: 150, source: 'cache' });
+  await vi.advanceTimersByTimeAsync(0);
+  expect(onUpdate).toHaveBeenLastCalledWith({ count: 151, source: 'network' });
+  await instance.record();
+  expect(onUpdate).toHaveBeenLastCalledWith({ count: 152, source: 'network', status: 'confirmed' });
+  expect(f.counter.refresh).toHaveBeenCalledTimes(1);
+});

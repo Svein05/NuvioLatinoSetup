@@ -21,42 +21,44 @@ function rollingDigits(previous, next) {
   return digits;
 }
 
-function animatedDigit(previous, next, lifetime) {
+function animatedDigit(previous, next, lifetime, options) {
   const strip = valueNode('', 'odometer-digit-strip');
   const digits = rollingDigits(previous, next);
   strip.append(...digits.map(digit => valueNode(String(digit), 'odometer-digit-val')));
   strip.style.transform = `translateY(-${(digits.length - 1) * 1.15}em)`;
   strip.style.transition = 'none';
   lifetime.frame(() => lifetime.frame(() => {
-    strip.style.transition = 'transform 0.72s cubic-bezier(0.16, 1, 0.3, 1)';
+    strip.style.transition = `transform ${(options.durationMs ?? 720) / 1000}s cubic-bezier(0.16, 1, 0.3, 1) ${options.delayMs / 1000}s`;
     strip.style.transform = 'translateY(0)';
   }));
   return strip;
 }
 
-function character(previous, next, lifetime) {
+function character(previous, next, lifetime, options) {
   if (!/\d/.test(next)) return valueNode(next, 'odometer-static-char');
   const slot = valueNode('', 'odometer-digit-slot');
   slot.dataset.digit = next;
   const before = /\d/.test(previous) ? Number(previous) : null;
-  slot.append(before !== null && before !== Number(next)
-    ? animatedDigit(before, Number(next), lifetime) : valueNode(next, 'odometer-digit-val'));
+  slot.append(before !== null && (before !== Number(next) || options.initial)
+    ? animatedDigit(before, Number(next), lifetime, options) : valueNode(next, 'odometer-digit-val'));
   return slot;
 }
 
-export function renderOdometer(container, textValue, animate = false) {
+export function renderOdometer(container, textValue, animate = false, options = {}) {
   if (!container) return () => {};
   const previous = instances.get(container);
   previous?.lifetime.dispose();
   const lifetime = createLifetime();
   const text = String(textValue);
-  const motion = animate && previous?.text && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const length = motion ? Math.max(previous.text.length, text.length) : text.length;
-  const before = motion ? previous.text.padStart(length, ' ') : ''.padStart(length, ' ');
+  const initial = Boolean(options.animateInitial && !previous);
+  const motion = animate && (previous?.text || initial) && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const length = motion ? Math.max(previous?.text?.length || 0, text.length) : text.length;
+  const before = motion ? (initial ? text : previous.text).padStart(length, ' ') : ''.padStart(length, ' ');
   const after = text.padStart(length, ' ');
   const wrapper = valueNode('', 'odometer-wrapper');
   for (let index = 0; index < length; index++) {
-    if (after[index] !== ' ') wrapper.append(character(before[index], after[index], lifetime));
+    if (after[index] !== ' ') wrapper.append(character(before[index], after[index], lifetime,
+      { ...options, initial: motion && initial, delayMs: index * (options.staggerMs || 0) }));
   }
   container.replaceChildren(wrapper);
   instances.set(container, { text, lifetime });

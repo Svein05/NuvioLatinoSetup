@@ -8,7 +8,7 @@ export async function authenticatedNuvioUser(request, env, fetchImpl) {
   let response;
   let user;
   try {
-    response = await fetchImpl('https://api.nuvio.tv/auth/v1/user', { redirect: 'error', signal: AbortSignal.timeout(5000),
+    response = await fetchImpl('https://api.nuvio.tv/auth/v1/user', { redirect: 'manual', signal: AbortSignal.timeout(5000),
       headers: { Authorization: authorization, apikey: env.NUVIO_PUBLIC_ANON_KEY } });
     if ([401, 403].includes(response.status)) throw new WorkerError('Sesión de Nuvio no válida.', 401);
     if (!response.ok) throw new WorkerError('No se pudo verificar la sesión de Nuvio.', 502);
