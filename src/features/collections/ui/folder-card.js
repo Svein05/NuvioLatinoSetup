@@ -21,12 +21,12 @@ function renderCardReorderButtons(sectionId, fIndex, totalFolders) {
 
 function renderCardHoverOverlay(sectionId, folderId) {
   return `
-    <div class="card-hover-overlay absolute inset-0 bg-[#08090c]/85 backdrop-blur-[6px] hidden md:flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity">
-      <button ${collectionAction('openCatalogExplorer', sectionId, folderId)} class="no-drag lat-capsule-btn solid text-[11px] py-1.5 px-3">
+    <div class="card-hover-overlay mini-folder-actions absolute inset-0 bg-[#08090c]/85 backdrop-blur-[6px] hidden md:flex flex-col items-center justify-center gap-2 p-2 z-30 transition-opacity">
+      <button type="button" ${collectionAction('openCatalogExplorer', sectionId, folderId)} class="no-drag lat-capsule-btn solid text-[11px] py-1.5 px-3">
         <i class="fa-solid fa-layer-group text-[11px]"></i>
         <span>Ver Catálogos</span>
       </button>
-      <button ${collectionAction('openEditModal', sectionId, folderId)} class="no-drag lat-capsule-btn glass text-[11px] py-1 px-2.5" title="Personalizar diseño de fila">
+      <button type="button" ${collectionAction('openEditModal', sectionId, folderId)} class="no-drag lat-capsule-btn glass text-[11px] py-1 px-2.5" title="Personalizar diseño de fila">
         <i class="fa-solid fa-sliders text-[10px] text-[#ffd479]"></i>
         <span>Diseño</span>
       </button>
