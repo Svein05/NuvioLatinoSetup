@@ -11,8 +11,8 @@ test('landing refreshes its avatar strip from the shared public GitHub catalog',
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
   });
   await page.reload();
-  await expect(page.locator('[data-avatar-carousel] img')).toHaveCount(1);
-  await expect(page.locator('[data-avatar-carousel] img')).toHaveAttribute('src', new RegExp(`Naruto.webp\\?v=${sha}$`));
+  await expect(page.locator('[data-avatar-carousel] img')).toHaveCount(14);
+  await expect(page.locator('[data-avatar-carousel] img').first()).toHaveAttribute('src', new RegExp(`Naruto.webp\\?v=${sha}$`));
 });
 
 test('translucent scenes avoid opaque panels and keep profile and library centered', async ({ page }) => {
@@ -35,7 +35,7 @@ test('translucent scenes avoid opaque panels and keep profile and library center
   }
 });
 
-test('avatar strip cycles the complete catalog with bounded images and addons reorder before configuration', async ({ page }, testInfo) => {
+test('avatar strip cycles a ranked pool with bounded images and addons reorder before configuration', async ({ page }, testInfo) => {
   await openLanding(page);
   const manifest = JSON.parse(readFileSync('assets/profile_icons/manifest.json', 'utf8'));
   const count = manifest.styles.flatMap(style => style.franchises.flatMap(franchise => franchise.files)).length;
@@ -49,7 +49,8 @@ test('avatar strip cycles the complete catalog with bounded images and addons re
     }
     return sources.size;
   }, count);
-  expect(visited).toBe(count);
+  expect(visited).toBeGreaterThan(0);
+  expect(visited).toBeLessThanOrEqual(32);
   await page.locator('#explora-cuenta').evaluate(element => {
     const frame = element.querySelector('.account-showcase-frame');
     window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 120 + (element.offsetHeight - frame.offsetHeight) * .05);
@@ -79,4 +80,28 @@ test('avatar strip cycles the complete catalog with bounded images and addons re
   await page.screenshot({ path: testInfo.outputPath('account-mobile.png') });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(strip).toHaveCSS('animation-name', 'none');
+});
+
+
+test('landing carousel uses most-used avatars without recording usage', async ({ page }) => {
+  await openLanding(page);
+  await page.route('https://api.github.com/**', route => {
+    const body = route.request().url().includes('/git/ref/') ? { object: { sha: 'a'.repeat(40) } }
+      : { tree: ['A', 'B', 'C'].map(name => ({ type: 'blob', path: 'assets/profile_icons/NetflixStyle/Show/' + name + '.webp' })) };
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
+  });
+  await page.route('**/api/avatars/ranking**', route => route.fulfill({
+    contentType: 'application/json', body: JSON.stringify({ items: [
+      { key: 'NetflixStyle/Show/B.webp', score: 20 }, { key: 'NetflixStyle/Show/A.webp', score: 10 },
+    ] }),
+  }));
+  const writes = [];
+  page.on('request', request => { if (request.method() === 'POST') writes.push(request.url()); });
+  await page.reload();
+  const images = page.locator('[data-avatar-carousel] img');
+  await expect(images.first()).toHaveAttribute('src', /B.webp/);
+  await expect(images.nth(1)).toHaveAttribute('src', /A.webp/);
+  expect(await images.evaluateAll(nodes => nodes.every(image => !image.src.includes('/C.webp')))).toBe(true);
+  await expect(page.locator('#account-showcase-title')).toHaveText('Tu espacio sigue evolucionando contigo.');
+  expect(writes).toEqual([]);
 });

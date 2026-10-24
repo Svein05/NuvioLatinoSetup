@@ -5,11 +5,12 @@ export function avatarPaths(manifest) {
       `/assets/profile_icons/${[style, franchise, file].map(encodeURIComponent).join('/')}`)));
 }
 
-/** Recycle a bounded strip through the entire bundled GitHub catalog. */
+/** Recycle a bounded strip through the selected avatar pool. */
 export function initAvatarCarousel(manifest, root = document) {
   const track = root.querySelector('[data-avatar-carousel]');
   if (!track) return () => {};
   const paths = avatarPaths(manifest);
+  if (!paths.length) return () => {};
   let cursor = 0;
   const nextImage = () => {
     const image = document.createElement('img');
@@ -21,7 +22,7 @@ export function initAvatarCarousel(manifest, root = document) {
     image.decoding = 'async';
     return image;
   };
-  track.replaceChildren(...Array.from({ length: Math.min(14, paths.length) }, nextImage));
+  track.replaceChildren(...Array.from({ length: 14 }, nextImage));
   const advance = event => {
     if (event.target !== track) return;
     const image = track.firstElementChild;

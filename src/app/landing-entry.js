@@ -1,3 +1,6 @@
+import { fetchTopAvatarKeys } from './avatar-ranking.js';
+import { rankedCarouselPaths } from '../pages/landing/ranked-carousel.js';
+import { avatarPaths } from '../pages/landing/avatar-carousel.js';
 import { loadAvatarsCatalog, resolveAvatarCdnUrl } from './avatar-catalog.js';
 import { loadBundledAvatars } from '../integrations/github/bundled-avatars.js';
 import { initAvatarCarousel } from '../pages/landing/avatar-carousel.js';
@@ -10,14 +13,15 @@ function initialize() {
   const presentation = initLandingPresentation();
   const request = new AbortController();
   let carousel = () => {};
-  loadBundledAvatars(request.signal).then(manifest => {
-    if (!request.signal.aborted) carousel = initAvatarCarousel(manifest);
+  const ranking = fetchTopAvatarKeys(32);
+  Promise.all([loadBundledAvatars(request.signal), ranking]).then(([manifest, entries]) => {
+    if (!request.signal.aborted) carousel = initAvatarCarousel(rankedCarouselPaths(avatarPaths(manifest), entries));
   }).catch(() => {}).finally(() => {
     if (request.signal.aborted) return;
-    loadAvatarsCatalog().then(avatars => {
+    Promise.all([loadAvatarsCatalog(), ranking]).then(([avatars, entries]) => {
       if (request.signal.aborted || !avatars.length) return;
       carousel();
-      carousel = initAvatarCarousel(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)));
+      carousel = initAvatarCarousel(rankedCarouselPaths(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)), entries));
     }).catch(() => {});
   });
   dispose = () => { request.abort(); presentation(); carousel(); };
