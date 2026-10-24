@@ -5,6 +5,29 @@ const feed = () => ({ schemaVersion: 1, generatedAt: new Date().toISOString(),
   items: Array.from({ length: 30 }, (_, index) => ({ id: index + 1, mediaType: index % 2 ? 'movie' : 'tv',
     title: 'Synthetic title ' + index, posterPath: '/synthetic_' + index + '.jpg' })) });
 
+for (const width of [1440, 390]) {
+  test(`landing posters ease to a continuous slow drift at ${width}px and accelerate on return`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await prepare(page);
+    await page.goto('/');
+    await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+    const rates = () => page.locator('.poster-wall-track').evaluateAll(tracks => tracks.map(track => track.getAnimations()[0].playbackRate));
+    await expect.poll(rates).toEqual([1, 1]);
+    const end = await page.evaluate(() => document.querySelector('[data-chapter]').getBoundingClientRect().top
+      + scrollY - document.querySelector('[data-poster-wall]').clientHeight * .18);
+    await page.evaluate(y => scrollTo(0, y), end / 2);
+    await expect.poll(async () => (await rates())[0]).toBeCloseTo(.64, 2);
+    await page.evaluate(y => scrollTo(0, y), end + 200);
+    await expect.poll(async () => (await rates())[0]).toBeCloseTo(.28, 2);
+    await expect(page.locator('[data-poster-wall]')).not.toHaveClass(/is-paused/);
+    const time = () => page.locator('.poster-wall-track').first().evaluate(track => track.getAnimations()[0].currentTime);
+    const before = await time();
+    await expect.poll(time).toBeGreaterThan(before + 15);
+    await page.evaluate(() => scrollTo(0, 0));
+    await expect.poll(rates).toEqual([1, 1]);
+  });
+}
+
 async function prepare(page, { offline = false } = {}) {
   await isolateExternalServices(page);
   let reads = 0;
