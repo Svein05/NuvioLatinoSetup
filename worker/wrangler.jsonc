@@ -6,5 +6,10 @@
     "GITHUB_OWNER": "Svein05",
     "GITHUB_REPOSITORY": "NuvioLatinoSetup",
     "GITHUB_BRANCH": "main"
+  },
+  "triggers": {
+    "crons": [
+      "0 12 * * 1"
+    ]
   }
 }

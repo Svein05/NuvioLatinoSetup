@@ -1,3 +1,5 @@
+import { posterFeedRoute } from './routes/poster-feed.js';
+import { refreshPosterFeed } from './services/poster-feed.js';
 import { corsHeaders, json } from './middleware/http.js';
 import { collaboratorRoute } from './routes/collaborators.js';
 import { proxyRoute } from './routes/proxy.js';
@@ -5,12 +7,20 @@ import { avatarRankingRoute } from './routes/avatar-ranking.js';
 import { avatarSuggestionsRoute } from './routes/avatar-suggestions.js';
 
 /** Dependency injection keeps all tests offline and independent of private credentials. */
-export function createWorker({ fetchImpl = fetch } = {}) {
+export function createWorker({ fetchImpl = fetch, now = Date.now } = {}) {
   return {
+    async scheduled(_event, env) {
+      try { return await refreshPosterFeed(env, { fetchImpl, now }); }
+      catch {
+        console.error('Weekly poster refresh failed; previous snapshot retained.');
+        throw new Error('Weekly poster refresh failed');
+      }
+    },
     async fetch(request, env) {
       try {
         if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
         const { pathname } = new URL(request.url);
+        if (pathname === '/api/poster-feed') return await posterFeedRoute(request, env);
         if (pathname === '/api/avatars/suggestions') return await avatarSuggestionsRoute(request, env, fetchImpl);
         if (['/api/avatars/ranking', '/api/avatars/usage'].includes(pathname)) return await avatarRankingRoute(request, env, fetchImpl);
         if (['/api/verify-auth', '/api/save-staged-changes'].includes(pathname)) {
