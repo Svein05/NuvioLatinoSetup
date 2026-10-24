@@ -34,4 +34,3 @@ Official references:
 - https://developer.themoviedb.org/docs/image-basics
 - https://developers.cloudflare.com/workers/configuration/cron-triggers/
 - https://developers.cloudflare.com/kv/api/write-key-value-pairs/
-
