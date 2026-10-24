@@ -80,6 +80,7 @@
 }
 .badge-carousel-window {
   overflow: hidden;
+  padding-block: 2px;
   mask-image: linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);
 }
 .badge-carousel-track {
