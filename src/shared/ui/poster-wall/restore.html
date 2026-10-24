@@ -32,7 +32,6 @@
       root.querySelectorAll('[data-poster-row]')[index].append(track);
     });
     root.classList.add('is-ready');
-    if (sessionStorage.getItem('nuvio_poster_wall_paused') === 'true') root.classList.add('is-paused');
   } catch { /* Invalid or unavailable storage keeps the normal static fallback. */ }
 })();
 </script>

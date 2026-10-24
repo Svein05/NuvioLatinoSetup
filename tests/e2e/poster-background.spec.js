@@ -45,17 +45,12 @@ test('opposite moving rows share cached data across pages and never make upstrea
   expect(upstream).toEqual([]);
 });
 
-test('pause, reduced motion, visibility and bfcache preserve bounded working backgrounds', async ({ page }) => {
+test('reduced motion, visibility and bfcache work without a floating pause button', async ({ page }) => {
   await prepare(page);
   await page.goto('/configuration/');
-  const button = page.locator('[data-poster-pause-control]');
   await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
-  await button.click();
-  await expect(button).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('.poster-wall-track').first()).toHaveCSS('animation-play-state', 'paused');
+  await expect(page.locator('[data-poster-pause-control]')).toHaveCount(0);
   await page.goto('/account/');
-  await expect(button).toHaveAttribute('aria-pressed', 'true');
-  await button.click();
   await expect(page.locator('.poster-wall-track').first()).toHaveCSS('animation-play-state', 'running');
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', { configurable: true, value: true });
@@ -108,10 +103,10 @@ test('navigation restores the same images and animation phase before deferred ap
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
   await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
-  await page.locator('[data-poster-pause-control]').click();
   await page.evaluate(() => {
     document.querySelectorAll('.poster-wall-track').forEach(track => {
       const animation = track.getAnimations()[0];
+      animation.pause();
       animation.currentTime = Number(animation.effect.getTiming().duration) * .4;
     });
   });
