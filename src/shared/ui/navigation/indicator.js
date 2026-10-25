@@ -78,6 +78,7 @@ export function initNavIndicator(root = document) {
     moveIndicator(indicator, active, true);
   });
   lifetime.on(window, 'resize', refresh);
+  lifetime.on(header, 'navlayoutchange', refresh);
   document.fonts?.ready.then(() => { if (!lifetime.signal.aborted) refresh(); });
   bindCounterExpansion(header, refresh, lifetime);
   const dispose = () => { lifetime.dispose(); instances.delete(nav); };
