@@ -2,7 +2,7 @@ import { createDisclosureItem } from './item.js';
 
 /** Enhance one native disclosure while retaining native fallback and teardown. */
 export function mountDisclosure(details) {
-  if (!details || !Element.prototype.animate) return () => {};
+  if (!details || typeof details.animate !== 'function') return () => {};
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const lifetime = new AbortController();
   const item = createDisclosureItem(details, reduced);

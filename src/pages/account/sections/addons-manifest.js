@@ -2,10 +2,10 @@ import { safeImageUrl } from '../../../shared/ui/safe-markup.js';
 
 export function normalizeManifestUrl(rawUrl) {
   let url = (rawUrl || '').trim();
-  if (url.startsWith('stremio://')) {
+  if (/^stremio:\/\//i.test(url)) {
     url = 'https://' + url.slice(10);
   }
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+  if (!/^https?:\/\//i.test(url)) {
     url = 'https://' + url;
   }
   return url;
@@ -26,7 +26,9 @@ export function getAddonFallbackLogo() {
 
 export function getAddonConfigureUrl(addon, info = {}) {
   try {
-    const url = new URL(normalizeManifestUrl(addon.manifest_url || addon.url || ''));
+    const raw = addon.manifest_url || addon.url || '';
+    if (/^[a-z][a-z0-9+.-]*:/i.test(raw) && !/^(https?|stremio):\/\//i.test(raw)) return null;
+    const url = new URL(normalizeManifestUrl(raw));
     if (!['http:', 'https:'].includes(url.protocol) || !/\/manifest\.json$/i.test(url.pathname)) return null;
     const known = ['aiometadata', 'aiostreams', 'torrentio', 'animesub', 'opensubtitles', 'cinetorrent', 'torbox', 'stremthru', 'jackettio'];
     const identity = `${url.hostname} ${addon.name || ''}`.toLowerCase();
