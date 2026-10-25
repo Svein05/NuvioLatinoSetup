@@ -59,7 +59,7 @@ describe('Preferences Step & Posters Demo', () => {
       querySelector: vi.fn(selector => {
         return {
           checked: selector.includes('Enrichment') || selector.includes('Ratings'),
-          value: '',
+          value: '', contains: () => false, setAttribute: vi.fn(), focus: vi.fn(),
           classList: { toggle: vi.fn(), add: vi.fn(), remove: vi.fn(), contains: () => false },
           addEventListener: (type, fn) => { listeners[selector] = fn; },
           removeEventListener: vi.fn(),
