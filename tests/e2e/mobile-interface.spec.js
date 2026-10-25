@@ -12,6 +12,11 @@ test('header clusters fit intrinsically through resizing and longer runtime labe
       const items = [...h.children].filter(e => getComputedStyle(e).display !== 'none').map(e => e.getBoundingClientRect());
       return items.every((box, i) => box.right <= h.getBoundingClientRect().right && (!i || items[i - 1].right <= box.left));
     })).toBe(true);
+    const shadow = await page.locator('.hero-title-shadow').evaluate(e => ({
+      title: getComputedStyle(e).textShadow, accent: getComputedStyle(e.querySelector('span')).textShadow,
+    }));
+    expect(shadow.title).not.toBe('none');
+    expect(shadow.accent).toBe(shadow.title);
   }
   await header.locator('.lat-brand-text').evaluate(e => { e.textContent = 'A considerably longer community project title'; });
   await expect(header).not.toHaveAttribute('data-nav-layout', 'wide');
