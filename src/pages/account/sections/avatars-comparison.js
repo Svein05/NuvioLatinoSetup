@@ -18,7 +18,7 @@ export function updateAvatarComparisonUI(root = document, state, resolveCdn = u 
   const modBadge = root.getElementById?.('avatarModifiedBadge');
   const headerMainWrap = root.getElementById?.('avatarHeaderMainWrap');
 
-  const origUrl = resolveCdn(state.originalAvatarUrl || '') || '/assets/logo/logo.webp';
+  const origUrl = resolveCdn(state.originalAvatarUrl || '') || '/assets/icons/avatar-placeholder.svg';
   const selectedUrl = resolveCdn(state.selectedAvatarUrl || origUrl) || origUrl;
   const isChanged = Boolean(state.selectedAvatarUrl && !areAvatarUrlsEqual(state.selectedAvatarUrl, state.originalAvatarUrl, resolveCdn));
 

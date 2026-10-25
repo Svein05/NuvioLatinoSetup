@@ -4,8 +4,11 @@ import { renderAvatarsCatalog, renderAvatarStylePills, renderModalFranchisesList
 import { updateAvatarComparisonUI, setNewSelectedAvatar } from './avatars-comparison.js';
 import { setupAvatarUrlConfirmModal } from './avatars-modal.js';
 import { renderRankedAvatars } from './avatar-cards.js';
+import { createAvatarGridLayout } from './avatar-grid.js';
 
 export function createAccountAvatars({ root, state, services, lifetime, notify, updateUI }) {
+  const grids = createAvatarGridLayout();
+  lifetime.add(grids.dispose);
   const select = url => {
     if (state.isSaving || state.isLoadingProfile) return;
     setNewSelectedAvatar(url, {
@@ -16,6 +19,7 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
   const closeFranchises = () => root.getElementById('modalAvatarFranchises')?.classList.replace('flex', 'hidden');
   const reset = () => { state.avatarFilters = { style: 'all', franchise: 'all', query: '' }; render(); };
   function render() {
+    grids.clear();
     if (renderReadFeedback(root.getElementById('avatarsCatalogContainer'), { loading: state.isLoadingAvatars && !services.getCompiledAvatars().length,
       error: !services.getCompiledAvatars().length ? state.avatarCatalogError : '', shape: 'avatars', retry: () => refresh(true) })) return;
     updateAvatarComparisonUI(root, state, services.resolveAvatarCdnUrl);
@@ -24,7 +28,7 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
     renderModalFranchisesList({ root, state, getFranchisesSummary: services.getFranchisesSummary,
       onSelectFranchise: franchise => { state.avatarFilters.franchise = franchise; closeFranchises(); render(); } });
     renderAvatarsCatalog({ root, state, filterAvatars: services.filterAvatars,
-      resolveAvatarCdnUrl: services.resolveAvatarCdnUrl, onSelectAvatar: select, onResetFilters: reset,
+      resolveAvatarCdnUrl: services.resolveAvatarCdnUrl, onSelectAvatar: select, onResetFilters: reset, mountGrid: grids.mount,
       onOpenFranchise: franchise => { state.avatarFilters.franchise = franchise; render(); } });
     if (state.avatarFilters.franchise === 'all' && !state.avatarFilters.query) {
       const container = root.getElementById('avatarsCatalogContainer');
@@ -32,7 +36,7 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
       const avatars = services.getCompiledAvatars().filter(avatar =>
         state.avatarFilters.style === 'all' || avatar.style === state.avatarFilters.style);
       renderRankedAvatars(top, { avatars, ranking: state.mostUsedKeys,
-        resolveUrl: services.resolveAvatarCdnUrl, selectedUrl: state.selectedAvatarUrl, onSelect: select });
+        resolveUrl: services.resolveAvatarCdnUrl, selectedUrl: state.selectedAvatarUrl, onSelect: select, mountGrid: grids.mount });
       container?.prepend(top);
     }
   }

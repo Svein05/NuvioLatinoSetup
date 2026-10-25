@@ -31,7 +31,6 @@ body[data-poster-page] { isolation: isolate; }
   display: flex;
   height: 100%;
   width: max-content;
-  animation: poster-wall-left var(--poster-step,10s) linear infinite;
 }
 .poster-wall-track img {
   flex: 0 0 var(--poster-width);
@@ -39,23 +38,11 @@ body[data-poster-page] { isolation: isolate; }
   height: 100%;
   object-fit: cover;
 }
-.poster-wall-track.is-reversed {
-  animation-name: poster-wall-right;
-}
 .poster-wall-scrim {
   background: linear-gradient(to bottom,rgba(8,9,12,.22),rgba(8,9,12,.35) 45%,#08090c);
 }
 [data-poster-theme="interior"] .poster-wall-scrim {
   background: rgba(8,9,12,.45);
-}
-.poster-wall.is-paused .poster-wall-track { animation-play-state: paused; }
-@keyframes poster-wall-left {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(-1 * var(--poster-width))); }
-}
-@keyframes poster-wall-right {
-  from { transform: translateX(calc(-1 * var(--poster-width))); }
-  to { transform: translateX(0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .poster-wall-track { animation: none; }
@@ -76,4 +63,8 @@ body > footer { position: relative; z-index: 1; }
 ::view-transition-old(poster-background), ::view-transition-new(poster-background) { mix-blend-mode: normal; }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
+}
+@media (hover: none) and (pointer: coarse) {
+  @view-transition { navigation: none; }
+  .poster-wall { view-transition-name: none; }
 }

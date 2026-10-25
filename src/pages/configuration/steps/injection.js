@@ -1,4 +1,5 @@
 import { createLifetime } from '../../../shared/ui/lifetime.js';
+import { mountDisclosure } from '../../../shared/ui/disclosure/mount.js';
 import {
   updateStep7ExecuteButton,
   updateManualModeButtons,
@@ -117,6 +118,7 @@ function bindExecutePipeline({ lifetime, root, state, actions }) {
 
 export function mountInjectionStep({ state, actions, root = document } = {}) {
   const lifetime = createLifetime();
+  lifetime.add(mountDisclosure(root.querySelector?.('.wizard-config-files')));
 
   const onSync = () => {
     actions.saveSession?.();

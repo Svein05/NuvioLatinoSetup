@@ -3,7 +3,7 @@ function renderAvatarCard(av, selectedUrl, resolveCdnUrl) {
   const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
   return `
     <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''}" data-avatar-path="${av.path}" data-avatar-name="${av.character}" title="${av.character} (${av.franchiseName || ''})">
-      <div class="avatar-circle-wrap"><img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'"></div>
+      <div class="avatar-circle-wrap"><img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" data-image-fallback="avatar"></div>
       <span class="avatar-card-name-label">${av.character}</span>
     </div>
   `;

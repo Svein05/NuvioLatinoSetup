@@ -17,7 +17,9 @@ export function createPosterMotion(root) {
     root.classList.toggle('is-paused', media.matches || document.hidden);
     const rate = interior ? 1 : posterPlaybackRate(progress);
     root.querySelectorAll('.poster-wall-track').forEach(track => {
-      track.getAnimations().forEach(animation => animation.updatePlaybackRate(rate));
+      track.getAnimations().forEach(animation => {
+        if (Math.abs(animation.playbackRate - rate) > .001) animation.updatePlaybackRate(rate);
+      });
     });
   };
   const schedule = () => { if (!frame) frame = requestAnimationFrame(paint); };

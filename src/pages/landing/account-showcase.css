@@ -149,8 +149,6 @@
   display: flex;
   gap: 16px;
   width: max-content;
-  animation: avatar-catalog-travel 2.4s linear infinite;
-  animation-play-state: paused;
 }
 .avatar-showcase-track img {
   width: 56px;
@@ -158,17 +156,6 @@
   flex: 0 0 56px;
   object-fit: cover;
   border-radius: 16px;
-}
-.has-scene-motion .avatar-showcase-track {
-  animation-play-state: running;
-}
-.is-document-hidden .avatar-showcase-track {
-  animation-play-state: paused;
-}
-@keyframes avatar-catalog-travel {
-  to {
-    transform: translateX(-72px);
-  }
 }
 .landing-account.is-enhanced .preview-activity-grid > div {
   opacity: var(--activity-reveal,1);

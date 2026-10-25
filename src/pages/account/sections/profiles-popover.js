@@ -56,12 +56,12 @@ export function renderProfilePopover({ root = document, state, resolveAvatarCdnU
   list.innerHTML = profiles.map(p => {
     const id = Number(p.profile_index ?? p.id);
     const isSelected = id === Number(state.selectedProfileId);
-    const avatarUrl = (resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url) || '/assets/logo/logo.webp';
+    const avatarUrl = (resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url) || '/assets/icons/avatar-placeholder.svg';
 
     return `
       <div class="popover-profile-row ${isSelected ? 'is-active' : ''}" data-profile-id="${id}">
         <div class="flex items-center gap-2.5 min-w-0 flex-1 pointer-events-none">
-          <img src="${escapeHtml(safeImageUrl(avatarUrl))}" alt="${escapeHtml(p.name)}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          <img src="${escapeHtml(safeImageUrl(avatarUrl))}" alt="${escapeHtml(p.name)}" class="w-7 h-7 rounded-full border border-white/20 bg-black/40 object-cover shrink-0" data-image-fallback="avatar">
           <div class="min-w-0 flex-1">
             <div class="text-xs font-semibold text-white truncate profile-row-name">${escapeHtml(p.name)}</div>
           </div>
@@ -105,11 +105,11 @@ export function showSelectProfilePrompt({ root = document, state, resolveAvatarC
   grid.innerHTML = profiles.map(p => {
     const id = Number(p.profile_index ?? p.id);
     const isSelected = id === Number(state.selectedProfileId);
-    const avatarUrl = (resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url) || '/assets/logo/logo.webp';
+    const avatarUrl = (resolveAvatarCdnUrl ? resolveAvatarCdnUrl(p.avatar_url) : p.avatar_url) || '/assets/icons/avatar-placeholder.svg';
     return `
       <div class="p-4 rounded-2xl bg-white/[0.04] border ${isSelected ? 'border-[#ffd479] bg-white/[0.08]' : 'border-white/10'} hover:border-[#ffd479]/60 hover:bg-white/[0.08] transition-all cursor-pointer flex flex-col items-center gap-2.5 group select-none shadow-sm" data-profile-id="${id}">
         <div class="relative">
-          <img src="${escapeHtml(safeImageUrl(avatarUrl))}" alt="${escapeHtml(p.name)}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          <img src="${escapeHtml(safeImageUrl(avatarUrl))}" alt="${escapeHtml(p.name)}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-white/20 group-hover:border-[#ffd479] group-hover:scale-105 transition-all object-cover shadow-lg" data-image-fallback="avatar">
           ${isSelected ? '<span class="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-[#ffd479] text-black text-[10px] flex items-center justify-center font-bold shadow-md"><i class="fa-solid fa-check"></i></span>' : ''}
         </div>
         <div class="text-center w-full">

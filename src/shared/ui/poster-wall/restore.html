@@ -23,6 +23,8 @@
       track.style.setProperty('--poster-width', width + 'px');
       track.style.setProperty('--poster-step', duration + 's');
       track.style.animationDelay = -state.phase * duration + 's';
+      track.dataset.stripPhase = String(state.phase);
+      track.style.transform = 'translateX(' + (index ? state.phase - 1 : -state.phase) * width + 'px)';
       state.sources.forEach(source => {
         const image = document.createElement('img');
         image.alt = ''; image.width = width; image.height = Math.ceil(width * 1.5);

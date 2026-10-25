@@ -27,8 +27,7 @@
 }
 .wizard-config-files summary::-webkit-details-marker { display: none; }
 .wizard-config-files summary > span { display: flex; align-items: center; gap: .65rem; }
-.wizard-config-files summary > i { transition: transform 200ms ease-out; }
-.wizard-config-files[open] summary > i { transform: rotate(180deg); }
+.wizard-config-files[open]:not([data-disclosure-open]) summary > i { transform: rotate(180deg); }
 .wizard-config-files-content { display: flex; flex-wrap: wrap; gap: .75rem; padding: 0 1.25rem 1.25rem; }
 .wizard-config-files summary:focus-visible, #btnEditBadgePack:focus-visible {
   outline: 2px solid #ffd479;

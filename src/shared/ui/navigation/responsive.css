@@ -1,82 +1,54 @@
-/* ============================================================ */
-/* ADAPTABILIDAD RESPONSIVA Y CONTROL DE OVERFLOW DE CABECERA   */
-/* ============================================================ */
-
-/* Estado compacto por defecto (móviles, tablets y pantallas < 1080px o con desborde forzado) */
+/* Header modes are selected from measured content, not viewport guesses. */
 .lat-floating-nav .lat-brand-text,
-.lat-floating-nav .lat-brand-badge {
-  display: none !important;
+.lat-floating-nav .lat-brand-badge,
+.lat-floating-nav .lat-desktop-nav-cluster { display: none !important; }
+.lat-floating-nav .lat-mobile-nav-cluster { display: block !important; }
+.lat-floating-nav nav { position: relative; flex: 0 1 auto; min-width: 0; }
+.lat-floating-nav:not([data-nav-layout="wide"]):not([data-nav-layout="compact"]) .lat-nav-tab span { display: none !important; }
+.lat-floating-nav[data-nav-layout="wide"] .lat-nav-tab span,
+.lat-floating-nav[data-nav-layout="compact"] .lat-nav-tab span { display: inline-block !important; }
+.lat-floating-nav[data-nav-layout="wide"] .lat-brand-text,
+.lat-floating-nav[data-nav-layout="wide"] .lat-brand-badge { display: inline !important; }
+.lat-floating-nav[data-nav-layout="wide"] .lat-desktop-nav-cluster {
+  display: flex !important;
+  flex: 0 0 auto;
+  flex-direction: row-reverse;
+  align-items: center;
 }
-
-.lat-floating-nav .lat-desktop-nav-cluster {
-  display: none !important;
-}
-
-.lat-floating-nav .lat-mobile-nav-cluster {
-  display: block !important;
-}
-
-/* Estado de escritorio (pantallas >= 1080px sin desborde) */
-@media (min-width: 1080px) {
-  .lat-floating-nav:not(.force-compact) .lat-brand-text {
-    display: inline !important;
-  }
-  .lat-floating-nav:not(.force-compact) .lat-brand-badge {
-    display: inline !important;
-  }
-  .lat-floating-nav:not(.force-compact) nav {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-  .lat-floating-nav:not(.force-compact) .lat-desktop-nav-cluster {
-    position: absolute;
-    right: 1.25rem;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex !important;
-    flex-direction: row-reverse;
-    align-items: center;
-    justify-content: flex-start;
-  }
-  .lat-desktop-nav-cluster > #completionsCounterPill {
-    order: 3;
-  }
-  .lat-desktop-nav-cluster > a[href*="discord"] {
-    order: 2;
-  }
-  .lat-desktop-nav-cluster > a[href*="github"],
-  .lat-desktop-nav-cluster > a:last-of-type {
-    order: 1;
-  }
-  .lat-floating-nav:not(.force-compact) .lat-mobile-nav-cluster {
-    display: none !important;
-  }
-}
-
+.lat-floating-nav[data-nav-layout="wide"] .lat-mobile-nav-cluster { display: none !important; }
+.lat-desktop-nav-cluster > .completions-counter-pill { order: 3; }
+.lat-desktop-nav-cluster > a[href*="discord"] { order: 2; }
+.lat-desktop-nav-cluster > a[href*="github"] { order: 1; }
 .lat-desktop-nav-cluster > a.lat-floating-pill {
-  height: var(--lat-capsule-height, 50px);
-  min-width: var(--lat-capsule-height, 50px);
+  height: var(--lat-capsule-height,50px);
+  min-width: var(--lat-capsule-height,50px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-
 #btnMobileHeaderMenu {
-  width: var(--lat-capsule-height-mobile, 42px);
-  height: var(--lat-capsule-height-mobile, 42px);
-  min-width: var(--lat-capsule-height-mobile, 42px);
+  width: var(--lat-capsule-height-mobile,42px);
+  height: var(--lat-capsule-height-mobile,42px);
+  min-width: var(--lat-capsule-height-mobile,42px);
   padding: 0 !important;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-
-@media (min-width: 640px) {
+@media (min-width:640px) {
   #btnMobileHeaderMenu {
-    width: var(--lat-capsule-height, 50px);
-    height: var(--lat-capsule-height, 50px);
-    min-width: var(--lat-capsule-height, 50px);
+    width: var(--lat-capsule-height,50px);
+    height: var(--lat-capsule-height,50px);
+    min-width: var(--lat-capsule-height,50px);
   }
 }
+header[data-nav-measure] {
+  position: fixed;
+  left: 0;
+  right: auto;
+  width: max-content;
+  max-width: none;
+  visibility: hidden;
+  pointer-events: none;
+}
+header[data-nav-measure] * { transition: none !important; animation: none !important; }

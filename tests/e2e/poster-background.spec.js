@@ -5,6 +5,28 @@ const feed = () => ({ schemaVersion: 1, generatedAt: new Date().toISOString(),
   items: Array.from({ length: 30 }, (_, index) => ({ id: index + 1, mediaType: index % 2 ? 'movie' : 'tv',
     title: 'Synthetic title ' + index, posterPath: '/synthetic_' + index + '.jpg' })) });
 
+test('both poster rows hold their endpoint until decoded replacements arrive', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await prepare(page);
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  await page.route(/image\.tmdb\.org\/.*synthetic_(16|17)\.jpg/, async route => {
+    await gate;
+    await route.fulfill({ path: 'assets/preview/landing/matrix.jpg' });
+  });
+  await page.goto('/');
+  const tracks = page.locator('.poster-wall-track');
+  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  const before = await tracks.evaluateAll(nodes => nodes.map(t => [...t.children].map(i => i.src)));
+  try {
+    await tracks.evaluateAll(nodes => nodes.forEach(t => t.getAnimations()[0].finish()));
+    await expect.poll(() => tracks.evaluateAll(nodes => nodes.map(t => t.getAnimations()[0].playState))).toEqual(['finished', 'finished']);
+    expect(await tracks.evaluateAll(nodes => nodes.map(t => [...t.children].map(i => i.src)))).toEqual(before);
+  } finally { release(); }
+  await expect.poll(() => tracks.evaluateAll(nodes => nodes.map(t => [...t.children].map(i => i.src)))).not.toEqual(before);
+  expect(await tracks.locator('img').evaluateAll(images => images.every(i => i.complete && i.naturalWidth > 0))).toBe(true);
+});
+
 for (const width of [1440, 390]) {
   test(`landing posters ease to a continuous slow drift at ${width}px and accelerate on return`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -55,8 +77,14 @@ test('opposite moving rows share cached data across pages and never make upstrea
     await expect(wall).toHaveCSS('z-index', '-1');
     if (path === '/configuration/') await expect(page.locator('#wizardView')).toHaveAttribute('aria-busy', 'false');
     await expect(page.locator('.poster-wall-track')).toHaveCount(2);
-    await expect(page.locator('.poster-wall-track').first()).toHaveCSS('animation-name', 'poster-wall-left');
-    await expect(page.locator('.poster-wall-track').last()).toHaveCSS('animation-name', 'poster-wall-right');
+    const directions = await page.locator('.poster-wall-track').evaluateAll(tracks => tracks.map(track => {
+      const frames = track.getAnimations()[0].effect.getKeyframes();
+      return frames.map(frame => new DOMMatrix(frame.transform).m41);
+    }));
+    expect(directions[0][0]).toBe(0);
+    expect(directions[0][1]).toBeLessThan(0);
+    expect(directions[1][0]).toBeLessThan(0);
+    expect(directions[1][1]).toBe(0);
     expect(await page.locator('.poster-wall-track img').count()).toBeLessThanOrEqual(20);
     if (path !== '/') {
       await expect(wall).toHaveAttribute('data-poster-theme', 'interior');
@@ -74,12 +102,12 @@ test('reduced motion, visibility and bfcache work without a floating pause butto
   await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
   await expect(page.locator('[data-poster-pause-control]')).toHaveCount(0);
   await page.goto('/account/');
-  await expect(page.locator('.poster-wall-track').first()).toHaveCSS('animation-play-state', 'running');
+  await expect.poll(() => page.locator('.poster-wall-track').first().evaluate(t => t.getAnimations()[0]?.playState)).toBe('running');
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', { configurable: true, value: true });
     document.dispatchEvent(new Event('visibilitychange'));
   });
-  await expect(page.locator('.poster-wall-track').first()).toHaveCSS('animation-play-state', 'paused');
+  await expect.poll(() => page.locator('.poster-wall-track').first().evaluate(t => t.getAnimations()[0]?.playState)).toBe('paused');
   await page.evaluate(() => {
     Object.defineProperty(document, 'hidden', { configurable: true, value: false });
     document.dispatchEvent(new Event('visibilitychange'));
@@ -88,7 +116,7 @@ test('reduced motion, visibility and bfcache work without a floating pause butto
   });
   await expect(page.locator('.poster-wall-track')).toHaveCount(2);
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(page.locator('.poster-wall-track').first()).toHaveCSS('animation-name', 'none');
+  await expect.poll(() => page.locator('.poster-wall-track').first().evaluate(t => t.getAnimations()[0]?.playState)).toBe('paused');
 });
 
 test('mobile, blocked storage and offline/no-JS retain readable pages and a static fallback', async ({ page, browser }, testInfo) => {
@@ -158,11 +186,10 @@ test('initial poster wall does not reveal a partly loaded mosaic on slow image r
   });
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.poster-wall-track')).toHaveCount(2);
-  await expect.poll(() => page.locator('.poster-wall-track img').evaluateAll(images =>
-    images.filter(image => image.complete && image.naturalWidth > 0).length)).toBeGreaterThan(1);
-  await expect(page.locator('[data-poster-wall]')).not.toHaveClass(/is-ready/);
-  release();
+  try {
+    await expect.poll(() => page.locator('.poster-wall-track img').count()).toBeGreaterThan(1);
+    await expect(page.locator('[data-poster-wall]')).not.toHaveClass(/is-ready/);
+  } finally { release(); }
   await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
 });
 

@@ -4,7 +4,6 @@ import { createPosterMotion } from './motion.js';
 
 function prepareFeed(root, feed) {
   if (!feed) return;
-  if (root.dataset.posterStamp !== feed.generatedAt) root.querySelectorAll('.poster-wall-track').forEach(track => track.remove());
   root.dataset.posterStamp = feed.generatedAt;
 }
 
@@ -17,10 +16,11 @@ export function initPosterWall({ root, feed, storage }) {
   const motion = createPosterMotion(root);
   const ready = () => {
     const images = [...root.querySelectorAll('.poster-wall-track img')];
-    if (images.length && images.every(image => image.complete && image.naturalWidth > 0)) root.classList.add('is-ready');
+    if (root.querySelectorAll('.poster-wall-track').length === 2 && images.length && images.every(image => image.complete && image.naturalWidth > 0)) root.classList.add('is-ready');
+    queueMicrotask(() => motion.refresh());
   };
   const build = () => {
-    rows.forEach(dispose => dispose());
+    rows.forEach(dispose => dispose(true));
     if (!queue) { motion.refresh(); return; }
     rows = [...root.querySelectorAll('[data-poster-row]')].map((row, index) =>
       createPosterRow({ row, queue, reverse: index === 1, onReady: ready }));

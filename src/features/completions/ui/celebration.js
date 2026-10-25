@@ -1,4 +1,5 @@
 import { animateEffect, flightFrames, visibleElement, waitEffect, waitForProgress } from './celebration-motion.js';
+import { resolveCelebrationTarget } from './celebration-target.js';
 
 function createStar(root) {
   const star = root.createElement('div');
@@ -42,6 +43,7 @@ export function createCompletionCelebration(root = document) {
     job.commit();
     job.star.remove();
     job.target?.classList.remove('is-celebrating');
+    job.destination.dispose();
     job = null;
   };
   const visibility = () => { if (root.hidden) cancel(); };
@@ -52,17 +54,19 @@ export function createCompletionCelebration(root = document) {
     async play(update) {
       cancel();
       if (root.hidden || !Element.prototype.animate) { update(); return; }
-      const target = [...root.querySelectorAll('.completions-counter-pill')].find(visibleElement);
+      const destination = resolveCelebrationTarget(root);
       let committed = false;
-      const current = { star: createStar(root), target, controller: new AbortController(),
+      const current = { star: createStar(root), destination, target: null, controller: new AbortController(),
         commit: () => { if (!committed) { committed = true; update(); } } };
       job = current;
       const signal = current.controller.signal;
       try {
-        await travel({ root, star: current.star, target, signal });
+        await travel({ root, star: current.star, target: destination.flightTarget, signal });
         current.star.remove();
         if (signal.aborted) return;
-        target?.classList.add('is-celebrating');
+        current.target = await destination.reveal(signal);
+        if (signal.aborted) return;
+        current.target?.classList.add('is-celebrating');
         await waitEffect(matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 320, signal);
         current.commit();
         await waitEffect(1800, signal);

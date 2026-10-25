@@ -1,68 +1,59 @@
 import { posterResolution } from '../../media/poster-resolution.js';
-
-function promoteImage(image, size, isActive) {
-  const previous = image.src;
-  if (Number(previous.match(/\/w(185|342|500|780)\//)?.[1]) >= size) return;
-  const source = previous.replace(/\/w(185|342|500|780)\//, '/w' + size + '/');
-  if (previous === source || !previous.startsWith('https://image.tmdb.org/t/p/')) return;
-  const candidate = new Image();
-  candidate.src = source;
-  candidate.decode().then(() => {
-    if (isActive() && image.src === previous) image.src = source;
-  }).catch(() => { /* Keep the decoded cached image when its upgrade is unavailable. */ });
-}
+import { decodeImage, mountDecodedStrip } from '../../media/decoded-strip.js';
 
 export function createPosterRow({ row, queue, reverse, onReady }) {
   const width = Math.ceil(row.clientHeight * 2 / 3);
   const count = Math.ceil(window.innerWidth / width) + 3;
   const size = posterResolution(width, window.devicePixelRatio);
-  let active = true;
+  const duration = (row.closest('[data-poster-theme="interior"]') ? 105 : 75) / 8 * 1000;
   const track = row.querySelector('.poster-wall-track') || document.createElement('div');
-  track.className = 'poster-wall-track';
+  let active = true;
+  let stop = () => {};
+  track.className = 'poster-wall-track' + (reverse ? ' is-reversed' : '');
   track.style.setProperty('--poster-width', width + 'px');
-  track.style.setProperty('--poster-step', (row.closest('[data-poster-theme="interior"]') ? 105 : 75) / 8 + 's');
-  if (reverse) track.classList.add('is-reversed');
-  const fill = (image, retry = false) => {
-    if (!retry) image.dataset.failures = '0';
-    image.onerror = failed;
-    const item = queue.next();
-    image.src = 'https://image.tmdb.org/t/p/w' + size + item.posterPath;
-  };
-  const failed = event => {
-    const image = event.currentTarget;
-    const failures = Number(image.dataset.failures || 0) + 1;
-    image.dataset.failures = String(failures);
-    if (failures < 3) fill(image, true);
-    else { image.onerror = null; image.src = '/assets/preview/landing/inception.jpg'; }
-  };
-  const makeImage = () => {
-    const image = document.createElement('img');
+  track.style.setProperty('--poster-step', duration / 1000 + 's');
+  const makeImage = source => {
+    const image = new Image(width, Math.ceil(width * 1.5));
     image.alt = '';
-    image.width = width;
-    image.height = Math.ceil(width * 1.5);
     image.decoding = 'async';
-    image.onload = onReady;
-    fill(image);
+    image.src = source;
     return image;
   };
-  if (!track.children.length) track.replaceChildren(...Array.from({ length: count }, makeImage));
-  else track.querySelectorAll('img').forEach(image => {
-    image.onload = onReady; image.onerror = failed;
-    promoteImage(image, size, () => active);
-  });
-  const cycle = event => {
-    if (event.target !== track) return;
-    const image = reverse ? track.lastElementChild : track.firstElementChild;
-    fill(image);
-    if (reverse) track.prepend(image);
-    else track.append(image);
+  const prepare = async () => {
+    for (let attempt = 0; attempt < 3 && active; attempt++) {
+      const item = queue.next();
+      try { return await decodeImage(makeImage('https://image.tmdb.org/t/p/w' + size + item.posterPath)); }
+      catch { /* Keep the old decoded frame if replacement artwork is unavailable. */ }
+    }
+    return null;
   };
-  track.addEventListener('animationiteration', cycle);
-  if (track.parentElement !== row) row.replaceChildren(track);
+  async function start() {
+    const existing = [...track.querySelectorAll('img')];
+    const images = await Promise.all(Array.from({ length: count }, async (_, index) => {
+      const previous = existing[index];
+      if (previous) {
+        previous.width = width;
+        previous.height = Math.ceil(width * 1.5);
+        try { await decodeImage(previous); } catch { return await prepare() || previous; }
+        const source = previous.src.replace(/\/w(185|342|500|780)\//, '/w' + size + '/');
+        const currentSize = Number(previous.src.match(/\/w(185|342|500|780)\//)?.[1]);
+        if (currentSize < size) {
+          try { return await decodeImage(makeImage(source)); } catch { /* Retain current artwork. */ }
+        }
+        return previous;
+      }
+      return await prepare() || await decodeImage(makeImage('/assets/preview/landing/inception.jpg')).catch(() => null);
+    }));
+    if (!active || images.some(image => !image?.naturalWidth)) return;
+    track.replaceChildren(...images);
+    if (track.parentElement !== row) row.replaceChildren(track);
+    onReady();
+    stop = mountDecodedStrip({ track, distance: width, duration, reverse, prepare });
+  }
+  void start();
   return preserve => {
     active = false;
-    track.removeEventListener('animationiteration', cycle);
-    track.querySelectorAll('img').forEach(image => { image.onload = null; image.onerror = null; });
+    stop();
     if (!preserve) track.remove();
   };
 }

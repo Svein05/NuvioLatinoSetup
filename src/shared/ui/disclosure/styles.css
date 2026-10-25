@@ -1,0 +1,12 @@
+.disclosure-panel[data-animating], .faq-panel[data-animating] {
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 max(calc(100% - 16px), calc(200% - var(--disclosure-content-height))), transparent);
+}
+[data-disclosure-open="true"] > summary > .disclosure-icon { transform: rotate(180deg); }
+[data-disclosure-open="false"] > summary > .disclosure-icon { transform: rotate(0deg); }
+.disclosure-icon { transition: transform 350ms cubic-bezier(.215,.61,.355,1); }
+.disclosure-content { display: flow-root; }
+@media (prefers-reduced-motion: reduce) {
+  .disclosure-icon { transition: none; }
+  .disclosure-panel[data-animating], .faq-panel[data-animating] { mask-image: none; }
+}
