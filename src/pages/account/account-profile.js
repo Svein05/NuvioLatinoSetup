@@ -23,6 +23,7 @@ function applyProfileReads(state, result, notify) {
   state.settings = extracted.settings;
   state.originalSettings = structuredClone(state.settings);
   state._rawStreamBadgeSettings = extracted.streamBadges;
+  if (result.overview.status === 'rejected') state.loadErrors.overview = true;
   if (result.overview.status === 'fulfilled') state.overviewData = buildProfileOverview({
     ...result.overview.value, profileId: state.selectedProfileId, addonsCount: state.installedAddons.length,
   });
@@ -36,6 +37,7 @@ export function createAccountProfileLoader({ state, client, config, metadata, no
     metadata.cancel();
     state.aioConfig = null; state.aioAddon = null; state.aioUuid = null; state.aioProtected = false;
     state.installedAddons = []; state.originalInstalledAddons = []; state.settings = {};
+    state.loadErrors = {}; state.overviewData = {};
     state.isLoadingProfile = true;
     render();
     try {
@@ -45,14 +47,23 @@ export function createAccountProfileLoader({ state, client, config, metadata, no
       });
       if (!isCurrent()) return;
       applyProfileReads(state, result, notify);
+      state.isLoadingProfile = false;
+      render();
+      const overview = state.loadErrors.overview ? Promise.resolve() : Promise.resolve(services.presentOverview?.({
+        data: state.overviewData, settings: state.settings, addonsCount: state.installedAddons.length, isCurrent,
+      })).catch(() => { if (isCurrent()) { state.loadErrors.overview = true; render(); } });
+      const previousTmdbKey = state.settings.tmdb_api_key;
       if (state.aioUuid) await metadata.load(state.aioUuid, state.aioPassword, isCurrent)
         .catch(error => { if (isCurrent()) notify([401, 403].includes(error.status)
           ? 'AIOMetadata requiere su contraseña. Desbloquéalo desde su sección.' : error.message, 'warning'); });
       if (!isCurrent()) return;
-      await services.presentOverview?.({
-        data: state.overviewData, settings: state.settings,
-        addonsCount: state.installedAddons.length, isCurrent,
-      });
+      await overview;
+      if (!state.loadErrors.overview && isCurrent() && state.settings.tmdb_api_key !== previousTmdbKey) {
+        await services.presentOverview?.({ data: state.overviewData, settings: state.settings, addonsCount: state.installedAddons.length, isCurrent });
+      }
+    } catch (error) {
+      if (isCurrent()) { state.loadErrors.overview = true; notify('No se pudieron cargar los datos del perfil.', 'warning'); }
+      throw error;
     } finally {
       if (isCurrent()) { state.isLoadingProfile = false; render(); }
     }

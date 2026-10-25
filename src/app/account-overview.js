@@ -5,10 +5,11 @@ const resolveDetails = createMediaDetailsResolver();
 
 /** Compose the account view with read-only metadata adapters and a captured profile revision. */
 export async function presentAccountOverview({ data, settings, addonsCount, isCurrent }) {
+  if (!isCurrent()) return;
   if (!renderOverviewMetrics(data, { settings, addonsCount })) return;
   await Promise.all([
-    { items: data.currentlyWatching, progress: true, error: data.loadErrors?.progressItems },
-    { items: data.recentlyWatched, progress: false, error: data.loadErrors?.watchedItems },
+    { items: data.currentlyWatching || [], progress: true, error: data.loadErrors?.progressItems },
+    { items: data.recentlyWatched || [], progress: false, error: data.loadErrors?.watchedItems },
   ].map(async ({ items, progress, error }) => {
     renderOverviewRow([], { progress, error, loading: !error && items.length > 0 });
     if (error || !items.length) return;
