@@ -17,10 +17,6 @@
 }
 .faq-details[open]:not([data-faq-open]) .faq-icon,
 .faq-details[data-faq-open="true"] .faq-icon { transform: rotate(180deg); }
-.faq-panel[data-animating] {
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, #000 max(calc(100% - 16px), calc(200% - var(--faq-content-height))), transparent);
-}
 @media (prefers-reduced-motion: reduce) {
   .faq-icon { transition: none; }
   .faq-panel[data-animating] { mask-image: none; }
