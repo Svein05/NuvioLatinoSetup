@@ -12,11 +12,11 @@
 
         <form id="accountAuthForm" class="space-y-4 text-left">
           <div>
-            <label class="text-xs text-white/70 block mb-1 font-medium">Correo electrónico</label>
+            <label for="accountEmail" class="text-xs text-white/70 block mb-1 font-medium">Correo electrónico</label>
             <input type="email" id="accountEmail" required placeholder="tu@correo.com" class="lat-field w-full text-sm" autocomplete="email">
           </div>
           <div>
-            <label class="text-xs text-white/70 block mb-1 font-medium">Contraseña de Nuvio</label>
+            <label for="accountPassword" class="text-xs text-white/70 block mb-1 font-medium">Contraseña de Nuvio</label>
             <div class="relative">
               <input type="password" id="accountPassword" required placeholder="••••••••" class="lat-field w-full text-sm pr-10" autocomplete="current-password">
               <button id="btnToggleAccountPassword" type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1 transition-colors cursor-pointer z-10" data-target="accountPassword" title="Mostrar contraseña">
@@ -24,6 +24,7 @@
               </button>
             </div>
           </div>
+          <p id="accountAuthError" class="account-auth-error" role="alert" hidden></p>
           <button type="submit" class="lat-capsule-btn solid w-full mt-2 font-semibold">
             <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar Sesión
           </button>
