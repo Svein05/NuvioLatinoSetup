@@ -26,14 +26,17 @@
   gap: 0.35rem;
   z-index: 60;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
   transform: translateY(-8px) scale(0.95);
   transform-origin: top right;
-  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s 0.22s;
 }
 
 .lat-mobile-dropdown.is-open {
   opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
   pointer-events: auto;
   transform: translateY(0) scale(1);
 }
@@ -58,4 +61,13 @@
 .lat-mobile-dropdown-item:active {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.24);
+}
+
+#btnMobileHeaderMenu.is-celebration-target {
+  border-color: #34d399;
+  box-shadow: 0 0 22px rgb(52 211 153 / .4);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lat-mobile-dropdown { transform: none; transition: opacity .15s ease, visibility 0s .15s; }
+  .lat-mobile-dropdown.is-open { transition-delay: 0s; }
 }

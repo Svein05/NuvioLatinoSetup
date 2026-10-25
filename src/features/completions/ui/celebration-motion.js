@@ -1,6 +1,10 @@
 export function visibleElement(element) {
   if (!element || (element.checkVisibility && !element.checkVisibility())) return false;
   if (getComputedStyle(element).visibility === 'hidden') return false;
+  for (let parent = element; parent; parent = parent.parentElement) {
+    const style = getComputedStyle(parent);
+    if (parent.inert || parent.hidden || style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) <= .01) return false;
+  }
   const box = element.getBoundingClientRect();
   return box.width > 0 && box.height > 0 && box.bottom > 0 && box.top < innerHeight && box.right > 0 && box.left < innerWidth;
 }
