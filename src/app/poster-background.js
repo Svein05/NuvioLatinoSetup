@@ -18,13 +18,13 @@ function start() {
   if (!root) return;
   const interior = /^\/(account|configuration)(?:\/|$)/.test(window.location.pathname);
   root.dataset.posterTheme = interior ? 'interior' : 'landing';
-  let wall = root.dataset.posterRestored ? () => {} : initPosterWall({ root, feed: null, storage: storage('sessionStorage') });
+  let wall = initPosterWall({ root, feed: null, storage: storage('sessionStorage') });
   const request = new AbortController();
   dispose = preserve => { request.abort(); wall(preserve); };
   load({ signal: request.signal }).then(feed => {
     if (request.signal.aborted) return;
     if (!feed) return;
-    wall();
+    wall(true);
     wall = initPosterWall({ root, feed, storage: storage('sessionStorage') });
   });
 }

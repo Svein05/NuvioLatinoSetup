@@ -26,8 +26,9 @@ function initialize() {
     if (request.signal.aborted) return;
     Promise.all([loadAvatarsCatalog(), ranking]).then(([avatars, summary]) => {
       if (request.signal.aborted || !avatars.length) return;
-      carousel();
-      carousel = initAvatarCarousel(rankedCarouselPaths(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)), summary.items));
+      const paths = rankedCarouselPaths(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)), summary.items);
+      if (carousel.update) carousel.update(paths);
+      else carousel = initAvatarCarousel(paths);
     }).catch(() => {});
   });
   dispose = () => { request.abort(); presentation(); metrics(); carousel(); faq(); };
