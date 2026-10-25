@@ -1,3 +1,4 @@
+import { createEmptyOverview } from './overview-defaults.js';
 import { createSessionStore } from '../../features/auth/index.js';
 
 export function createInitialAccountState() {
@@ -16,15 +17,7 @@ export function createInitialAccountState() {
       franchise: 'all',
       query: '',
     },
-    overviewData: {
-      pluginsCount: 0,
-      addonsCount: 0,
-      progressCount: 0,
-      libraryCount: 0,
-      watchedCount: 0,
-      currentlyWatching: [],
-      recentlyWatched: [],
-    },
+    overviewData: createEmptyOverview(),
     installedAddons: [],
     originalInstalledAddons: [],
     addonHistory: [],
@@ -58,6 +51,12 @@ export function createInitialAccountState() {
       addons: false,
     },
     isSaving: false,
+    isLoadingProfile: false,
+    isLoadingMetadata: false,
+    isLoadingAvatars: false,
+    loadErrors: {},
+    metadataError: '',
+    avatarCatalogError: '',
   };
 }
 

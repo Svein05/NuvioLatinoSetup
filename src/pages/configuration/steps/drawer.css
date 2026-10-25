@@ -91,3 +91,10 @@
   border-color: rgba(255, 255, 255, 0.05);
   cursor: not-allowed;
 }
+
+/* The complete index determines the host minimum height, never a nested scroller. */
+#indexDrawer > :first-child, #indexDrawer > :last-child, .drawer-step-item { flex-shrink: 0; }
+#drawerStepList { flex: 1 0 auto; overflow: visible; justify-content: flex-start; }
+@media (prefers-reduced-motion: reduce) {
+  #indexDrawer, #indexDrawerOverlay { transition: none; }
+}

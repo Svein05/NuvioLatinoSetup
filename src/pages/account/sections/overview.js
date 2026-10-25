@@ -1,3 +1,4 @@
+import { renderReadFeedback } from '../read-feedback.js';
 import { renderRequestError } from '../../../shared/ui/request-error.js';
 
 const fallbackPoster = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500&q=80';
@@ -63,7 +64,8 @@ export function renderOverviewMetrics(data, { addonsCount, settings }) {
     ['metricWatchedCount', data.watchedCount, 'watchedItems'],
   ]) {
     const element = document.getElementById(id);
-    if (element) element.textContent = data.loadErrors?.[error] ? '—' : value;
+    element?.classList.remove('account-metric-pending');
+    if (element) element.textContent = data.loadErrors?.[error] || value == null ? '—' : value;
   }
   const visible = Boolean(settings.enrichment_enabled && settings.tmdb_api_key?.trim());
   document.getElementById('overviewCinemaContainer')?.classList.toggle('hidden', !visible);
@@ -79,9 +81,10 @@ export function renderOverviewRow(cards, { progress, error, loading = false }) {
     return;
   }
   if (loading) {
-    container.replaceChildren(node('div', 'col-span-full py-4 text-center text-xs text-white/40', 'Cargando metadatos en Latino...'));
+    renderReadFeedback(container, { loading: true, shape: 'posters' });
     return;
   }
+  container.setAttribute('aria-busy', 'false');
   if (cards.length) {
     container.replaceChildren(...cards.map(card => cinemaCard(card, progress)));
     return;

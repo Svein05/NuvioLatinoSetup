@@ -30,7 +30,7 @@ function apiResponse(url, mode, payload) {
   return { body: [] };
 }
 
-export async function prepareAccount(page, mode, { respond, respondExternal } = {}) {
+export async function prepareAccount(page, mode, { respond, respondExternal, beforeNavigate } = {}) {
   await page.addInitScript(() => sessionStorage.setItem('nuvio_account_session_v1', JSON.stringify({
     accessToken: 'synthetic-test-only', userId: 'synthetic-user', email: 'test@example.invalid',
   })));
@@ -49,6 +49,7 @@ export async function prepareAccount(page, mode, { respond, respondExternal } = 
     }
     return route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
   });
+  await beforeNavigate?.();
   await page.goto('/account/');
   await page.locator('#modalProfileCardsGrid [data-profile-id="1"]').click();
 }

@@ -19,7 +19,7 @@ describe('account-controller', () => {
     const state = createInitialAccountState();
     state.session = { accessToken: 'token', userId: 'user1' };
 
-    const controller = createAccountController({ root: {}, client, state });
+    const controller = createAccountController({ root: { getElementById: () => null }, client, state });
     const profiles = await controller.fetchProfiles();
 
     expect(client.getProfiles).toHaveBeenCalled();

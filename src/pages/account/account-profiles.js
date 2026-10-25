@@ -1,3 +1,4 @@
+import { showProfilesFeedback } from './profiles-feedback.js';
 import { createInitialAccountState } from './account-state.js';
 import { renderProfilePopover, showSelectProfilePrompt, openEditProfileModal } from './sections/profiles.js';
 
@@ -16,12 +17,19 @@ export function createAccountProfiles({ root, state, client, config, resolveAvat
   async function fetchProfiles() {
     if (!state.session?.accessToken || !client?.getProfiles) return [];
     const session = state.session;
+    showProfilesFeedback(root, { loading: true });
+    try {
     const profiles = await client.getProfiles({ apiUrl: config.NUVIO_API_URL,
       apikey: config.NUVIO_PUBLIC_ANON_KEY, ...session });
     if (state.session !== session) return [];
     state.profiles = profiles;
     if (!state.selectedProfileId && profiles.length) state.selectedProfileId = profiles[0].profile_index ?? profiles[0].id;
+    showProfilesFeedback(root, { empty: !profiles.length });
     return profiles;
+    } catch (error) {
+      if (state.session === session) showProfilesFeedback(root, { error: 'No se pudieron cargar los perfiles.', retry: () => { void connected().catch(() => {}); } });
+      throw error;
+    }
   }
   async function select(id) {
     if (state.isSaving) return;

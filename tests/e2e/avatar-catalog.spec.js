@@ -73,7 +73,7 @@ for (const blockedCache of [false, true]) {
     await expect(cards).toHaveCount(3);
     offline = true;
     await page.locator('#btnRefreshAvatarsCatalog').click();
-    await expect(page.locator('#latToastContainer')).toContainText('No se pudo sincronizar');
+    await expect(page.locator('#latToastContainer')).toContainText('No se pudo actualizar el catálogo');
     await expect(cards).toHaveCount(3);
     await page.locator('#inputAvatarSearch').fill('pj: luffy');
     await expect(cards).toHaveCount(1);

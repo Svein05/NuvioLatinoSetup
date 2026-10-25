@@ -1,3 +1,5 @@
+import { createAvatarRefresh } from './avatar-refresh.js';
+import { renderReadFeedback } from '../read-feedback.js';
 import { renderAvatarsCatalog, renderAvatarStylePills, renderModalFranchisesList } from './avatars-catalog.js';
 import { updateAvatarComparisonUI, setNewSelectedAvatar } from './avatars-comparison.js';
 import { setupAvatarUrlConfirmModal } from './avatars-modal.js';
@@ -14,6 +16,8 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
   const closeFranchises = () => root.getElementById('modalAvatarFranchises')?.classList.replace('flex', 'hidden');
   const reset = () => { state.avatarFilters = { style: 'all', franchise: 'all', query: '' }; render(); };
   function render() {
+    if (renderReadFeedback(root.getElementById('avatarsCatalogContainer'), { loading: state.isLoadingAvatars && !services.getCompiledAvatars().length,
+      error: !services.getCompiledAvatars().length ? state.avatarCatalogError : '', shape: 'avatars', retry: () => refresh(true) })) return;
     updateAvatarComparisonUI(root, state, services.resolveAvatarCdnUrl);
     renderAvatarStylePills({ root, state, getStylesSummary: services.getStylesSummary,
       onSelectStyle: style => { state.avatarFilters.style = style; state.avatarFilters.franchise = 'all'; render(); } });
@@ -41,12 +45,6 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
   lifetime.on(root.getElementById?.('btnCloseFranchisesModal'), 'click', closeFranchises);
   lifetime.on(root.getElementById?.('btnRefreshAvatarsCatalog'), 'click', () => refresh(true));
   setupAvatarUrlConfirmModal({ root, onConfirm: select, showToast: notify });
-  async function refresh(force = false) {
-    try {
-      const [, ranking] = await Promise.all([services.loadAvatarsCatalog(force), services.fetchTopAvatarKeys(32)]);
-      state.mostUsedKeys = ranking;
-      if (!lifetime.signal.aborted) render();
-    } catch (error) { notify(`No se pudo sincronizar el catálogo: ${error.message}`, 'warning'); }
-  }
+  const refresh = createAvatarRefresh({ state, services, lifetime, root, notify, render });
   return { render, refresh };
 }

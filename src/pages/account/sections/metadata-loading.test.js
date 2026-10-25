@@ -1,0 +1,21 @@
+import { expect, it, vi } from 'vitest';
+import { createAccountMetadata } from './metadata-controller.js';
+import { createInitialAccountState } from '../account-state.js';
+it('preserves edited settings during metadata enrichment and settles loading on failure', async () => {
+  let release;
+  const state = { ...createInitialAccountState(), aioAddon: { manifest_url: 'https://metadata.invalid/stremio/id/manifest.json' } };
+  const services = { loadMetadata: vi.fn(() => new Promise(resolve => { release = resolve; })) };
+  const metadata = createAccountMetadata({ root: { getElementById: () => null }, state, services, notify: vi.fn(), updateUI: vi.fn() });
+  const loading = metadata.load('id');
+  expect(state.isLoadingMetadata).toBe(true);
+  state.dirty.settings = true;
+  state.settings.tmdb_api_key = '';
+  release({ config: { apiKeys: { tmdb: 'late-key' } } });
+  await loading;
+  expect(state.settings.tmdb_api_key).toBe('');
+  expect(state.isLoadingMetadata).toBe(false);
+  services.loadMetadata.mockRejectedValueOnce(new Error('offline'));
+  await expect(metadata.load('id')).rejects.toThrow('offline');
+  expect(state.isLoadingMetadata).toBe(false);
+  expect(state.metadataError).toContain('No se pudo cargar');
+});

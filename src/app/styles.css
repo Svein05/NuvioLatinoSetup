@@ -34,3 +34,7 @@
 @import '../pages/landing/faq.css';
 
 @import '../pages/configuration/steps/refinements.css';
+
+@import '../pages/account/auth-feedback.css';
+
+@import '../pages/account/read-feedback.css';
