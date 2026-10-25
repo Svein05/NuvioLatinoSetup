@@ -1,0 +1,14 @@
+.account-skeleton { display: block; min-height: 2.75rem; border-radius: .75rem; background: linear-gradient(100deg, rgb(255 255 255 / .035) 20%, rgb(255 255 255 / .1) 45%, rgb(255 255 255 / .035) 70%); background-size: 220% 100%; animation: account-shimmer 1.6s ease-in-out infinite; }
+.account-skeleton-grid { display: grid; gap: .875rem; width: 100%; grid-column: 1 / -1; }
+.account-skeleton-posters { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.account-skeleton-posters > span { aspect-ratio: 2 / 3; }
+.account-skeleton-avatars, .account-skeleton-profiles { grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr)); }
+.account-skeleton-avatars > span, .account-skeleton-profiles > span { aspect-ratio: 1; border-radius: 50%; }
+.account-skeleton-addons > span { min-height: 4.5rem; }
+.account-read-status { color: rgb(255 255 255 / .6); font-size: .75rem; padding: .75rem 0; grid-column: 1 / -1; }
+.account-read-retry { margin: .75rem 0; }
+.account-metric-pending { display: inline-block; width: 2.75rem; height: 1.75rem; border-radius: .4rem; background: rgb(255 255 255 / .08); animation: account-pulse 1.6s ease-in-out infinite; }
+@keyframes account-shimmer { to { background-position: -120% 0; } }
+@keyframes account-pulse { 50% { opacity: .4; } }
+@media (max-width: 639px) { .account-skeleton-posters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .account-skeleton-posters > span:nth-child(n+3) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .account-skeleton, .account-metric-pending, #btnRefreshAvatarsCatalog .fa-spin { animation: none; } }

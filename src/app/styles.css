@@ -1,0 +1,42 @@
+/* Application style composition. Order preserves the existing cascade. */
+@import '../shared/styles/fonts.css';
+@import '../shared/styles/tokens.css';
+@import '../shared/styles/base.css';
+@import '../shared/styles/utilities.css';
+@import '../shared/ui/navigation/capsule.css';
+@import '../features/completions/ui/counter.css';
+@import '../shared/ui/odometer/styles.css';
+@import '../shared/ui/navigation/responsive.css';
+@import '../shared/ui/navigation/mobile-menu.css';
+@import '../shared/ui/toggle/styles.css';
+@import '../features/collections/ui/selection.css';
+@import '../pages/configuration/steps/visibility.css';
+@import '../shared/ui/terminal/styles.css';
+@import '../pages/configuration/steps/stepper.css';
+@import '../pages/configuration/steps/drawer.css';
+@import '../features/profiles/ui/selected-profile.css';
+@import '../features/collections/ui/drag.css';
+@import '../pages/landing.css';
+@import '../shared/ui/navigation/indicator.css';
+@import '../shared/ui/navigation/counter-layout.css';
+@import '../shared/ui/toast/styles.css';
+@import '../features/badges/ui/styles.css';
+@import '../pages/account/sections/layout.css';
+@import '../features/profiles/ui/popover.css';
+@import '../pages/account/sections/overview.css';
+@import '../features/avatars/ui/catalog.css';
+@import '../features/avatars/ui/collections.css';
+@import '../features/addons/ui/drag.css';
+@import '../features/avatars/ui/comparison.css';
+
+@import '../shared/ui/poster-wall/wall.css';
+@import '../pages/landing/metrics.css';
+@import '../pages/landing/faq.css';
+
+@import '../pages/configuration/steps/refinements.css';
+
+@import '../pages/account/auth-feedback.css';
+
+@import '../pages/account/read-feedback.css';
+@import '../pages/account/sections/addons.css';
+@import '../shared/ui/disclosure/styles.css';

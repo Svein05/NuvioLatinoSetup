@@ -1,0 +1,80 @@
+/* ============================================================ */
+/* 2. VARIABLES DE DISEÑO (TOKENS LAT-ADD)                      */
+/* ============================================================ */
+
+:root {
+  /* Fondo cinematográfico casi negro (#08090c) */
+  --color-bg: #08090c;
+  --color-panel: #0b0d12;
+  --color-panel-card: #0f1218;
+
+  /* Vidrio y hairlines translúcidos */
+  --color-glass: rgba(255, 255, 255, 0.07);
+  --color-glass-strong: rgba(255, 255, 255, 0.10);
+  --color-glass-soft: rgba(255, 255, 255, 0.055);
+  --color-glass-active: rgba(255, 255, 255, 0.16);
+  --color-glass-dark: rgba(10, 12, 16, 0.65);
+
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.14);
+  --color-hairline-soft: rgba(255, 255, 255, 0.11);
+
+  /* Texto hueso de alto contraste */
+  --color-ink: #ffffff;
+  --color-ink-muted: rgba(255, 255, 255, 0.58);
+  --color-ink-faint: rgba(255, 255, 255, 0.28);
+
+  /* Acentos cálidos cinematográficos */
+  --color-estrella: #ffd479;
+  --color-4k: #ffdba8;
+  --borde-4k: rgba(255, 212, 121, 0.45);
+  --fondo-4k: rgba(22, 15, 4, 0.76);
+
+  /* Radios de curvatura */
+  --radius-capsule: 999px;
+  --radius-card: 26px;
+  --radius-poster: 16px;
+  --radius-panel: 22px;
+  --radius-field: 16px;
+
+  /* Altura unificada de cápsulas flotantes */
+  --lat-capsule-height: 50px;
+  --lat-capsule-height-mobile: 42px;
+
+  /* Brillo especular del vidrio */
+  --brillo-vidrio:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035);
+
+  /* Sombras de elevación cinemática */
+  --shadow-lift:
+    var(--brillo-vidrio),
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.20),
+    0 12px 26px rgba(0, 0, 0, 0.28);
+
+  --shadow-poster:
+    0 1px 2px rgba(0, 0, 0, 0.24),
+    0 3px 6px rgba(0, 0, 0, 0.18),
+    0 7px 14px rgba(0, 0, 0, 0.22);
+
+  --shadow-poster-hover:
+    var(--brillo-vidrio),
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 8px 18px rgba(0, 0, 0, 0.25),
+    0 16px 32px rgba(0, 0, 0, 0.35);
+
+  --shadow-pill:
+    var(--brillo-vidrio),
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 3px 8px rgba(0, 0, 0, 0.12);
+
+  --blur-glass: 34px;
+
+  /* Tipografías */
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+
+  /* Ruido fractal OLED (Film Grain) */
+  --grano: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+}

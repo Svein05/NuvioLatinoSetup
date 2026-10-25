@@ -1,0 +1,135 @@
+.collection-browser {
+  top: 50%;
+  transform: translateY(-50%);
+  left: 5%;
+  width: 90%;
+  padding: 22px 16px;
+  overflow: hidden;
+}
+.collection-section-tabs {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 24px;
+  font-size: 10px;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+}
+.collection-window {
+  overflow: hidden;
+}
+.collection-track {
+  display: flex;
+  transform: translateX(-300%);
+}
+.collection-group {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+.collection-group h4 {
+  margin-bottom: 18px;
+}
+.collection-group-cards {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 10px;
+}
+.collection-group-cards img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.collection-group-cards span {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+}
+.api-complete-scrim {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+.api-complete-card {
+  position: relative;
+  width: 75%;
+  padding: 28px;
+  text-align: center;
+}
+.api-complete-card svg {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 18px;
+  fill: none;
+  stroke: var(--color-estrella);
+  stroke-width: 2;
+}
+.api-complete-card path {
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.api-complete-card h4 {
+  font: 36px/1.1 var(--font-serif);
+  margin-bottom: 12px;
+}
+.api-complete-card p {
+  color: var(--color-ink-muted);
+  font-size: 13px;
+}
+.api-complete-card > div {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 22px;
+  color: var(--color-estrella);
+  font-size: 13px;
+}
+.is-enhanced .collection-track {
+  transform: translateX(calc(var(--collection-page,3) * -100%));
+}
+.is-enhanced .api-complete-scrim {
+  opacity: var(--api-ready,1);
+  pointer-events: none;
+}
+.is-enhanced .api-complete-card {
+  transform: scale(calc(.94 + var(--api-ready,1) * .06));
+}
+.is-enhanced .api-complete-card path {
+  stroke-dashoffset: calc(1 - var(--api-ready,1));
+}
+[data-collection-section="now"] .collection-section-tabs span:nth-child(1),
+[data-collection-section="platforms"] .collection-section-tabs span:nth-child(2),
+[data-collection-section="genres"] .collection-section-tabs span:nth-child(3),
+[data-collection-section="anime"] .collection-section-tabs span:nth-child(4) {
+  color: var(--color-estrella);
+}
+@media (max-width: 639px) {
+  .collection-browser {
+    padding: 18px 12px;
+  }
+  .collection-section-tabs {
+    gap: 9px;
+    font-size: 8px;
+  }
+  .collection-group-cards {
+    gap: 6px;
+  }
+  .collection-group-cards span {
+    font-size: 9px;
+  }
+  .api-complete-card {
+    width: 85%;
+    padding: 24px 14px;
+  }
+}
+
+.collection-browser {
+  opacity: 0;
+}
+.is-enhanced .collection-browser {
+  opacity: calc(1 - var(--api-ready,1));
+}

@@ -1,0 +1,34 @@
+<div id="modalAccountDeleteAllAddons" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[70] hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-[#0b0d12]/98 border border-rose-500/30 rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-xs text-rose-400">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Eliminar Todos los Addons</h3>
+            <span class="text-[11px] text-rose-400/80">Acción destructiva</span>
+          </div>
+        </div>
+        <button type="button" id="btnCloseAccountDeleteAllAddonsModal" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2.5 pt-1 text-xs text-white/70 leading-relaxed">
+        <p>¿Estás seguro de que deseas eliminar <strong class="text-white">TODOS</strong> los addons de este perfil?</p>
+        <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[11px] text-rose-300">
+          Esta acción vaciará la lista completa de addons de tu perfil. Se aplicará de forma definitiva en Nuvio cuando pulses <strong class="text-white">"Guardar Cambios"</strong>.
+        </div>
+      </div>
+
+      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+        <button type="button" id="btnCancelAccountDeleteAllAddons" class="lat-capsule-btn glass text-xs py-2 px-3">
+          Cancelar
+        </button>
+        <button type="button" id="btnConfirmAccountDeleteAllAddons" class="lat-capsule-btn solid text-xs py-2 px-4 font-semibold text-white bg-rose-600 hover:bg-rose-500 border border-rose-500/40">
+          <i class="fa-solid fa-trash-can mr-1"></i> Vaciar Todos
+        </button>
+      </div>
+    </div>
+  </div>

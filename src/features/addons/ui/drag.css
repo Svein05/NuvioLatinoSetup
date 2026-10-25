@@ -1,0 +1,41 @@
+/* ============================================================
+   ESTILOS Y ANIMACIONES FLUIDAS DE ARRASTRE DE ADDONS (APPLE-STYLE)
+   ============================================================ */
+.account-addon-row {
+  transition: box-shadow 0.24s cubic-bezier(0.25, 1, 0.5, 1),
+              background-color 0.2s ease,
+              border-color 0.2s ease,
+              opacity 0.2s ease;
+}
+
+.account-addon-row .lat-capsule-btn:active {
+  transform: scale(0.95);
+}
+
+/* Fila seleccionada / en arrastre activo */
+.addon-sortable-chosen {
+  cursor: grabbing !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 212, 121, 0.4) !important;
+  transform: scale(1.018);
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 212, 121, 0.25);
+  z-index: 50 !important;
+}
+
+/* Fila fantasma (hueco destino translúcido donde aterrizará) */
+.addon-sortable-ghost {
+  opacity: 0.25 !important;
+  background: rgba(255, 212, 121, 0.04) !important;
+  border: 1px dashed rgba(255, 212, 121, 0.45) !important;
+  transform: scale(0.99);
+}
+
+/* Elemento arrastrado bajo el cursor */
+.addon-sortable-drag {
+  opacity: 0.98 !important;
+  cursor: grabbing !important;
+  transform: scale(1.025);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 212, 121, 0.35);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}

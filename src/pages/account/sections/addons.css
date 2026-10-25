@@ -1,0 +1,66 @@
+.account-addon-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem;
+  border: 1px solid rgb(255 255 255 / .1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / .03);
+}
+.account-addon-identity {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+.account-addon-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .375rem;
+  margin-left: auto;
+  max-width: 100%;
+}
+.account-addon-management, .account-addon-order { display: flex; gap: .375rem; align-items: center; }
+.account-addon-logo { width: 44px; height: 44px; flex: 0 0 44px; border-radius: .75rem; background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .1); overflow: hidden; }
+.account-addon-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.account-addon-identity .sortable-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  touch-action: none;
+}
+.account-addon-actions .lat-capsule-btn {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: .75rem;
+}
+.account-addon-actions .account-addon-configure { width: auto; gap: .4rem; padding-inline: .75rem; }
+.account-addon-configure i { color: #ffd479; }
+.account-addon-actions [hidden] { display: none !important; }
+.account-addon-actions button:disabled { opacity: .3; cursor: not-allowed; }
+.account-addon-actions :is(button,a):focus-visible {
+  outline: 2px solid #ffd479;
+  outline-offset: 3px;
+}
+#sectionPane-addons > :first-child { flex-wrap: wrap; }
+#sectionPane-addons > :first-child > :last-child { min-width: 0; max-width: 100%; flex-wrap: wrap; }
+#sectionPane-addons > :first-child > :last-child button {
+  min-height: 44px;
+  min-width: 0;
+  padding: .55rem .75rem;
+  font-size: .75rem;
+}
+@media (max-width: 639px) {
+  .account-addon-identity { flex-basis: 100%; }
+  .account-addon-actions { width: 100%; }
+  #sectionPane-addons > :first-child > :last-child button { gap: .4rem; }
+}

@@ -1,0 +1,38 @@
+<div id="step-6" class="step-content">
+        <div class="mb-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+                <i class="fa-solid fa-cubes text-[#ffd479] text-lg"></i>
+                <span>Gestor de Addons del Perfil</span>
+              </h2>
+              <p class="text-sm text-white/60 mt-1">
+                Organiza la prioridad de los addons en tu perfil de Nuvio.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button id="btnOpenAddAioStreamsModal" type="button" class="lat-capsule-btn glass text-xs py-2 px-3.5 flex items-center gap-2 border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] text-emerald-300 hover:text-white transition-all shadow-[var(--shadow-lift)]">
+                <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-4 h-4 object-contain" alt="AIOStreams Logo">
+                <span>Agregar AIOStreams</span>
+              </button>
+              <button id="btnOpenAddAddonModal" type="button" class="lat-capsule-btn solid text-xs py-2 px-3.5 flex items-center gap-1.5 shadow-[var(--shadow-lift)]">
+                <i class="fa-solid fa-plus text-[10px]"></i>
+                <span>Agregar Addon</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenedor Principal de la Lista de Addons -->
+        <div id="addonsManagerContainer" class="space-y-3 max-w-4xl mx-auto py-2">
+          <!-- Renderizado dinámicamente por js/app.js -->
+        </div>
+
+        <!-- Alerta Informativa de Prioridad -->
+        <div class="mt-6 p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] flex items-start gap-3 max-w-4xl mx-auto text-xs text-white/60 leading-relaxed shadow-[var(--brillo-vidrio)]">
+          <i class="fa-solid fa-circle-info text-[#ffd479] text-sm shrink-0 mt-0.5"></i>
+          <div>
+            Nuvio consulta los catálogos y resolutores de metadatos en orden descendente. Al colocar <strong>AIOMetadata Latino</strong> en #1, aseguras que las carátulas, calificaciones y sinopsis en español latino prevalezcan sin interferir con tus fuentes de streaming debajo.
+          </div>
+        </div>
+      </div>

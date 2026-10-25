@@ -1,0 +1,168 @@
+/* ============================================================ */
+/* 10. DRAG & DROP, WIGGLE & CONTORNOS CINEMÁTICOS              */
+/* ============================================================ */
+
+@keyframes wiggle {
+  0% { transform: rotate(0deg) scale(1.02); }
+  25% { transform: rotate(-1.2deg) scale(1.02); }
+  50% { transform: rotate(0deg) scale(1.02); }
+  75% { transform: rotate(1.2deg) scale(1.02); }
+  100% { transform: rotate(0deg) scale(1.02); }
+}
+
+/* Elementos activos o en arrastre */
+.is-dragging {
+  animation: wiggle 0.28s ease-in-out infinite !important;
+  opacity: 0.9 !important;
+  cursor: grabbing !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 14px 28px -5px rgba(0, 0, 0, 0.7), 0 0 0 2px var(--color-estrella) !important;
+  z-index: 50 !important;
+}
+
+/* Cápsula de Colección (Mini Tarjetas) */
+.draggable-card {
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+  cursor: grab;
+}
+
+.draggable-card:active {
+  animation: wiggle 0.28s ease-in-out infinite;
+  cursor: grabbing;
+}
+
+.draggable-card:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  box-shadow: var(--shadow-poster-hover) !important;
+  transform: translateY(-2px);
+}
+
+.draggable-card.drag-over {
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 0 25px -2px rgba(255, 212, 121, 0.4), inset 0 0 15px rgba(255, 212, 121, 0.15) !important;
+  transform: scale(0.97);
+}
+
+/* Overlay de acciones en tarjetas: Exclusivo para PC / Escritorio con ratón */
+.card-hover-overlay {
+  display: none !important;
+}
+
+.mini-folder-actions { gap: 6px; }
+.mini-folder-actions .lat-capsule-btn {
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 18px;
+  gap: 6px;
+}
+.draggable-card:focus-within .card-hover-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  .card-hover-overlay {
+    display: flex !important;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .draggable-card:hover .card-hover-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* Contenedor de Sección */
+.section-container {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.section-container:has(.section-header:hover),
+.section-container.header-hovered {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--shadow-lift);
+}
+
+.section-container.drag-over-section {
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 0 30px -2px rgba(255, 212, 121, 0.35), inset 0 0 15px rgba(255, 212, 121, 0.08) !important;
+}
+
+.section-drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+.section-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Filas de Catálogo en el Explorador */
+.catalog-explorer-row {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: grab;
+}
+
+.catalog-explorer-row:active {
+  animation: wiggle 0.28s ease-in-out infinite;
+  cursor: grabbing;
+}
+
+.catalog-explorer-row:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: var(--brillo-vidrio), 0 0 18px -3px rgba(255, 255, 255, 0.1);
+}
+
+.catalog-explorer-row.drag-over-catalog {
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 0 22px -2px rgba(255, 212, 121, 0.4) !important;
+  transform: scale(0.99);
+}
+
+/* Sortable Ghosts */
+.is-chosen {
+  animation: wiggle 0.28s ease-in-out infinite !important;
+  cursor: grabbing !important;
+  border-color: var(--color-estrella) !important;
+  box-shadow: 0 14px 28px -5px rgba(0, 0, 0, 0.7), 0 0 0 2px var(--color-estrella) !important;
+  z-index: 9999 !important;
+}
+
+.card-sortable-ghost {
+  opacity: 0.28 !important;
+  border: 2px dashed rgba(255, 255, 255, 0.4) !important;
+  background: var(--color-glass) !important;
+  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.1) !important;
+  transform: scale(0.96);
+  border-radius: var(--radius-poster);
+}
+
+.section-sortable-ghost {
+  opacity: 0.3 !important;
+  border: 2px dashed rgba(255, 255, 255, 0.35) !important;
+  background: var(--color-glass-soft) !important;
+  border-radius: var(--radius-card);
+}
+
+.catalog-sortable-ghost {
+  opacity: 0.25 !important;
+  border: 2px dashed rgba(255, 255, 255, 0.4) !important;
+  background: var(--color-glass) !important;
+  border-radius: var(--radius-field);
+}
+
+/* Desactivar cursores de agarre y animaciones de arrastre en pantallas táctiles y móviles */
+@media (max-width: 767px), (pointer: coarse) {
+  .draggable-card,
+  .catalog-explorer-row,
+  .section-drag-handle {
+    cursor: default !important;
+  }
+  .catalog-explorer-row:active,
+  .draggable-card:active {
+    animation: none !important;
+    cursor: default !important;
+  }
+}

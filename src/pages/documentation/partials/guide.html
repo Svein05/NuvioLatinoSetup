@@ -1,0 +1,146 @@
+<main class="flex-1 max-w-3xl w-full mx-auto space-y-12 text-white/90 pt-32 sm:pt-40 pb-16 px-4">
+      
+      <!-- 1. Introducción -->
+      <section id="introduccion" class="space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-white/80 text-xs font-medium">
+          <i class="fa-solid fa-circle-info text-[#ffd479]"></i>
+          <span>Visión General</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">1. ¿Qué es Nuvio Latino Setup?</h2>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
+          <strong>Nuvio Latino Setup</strong> es una suite web desarrollada para resolver la fragmentación y falta de localización en 
+          <a href="https://nuvio.tv" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4">Nuvio TV</a>. 
+          Por defecto, instalar Nuvio y addons de catálogos genera decenas de filas desordenadas en inglés, carátulas cuadradas genéricas y saturación en la pantalla principal.
+        </p>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
+          Esta herramienta actúa como un orquestador inteligente que vincula tu perfil de Nuvio con una instancia optimizada de <strong>AIOMetadata</strong>, inyectando colecciones nativas agrupadas en formato panorámico 16:9 de carga ultrarrápida (0 ms) con metadatos en Español Latino oficial (<code class="bg-black/40 text-brand-300 px-2 py-0.5 rounded text-xs font-mono border border-white/10">es-MX</code>).
+        </p>
+        <div class="p-5 rounded-2xl lat-card text-xs text-white/70 space-y-2">
+          <div class="font-semibold text-white flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+            <span>Seguridad y Privacidad Garantizada</span>
+          </div>
+          <p class="leading-relaxed">
+            La aplicación es 100% estática (frontend puro ejecutado en tu propio navegador). Tus credenciales de Nuvio viajan cifradas directamente hacia los servidores de Supabase de Nuvio (<code class="text-white/90 font-mono">api.nuvio.tv</code>). Ningún servidor de terceros interviene ni almacena datos sensibles.
+          </p>
+        </div>
+      </section>
+
+      <!-- 2. Requisitos Previos -->
+      <!-- @include "./requisitos.html" -->
+
+      <!-- 3. Guía Paso a Paso -->
+      <!-- @include "./guia-pasos.html" -->
+
+      <!-- 4. Gestor de Perfil y Cuenta (/account) -->
+      <section id="gestor-cuenta" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffd479]/10 border border-[#ffd479]/20 text-[#ffd479] text-xs font-medium">
+          <i class="fa-solid fa-circle-user"></i>
+          <span>Gestión Rápida de Perfil</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">4. Gestor de Perfil y Cuenta</h2>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
+          Si ya has configurado tu cuenta y solo deseas realizar modificaciones rápidas sin pasar nuevamente por el asistente inicial de 7 pasos, puedes acceder directamente a la sección <strong><a href="../account/" class="text-[#ffd479] underline underline-offset-4 hover:text-[#ffe099]">Cuenta</a></strong>.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-5 rounded-2xl lat-card space-y-2">
+            <h4 class="font-semibold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-grip-vertical text-[#ffd479]"></i>
+              <span>Reordenación y Gestión de Addons</span>
+            </h4>
+            <p class="text-xs text-white/60 leading-relaxed">
+              Organiza tus complementos arrastrándolos suavemente en pantalla, sube o baja su prioridad, edita sus datos, actívalos o desactívalos, y elimínalos con confirmación de seguridad y soporte para deshacer cambios paso a paso.
+            </p>
+          </div>
+          <div class="p-5 rounded-2xl lat-card space-y-2">
+            <h4 class="font-semibold text-sm text-white flex items-center gap-2">
+              <i class="fa-solid fa-images text-[#ffd479]"></i>
+              <span>Catálogo de Avatares estilo Netflix</span>
+            </h4>
+            <p class="text-xs text-white/60 leading-relaxed">
+              Selecciona tu avatar favorito entre decenas de personajes de series y animes (Soul Eater, One Piece, Naruto, Dragon Ball, X-Men '97) o añade tu propia imagen con enlace directo y previsualización inmediata.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Ghost Mode -->
+      <section id="ghost-mode" class="space-y-4 pt-6 border-t border-white/[0.08]">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-medium">
+          <i class="fa-solid fa-ghost"></i>
+          <span>Arquitectura Exclusiva</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">5. ¿Qué es el "Ghost Mode" de AIOMetadata?</h2>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
+          Uno de los problemas más comunes al usar AIOMetadata es que el addon instala decenas o cientos de catálogos individuales en la pantalla de inicio de Nuvio (Trending Trakt, Recomendaciones, Populares, Géneros en inglés, etc.), saturando la interfaz.
+        </p>
+        <p class="text-sm sm:text-base text-white/70 leading-relaxed font-light">
+          La técnica <strong>Ghost Mode</strong> consiste en configurar todos los catálogos raíz de AIOMetadata de forma invisible para la pantalla principal de Nuvio. De este modo:
+        </p>
+        <ul class="space-y-2.5 text-xs sm:text-sm text-white/70 list-disc pl-5 font-light">
+          <li>Los catálogos siguen existiendo y funcionando para abastecer a tus Colecciones Nativas de Nuvio.</li>
+          <li>La pantalla de inicio de Nuvio queda 100% limpia, mostrando únicamente tus carátulas 16:9 ordenadas.</li>
+          <li>Cero duplicados y carga inmediata al abrir la app en Smart TV o móvil.</li>
+        </ul>
+      </section>
+
+      <!-- 5. Tutoriales de Claves API Gratuitas (TMDB y MDBList) -->
+      <!-- @include "./tutorial-api-keys.html" -->
+
+      <!-- 7. Modos Cloud vs Manual -->
+      <section id="modos" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">7. Modo Cloud Automático vs Modo Manual</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-2xl lat-card border border-indigo-500/25 bg-indigo-950/10 space-y-3">
+            <h4 class="font-semibold text-white text-base flex items-center gap-2">
+              <i class="fa-solid fa-cloud-bolt text-brand-400"></i>
+              <span>Modo Automático (Nuvio Cloud)</span>
+            </h4>
+            <ul class="text-xs text-white/70 space-y-2 font-light">
+              <li>• Inicias sesión con tu cuenta de Nuvio directamente.</li>
+              <li>• El asistente crea el perfil, inyecta las colecciones y configura el addon en 1 solo clic.</li>
+              <li>• Ideal para Smart TV, Fire TV Stick, Google TV y dispositivos Android/iOS.</li>
+            </ul>
+          </div>
+          <div class="p-5 rounded-2xl lat-card border border-amber-500/25 bg-amber-950/10 space-y-3">
+            <h4 class="font-semibold text-white text-base flex items-center gap-2">
+              <i class="fa-solid fa-file-code text-amber-400"></i>
+              <span>Modo Manual (JSONs)</span>
+            </h4>
+            <ul class="text-xs text-white/70 space-y-2 font-light">
+              <li>• No requiere ingresar ninguna contraseña de Nuvio.</li>
+              <li>• Permite personalizar todas las filas y descargar o copiar los archivos JSON generados.</li>
+              <li>• Puedes importar los JSONs manualmente en tu cliente de Nuvio cuando gustes.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. FAQ y Solución de Dudas -->
+      <section id="faq" class="space-y-5 pt-6 border-t border-white/[0.08]">
+        <h2 class="text-3xl sm:text-4xl font-serif tracking-tight text-white">8. Preguntas Frecuentes y Troubleshooting</h2>
+        <div class="space-y-3">
+          <details class="faq-details lat-card rounded-2xl p-5 transition-all">
+            <summary class="font-semibold text-sm text-white cursor-pointer select-none">
+              ¿Qué hago si falla la validación de claves en el Paso 4?
+            </summary>
+            <p class="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+              Asegúrate de que no haya espacios en blanco antes o después de la TMDB API Key. Recuerda que la clave v3 tiene aproximadamente 32 caracteres. Puedes probar abriendo la URL de prueba en tu navegador: <code class="bg-black/40 text-brand-300 px-1.5 py-0.5 rounded text-xs font-mono border border-white/10">https://api.themoviedb.org/3/authentication?api_key=TU_CLAVE</code>.
+            </p>
+          </details>
+
+          <details class="faq-details lat-card rounded-2xl p-5 transition-all">
+            <summary class="font-semibold text-sm text-white cursor-pointer select-none">
+              ¿Dónde obtengo soporte técnico de la comunidad?
+            </summary>
+            <p class="mt-3 text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+              Puedes ingresar a nuestro canal oficial de Discord en <a href="https://discord.gg/EubYtJVJEc" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline underline-offset-4 font-medium">discord.gg/EubYtJVJEc</a> para resolver cualquier duda sobre Nuvio y el addon LAT-ADD.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <!-- 9. Créditos -->
+      <!-- @include "./creditos.html" -->
+
+    </main>

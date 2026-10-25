@@ -1,0 +1,214 @@
+<div id="modderPanelView" class="w-full space-y-6">
+      
+      <!-- Selector de Pestañas Principales + Botones de Acción Global (Deshacer / Guardar) -->
+      <!-- En móvil (flex-col-reverse): los botones de acción quedan arriba de las pestañas; en PC (sm:flex-row): pestañas a la izquierda y botones a la derecha -->
+      <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <!-- Pestañas Izquierda (En móvil abajo, en PC izquierda) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 p-1 bg-white/[0.04] border border-white/10 rounded-2xl w-full sm:w-fit">
+          <button id="tabBtnUpload" type="button" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all bg-white/[0.12] text-white whitespace-nowrap">
+            <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+            <span>Subir Nuevos</span>
+          </button>
+          <button id="tabBtnManage" type="button" class="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all text-white/60 hover:text-white whitespace-nowrap">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <span>Gestionar Existentes</span>
+            <span id="manageTotalBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/10 text-white/80">0</span>
+          </button>
+        </div>
+
+        <!-- Botones de Acción Global: Deshacer y Guardar Cambios (En móvil arriba ocupando todo el ancho, en PC derecha) -->
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <!-- Botón Deshacer -->
+          <button id="btnUndoChange" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-2 flex items-center justify-center gap-1.5 opacity-40 cursor-not-allowed transition-all flex-1 sm:flex-initial" disabled title="Deshacer último cambio">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Deshacer</span>
+            <span id="undoCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/10 text-white/80 font-bold">0</span>
+          </button>
+
+          <!-- Botón Guardar Cambios -->
+          <button id="btnSaveAllChanges" type="button" class="lat-capsule-btn solid text-xs px-4 py-2 flex items-center justify-center gap-2 font-semibold opacity-40 cursor-not-allowed shadow-lg transition-all flex-1 sm:flex-initial" disabled title="Publicar todos los cambios acumulados en un solo commit">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span>Guardar Cambios</span>
+            <span id="stagedCountBadge" class="hidden text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-emerald-400 text-black font-bold">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECCIÓN A: SUBIDA POR LOTE (UPLOAD SECTION)               -->
+      <!-- ======================================================== -->
+      <div id="sectionUpload" class="space-y-6">
+        
+        <!-- Paso 1: Configuración de Destino (Estilo y Franquicia) -->
+        <div class="lat-card p-6 sm:p-8 space-y-5">
+          <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">1</span>
+            <span>Destino del Lote de Avatares</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5 text-left">
+              <label class="text-xs text-white/70 block font-medium">Estilo de Avatar</label>
+              <select id="selectStyle" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
+                <option value="">Cargando estilos...</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5 text-left">
+              <label class="text-xs text-white/70 block font-medium">Franquicia / Obra</label>
+              <select id="selectFranchise" class="lat-field w-full text-xs sm:text-sm cursor-pointer">
+                <option value="">Cargando franquicias...</option>
+              </select>
+              <input type="text" id="inputNewFranchise" placeholder="Nombre de la obra (ej: DragonBall)" class="lat-field w-full text-xs mt-2 hidden">
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 2: Zona Dropzone para Múltiples Imágenes (Visible solo tras seleccionar Estilo y Franquicia) -->
+        <div id="stepDropzoneCard" class="lat-card p-6 sm:p-8 space-y-4 hidden">
+          <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+            <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">2</span>
+            <span>Arrastrar y Soltar Múltiples Imágenes</span>
+          </div>
+
+          <div id="dropzoneBox" class="border-2 border-dashed border-white/15 hover:border-amber-400/50 rounded-2xl p-8 sm:p-12 text-center transition-all bg-white/[0.02] hover:bg-white/[0.04] cursor-pointer relative">
+            <input type="file" id="fileInput" multiple accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10">
+            
+            <div class="space-y-3 pointer-events-none">
+              <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-white/70 text-2xl">
+                <i class="fa-solid fa-images"></i>
+              </div>
+              <div>
+                <p class="text-sm sm:text-base font-medium text-white">
+                  Arrastra aquí tus imágenes o <span class="text-amber-300 underline underline-offset-4">haz clic para explorar</span>
+                </p>
+                <p class="text-xs text-white/50 mt-1">
+                  Convierte automáticamente PNG, JPG, JPEG, SVG y WebP a <strong class="text-emerald-400">WebP 100% optimizado</strong> en tu navegador.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 3: Cola de Lote y Publicación -->
+        <div id="queueSection" class="lat-card p-4 sm:p-6 sm:p-8 space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm font-semibold text-white/90">
+              <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs text-amber-300">3</span>
+              <span>Cola de Lote (<span id="queueCountBadge" class="text-emerald-400 font-mono">0</span>)</span>
+            </div>
+            <button id="btnClearQueue" type="button" class="text-xs text-white/40 hover:text-rose-400 transition-colors">
+              Vaciar cola
+            </button>
+          </div>
+
+          <div id="queueContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1"></div>
+
+          <div class="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div id="uploadStatusText" class="text-xs text-white/70 text-center sm:text-left flex-1">
+              Añade este lote a la lista de cambios pendientes para guardarlo junto con tus otras ediciones.
+            </div>
+
+            <button id="btnSubmitBatch" type="button" class="lat-capsule-btn solid px-6 py-2.5 font-semibold text-sm w-full sm:w-auto flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-brand-500/20" title="Añadir esta tanda a los cambios pendientes a guardar">
+              <i class="fa-solid fa-layer-group text-amber-300"></i>
+              <span>Añadir Lote a Cambios Pendientes</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SECCIÓN B: GESTIONAR ASSETS EXISTENTES (MANAGE SECTION)   -->
+      <!-- ======================================================== -->
+      <div id="sectionManage" class="space-y-6 hidden">
+        
+        <!-- ====================================================== -->
+        <!-- NIVEL 1: VISTA DE COLECCIONES (2 COLS PC, 1 COL MÓVIL) -->
+        <!-- ====================================================== -->
+        <div id="collectionsViewContainer" class="space-y-6">
+          <!-- Barra de Filtros y Búsqueda de Colecciones -->
+          <div class="lat-card p-4 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <!-- Fila en móvil: Buscador + Botón compacto de refrescar a su derecha -->
+              <div class="flex items-center gap-2 flex-1">
+                <div class="relative flex-1">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                  <input type="text" id="manageSearchInput" placeholder="Buscar colección u obra..." class="lat-field w-full text-xs pl-9 pr-3">
+                </div>
+                <button id="btnRefreshCatalog" type="button" class="lat-capsule-btn outline w-10 h-10 sm:w-auto sm:h-auto sm:px-3 sm:py-2 text-xs flex items-center justify-center gap-1.5 shrink-0 rounded-xl" title="Recargar catálogo desde GitHub">
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span class="hidden sm:inline">Refrescar</span>
+                </button>
+              </div>
+
+              <!-- Filtro Estilo -->
+              <select id="manageStyleSelect" class="lat-field text-xs cursor-pointer w-full sm:w-52">
+                <option value="all">Todos los estilos</option>
+              </select>
+            </div>
+
+            <div class="text-xs text-white/50 text-left flex items-center justify-between">
+              <span id="catalogFilterCount">Cargando colecciones...</span>
+              <span class="text-[11px] text-white/40">Selecciona una colección para editar sus avatares</span>
+            </div>
+          </div>
+
+          <!-- Cuadrícula de Colecciones: 2 columnas en PC/tablet, 1 en móvil -->
+          <div id="collectionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Renderizado dinámico desde modder-uploader.js -->
+          </div>
+        </div>
+
+        <!-- ====================================================== -->
+        <!-- NIVEL 2: VISTA DE DETALLE DE COLECCIÓN (AVATARES)      -->
+        <!-- ====================================================== -->
+        <div id="collectionDetailContainer" class="space-y-6 hidden">
+          <!-- Cabecera de Navegación, Título, Filtros de Estilo y Búsqueda Compacta -->
+          <div class="lat-card p-3 sm:p-4 space-y-2.5">
+            
+            <!-- Fila Superior: Botón Volver (Izq) | Título + Contador (Centro) | Buscador (Der) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 items-center gap-2.5 sm:gap-4">
+              <div class="flex items-center justify-start">
+                <button id="btnBackToCollections" type="button" class="lat-capsule-btn outline text-xs px-3.5 py-1.5 flex items-center gap-2 hover:border-amber-300 transition-colors shrink-0" title="Volver al listado de obras">
+                  <i class="fa-solid fa-arrow-left"></i>
+                  <span>Volver a Colecciones</span>
+                </button>
+              </div>
+
+              <!-- Título de la Obra (Centrado) y Contador en la fila principal superior -->
+              <div class="text-center space-y-0.5 min-w-0">
+                <h3 id="detailCollectionTitle" class="text-base sm:text-lg font-bold text-white tracking-wide truncate">Colección</h3>
+                <p id="detailCollectionCount" class="text-[11px] text-white/50 font-mono">0 avatares disponibles</p>
+              </div>
+
+              <!-- Buscador y Botón de Refrescar a la derecha -->
+              <div class="flex items-center justify-end gap-2 w-full">
+                <div class="relative flex-1 sm:w-52 sm:flex-initial">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs"></i>
+                  <input type="text" id="detailSearchInput" placeholder="Buscar personaje o archivo..." class="lat-field w-full text-xs pl-8 pr-3 py-1.5">
+                </div>
+                <button id="btnRefreshDetailCatalog" type="button" class="lat-capsule-btn outline w-8 h-8 sm:w-auto sm:h-auto sm:px-2.5 sm:py-1.5 text-xs flex items-center justify-center gap-1.5 shrink-0 rounded-xl" title="Sincronizar catálogo con GitHub">
+                  <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                  <span class="hidden sm:inline">Refrescar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Botones de Filtro para los 3 Estilos (Pegados inmediatamente debajo del título) -->
+            <!-- Sin botón 'todos': seleccionables individualmente, y al volver a pulsar el activo se deselecciona -->
+            <div id="detailStyleFiltersContainer" class="flex items-center justify-center gap-1.5 flex-wrap pt-0.5">
+              <!-- Renderizado dinámicamente desde modder-uploader.js -->
+            </div>
+
+          </div>
+
+          <!-- Cuadrícula de Avatares de la Colección Seleccionada -->
+          <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <!-- Renderizado dinámico desde modder-uploader.js -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>

@@ -1,0 +1,99 @@
+<div id="sectionPane-avatars" class="account-section-pane space-y-6">
+          
+          <!-- Encabezado de la Sección con Comparación de Avatar y Enlace Directo -->
+          <div class="p-4 sm:p-6 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6 w-full">
+            <!-- Izquierda: Avatar Actual y Comparativa Dinámica [Actual -> Nuevo] -->
+            <div id="avatarHeaderMainWrap" class="flex items-center gap-4 sm:gap-5 w-full md:w-auto">
+              <div id="avatarComparisonContainer" class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+                <!-- Avatar Original / Actual -->
+                <div class="relative group" title="Avatar actual en Nuvio">
+                  <img data-image-fallback="avatar" id="avatarOriginalPreview" src="/assets/icons/avatar-placeholder.svg" alt="Avatar Actual" class="w-20 h-20 rounded-full border-2 border-white/20 bg-black/50 object-cover transition-all">
+                  <span id="avatarOriginalBadge" class="hidden absolute -bottom-1 -left-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-white/20 text-white/80 uppercase tracking-wider backdrop-blur-sm">Actual</span>
+                </div>
+
+                <!-- Flecha de transición (visible solo cuando hay cambio) -->
+                <div id="avatarTransitionArrow" class="hidden items-center justify-center text-[#ffd479] px-1 text-lg sm:text-xl animate-pulse" title="Nuevo avatar seleccionado">
+                  <i class="fa-solid fa-arrow-right"></i>
+                </div>
+
+                <!-- Avatar Nuevo Seleccionado (visible solo cuando hay cambio) -->
+                <div id="avatarNewWrap" class="hidden relative">
+                  <img data-image-fallback="avatar" id="avatarCurrentPreview" src="/assets/icons/avatar-placeholder.svg" alt="Nuevo Avatar" class="w-20 h-20 rounded-full border-2 border-[#ffd479] bg-black/50 object-cover shadow-[0_0_25px_rgba(255,212,121,0.3)] scale-105 transition-all">
+                  <span id="avatarModifiedBadge" class="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ffd479] text-black shadow-md uppercase tracking-wider">Nuevo</span>
+                </div>
+              </div>
+
+              <div id="avatarHeaderTextWrap" class="min-w-0 text-left">
+                <span class="lat-label text-[#ffd479] block">Avatar del Perfil</span>
+                <h3 id="avatarCurrentProfileName" class="text-lg sm:text-xl font-bold text-white truncate mt-0.5">Cargando...</h3>
+                <p class="text-xs text-white/50 mt-0.5">Elige un avatar de la colección o introduce un enlace de imagen directo.</p>
+              </div>
+            </div>
+
+            <!-- Derecha: Selector Rápido de Enlace URL Directo -->
+            <div class="w-full md:w-auto flex items-center gap-2.5">
+              <form id="formAvatarUrlDirect" class="relative w-full md:w-72" onsubmit="return false;">
+                <input type="url" id="inputAvatarUrlDirect" enterkeyhint="go" placeholder="Pega un enlace URL de imagen..." class="lat-field w-full text-xs pr-8 py-2.5">
+                <button type="submit" id="btnApplyAvatarUrl" class="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-[#ffd479] transition-colors p-1" title="Verificar y aplicar URL">
+                  <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Barra de Filtros y Búsqueda (Control Total y Simple) -->
+          <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3.5 pb-2 border-b border-white/[0.08]">
+            <!-- Filtros por Estilo y Selector de Obra -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <!-- Píldoras de Estilo -->
+              <div id="avatarStyleFilterPills" class="flex items-center gap-1.5 flex-wrap">
+                <!-- Inyectado dinámicamente: Todos, Estilo Netflix, Estilo Íconos -->
+              </div>
+
+              <span class="hidden sm:inline text-white/20">|</span>
+
+              <!-- Botón Selector de Obras (Abre pantalla de selección) -->
+              <button type="button" id="btnOpenFranchisesModal" class="avatar-dropdown-trigger" title="Elegir obra o colección">
+                <i class="fa-solid fa-masks-theater text-xs text-[#ffd479]"></i>
+                <span id="avatarFranchiseDropdownLabel">Todas las obras</span>
+                <span id="avatarFranchiseDropdownCount" class="pill-badge">46</span>
+                <i class="fa-solid fa-chevron-right text-[10px] text-white/40 ml-1"></i>
+              </button>
+
+              <!-- Botón Refrescar Catálogo con GitHub -->
+              <button type="button" id="btnRefreshAvatarsCatalog" class="avatar-dropdown-trigger text-white/70 hover:text-[#ffd479]" title="Sincronizar y buscar nuevos avatares en GitHub">
+                <i class="fa-solid fa-arrows-rotate text-xs"></i>
+                <span class="hidden sm:inline">Actualizar</span>
+              </button>
+            </div>
+
+            <!-- Buscador Rápido de Personajes con soporte de prefijos pj: y ob: -->
+            <div class="relative w-full sm:w-80 lg:w-96 shrink-0">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-white/40 pointer-events-none"></i>
+              <input type="text" id="inputAvatarSearch" placeholder="Buscar (ej: Luffy, pj: Naruto, ob: Shippuden)..." class="lat-field w-full text-xs pl-8 pr-7 py-2">
+              <button type="button" id="btnClearAvatarSearch" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-0.5 text-xs cursor-pointer" title="Limpiar búsqueda">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Contenedor del Catálogo Tipo Netflix (Agrupado por Obras o Grid Filtrado) -->
+          <div id="avatarsCatalogContainer" class="space-y-8 min-h-[240px]">
+            <!-- Inyectado dinámicamente por js/account-manager.js -->
+          </div>
+
+          <!-- Banner Inferior de Sugerencias de Avatares (Discord & Subida Directa) en la Vista General -->
+          <div class="border-t border-white/[0.08] pt-4 mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] shadow-[var(--shadow-lift)]">
+            <div class="min-w-0 text-left space-y-1">
+              <p class="text-xs sm:text-sm font-semibold text-white">¿Quieres sugerir o ayudar con imágenes png o iconos no png?</p>
+              <p class="text-xs text-white/60 leading-snug">
+                Puedes enviarle un mensaje en discord al usuario <strong class="text-white font-medium inline-flex items-center gap-1.5"><i class="fa-brands fa-discord text-[#5865F2] text-xs"></i> svein._</strong> o en el siguiente botón:
+              </p>
+            </div>
+            <button type="button" class="btn-open-avatar-suggestion lat-capsule-btn solid text-xs sm:text-sm py-2.5 px-4 font-semibold text-black bg-[#ffd479] hover:bg-[#ffe099] flex items-center gap-2 shrink-0 shadow-[var(--shadow-lift)] transition-all cursor-pointer" title="Sugerir avatar para la colección">
+              <i class="fa-solid fa-plus text-xs"></i>
+              <span>Subir</span>
+            </button>
+          </div>
+
+        </div>

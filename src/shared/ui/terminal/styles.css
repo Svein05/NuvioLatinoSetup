@@ -1,0 +1,25 @@
+/* 6. CONSOLA Y TERMINAL LOG                                    */
+/* ============================================================ */
+
+.terminal-log {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  line-height: 1.6;
+}
+
+.terminal-log .log-info {
+  color: var(--color-ink-muted);
+}
+
+.terminal-log .log-success {
+  color: #34d399;
+  font-weight: 500;
+}
+
+.terminal-log .log-warning {
+  color: #ffd479;
+}
+
+.terminal-log .log-error {
+  color: #f87171;
+  font-weight: 600;
+}

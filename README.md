@@ -6,8 +6,8 @@
   <a href="https://github.com/Svein05/NuvioLatinoSetup/releases"><img src="https://img.shields.io/badge/Version-v1.8.0-ffd479.svg?style=flat-square&labelColor=1a1b23" alt="Versión 1.8.0" /></a>
   <a href="https://github.com/Svein05/NuvioLatinoSetup/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="Licencia MIT" /></a>
   <img src="https://img.shields.io/badge/JavaScript-ES6%20Modules-yellow.svg?style=flat-square" alt="ES6 Modules" />
-  <img src="https://img.shields.io/badge/TailwindCSS-CDN-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Architecture-100%25%20Static%20SPA-emerald.svg?style=flat-square" alt="Static SPA" />
+  <img src="https://img.shields.io/badge/TailwindCSS-Build-38bdf8.svg?style=flat-square" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Architecture-Static%20MPA-emerald.svg?style=flat-square" alt="Static MPA" />
   <a href="https://discord.gg/EubYtJVJEc"><img src="https://img.shields.io/badge/Discord-Comunidad%20Latina-5865F2.svg?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
 
@@ -42,7 +42,7 @@ La instalación estándar de catálogos masivos suele poblar la pantalla princip
 
 ### Sistema de Diseño Latino y Rendimiento
 - **Tipografía y Estilo:** Basado en Instrument Serif e Instrument Sans sobre una paleta oscura OLED con efecto de vidrio esmerilado (*glassmorphism*).
-- **Cero Dependencias de Servidor:** Arquitectura Single Page Application (SPA) en JavaScript ES6 vanilla, compatible con despliegues estáticos y ejecución local sin compiladores intermedios.
+- **Cero Dependencias de Servidor:** Aplicación multipágina en JavaScript ES6 vanilla, compilada con Vite para despliegue estático. Las integraciones privadas se trasladarán al Cloudflare Worker.
 - **Simulador Interactivo a 0 ms:** La previsualización de colecciones (Mini Nuvio) renderiza en tiempo real utilizando la caché en memoria del manifiesto local, eliminando llamadas de red innecesarias.
 
 ---
@@ -124,71 +124,57 @@ La aplicación se encuentra desplegada como sitio estático sin requerimientos d
 - Enlace oficial: [https://guia.lat-add.com/](https://guia.lat-add.com/)
 
 ### Ejecución Local
-Para ejecutar el proyecto en un entorno local:
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/Svein05/NuvioLatinoSetup.git
-   cd NuvioLatinoSetup
-   ```
+Requiere Node.js 24 o posterior; CI utiliza Node.js 24.
 
-2. Servir los archivos mediante cualquier servidor HTTP estático:
-   ```bash
-   python -m http.server 8080
-   ```
-   O bien mediante Node.js:
-   ```bash
-   npx serve .
-   ```
-3. Acceder desde el navegador a `http://localhost:8080`.
+```bash
+npm ci
+npm run dev
+```
 
----
+Abrir la dirección indicada por Vite (normalmente `http://127.0.0.1:5173`).
+
+### Compilación y verificaciones
+
+```bash
+npm run check
+npx playwright install chromium
+npm run test:e2e
+npm run preview
+```
+
+La salida publicable es exclusivamente `dist/`. No servir la raíz del repositorio:
+contiene fuentes, configuraciones y archivos locales que no son públicos.
 
 ## Estructura del Repositorio
 
-```
-NuvioLatinoSetup/
-├── index.html                  # Portada y presentación general
-├── account/
-│   └── index.html              # Gestor integral de cuenta, perfil, avatares y addons
-├── configuration/
-│   └── index.html              # Asistente de configuración en 7 pasos
-├── documentation/
-│   └── index.html              # Documentación técnica y guías de uso
-├── assets/
-│   ├── collections/            # Recursos gráficos locales de colecciones
-│   ├── fonts/                  # Fuentes tipográficas Instrument Sans y Serif
-│   ├── logo/                   # Identidad visual y logotipos
-│   ├── preview/                # Imágenes de muestra e incrustación
-│   └── profile_icons/          # Catálogo local de avatares estilo Netflix
-├── css/
-│   └── styles.css              # Sistema de diseño, temas y utilidades
-├── js/
-│   ├── vendor/                 # Bibliotecas externas (SortableJS)
-│   ├── account-manager.js      # Controlador de cuenta, perfiles, avatares y addons
-│   ├── aiometadata-client.js   # Comunicación con la API de AIOMetadata
-│   ├── aiostreams-client.js    # Cifrado y generación de manifiestos AIOStreams
-│   ├── app.js                  # Controlador principal del asistente
-│   ├── avatars-data.js         # Catálogo reactivo y resolvedor de avatares
-│   ├── badge-packs.js          # Catálogo de estilos Fusion Badges (kingsizew)
-│   ├── config.js               # Parámetros y constantes de versión
-│   ├── counter.js              # Odómetro visual y telemetría de configuraciones
-│   ├── github-stars.js         # Sincronizador en tiempo real de estrellas GitHub
-│   ├── injector.js             # Pipeline de aprovisionamiento de perfiles
-│   ├── mini-nuvio.js           # Simulador visual interactivo
-│   ├── nav-indicator.js        # Indicador deslizante de barra flotante
-│   ├── nuvio-client.js         # Cliente para las APIs de Nuvio
-│   ├── state.js                # Gestión reactiva del estado de la aplicación
-│   └── version.js              # Sincronización de badges de versión
-├── scripts/
-│   └── sync_avatars.js         # Sincronizador e indexador de avatares
-├── templates/
-│   ├── Aiostream.json          # Plantilla curada de AIOStreams con prioridad Latina
-│   ├── MetadataLatino.json     # Plantilla base de catálogos AIOMetadata
-│   └── NuvioCollections.json   # Definición de colecciones nativas de Nuvio
-├── version.json                # Registro central de versión semántica
-└── README.md                   # Documentación principal del repositorio
-```
+- `src/pages/`: portada y páginas; conserva las URLs públicas actuales.
+- Cada página compone sus secciones y modales con `<!-- @include "partials/nombre.html" -->`.
+  Vite ensambla esos parciales sin descargas HTML adicionales en el navegador.
+- La cabecera y el footer públicos se mantienen una sola vez en
+  `src/shared/ui/site-shell/`. El build ajusta enlaces relativos y página activa;
+  el panel de colaboradores mantiene su cabecera específica.
+- `src/features/`: funcionalidades con modelos, datos, UI y pruebas propias.
+- `src/integrations/`: adaptadores HTTP y contratos externos.
+- `src/app/`: configuración y composición.
+- `src/shared/`: componentes e infraestructura genéricos.
+- `public/`: plantillas y recursos públicos copiados al build.
+- `scripts/`: comprobaciones versionadas de arquitectura y build.
+- `config/`: configuración de Vite, CSS, lint y pruebas; los comandos npm indican sus rutas.
+- `worker/`: backend versionado sin secretos; contratos y configuración en su README.
+- `tests/`: regresiones heredadas y recorridos de navegador.
+- `assets/`: recursos con rutas canónicas utilizadas por el catálogo y el publicador.
+- `src/app/styles.css`: composición de estilos; cada módulo reside junto a su responsabilidad.
+
+Las dependencias siguen una dirección: app compone páginas, flujos e integraciones;
+features contiene reglas del producto y shared ofrece infraestructura genérica.
+Los modelos no acceden al DOM, a la red ni al almacenamiento. Las comprobaciones
+verifican dependencias, ciclos, tamaños y complejidad antes de compilar.
+
+Se versionan fuentes, pruebas, herramientas reproducibles y configuración.
+Las notas personales, secretos, cachés y resultados permanecen fuera de Git.
+La implementación mantenida del backend está en worker/; su despliegue se gestiona
+por separado.
 
 ---
 

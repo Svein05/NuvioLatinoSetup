@@ -1,0 +1,35 @@
+/* ============================================================ */
+/* COMPENSACIÓN REACTIVA: EXPANDIR CONTADOR -> SOLO ÍCONOS EN NAV */
+/* ============================================================ */
+
+@media (min-width: 1080px) and (hover: hover) and (pointer: fine) {
+  /* Cuando el contador se expande por hover o celebración en desktop: comprimir suavemente las pestañas centrales */
+  .lat-floating-nav:has(.completions-counter-pill:hover) .lat-nav-tab,
+  .lat-floating-nav:has(.completions-counter-pill.is-celebrating) .lat-nav-tab,
+  .lat-floating-nav.is-counter-expanded .lat-nav-tab {
+    padding-left: 0.8rem !important;
+    padding-right: 0.8rem !important;
+    gap: 0 !important;
+  }
+
+  .lat-floating-nav:has(.completions-counter-pill:hover) .lat-nav-tab span,
+  .lat-floating-nav:has(.completions-counter-pill.is-celebrating) .lat-nav-tab span,
+  .lat-floating-nav.is-counter-expanded .lat-nav-tab span {
+    max-width: 0 !important;
+    opacity: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .lat-floating-nav:has(.completions-counter-pill:hover) .lat-nav-tab i,
+  .lat-floating-nav:has(.completions-counter-pill.is-celebrating) .lat-nav-tab i,
+  .lat-floating-nav.is-counter-expanded .lat-nav-tab i {
+    transform: scale(1.12);
+  }
+}
+
+/* Transición cinemática para el fondo al hacer scroll */
+#heroBackdrop {
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), filter 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, filter;
+}

@@ -1,0 +1,165 @@
+<main class="relative z-10 flex-1 flex flex-col w-full">
+
+    <!-- 1. Hero Section Cinemático (Primera Vista 100% Pantalla) -->
+    <section class="relative min-h-[100dvh] flex flex-col justify-end items-center pb-12 sm:pb-16 px-4 md:px-6 max-w-4xl mx-auto text-center w-full z-10">
+      <div class="hero-glow rounded-[32px] p-4 sm:p-6 w-full flex flex-col items-center">
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-normal font-serif tracking-tight text-white leading-[1.08] mb-6 hero-title-shadow">
+          Transforma tu Nuvio con <br class="hidden sm:inline" />
+          <span class="italic text-[var(--color-estrella)]">Metadatos y Colecciones Latinas</span>
+        </h1>
+
+        <p class="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8 font-light hero-desc-shadow">
+          Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <a href="./configuration/" class="lat-capsule-btn solid text-sm sm:text-base px-8 py-3.5 shadow-[var(--shadow-lift)]">
+            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+            <span>Comenzar Configuración</span>
+          </a>
+          <a href="https://ko-fi.com/xsvein" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn glass text-sm sm:text-base px-6 py-3.5">
+            <img src="/assets/logo/kofi.avif" alt="" width="24" height="24" class="w-6 h-6 object-contain shrink-0" />
+            <span>Apoyar en Ko-fi</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Indicador animado de scroll (Informativo, no clickeable) -->
+      <div class="mt-6 sm:mt-8 flex flex-col items-center gap-1.5 text-white/40 text-xs font-mono select-none pointer-events-none" aria-hidden="true">
+        <span class="tracking-wider uppercase text-[10px]">Desliza para explorar</span>
+        <i class="fa-solid fa-chevron-down text-[#ffd479] text-xs animate-bounce"></i>
+      </div>
+    </section>
+
+    <!-- @include "wizard-showcase.html" -->
+    <!-- @include "account-showcase.html" -->
+    <!-- @include "metrics.html" -->
+
+    <!-- Contenido Inferior (Se revela tras hacer scroll) -->
+    <div class="relative z-10 max-w-7xl w-full mx-auto px-4 md:px-6 pt-16 pb-20 space-y-20">
+
+      <!-- 2. Los 4 Pilares de la Solución -->
+      <section id="como-funciona" class="max-w-5xl mx-auto w-full px-2 space-y-8">
+        <div class="text-center space-y-2">
+          <h2 class="text-3xl sm:text-4xl font-normal font-serif text-white">¿Por qué usar este Asistente?</h2>
+          <p class="text-sm text-white/60 max-w-xl mx-auto font-light">Diseñado especialmente para la comunidad latina que busca orden, estética cinematográfica y cero fricciones técnicas.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          
+          <!-- Pilar 1 -->
+          <div class="p-6 rounded-[24px] lat-card space-y-3">
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-images text-[#ffd479]"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Colecciones de Nuvio</h3>
+            <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
+              Carátulas cinematográficas apaisadas (Ahora en Nuvio, Plataformas de Streaming y Géneros). Todas las imágenes están almacenadas localmente para cargar a 0 ms sin depender de enlaces caídos.
+            </p>
+          </div>
+
+          <!-- Pilar 2 -->
+          <div class="p-6 rounded-[24px] lat-card space-y-3">
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-ghost text-[#ffd479]"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Estrategia "Ghost Mode"</h3>
+            <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
+              Oculta automáticamente los cientos de catálogos desordenados de AIOMetadata de la pantalla de inicio para mantenerla limpia y optimizada. Solo verás tus colecciones organizadas.
+            </p>
+          </div>
+
+          <!-- Pilar 3 -->
+          <div class="p-6 rounded-[24px] lat-card space-y-3">
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-language text-[#ffd479]"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">TMDB & MDBList Latino</h3>
+            <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
+              Activa metadatos enriquecidos oficiales en español latino para Smart TV y dispositivos móviles. Sinopsis, actores, directores y calificaciones críticas oficiales sin mezclas en inglés.
+            </p>
+          </div>
+
+          <!-- Pilar 4 -->
+          <div class="p-6 rounded-[24px] lat-card space-y-3">
+            <div class="w-11 h-11 rounded-[14px] bg-white/[0.08] border border-white/[0.12] flex items-center justify-center text-[#ffd479] text-lg shadow-[var(--brillo-vidrio)]">
+              <i class="fa-solid fa-arrows-split-up-and-left text-[#ffd479]"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Doble Modo: Automático o Manual</h3>
+            <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
+              ¿No quieres poner tu cuenta de Nuvio? ¡No hay problema! Puedes usar el <strong>Modo Manual</strong> para personalizar tus colecciones visualmente y copiar los JSONs listos para importar tú mismo.
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 5. Preguntas Frecuentes (FAQ) -->
+      <section data-faq class="max-w-3xl mx-auto w-full px-2 space-y-4">
+        <div class="text-center space-y-2 mb-6">
+          <h3 class="text-3xl sm:text-4xl font-normal font-serif text-white">Preguntas Frecuentes</h3>
+          <p class="text-xs sm:text-sm text-white/60">Resolvemos tus dudas antes de comenzar.</p>
+        </div>
+
+        <div class="space-y-3">
+          <details name="landing-faq" class="faq-details bg-white/[0.03] border border-white/[0.08] rounded-[18px] p-5 shadow-[var(--brillo-vidrio)] hover:border-white/20 transition-all">
+            <summary class="flex items-center justify-between text-sm font-medium text-white select-none cursor-pointer">
+              <span>¿Es seguro conectar mi cuenta de Nuvio?</span>
+              <i class="fa-solid fa-chevron-down text-xs text-white/40 faq-icon transition-transform"></i>
+            </summary>
+            <div class="faq-panel" id="faq-answer-1">
+              <div class="faq-panel-content">
+                <p class="text-xs sm:text-sm text-white/65 leading-relaxed">
+                  Sí, es totalmente seguro. Esta aplicación es 100% estática (código abierto en GitHub) y se ejecuta únicamente en tu navegador. Tus credenciales van directamente a los servidores oficiales de Nuvio (<code>api.nuvio.tv</code>) mediante llamadas autenticadas de Supabase. Ningún servidor externo o intermediario almacena ni ve tu contraseña. Y si prefieres no ingresarla, dispones del <strong>Modo Manual</strong>.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <details name="landing-faq" class="faq-details bg-white/[0.03] border border-white/[0.08] rounded-[18px] p-5 shadow-[var(--brillo-vidrio)] hover:border-white/20 transition-all">
+            <summary class="flex items-center justify-between text-sm font-medium text-white select-none cursor-pointer">
+              <span>¿Qué necesito para realizar la configuración?</span>
+              <i class="fa-solid fa-chevron-down text-xs text-white/40 faq-icon transition-transform"></i>
+            </summary>
+            <div class="faq-panel" id="faq-answer-2">
+              <div class="faq-panel-content">
+                <p class="text-xs sm:text-sm text-white/65 leading-relaxed">
+                  Solo necesitas tu cuenta de Nuvio (o usar el Modo Manual) y una clave API gratuita de TheMovieDatabase (TMDB). Esta clave se solicita en el Paso 4 para activar el enriquecimiento oficial de metadatos en español latino (sinopsis oficiales, actores, directores y puntuaciones) en tu perfil de Nuvio. En el Paso 3 podrás organizar y personalizar todas tus colecciones con cápsulas interactivas al instante, y el asistente te dará el enlace directo para obtener tu clave en 30 segundos si aún no la tienes.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <details name="landing-faq" class="faq-details bg-white/[0.03] border border-white/[0.08] rounded-[18px] p-5 shadow-[var(--brillo-vidrio)] hover:border-white/20 transition-all">
+            <summary class="flex items-center justify-between text-sm font-medium text-white select-none cursor-pointer">
+              <span>¿Afectará a mis otros perfiles de Nuvio?</span>
+              <i class="fa-solid fa-chevron-down text-xs text-white/40 faq-icon transition-transform"></i>
+            </summary>
+            <div class="faq-panel" id="faq-answer-3">
+              <div class="faq-panel-content">
+                <p class="text-xs sm:text-sm text-white/65 leading-relaxed">
+                  No. En el Paso 2 podrás crear un perfil completamente nuevo (por ejemplo "Latino") o elegir cuál de tus perfiles existentes deseas actualizar. El resto de perfiles de tu cuenta permanecerán intactos.
+                </p>
+              </div>
+            </div>
+          </details>
+
+          <details name="landing-faq" class="faq-details bg-white/[0.03] border border-white/[0.08] rounded-[18px] p-5 shadow-[var(--brillo-vidrio)] hover:border-white/20 transition-all">
+            <summary class="flex items-center justify-between text-sm font-medium text-white select-none cursor-pointer">
+              <span>¿Tiene algún costo o requiere suscripción?</span>
+              <i class="fa-solid fa-chevron-down text-xs text-white/40 faq-icon transition-transform"></i>
+            </summary>
+            <div class="faq-panel" id="faq-answer-4">
+              <div class="faq-panel-content">
+                <p class="text-xs sm:text-sm text-white/65 leading-relaxed">
+                  No, este asistente es un proyecto de código abierto libre (licencia MIT) mantenido por y para la comunidad.
+                </p>
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
