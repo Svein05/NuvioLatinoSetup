@@ -1,0 +1,39 @@
+.wizard-execute-action {
+  width: 100%;
+  min-height: 3.5rem;
+  justify-content: center;
+  gap: .75rem;
+  padding: 1rem 1.5rem;
+  font-size: .9375rem;
+  font-weight: 600;
+  box-shadow: 0 6px 28px rgb(255 212 121 / .12);
+}
+.wizard-execute-action:disabled { box-shadow: none; }
+.wizard-config-files {
+  border: 1px solid rgb(255 255 255 / .1);
+  border-radius: 1.25rem;
+  background: rgb(255 255 255 / .025);
+}
+.wizard-config-files summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  font-size: .8125rem;
+  color: rgb(255 255 255 / .8);
+  cursor: pointer;
+  list-style: none;
+}
+.wizard-config-files summary::-webkit-details-marker { display: none; }
+.wizard-config-files summary > span { display: flex; align-items: center; gap: .65rem; }
+.wizard-config-files summary > i { transition: transform 200ms ease-out; }
+.wizard-config-files[open] summary > i { transform: rotate(180deg); }
+.wizard-config-files-content { display: flex; flex-wrap: wrap; gap: .75rem; padding: 0 1.25rem 1.25rem; }
+.wizard-config-files summary:focus-visible, #btnEditBadgePack:focus-visible {
+  outline: 2px solid #ffd479;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wizard-config-files summary > i { transition: none; }
+}

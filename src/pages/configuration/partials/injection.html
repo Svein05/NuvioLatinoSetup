@@ -8,7 +8,7 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
+
           <!-- Columna Izquierda: Seguridad, Acciones y Consola -->
           <div class="lg:col-span-7 space-y-5">
             <!-- Clave Maestra de AIOMetadata -->
@@ -79,9 +79,14 @@
               </div>
             </div>
 
-            <!-- Opciones de Descarga Manual para Respaldo (Centrado pegado debajo del bloque de contraseña) -->
-            <div class="flex flex-wrap items-center justify-center gap-3 pt-1">
-              <button id="btnDownloadCollections" class="lat-capsule-btn glass px-4 py-2.5 text-xs flex items-center gap-2" title="Descargar archivo JSON de colecciones para Nuvio">
+            <!-- Primary action precedes optional exports. -->
+            <button id="btnExecutePipeline" type="button" disabled class="lat-capsule-btn solid wizard-execute-action">
+              <i class="fa-solid fa-bolt"></i><span>Ejecutar configuración automática</span>
+            </button>
+            <details class="wizard-config-files">
+              <summary><span><i class="fa-solid fa-folder-open"></i> Archivos de Configuración</span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary>
+              <div class="wizard-config-files-content">
+                <button id="btnDownloadCollections" class="lat-capsule-btn glass px-4 py-2.5 text-xs flex items-center gap-2" title="Descargar archivo JSON de colecciones para Nuvio">
                 <i class="fa-solid fa-download"></i>
                 <span>Descargar Colecciones JSON</span>
               </button>
@@ -95,15 +100,10 @@
                 <i class="fa-solid fa-tags"></i>
                 <span>Descargar Badges JSON</span>
               </button>
-            </div>
 
-            <!-- Botón de Ejecución Automática Centrado -->
-            <div class="flex items-center justify-center pt-3">
-              <button id="btnExecutePipeline" disabled class="lat-capsule-btn solid w-full sm:w-auto px-10 py-3.5 text-sm flex items-center justify-center gap-2 shadow-[var(--shadow-lift)] font-medium">
-                <i class="fa-solid fa-bolt"></i>
-                <span>Ejecutar Configuración Automática</span>
-              </button>
-            </div>
+              </div>
+            </details>
+
           </div>
 
           <!-- Columna Derecha: Resumen Vertical de Configuración -->

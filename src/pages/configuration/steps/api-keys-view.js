@@ -1,10 +1,9 @@
-export const keyFields = { tmdb: 'keyTmdb', mdblist: 'keyMdblist', rpdb: 'keyRpdb',
-  tvdb: 'keyTvdb', gemini: 'keyGemini', openrouter: 'keyOpenrouter' };
+export const keyFields = { tmdb: 'keyTmdb', mdblist: 'keyMdblist' };
 
 export function readKeySnapshot(root) {
   const keys = Object.fromEntries(Object.entries(keyFields).map(([key, id]) => [key, root.querySelector(`#${id}`)?.value.trim() || '']));
-  if (!keys.rpdb) keys.rpdb = 't0-free-rpdb';
-  return { keys, aiEnabled: root.querySelector('#toggleSearchAi')?.checked || false };
+  Object.assign(keys, { rpdb: 't0-free-rpdb', tvdb: '', gemini: '', openrouter: '' });
+  return { keys, aiEnabled: false };
 }
 
 export function renderKeyResult(provider, result, root) {
@@ -51,5 +50,5 @@ export function renderKeyBusy(busy, root) {
   if (!button) return;
   button.disabled = busy;
   button.innerHTML = busy ? '<i class="fa-solid fa-spinner fa-spin"></i><span>Probando credenciales...</span>'
-    : '<i class="fa-solid fa-vial-circle-check"></i><span>Probar Claves API</span>';
+    : '<i class="fa-solid fa-vial-circle-check"></i><span>Probar API keys</span>';
 }
