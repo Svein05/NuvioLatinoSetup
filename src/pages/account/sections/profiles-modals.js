@@ -38,7 +38,7 @@ export function openCreateProfileModal({ root = document, state, showToast }) {
     return;
   }
   const preview = root.getElementById?.('createProfileAvatarPreview');
-  if (preview) preview.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=NuevoPerfil';
+  if (preview) preview.src = '/assets/icons/avatar-placeholder.svg';
   if (preview?.dataset) delete preview.dataset.selectedUrl;
   const modal = root.getElementById?.('modalCreateProfile');
   const nameInput = root.getElementById?.('inputCreateProfileName');

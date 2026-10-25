@@ -5,7 +5,7 @@ export function avatarCardMarkup(avatar, { resolveUrl, selected, score }) {
   const badge = score === undefined ? '' : `<span class="avatar-user-count-badge">${Number(score) || 0}</span>`;
   return `<button type="button" class="netflix-avatar-card ${selected ? 'is-selected' : ''}"
     data-avatar-path="${escapeHtml(avatar.path)}" title="${escapeHtml(avatar.character)}">
-    <span class="avatar-circle-wrap"><img class="avatar-card-img" loading="lazy"
+    <span class="avatar-circle-wrap"><img data-image-fallback="avatar" class="avatar-card-img" loading="lazy"
       src="${escapeHtml(safeImageUrl(resolveUrl(avatar.path)))}" alt="${escapeHtml(avatar.character)}"></span>
     ${badge}<span class="avatar-card-name-label">${escapeHtml(avatar.character)}</span></button>`;
 }

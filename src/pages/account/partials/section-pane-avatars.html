@@ -7,7 +7,7 @@
               <div id="avatarComparisonContainer" class="flex items-center gap-2.5 sm:gap-3 shrink-0">
                 <!-- Avatar Original / Actual -->
                 <div class="relative group" title="Avatar actual en Nuvio">
-                  <img id="avatarOriginalPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio" alt="Avatar Actual" class="w-20 h-20 rounded-full border-2 border-white/20 bg-black/50 object-cover transition-all">
+                  <img data-image-fallback="avatar" id="avatarOriginalPreview" src="/assets/icons/avatar-placeholder.svg" alt="Avatar Actual" class="w-20 h-20 rounded-full border-2 border-white/20 bg-black/50 object-cover transition-all">
                   <span id="avatarOriginalBadge" class="hidden absolute -bottom-1 -left-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-white/20 text-white/80 uppercase tracking-wider backdrop-blur-sm">Actual</span>
                 </div>
 
@@ -18,7 +18,7 @@
 
                 <!-- Avatar Nuevo Seleccionado (visible solo cuando hay cambio) -->
                 <div id="avatarNewWrap" class="hidden relative">
-                  <img id="avatarCurrentPreview" src="https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio" alt="Nuevo Avatar" class="w-20 h-20 rounded-full border-2 border-[#ffd479] bg-black/50 object-cover shadow-[0_0_25px_rgba(255,212,121,0.3)] scale-105 transition-all">
+                  <img data-image-fallback="avatar" id="avatarCurrentPreview" src="/assets/icons/avatar-placeholder.svg" alt="Nuevo Avatar" class="w-20 h-20 rounded-full border-2 border-[#ffd479] bg-black/50 object-cover shadow-[0_0_25px_rgba(255,212,121,0.3)] scale-105 transition-all">
                   <span id="avatarModifiedBadge" class="absolute -bottom-1 -right-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#ffd479] text-black shadow-md uppercase tracking-wider">Nuevo</span>
                 </div>
               </div>

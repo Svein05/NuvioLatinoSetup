@@ -77,7 +77,7 @@ function renderCard(av, { isSelected, cdnUrl, extraClass = '', badgeHtml = '' })
          title="${escapeHtml(av.character)} (${escapeHtml(av.franchiseName || '')})">
       <div class="relative w-full aspect-square">
         <div class="avatar-circle-wrap">
-          <img src="${escapeHtml(cdnUrl)}" alt="${escapeHtml(av.character)}" class="avatar-card-img" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/bottts/svg?seed=Nuvio'">
+          <img src="${escapeHtml(cdnUrl)}" alt="${escapeHtml(av.character)}" class="avatar-card-img" loading="lazy" data-image-fallback="avatar">
         </div>
         ${badgeHtml}
       </div>

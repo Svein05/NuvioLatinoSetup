@@ -1,6 +1,6 @@
 function renderSingleProfileCard(p, idx, isSelected, canDelete) {
   const name = p.name || p.title || `Perfil ${idx + 1}`;
-  const avatar = p.avatar_url || '/assets/logo/logo.webp';
+  const avatar = p.avatar_url || '/assets/icons/avatar-placeholder.svg';
   const cardBorder = isSelected
     ? 'border-2 border-[#ffd479] bg-white/[0.08] shadow-[0_0_20px_rgba(255,212,121,0.2)] transform -translate-y-0.5'
     : 'border border-white/10 bg-white/[0.03] hover:border-white/25 hover:bg-white/[0.06] hover:-translate-y-0.5';
@@ -17,7 +17,7 @@ function renderSingleProfileCard(p, idx, isSelected, canDelete) {
     <div class="card-select-profile group relative cursor-pointer p-4 rounded-2xl flex flex-col items-center justify-center gap-2.5 transition-all duration-200 select-none min-h-[140px] w-48 sm:w-52 ${cardBorder}" data-profile-id="${p.id}" data-profile-name="${name}">
       ${checkBadge}
       ${deleteBtn}
-      <div class="relative"><img src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'}"></div>
+      <div class="relative"><img data-image-fallback="avatar" src="${avatar}" alt="${name}" class="w-12 h-12 rounded-full object-cover transition-all ${isSelected ? 'ring-2 ring-[#ffd479] shadow-md scale-105' : 'ring-1 ring-white/20 group-hover:ring-white/40'}"></div>
       <div class="text-center w-full px-1">
         <div class="text-xs font-semibold truncate ${isSelected ? 'text-white' : 'text-white/70 group-hover:text-white'}">${name}</div>
         <div class="text-[10px] mt-0.5 ${isSelected ? 'text-[#ffd479] font-mono font-bold uppercase tracking-wider' : 'text-white/40 group-hover:text-white/60'}">${isSelected ? '✓ Seleccionado' : 'Click para elegir'}</div>
