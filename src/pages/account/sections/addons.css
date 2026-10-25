@@ -17,10 +17,15 @@
 }
 .account-addon-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: .375rem;
   margin-left: auto;
+  max-width: 100%;
 }
+.account-addon-management, .account-addon-order { display: flex; gap: .375rem; align-items: center; }
+.account-addon-logo { width: 44px; height: 44px; flex: 0 0 44px; border-radius: .75rem; background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .1); overflow: hidden; }
+.account-addon-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
 .account-addon-identity .sortable-drag-handle {
   display: flex;
   align-items: center;
@@ -36,8 +41,13 @@
   height: 44px;
   min-height: 44px;
   padding: 0;
+  font-size: .75rem;
 }
-.account-addon-actions button:focus-visible {
+.account-addon-actions .account-addon-configure { width: auto; gap: .4rem; padding-inline: .75rem; }
+.account-addon-configure i { color: #ffd479; }
+.account-addon-actions [hidden] { display: none !important; }
+.account-addon-actions button:disabled { opacity: .3; cursor: not-allowed; }
+.account-addon-actions :is(button,a):focus-visible {
   outline: 2px solid #ffd479;
   outline-offset: 3px;
 }

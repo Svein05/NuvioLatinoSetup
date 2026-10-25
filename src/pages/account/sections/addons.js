@@ -1,4 +1,5 @@
 import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
+import { addonActionsMarkup } from './addon-actions.js';
 export {
   isDuplicateManifestUrl,
   normalizeManifestUrl,
@@ -26,27 +27,14 @@ function buildAddonRowHtml(addon, idx, isFirst, isLast) {
     <div class="account-addon-card group" data-index="${idx}">
       <div class="account-addon-identity">
         <i class="fa-solid fa-grip-vertical text-white/20 hover:text-white/60 cursor-grab active:cursor-grabbing sortable-drag-handle p-1"></i>
-        <img data-addon-manifest="${escapeHtml(addon.manifest_url || addon.url || '')}" src="${escapeHtml(safeImageUrl(addon.logo, '/assets/logo/logo.webp'))}" alt="" class="w-8 h-8 rounded-lg object-contain bg-black/40 border border-white/10 shrink-0">
+        <span class="account-addon-logo"><img data-image-fallback="addon" data-addon-manifest="${escapeHtml(addon.manifest_url || addon.url || '')}" src="${escapeHtml(safeImageUrl(addon.logo, '/assets/icons/addon-placeholder.svg'))}" alt=""></span>
         <div class="min-w-0 flex-1">
           <h5 class="text-xs sm:text-sm font-semibold text-white truncate">${escapeHtml(addon.name)}</h5>
           <span class="text-[11px] font-mono text-white/40 truncate block">${escapeHtml(addon.manifest_url || addon.url || '')}</span>
         </div>
         <span role="img" aria-label="${isEnabled ? 'Activado' : 'Desactivado'}" class="w-2 h-2 rounded-full shrink-0 ${isEnabled ? 'bg-emerald-400' : 'bg-rose-500'}"></span>
       </div>
-      <div class="account-addon-actions">
-        <button type="button" class="btn-move-up lat-capsule-btn glass text-xs py-1 px-2 ${isFirst ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''}" data-index="${idx}" title="Subir">
-          <i class="fa-solid fa-chevron-up text-[10px]"></i>
-        </button>
-        <button type="button" class="btn-move-down lat-capsule-btn glass text-xs py-1 px-2 ${isLast ? 'opacity-20 cursor-not-allowed pointer-events-none' : ''}" data-index="${idx}" title="Bajar">
-          <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </button>
-        <button type="button" class="btn-edit-addon lat-capsule-btn glass text-xs py-1 px-2.5 text-white/80" data-index="${idx}" title="Editar">
-          <i class="fa-solid fa-pen text-[10px]"></i>
-        </button>
-        <button type="button" class="btn-delete-addon lat-capsule-btn glass text-xs py-1 px-2.5 text-rose-400" data-index="${idx}" title="Eliminar">
-          <i class="fa-regular fa-trash-can text-[11px]"></i>
-        </button>
-      </div>
+      ${addonActionsMarkup(addon, idx, isFirst, isLast)}
     </div>
   `;
 }
@@ -70,16 +58,6 @@ export function renderAddonsSection(state, { root = document, onEditAddon, onDel
   }
 
   container.innerHTML = addons.map((addon, idx) => buildAddonRowHtml(addon, idx, idx === 0, idx === addons.length - 1)).join('');
-
-  container.querySelectorAll('.account-addon-actions button').forEach(button => {
-    button.setAttribute('aria-label', button.title);
-    if (button.classList.contains('pointer-events-none')) button.disabled = true;
-  });
-  container.querySelectorAll('img[data-addon-manifest]').forEach(image => {
-    image.addEventListener('error', () => {
-      if (image.getAttribute('src') !== '/assets/logo/logo.webp') image.src = '/assets/logo/logo.webp';
-    });
-  });
 
   container.querySelectorAll('.btn-edit-addon').forEach(btn => {
     btn.addEventListener('click', () => onEditAddon?.(Number(btn.dataset.index)));

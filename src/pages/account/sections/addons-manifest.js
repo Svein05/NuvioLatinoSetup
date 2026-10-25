@@ -1,3 +1,5 @@
+import { safeImageUrl } from '../../../shared/ui/safe-markup.js';
+
 export function normalizeManifestUrl(rawUrl) {
   let url = (rawUrl || '').trim();
   if (url.startsWith('stremio://')) {
@@ -18,9 +20,26 @@ export function isDuplicateManifestUrl(installedAddons, newUrl, excludeIndex = n
   });
 }
 
-export function getAddonFallbackLogo(rawUrl, name) {
-  const seed = encodeURIComponent(name || 'Addon');
-  return `https://api.dicebear.com/7.x/identicon/svg?seed=${seed}`;
+export function getAddonFallbackLogo() {
+  return '/assets/icons/addon-placeholder.svg';
+}
+
+export function getAddonConfigureUrl(addon, info = {}) {
+  try {
+    const url = new URL(normalizeManifestUrl(addon.manifest_url || addon.url || ''));
+    if (!['http:', 'https:'].includes(url.protocol) || !/\/manifest\.json$/i.test(url.pathname)) return null;
+    const known = ['aiometadata', 'aiostreams', 'torrentio', 'animesub', 'opensubtitles', 'cinetorrent', 'torbox', 'stremthru', 'jackettio'];
+    const identity = `${url.hostname} ${addon.name || ''}`.toLowerCase();
+    if (!addon.configurable && !info?.configurable && !known.some(name => identity.includes(name))) return null;
+    url.pathname = url.pathname.replace(/\/manifest\.json$/i, '/configure');
+    return url.href;
+  } catch { return null; }
+}
+
+function manifestLogo(value, url) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  try { return safeImageUrl(new URL(value, url).href) || null; }
+  catch { return null; }
 }
 
 export async function fetchAddonManifestInfo(url, requestJson) {
@@ -28,10 +47,10 @@ export async function fetchAddonManifestInfo(url, requestJson) {
   try {
     const data = await requestJson(norm);
     return {
-      name: data.name,
-      logo: data.logo,
+      name: data.name || data.id,
+      logo: manifestLogo(data.logo || data.icon, norm),
       description: data.description,
-      configurable: Boolean(data.behaviorHints?.configurable),
+      configurable: Boolean(data.behaviorHints?.configurable || data.behaviorHints?.configurationRequired),
     };
   } catch {
     return null;
