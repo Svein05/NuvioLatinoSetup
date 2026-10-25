@@ -1,4 +1,8 @@
 /* Selector / Disparador del Modal de Obras */
+.avatar-collection-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: 1.25rem; }
+.avatar-collection-heading > div { flex: 1 1 8rem; min-width: 0; }
+.avatar-collection-heading .btn-open-avatar-collection { min-height: 44px; white-space: normal; text-align: left; }
+
 .avatar-dropdown-trigger {
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;

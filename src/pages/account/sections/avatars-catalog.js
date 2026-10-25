@@ -71,7 +71,7 @@ export function renderAvatarStylePills({ root = document, state, getStylesSummar
 
 function renderCard(av, { isSelected, cdnUrl, extraClass = '', badgeHtml = '' }) {
   return `
-    <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}"
+    <button type="button" class="netflix-avatar-card ${isSelected ? 'is-selected' : ''} ${extraClass}"
          data-avatar-path="${escapeHtml(av.path)}"
          data-avatar-name="${escapeHtml(av.character)}"
          title="${escapeHtml(av.character)} (${escapeHtml(av.franchiseName || '')})">
@@ -82,7 +82,7 @@ function renderCard(av, { isSelected, cdnUrl, extraClass = '', badgeHtml = '' })
         ${badgeHtml}
       </div>
       <span class="avatar-card-name-label">${escapeHtml(av.character)}</span>
-    </div>
+    </button>
   `;
 }
 
@@ -94,6 +94,7 @@ export function renderAvatarsCatalog({
   onSelectAvatar,
   onOpenFranchise,
   onResetFilters,
+  mountGrid,
 }) {
   const container = root.getElementById?.('avatarsCatalogContainer');
   if (!container || !filterAvatars) return;
@@ -126,16 +127,22 @@ export function renderAvatarsCatalog({
       isSelected: areAvatarUrlsEqual(av.path, activeAvatar, resolveAvatarCdnUrl),
       cdnUrl: resolveAvatarCdnUrl(av.path),
     })).join('');
-    const heading = grouped ? `<div class="flex items-center justify-between gap-3 mb-5">
+    const heading = grouped ? `<div class="avatar-collection-heading">
       <div><h4 class="text-sm font-semibold">${escapeHtml(avatars[0].franchiseName)}</h4><small>${avatars.length} avatares</small></div>
       <button type="button" class="btn-open-avatar-collection" data-open-franchise="${escapeHtml(key)}">Abrir colección de avatares <span aria-hidden="true">→</span></button></div>` : '';
-    return `<div class="avatar-collection-block">${heading}<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">${cards}</div></div>`;
+    return `<div class="avatar-collection-block">${heading}<div data-avatar-grid="${escapeHtml(key)}" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">${grouped && mountGrid ? '' : cards}</div></div>`;
   }).join('');
+  if (grouped && mountGrid) container.querySelectorAll('[data-avatar-grid]').forEach(grid => {
+    mountGrid(grid, groups.get(grid.dataset.avatarGrid), av => renderCard(av, {
+      isSelected: areAvatarUrlsEqual(av.path, activeAvatar, resolveAvatarCdnUrl), cdnUrl: resolveAvatarCdnUrl(av.path),
+    }));
+  });
   container.querySelectorAll('[data-open-franchise]').forEach(button => {
     button.addEventListener('click', () => onOpenFranchise?.(button.dataset.openFranchise));
   });
 
-  container.querySelectorAll('.netflix-avatar-card').forEach(card => {
-    card.addEventListener('click', () => onSelectAvatar?.(card.dataset.avatarPath));
-  });
+  container.onclick = event => {
+    const card = event.target.closest('[data-avatar-path]');
+    if (card && container.contains(card)) onSelectAvatar?.(card.dataset.avatarPath);
+  };
 }
