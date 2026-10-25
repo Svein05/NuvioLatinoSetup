@@ -20,7 +20,7 @@ export function mountBadgesDisclosure({ root, state, lifetime, render, fit }) {
   }
   function sync() {
     const next = Boolean(state.preferences.badgesEnabled);
-    button?.classList.toggle('hidden', !next);
+    if (button) button.hidden = !next;
     if (label) label.textContent = next ? getBadgePackById(state.preferences.selectedBadgePack || 'tinted')?.name || '' : '';
     if (next !== enabled) { enabled = next; setOpen(next); }
   }

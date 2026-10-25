@@ -37,3 +37,9 @@
 @media (prefers-reduced-motion: reduce) {
   .wizard-config-files summary > i { transition: none; }
 }
+
+.wizard-badges-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; }
+.wizard-badges-header > :first-child { flex: 1 1 18rem; min-width: 0; }
+.wizard-badges-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .75rem; margin-left: auto; }
+#btnEditBadgePack { min-height: 2.75rem; }
+#btnEditBadgePack[hidden] { display: none !important; }

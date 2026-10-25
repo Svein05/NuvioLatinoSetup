@@ -165,7 +165,7 @@
         <!-- Stream badge customization follows poster selection. -->
         <div class="w-full mt-6">
           <div class="p-4 sm:p-5 lat-card space-y-2.5 shadow-[var(--brillo-vidrio)]">
-            <div class="flex items-center justify-between gap-3">
+            <div class="wizard-badges-header">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center shrink-0 text-sm text-[#ffd479] shadow-[var(--brillo-vidrio)]">
                   <i class="fa-solid fa-tags"></i>
@@ -175,7 +175,7 @@
                   <p class="text-[10px] text-white/50 font-mono">Personaliza los distintivos de calidad, resolución, audio y formatos (Fusion Badges)</p>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              <div class="wizard-badges-controls">
                 <span id="labelBadgesCustomization" class="text-[10px] font-mono font-bold text-white/40 uppercase tracking-wider">Desactivado</span>
                 <label class="lat-switch shrink-0" title="Activar/Desactivar Personalización de Badges">
                   <input id="toggleBadgesCustomization" type="checkbox">
@@ -183,6 +183,7 @@
                     <span class="lat-switch-thumb"></span>
                   </span>
                 </label>
+                <button id="btnEditBadgePack" type="button" hidden class="lat-capsule-btn solid text-xs py-2.5 px-4" aria-controls="badgesGalleryContainer" aria-expanded="false">Elegir pack <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
               </div>
             </div>
 
@@ -193,7 +194,6 @@
             <!-- Contenedor Desplegable de Galería de Badges (Animación Fluida) -->
             <div class="flex flex-wrap items-center justify-between gap-3">
               <span id="selectedBadgePackLabel" class="text-xs text-white/70"></span>
-              <button id="btnEditBadgePack" type="button" class="lat-capsule-btn glass text-xs py-2 px-3 hidden" aria-controls="badgesGalleryContainer" aria-expanded="false">Elegir pack <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
             </div>
             <div id="badgesGalleryContainer" class="badges-collapsible" inert>
               <div class="badges-collapsible-inner"><div class="pt-3 border-t border-white/[0.06] space-y-4">
