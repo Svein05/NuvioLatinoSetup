@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { isolateExternalServices } from './support/offline-services.js';
 
+test('homepage ships the exact public Search Console tag in its initial HTML', async ({ request }) => {
+  const response = await request.get('/');
+  const html = await response.text();
+  expect(html.match(/name="google-site-verification"/g)).toHaveLength(1);
+  expect(html).toContain('content="fWeoB53RvEt4p2Yg2nM2U31YYjZO5EpNGqQr-yWIcq4"');
+});
+
 for (const blockedStorage of [false, true]) {
   test(`repository stars and version remain visible ${blockedStorage ? 'with blocked storage' : 'across pages using their cache'}`, async ({ page }) => {
     await isolateExternalServices(page);

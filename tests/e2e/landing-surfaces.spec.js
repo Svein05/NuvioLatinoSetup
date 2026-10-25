@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test';
 import { openLanding, revealChapter } from './support/landing.js';
-import { readFileSync } from 'node:fs';
 
 test('landing refreshes its avatar strip from the shared public GitHub catalog', async ({ page }) => {
   await openLanding(page);
@@ -10,7 +9,10 @@ test('landing refreshes its avatar strip from the shared public GitHub catalog',
       : { tree: [{ type: 'blob', path: 'assets/profile_icons/NetflixStyle/Naruto/Naruto.webp' }] };
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
   });
+  const catalogRead = page.waitForResponse(response => response.url().includes('/git/trees/'));
   await page.reload();
+  await catalogRead;
+  await page.locator('.preview-avatar-tray').scrollIntoViewIfNeeded();
   await expect(page.locator('[data-avatar-carousel] img')).toHaveCount(14);
   await expect(page.locator('[data-avatar-carousel] img').first()).toHaveAttribute('src', new RegExp(`Naruto.webp\\?v=${sha}$`));
 });
@@ -37,20 +39,14 @@ test('translucent scenes avoid opaque panels and keep profile and library center
 
 test('avatar strip cycles a ranked pool with bounded images and addons reorder before configuration', async ({ page }, testInfo) => {
   await openLanding(page);
-  const manifest = JSON.parse(readFileSync('assets/profile_icons/manifest.json', 'utf8'));
-  const count = manifest.styles.flatMap(style => style.franchises.flatMap(franchise => franchise.files)).length;
   const strip = page.locator('[data-avatar-carousel]');
+  await page.locator('.preview-avatar-tray').scrollIntoViewIfNeeded();
   await expect(strip.locator('img')).toHaveCount(14);
-  const visited = await strip.evaluate((element, count) => {
-    const sources = new Set();
-    for (let index = 0; index < count; index++) {
-      sources.add(element.firstElementChild.getAttribute('src'));
-      element.dispatchEvent(new AnimationEvent('animationiteration', { animationName: 'avatar-catalog-travel' }));
-    }
-    return sources.size;
-  }, count);
-  expect(visited).toBeGreaterThan(0);
-  expect(visited).toBeLessThanOrEqual(32);
+  const firstImage = await strip.locator('img').first().elementHandle();
+  await strip.evaluate(element => element.getAnimations()[0].finish());
+  await expect.poll(() => firstImage.evaluate(image => image.isConnected)).toBe(false);
+  await expect(strip.locator('img')).toHaveCount(14);
+  expect(await strip.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth > 0))).toBe(true);
   await page.locator('#explora-cuenta').evaluate(element => {
     const frame = element.querySelector('.account-showcase-frame');
     window.scrollTo(0, scrollY + element.getBoundingClientRect().top - 120 + (element.offsetHeight - frame.offsetHeight) * .05);
@@ -65,7 +61,7 @@ test('avatar strip cycles a ranked pool with bounded images and addons reorder b
   await expect(page.locator('.landing-account')).toHaveCSS('--addon-order', '1.0000');
   await expect(page.locator('.account-addon-settings')).toHaveCSS('opacity', '1');
   expect((await page.locator('.addon-metadata').boundingBox()).y).toBeLessThan((await page.locator('.addon-streams').boundingBox()).y);
-  await expect(page.locator('.avatar-showcase-track')).toHaveCSS('animation-play-state', 'running');
+  await expect.poll(() => strip.evaluate(t => t.getAnimations()[0]?.playState)).toBe('running');
   const cards = await page.locator('.preview-activity-grid > div').all();
   const first = await cards[0].boundingBox();
   const second = await cards[1].boundingBox();
@@ -79,7 +75,7 @@ test('avatar strip cycles a ranked pool with bounded images and addons reorder b
   await page.locator('.account-addon-scene').scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath('account-mobile.png') });
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect(strip).toHaveCSS('animation-name', 'none');
+  await expect.poll(() => strip.evaluate(t => t.getAnimations()[0]?.playState)).toBe('paused');
 });
 
 
@@ -97,7 +93,10 @@ test('landing carousel uses most-used avatars without recording usage', async ({
   }));
   const writes = [];
   page.on('request', request => { if (request.method() === 'POST') writes.push(request.url()); });
+  const catalogRead = page.waitForResponse(response => response.url().includes('/git/trees/'));
   await page.reload();
+  await catalogRead;
+  await page.locator('.preview-avatar-tray').scrollIntoViewIfNeeded();
   const images = page.locator('[data-avatar-carousel] img');
   await expect(images.first()).toHaveAttribute('src', /B.webp/);
   await expect(images.nth(1)).toHaveAttribute('src', /A.webp/);

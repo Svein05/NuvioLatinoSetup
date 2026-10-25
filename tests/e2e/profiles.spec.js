@@ -21,7 +21,7 @@ test('selecting and renaming a profile never replaces another native avatar', as
   await page.locator('#btnAccountProfileTrigger').click();
   await page.locator('.popover-profile-row[data-profile-id="2"]').click();
   await expect(page.locator('#sidebarActiveName')).toHaveText('Native profile');
-  await expect(page.locator('#sidebarActiveAvatar')).toHaveAttribute('src', '/assets/logo/logo.webp');
+  await expect(page.locator('#sidebarActiveAvatar')).toHaveAttribute('src', '/assets/icons/avatar-placeholder.svg');
   expect(writes).toHaveLength(0);
   await page.locator('#btnAccountProfileTrigger').click();
   await page.locator('.popover-profile-row[data-profile-id="1"]').click();
