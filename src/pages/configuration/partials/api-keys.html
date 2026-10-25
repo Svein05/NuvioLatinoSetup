@@ -1,14 +1,18 @@
 <div id="step-4" class="step-content">
-        <div class="mb-5">
-          <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
-            <i class="fa-solid fa-key text-white/70 text-lg"></i>
-            <span>Proveedores de Metadatos (API Keys)</span>
-          </h2>
-          <p class="text-sm text-white/60 mt-1">Configura las claves de los servicios para obtener metadatos y sinopsis completas en español latino.</p>
-        </div>
-
+  <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+    <div>
+      <h2 class="text-2xl sm:text-3xl font-normal font-serif text-white flex items-center gap-2.5">
+        <i class="fa-solid fa-key text-white/70 text-lg"></i>
+        <span>Proveedores de Metadatos (API Keys)</span>
+      </h2>
+      <p class="text-sm text-white/60 mt-1">Conecta TMDB y MDBList para obtener metadatos y calificaciones en español latino.</p>
+    </div>
+    <button id="btnValidateApiKeys" type="button" class="lat-capsule-btn solid text-xs py-2.5 px-5 shrink-0 self-start">
+      <i class="fa-solid fa-vial-circle-check"></i><span>Probar API keys</span>
+    </button>
+  </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- TMDB (Obligatoria - Destacada en grande arriba) -->
+          <!-- Required TMDB credentials -->
           <div class="p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
             <div class="flex justify-between items-center gap-2">
               <label class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
@@ -27,7 +31,7 @@
             <p class="text-[11px] text-white/50">Motor principal obligatorio: requerido para la carga de datos, títulos y sinopsis oficiales en Español Latino (es-MX).</p>
           </div>
 
-          <!-- MDBList (Obligatorio - Destacada en ancho completo) -->
+          <!-- Required MDBList credentials -->
           <div class="p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
             <div class="flex justify-between items-center gap-2">
               <label class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
@@ -46,92 +50,9 @@
             <p class="text-[11px] text-white/50">Obligatoria: requerida para habilitar calificaciones agregadas (IMDb, Rotten Tomatoes, Trakt) en Nuvio y motor de carátulas dinámicas.</p>
           </div>
 
-          <!-- RPDB (Rating Poster DB) (Opcional - Columna 1) -->
-          <div class="p-4 sm:p-5 bg-white/[0.03] border border-white/[0.08] rounded-[20px] space-y-2.5 shadow-[var(--brillo-vidrio)]">
-            <div class="flex justify-between items-center gap-2">
-              <label class="text-xs font-semibold text-white/80 flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-star-half-stroke text-white/50"></i>
-                <span>RPDB API Key</span>
-                <span class="text-[10px] text-white/40 font-mono whitespace-nowrap">(Opcional)</span>
-              </label>
-              <div class="flex items-center gap-2 shrink-0">
-                <span id="badge-rpdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a id="btn-get-rpdb" href="https://ratingposterdb.com" target="_blank" rel="noopener noreferrer" title="Obtener RPDB API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
-                  <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                </a>
-              </div>
-            </div>
-            <input id="keyRpdb" type="text" value="t0-free-rpdb" placeholder="t0-free-rpdb" class="w-full px-4 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.1] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-            <p class="text-[11px] text-white/50">Puntuaciones en pósters (usa la clave gratuita t0-free-rpdb de AIOMetadata por defecto).</p>
-          </div>
-
-          <!-- TheTVDB (Opcional - Columna 2) -->
-          <div class="p-4 sm:p-5 bg-white/[0.03] border border-white/[0.08] rounded-[20px] space-y-2.5 shadow-[var(--brillo-vidrio)]">
-            <div class="flex justify-between items-center gap-2">
-              <label class="text-xs font-semibold text-white/80 flex items-center gap-1.5 whitespace-nowrap">
-                <i class="fa-solid fa-tv text-white/50"></i>
-                <span>TheTVDB API Key</span>
-                <span class="text-[10px] text-white/40 font-mono whitespace-nowrap">(Opcional)</span>
-              </label>
-              <div class="flex items-center gap-2 shrink-0">
-                <span id="badge-tvdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
-                <a id="btn-get-tvdb" href="https://thetvdb.com/api-information" target="_blank" rel="noopener noreferrer" title="Obtener TheTVDB API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 whitespace-nowrap shrink-0">
-                  <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                </a>
-              </div>
-            </div>
-            <input id="keyTvdb" type="text" placeholder="Clave de TheTVDB" class="w-full px-4 py-2.5 rounded-[14px] bg-white/[0.04] border border-white/[0.1] focus:outline-none focus:border-white/40 focus:ring-2 focus:ring-white/10 text-xs text-white placeholder:text-white/30 shadow-[var(--brillo-vidrio)] transition-all">
-            <p class="text-[11px] text-white/50">Metadatos complementarios y numeración alternativa de temporadas de series.</p>
-          </div>
         </div>
-
-        <!-- Proveedores de Posters y Búsqueda con IA -->
-        <div class="mt-4 p-5 bg-white/[0.03] border border-white/[0.08] rounded-[22px] space-y-4 shadow-[var(--brillo-vidrio)]">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-semibold text-white/80 uppercase tracking-widest flex items-center gap-2">
-              <i class="fa-solid fa-wand-magic-sparkles text-white/70"></i>
-              <span>Búsqueda Inteligente con Inteligencia Artificial (IA)</span>
-            </h3>
-            <label class="lat-switch shrink-0" title="Activar/Desactivar Búsqueda Inteligente">
-              <input id="toggleSearchAi" type="checkbox">
-              <span class="lat-switch-track">
-                <span class="lat-switch-thumb"></span>
-              </span>
-            </label>
-          </div>
-          <p class="text-[11px] text-white/50">Permite buscar películas y series mediante descripciones coloquiales ("película donde el protagonista viaja en el tiempo en un auto").</p>
-
-          <div id="aiKeysContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="text-xs text-white/70">Google Gemini API Key (Recomendado, gratuito)</label>
-                <span id="badge-gemini" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-              </div>
-              <input id="keyGemini" type="text" placeholder="AIzaSy..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.1] text-xs text-white placeholder:text-white/30">
-            </div>
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="text-xs text-white/70">OpenRouter API Key (Opcional)</label>
-                <span id="badge-openrouter" class="text-[10px] px-2 py-0.5 rounded font-mono hidden"></span>
-              </div>
-              <input id="keyOpenrouter" type="text" placeholder="sk-or-v1-..." class="w-full px-3.5 py-2 rounded-[14px] bg-white/[0.04] border border-white/[0.1] text-xs text-white placeholder:text-white/30">
-            </div>
-          </div>
-        </div>
-
-        <!-- Botón de Validación de Claves -->
-        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 bg-white/[0.04] border border-white/[0.08] rounded-[22px] shadow-[var(--brillo-vidrio)]">
-          <div class="text-xs text-white/60">
-            <span id="apiKeyStatusMessage">Pulsa el botón para probar la conexión de tus claves antes de avanzar.</span>
-          </div>
-          <div class="flex items-center gap-2.5">
-            <span id="apiKeyOverallBadge" class="hidden text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1.5">
-              <i class="fa-solid fa-check"></i> Verificadas
-            </span>
-            <button id="btnValidateApiKeys" type="button" class="lat-capsule-btn solid text-xs py-2.5 px-5 shadow-[var(--shadow-pill)] flex items-center gap-2">
-              <i class="fa-solid fa-vial"></i>
-              <span>Probar Claves API</span>
-            </button>
-          </div>
-        </div>
-      </div>
+  <div class="mt-4 flex flex-wrap items-center gap-3" role="status" aria-live="polite">
+    <span id="apiKeyOverallBadge" class="hidden text-xs text-emerald-400">✓ Verificadas</span>
+    <p id="apiKeyStatusMessage" class="text-xs text-white/60">Prueba la conexión de tus claves antes de avanzar.</p>
+  </div>
+</div>

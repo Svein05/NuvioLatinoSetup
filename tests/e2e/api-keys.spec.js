@@ -46,7 +46,7 @@ test('a late verification result cannot validate a key edited while the request 
   await expect(page.locator('#btnNext')).toBeDisabled();
 });
 
-test('confirmed required keys unlock preferences while an optional outage remains a warning', async ({ page }) => {
+test('required keys unlock preferences without exposing removed provider fields', async ({ page }) => {
   await isolateExternalServices(page);
   await page.route('https://api.themoviedb.org/3/authentication?**', route => route.fulfill({
     contentType: 'application/json', body: JSON.stringify({ success: true }),
@@ -56,9 +56,32 @@ test('confirmed required keys unlock preferences while an optional outage remain
   }));
   await openKeys(page);
   await page.locator('#btnValidateApiKeys').click();
-  await expect(page.locator('#apiKeyStatusMessage')).toContainText('opcionales sin verificar');
-  await expect(page.locator('#badge-rpdb')).toHaveText('No verificable');
+  await expect(page.locator('#keyTvdb, #keyRpdb, #keyGemini, #keyOpenrouter, #toggleSearchAi')).toHaveCount(0);
   await expect(page.locator('#btnNext')).toBeEnabled();
   await page.locator('#btnNext').click();
   await expect(page.locator('#step-5')).toBeVisible();
+  const edit = page.locator('#btnEditBadgePack');
+  const toggle = page.locator('#toggleBadgesCustomization');
+  const gallery = page.locator('#badgesGalleryContainer');
+  await expect(edit).toBeHidden();
+  await page.locator('label.lat-switch').filter({ has: toggle }).click();
+  await expect(edit).toBeVisible();
+  await expect(edit).toHaveAttribute('aria-expanded', 'true');
+  const switchBox = await toggle.locator('..').boundingBox();
+  const editBox = await edit.boundingBox();
+  expect(editBox.x).toBeGreaterThanOrEqual(switchBox.x + switchBox.width);
+  await page.locator('[data-wizard-action="selectBadgePack"]').nth(1).click();
+  await expect(edit).toHaveAttribute('aria-expanded', 'false');
+  await expect(gallery).toHaveAttribute('inert', '');
+  await expect(toggle).toBeChecked();
+  await expect(edit).toBeFocused();
+  await edit.press('Enter');
+  await expect(edit).toHaveAttribute('aria-expanded', 'true');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await edit.press('Enter');
+  await expect(edit).toHaveAttribute('aria-expanded', 'false');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.locator('label.lat-switch').filter({ has: toggle }).click();
+  await expect(edit).toBeHidden();
 });

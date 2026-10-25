@@ -59,7 +59,7 @@ function updateToggledModule(state, id, isChecked) {
   }
 }
 
-async function performCustomBadgeImport({ root, state, actions, render }) {
+async function performCustomBadgeImport({ root, state, actions, render, onSelected }) {
   const srcInput = root.querySelector?.('#inputCustomBadgeSource');
   const nameInput = root.querySelector?.('#inputCustomBadgeName');
   const errBox = root.querySelector?.('#customBadgeError');
@@ -81,6 +81,7 @@ async function performCustomBadgeImport({ root, state, actions, render }) {
     });
     state.preferences.selectedBadgePack = pack.id;
     render();
+    onSelected?.();
     if (srcInput) srcInput.value = '';
     if (nameInput) nameInput.value = '';
     actions.notify?.(`¡Estilo "${pack.name}" importado y seleccionado con éxito!`, 'success');
@@ -98,7 +99,7 @@ function renderStepBadges(root, state, lifetime) {
   lifetime.timeout(() => fitBadgesDynamically(root), 150);
 }
 
-export function mountBadgesStep({ state, actions, root = document } = {}) {
+export function mountBadgesStep({ state, actions, root = document, onSelected } = {}) {
   const lifetime = createLifetime();
   let fitDebounce = null;
   const render = () => renderStepBadges(root, state, lifetime);
@@ -113,7 +114,7 @@ export function mountBadgesStep({ state, actions, root = document } = {}) {
 
   return {
     render,
-    selectPack: (id) => { updateSelectedPack(state, id); render(); actions.onUpdate?.(); },
+    selectPack: (id) => { updateSelectedPack(state, id); render(); onSelected?.(); actions.onUpdate?.(); },
     toggleModule: (id, chk) => {
       updateToggledModule(state, id, chk);
       render();
@@ -143,7 +144,7 @@ export function mountBadgesStep({ state, actions, root = document } = {}) {
       downloadJsonFile(`nuvio-badges-${(pack?.name || id).toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`, await getCompiledJson(id));
       actions.notify?.(`✓ Archivo de badges ("${pack?.name || id}") descargado con éxito`, 'success');
     },
-    handleImport: () => performCustomBadgeImport({ root, state, actions, render }),
+    handleImport: () => performCustomBadgeImport({ root, state, actions, render, onSelected }),
     handleImgLoaded: () => {
       if (fitDebounce) clearTimeout(fitDebounce);
       fitDebounce = setTimeout(() => fitBadgesDynamically(root), 40);

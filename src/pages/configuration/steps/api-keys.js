@@ -42,16 +42,11 @@ export function mountApiKeysStep(actions, root = document) {
   }
   for (const [key, id] of Object.entries(keyFields)) {
     const input = root.querySelector(`#${id}`);
-    if (input) input.value = actions.initial.keys[key] || (key === 'rpdb' ? 't0-free-rpdb' : '');
+    if (input) input.value = actions.initial.keys[key] || '';
     lifetime.on(input, 'input', () => { renderKeyResult(key, { status: 'pending', valid: false }, root); edited(); });
     lifetime.on(input, 'change', edited);
     if (actions.initial.statusMap[key]) renderKeyResult(key, { status: 'valid', valid: true }, root);
   }
-  const ai = root.querySelector('#toggleSearchAi');
-  if (ai) ai.checked = actions.initial.aiEnabled;
-  const renderAi = () => root.querySelector('#aiKeysContainer')?.classList.toggle('hidden', !ai?.checked);
-  renderAi();
-  lifetime.on(ai, 'change', () => { renderAi(); edited(); });
   lifetime.on(root.querySelector('#btnValidateApiKeys'), 'click', () => verifyKeys({ actions, state, root, lifetime }));
   const dispose = () => { lifetime.dispose(); if (instances.get(root) === dispose) instances.delete(root); };
   instances.set(root, dispose);

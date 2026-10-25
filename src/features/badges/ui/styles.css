@@ -14,32 +14,22 @@
   transform: translateY(-2px);
 }
 
-/* Animación Fluida para Contenedor de Badges (Accordion CSS Grid) */
+/* Intrinsic disclosure height: no fixed cap, with reversible transitions. */
 .badges-collapsible {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
-  margin-top: 0 !important;
-  transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              margin-top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: grid-template-rows, opacity, margin-top;
+  transition: grid-template-rows 350ms cubic-bezier(.215,.61,.355,1),
+              opacity 350ms cubic-bezier(.215,.61,.355,1);
 }
-
-.badges-collapsible:not(.is-open) {
-  margin-top: 0 !important;
-  pointer-events: none;
-}
-
-.badges-collapsible.is-open {
-  grid-template-rows: 1fr;
-  opacity: 1;
-  margin-top: 1rem !important;
-}
-
-.badges-collapsible > .badges-collapsible-inner {
-  overflow: hidden;
-  min-height: 0;
+.badges-collapsible.is-open { grid-template-rows: 1fr; opacity: 1; }
+.badges-collapsible:not(.is-open) { pointer-events: none; }
+.badges-collapsible > .badges-collapsible-inner { overflow: hidden; min-height: 0; }
+#btnEditBadgePack i { transition: transform 350ms cubic-bezier(.215,.61,.355,1); }
+#btnEditBadgePack[aria-expanded="true"] i { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) {
+  .badges-collapsible { transition: opacity 150ms ease-out; }
+  #btnEditBadgePack i { transition: none; }
 }
 
 /* Chips / Toggles de Módulos de Badges */

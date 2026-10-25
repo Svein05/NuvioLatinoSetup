@@ -14,8 +14,8 @@ export function updateStep7ExecuteButton(root, state) {
   const hasPassword = Boolean(state.aiometadata?.password && state.aiometadata.password.length >= 6);
   btn.disabled = !hasPassword;
   btn.className = hasPassword
-    ? 'lat-capsule-btn solid px-7 py-3 text-sm flex items-center gap-2 shadow-[var(--shadow-lift)] cursor-pointer'
-    : 'lat-capsule-btn glass opacity-40 px-7 py-3 text-sm flex items-center gap-2 cursor-not-allowed shadow-none';
+    ? 'lat-capsule-btn solid wizard-execute-action'
+    : 'lat-capsule-btn solid wizard-execute-action opacity-40 cursor-not-allowed';
   btn.title = hasPassword
     ? 'Ejecutar la inyección y configuración automática'
     : 'Ingresa o genera una contraseña maestra (mínimo 6 caracteres) para activar';

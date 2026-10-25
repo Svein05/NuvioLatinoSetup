@@ -2,6 +2,7 @@ import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { renderToggleLabel, renderPosterCardsUI } from './preferences-view.js';
 import { createPostersCarousel } from './posters-demo.js';
 import { mountBadgesStep } from './badges.js';
+import { mountBadgesDisclosure } from './badges-disclosure.js';
 
 function bindToggleEvents({ lifetime, elements, state, actions, updateToggles }) {
   const { toggleEnrichment, toggleRatings, toggleBadges, labelEnrichment, labelRatings } = elements;
@@ -61,13 +62,12 @@ function queryPreferenceElements(root) {
     labelRatings: root.querySelector?.('#labelMdblistRatings'),
     toggleBadges: root.querySelector?.('#toggleBadgesCustomization'),
     labelBadges: root.querySelector?.('#labelBadgesCustomization'),
-    galleryBadges: root.querySelector?.('#badgesGalleryContainer'),
     customBetterInput: root.querySelector?.('#customUrlBetterposter'),
     customPlusInput: root.querySelector?.('#customUrlPostersplus'),
   };
 }
 
-function syncToggles(elements, state, badges, lifetime) {
+function syncToggles(elements, state) {
   if (elements.toggleEnrichment) {
     elements.toggleEnrichment.checked = Boolean(state.preferences.tmdbEnrichment);
     renderToggleLabel(elements.toggleEnrichment, elements.labelEnrichment);
@@ -81,10 +81,6 @@ function syncToggles(elements, state, badges, lifetime) {
     elements.toggleBadges.checked = isBadgesEnabled;
     renderToggleLabel(elements.toggleBadges, elements.labelBadges);
   }
-  if (elements.galleryBadges) {
-    elements.galleryBadges.classList.toggle('is-open', isBadgesEnabled);
-    if (isBadgesEnabled) { badges.render(); lifetime.timeout(() => badges.fit(), 350); }
-  }
 }
 
 export function mountPreferencesStep({ state, actions, root = document } = {}) {
@@ -96,10 +92,12 @@ export function mountPreferencesStep({ state, actions, root = document } = {}) {
     root,
   });
   lifetime.add(() => carousel.dispose());
-  const badges = mountBadgesStep({ state, actions, root });
+  let disclosure;
+  const badges = mountBadgesStep({ state, actions, root, onSelected: () => disclosure?.selected() });
+  disclosure = mountBadgesDisclosure({ root, state, lifetime, render: () => badges.render(), fit: () => badges.fit() });
   lifetime.add(() => badges.dispose());
 
-  const updateToggles = () => syncToggles(elements, state, badges, lifetime);
+  const updateToggles = () => { syncToggles(elements, state); disclosure.sync(); };
   bindToggleEvents({ lifetime, elements, state, actions, updateToggles });
   bindCustomUrlEvents({ lifetime, elements, state, carousel });
   updateToggles();

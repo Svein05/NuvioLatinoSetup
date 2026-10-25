@@ -8,7 +8,7 @@ import {
 
 function createMockRoot() {
   const el = () => ({
-    value: '',
+    value: '', contains: () => false, setAttribute: vi.fn(), focus: vi.fn(),
     innerText: '',
     innerHTML: '',
     className: '',

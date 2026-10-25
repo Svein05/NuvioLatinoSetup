@@ -34,6 +34,8 @@ test('manual exports register once and celebrate safely: ' + scenario, async ({ 
   await expect(page.locator('#step-7')).toBeVisible();
   await page.locator('#aioPassword').fill('synthetic-config-password');
   await expect(page.locator('#btnCopyAioConfig')).toBeEnabled();
+  await expect(page.locator('#btnDownloadCollections')).toBeHidden();
+  await page.locator('.wizard-config-files summary').click();
   const collections = page.waitForEvent('download');
   await page.locator('#btnDownloadCollections').click();
   expect((await collections).suggestedFilename()).toBe('NuvioCollections_Latino.json');
