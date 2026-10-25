@@ -34,3 +34,18 @@ it('records a failed read instead of treating it as a confirmed empty profile', 
   expect(state.loadErrors.addons).toBe(true);
   expect(notify).toHaveBeenCalledWith(expect.stringContaining('addons'), 'warning');
 });
+
+it('presents overview and releases core editing before slow metadata completes', async () => {
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  const state = { ...createInitialAccountState(), selectedProfileId: 1, session: {} };
+  const presentOverview = vi.fn().mockResolvedValue(undefined);
+  const metadata = { cancel: vi.fn(), load: vi.fn(() => gate) };
+  const loader = createAccountProfileLoader({ state, config: {}, metadata, notify: vi.fn(), render: vi.fn(),
+    services: { presentOverview }, client: clientWith(async () => [{ id: 'aio-metadata', name: 'AIOMetadata', manifest_url: 'https://metadata.invalid/stremio/synthetic/manifest.json' }]) });
+  const loading = loader.load(1);
+  await vi.waitFor(() => expect(metadata.load).toHaveBeenCalledOnce());
+  expect(presentOverview).toHaveBeenCalledOnce();
+  expect(state.isLoadingProfile).toBe(false);
+  release(); await loading;
+});

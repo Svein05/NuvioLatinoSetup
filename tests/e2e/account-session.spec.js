@@ -28,22 +28,16 @@ test('account login connects its form, clears the password and restores the sess
   expect(await page.evaluate(() => sessionStorage.getItem('nuvio_account_session_v1'))).toBeNull();
 });
 
-test('settings edits remain pending and do not write after the profile read fails', async ({ page }) => {
+test('failed settings reads show a local retry instead of editable defaults or writes', async ({ page }) => {
   const writes = [];
-  await prepareAccount(page, 'rpc', {
-    respond(url, payload) {
-      if (url.pathname.endsWith('/sync_pull_profile_settings_blob')) return { status: 503, body: {} };
-      if (url.pathname.endsWith('/sync_push_profile_settings_blob')) {
-        writes.push(payload); return { body: {} };
-      }
-    },
-  });
+  await prepareAccount(page, 'rpc', { respond(url, payload) {
+    if (url.pathname.endsWith('/sync_pull_profile_settings_blob')) return { status: 503, body: {} };
+    if (url.pathname.endsWith('/sync_push_profile_settings_blob')) { writes.push(payload); return { body: {} }; }
+  } });
   await page.locator('.account-nav-btn[data-section="settings"]').click();
-  await expect(page.locator('#inputTmdbKey')).toBeEditable();
-  await page.locator('#inputTmdbKey').fill('synthetic-edited-key');
-  await page.locator('#btnAccountSave').click();
-  await expect(page.locator('#latToastContainer')).toContainText('no se cargó por completo');
-  await expect(page.locator('#inputTmdbKey')).toHaveValue('synthetic-edited-key');
+  await expect(page.locator('#accountSettingsContainer')).toContainText('No se pudieron cargar');
+  await expect(page.locator('#accountSettingsContainer button')).toHaveText('Reintentar');
+  await expect(page.locator('#inputTmdbKey')).toHaveCount(0);
   expect(writes).toEqual([]);
 });
 
