@@ -1,15 +1,19 @@
+import { createDrawerSize } from './drawer-size.js';
 import { createLifetime } from '../../shared/ui/lifetime.js';
 
 function setupDrawer({ lifetime, root }) {
   const drawer = root.querySelector?.('#indexDrawer');
   const overlay = root.querySelector?.('#indexDrawerOverlay');
+  const size = createDrawerSize({ root, drawer, lifetime });
 
   const openDrawer = () => {
+    size.setOpen(true);
     drawer?.classList.add('open');
     overlay?.classList.add('open');
   };
 
   const closeDrawer = () => {
+    size.setOpen(false);
     drawer?.classList.remove('open');
     overlay?.classList.remove('open');
   };
