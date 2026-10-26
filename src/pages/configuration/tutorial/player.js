@@ -36,6 +36,10 @@ export function mountApiKeyTutorials(root = document) {
     if (previousOverflow !== undefined) doc.documentElement.style.overflow = previousOverflow;
     previousOverflow = undefined;
   }
+  function close() {
+    if (dialog.open) dialog.close();
+    settle();
+  }
   function open(event) {
     if (!dialog.showModal) return;
     const provider = event.currentTarget.dataset.apiTutorial;
@@ -53,17 +57,17 @@ export function mountApiKeyTutorials(root = document) {
   exitFullscreen = mountTutorialFullscreen({ player: dialog.querySelector('[data-tutorial-player]'),
     video, button: dialog.querySelector('[data-tutorial-fullscreen]'), status }, lifetime);
   for (const trigger of triggers) lifetime.on(trigger, 'click', open);
-  lifetime.on(dialog.querySelector('[data-tutorial-close]'), 'click', () => dialog.close());
+  lifetime.on(dialog.querySelector('[data-tutorial-close]'), 'click', close);
+  lifetime.on(dialog, 'cancel', event => { event.preventDefault(); close(); });
   lifetime.on(dialog, 'click', event => {
     const bounds = dialog.getBoundingClientRect();
     if (event.target === dialog && (event.clientX < bounds.left || event.clientX > bounds.right
-      || event.clientY < bounds.top || event.clientY > bounds.bottom)) dialog.close();
+      || event.clientY < bounds.top || event.clientY > bounds.bottom)) close();
   });
   lifetime.on(dialog, 'close', () => { if (!dialog.open) settle(); });
-  lifetime.on(win, 'pagehide', () => { if (dialog.open) dialog.close(); settle(); });
+  lifetime.on(win, 'pagehide', close);
   return () => {
-    if (dialog.open) dialog.close();
-    settle();
+    close();
     lifetime.dispose();
   };
 }
