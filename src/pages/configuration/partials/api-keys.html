@@ -13,14 +13,14 @@
   </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Required TMDB credentials -->
-          <div class="p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
+          <div data-api-key-card="tmdb" class="api-key-card p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
             <div class="api-key-heading">
-              <label class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+              <label for="keyTmdb" class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-film text-white/70 text-sm"></i>
                 <span>TMDB API Key</span>
               </label>
               <div class="api-key-actions">
-                <span id="badge-tmdb" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <span id="badge-tmdb" class="sr-only" role="status" aria-live="polite"></span>
                 <a id="btn-get-tmdb" href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" title="Obtener TMDB API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
                   <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
@@ -34,14 +34,14 @@
           </div>
 
           <!-- Required MDBList credentials -->
-          <div class="p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
+          <div data-api-key-card="mdblist" class="api-key-card p-5 bg-white/[0.04] border border-white/[0.14] rounded-[22px] space-y-3 md:col-span-2 shadow-[var(--shadow-lift)] backdrop-blur-[24px]">
             <div class="api-key-heading">
-              <label class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+              <label for="keyMdblist" class="text-xs sm:text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-list-check text-white/70 text-sm"></i>
                 <span>MDBList API Key</span>
               </label>
               <div class="api-key-actions">
-                <span id="badge-mdblist" class="text-[10px] px-2 py-0.5 rounded font-mono hidden shrink-0 whitespace-nowrap"></span>
+                <span id="badge-mdblist" class="sr-only" role="status" aria-live="polite"></span>
                 <a id="btn-get-mdblist" href="https://mdblist.com/preferences" target="_blank" rel="noopener noreferrer" title="Obtener MDBList API Key" class="text-[11px] text-white/70 hover:text-white hover:underline flex items-center gap-1 font-medium whitespace-nowrap shrink-0">
                   <span class="hidden sm:inline">Obtener</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
