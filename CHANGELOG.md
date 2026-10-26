@@ -21,6 +21,13 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Indicadores de carga en Cuenta, progreso de inicio de sesión, errores de acceso dentro
   del formulario y enlaces para configurar los addons que lo permiten.
 - Enlace de apoyo en Ko-fi y etiqueta de verificación de Google Search Console.
+- Videos tutoriales de TMDB y MDBList junto a «Obtener», con capítulos, control de velocidad y
+  pantalla completa; índice adaptable y carga del video únicamente al abrirlo.
+- SEO de producción con sitemap, robots.txt, URLs canónicas, títulos y descripciones
+  por página, datos estructurados y una página 404. Local/testing y las herramientas
+  de cuenta/configuración se excluyen de la indexación.
+- Cloudflare Web Analytics en Inicio y Documentación del dominio de producción,
+  separado de los contadores del producto y sin eventos con datos de formularios.
 
 ### Cambiado
 
@@ -50,8 +57,9 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Documentación actualizada con campos, archivos exportados, uso de datos y servicios
   reales, sin promesas de latencia cero. Roadmap público depurado de trabajo completado.
 
-La configuración completa de indexación y analítica, la rotación de credenciales de
-producción y la confirmación en teléfonos físicos siguen siendo tareas independientes.
+La verificación de Search Console, el envío del sitemap, la recepción de estadísticas,
+la rotación de credenciales y la confirmación en teléfonos físicos requieren revisión
+en producción y son tareas independientes.
 Estas notas describen la versión preparada; no confirman su publicación o despliegue.
 
 ## [1.8.0] - 2026-10-18

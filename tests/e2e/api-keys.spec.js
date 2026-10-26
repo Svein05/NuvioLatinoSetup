@@ -11,12 +11,46 @@ async function openKeys(page) {
   await page.locator('#keyMdblist').fill('synthetic-mdblist-key');
 }
 
+test('key status uses stable card outlines without visible labels or hidden help links', async ({ page }) => {
+  await isolateExternalServices(page);
+  let rejected = false;
+  await page.route('https://api.themoviedb.org/3/authentication?**', route => route.fulfill({
+    status: rejected ? 401 : 200, contentType: 'application/json', body: JSON.stringify({ success: !rejected }),
+  }));
+  await page.route('https://api.mdblist.com/user?**', route => route.fulfill({
+    status: rejected ? 401 : 200, contentType: 'application/json', body: '{"user_id":1,"username":"synthetic"}',
+  }));
+  await openKeys(page);
+  await page.evaluate(() => document.fonts.ready);
+  const card = page.locator('[data-api-key-card="tmdb"]');
+  const original = await card.boundingBox();
+  await page.locator('#keyTmdb').fill('');
+  await page.locator('#keyMdblist').fill('');
+  await page.locator('#btnValidateApiKeys').click();
+  await expect(card).toHaveAttribute('data-key-status', 'invalid');
+  await expect(page.locator('#keyTmdb')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#badge-tmdb')).toHaveClass('sr-only');
+  await page.locator('#keyTmdb').fill('0123456789abcdef0123456789abcdef');
+  await page.locator('#keyMdblist').fill('synthetic-mdblist-key');
+  await expect(card).not.toHaveAttribute('data-key-status');
+  await page.locator('#btnValidateApiKeys').click();
+  await expect(card).toHaveAttribute('data-key-status', 'valid');
+  await expect(page.locator('[data-api-key-card="mdblist"]')).toHaveAttribute('data-key-status', 'valid');
+  await expect(page.locator('#btn-get-tmdb')).toBeVisible();
+  expect((await card.boundingBox()).height).toBe(original.height);
+  rejected = true;
+  await page.locator('#keyTmdb').fill('1123456789abcdef0123456789abcdef');
+  await page.locator('#btnValidateApiKeys').click();
+  await expect(card).toHaveAttribute('data-key-status', 'invalid');
+  expect((await card.boundingBox()).height).toBe(original.height);
+});
+
 test('offline provider reads never unlock the wizard using key format alone', async ({ page }) => {
   await isolateExternalServices(page);
   await openKeys(page);
   await page.locator('#btnValidateApiKeys').click();
-  await expect(page.locator('#badge-tmdb')).toHaveText('No verificable');
-  await expect(page.locator('#badge-mdblist')).toHaveText('No verificable');
+  await expect(page.locator('[data-api-key-card="tmdb"]')).toHaveAttribute('data-key-status', 'unavailable');
+  await expect(page.locator('[data-api-key-card="mdblist"]')).toHaveAttribute('data-key-status', 'unavailable');
   await expect(page.locator('#apiKeyOverallBadge')).toBeHidden();
   await expect(page.locator('#btnNext')).toBeDisabled();
 });
@@ -42,7 +76,8 @@ test('a late verification result cannot validate a key edited while the request 
   release();
   await expect(page.locator('#btnValidateApiKeys')).toBeEnabled();
   await expect(page.locator('#apiKeyOverallBadge')).toBeHidden();
-  await expect(page.locator('#badge-tmdb')).toBeHidden();
+  await expect(page.locator('#badge-tmdb')).toHaveText('');
+  await expect(page.locator('[data-api-key-card="tmdb"]')).not.toHaveAttribute('data-key-status');
   await expect(page.locator('#btnNext')).toBeDisabled();
 });
 

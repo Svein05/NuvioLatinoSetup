@@ -1,0 +1,46 @@
+<dialog id="apiKeyTutorial" class="tutorial-dialog" aria-labelledby="apiKeyTutorialTitle">
+  <div class="tutorial-heading">
+    <h2 id="apiKeyTutorialTitle">Video tutorial</h2>
+    <button type="button" data-tutorial-close aria-label="Cerrar video tutorial" autofocus>
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div class="tutorial-layout">
+    <div class="tutorial-player" data-tutorial-player>
+      <video controls playsinline preload="none" aria-label="Video tutorial de API keys">
+        <source type="video/mp4" />
+        <source type="video/webm" />
+        Tu navegador no puede reproducir este video.
+      </video>
+      <div class="tutorial-controls" data-tutorial-controls hidden>
+        <div class="tutorial-timeline">
+          <div class="tutorial-progress" aria-hidden="true"><span data-tutorial-progress></span></div>
+          <div class="tutorial-markers" data-tutorial-markers></div>
+          <input type="range" data-tutorial-seek min="0" max="0" step="0.1" value="0" disabled aria-label="Posición del video" />
+        </div>
+        <div class="tutorial-toolbar">
+          <button type="button" data-tutorial-play aria-label="Reproducir video">
+            <i class="fa-solid fa-play" aria-hidden="true"></i>
+          </button>
+          <output data-tutorial-time aria-label="Tiempo del video">0:00 / 0:00</output>
+          <label class="tutorial-speed">
+            <span class="sr-only">Velocidad de reproducción</span>
+            <select data-tutorial-speed aria-label="Velocidad de reproducción">
+              <option value="0.75">0.75×</option><option value="1" selected>1×</option>
+              <option value="1.25">1.25×</option><option value="1.5">1.5×</option>
+              <option value="1.75">1.75×</option><option value="2">2×</option>
+            </select>
+          </label>
+          <button type="button" data-tutorial-fullscreen aria-label="Pantalla completa">
+            <i class="fa-solid fa-expand" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+      <p class="tutorial-status" data-tutorial-status role="status" aria-live="polite"></p>
+    </div>
+    <nav class="tutorial-index" aria-label="Capítulos del video tutorial">
+      <h3>Capítulos</h3>
+      <ol data-tutorial-chapters></ol>
+    </nav>
+  </div>
+</dialog>
