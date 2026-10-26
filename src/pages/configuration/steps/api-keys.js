@@ -1,4 +1,5 @@
 import { createLifetime } from '../../../shared/ui/lifetime.js';
+import { mountTmdbTutorial } from '../tutorial/player.js';
 import { keyFields, readKeySnapshot, renderKeyResult, renderKeySummary, invalidateKeySummary, renderKeyBusy } from './api-keys-view.js';
 
 const instances = new WeakMap();
@@ -32,6 +33,7 @@ async function verifyKeys({ actions, state, root, lifetime }) {
 export function mountApiKeysStep(actions, root = document) {
   instances.get(root)?.();
   const lifetime = createLifetime();
+  lifetime.add(mountTmdbTutorial(root));
   const state = { revision: 0, pending: null };
   lifetime.add(() => state.pending?.abort());
   function edited() {
