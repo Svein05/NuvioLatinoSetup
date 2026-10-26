@@ -60,7 +60,6 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 La verificación de Search Console, el envío del sitemap, la recepción de estadísticas,
 la rotación de credenciales y la confirmación en teléfonos físicos requieren revisión
 en producción y son tareas independientes.
-Estas notas describen la versión preparada; no confirman su publicación o despliegue.
 
 ## [1.8.0] - 2026-10-18
 
