@@ -1,14 +1,14 @@
-.tmdb-key-heading, .tmdb-key-actions {
+.api-key-heading, .api-key-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.tmdb-key-heading { justify-content: space-between; }
-.tmdb-key-actions { margin-inline-start: auto; }
-.tmdb-key-actions #btn-get-tmdb { min-block-size: 2.75rem; }
-.tmdb-tutorial-trigger {
+.api-key-heading { justify-content: space-between; }
+.api-key-actions { margin-inline-start: auto; }
+.api-key-actions a[id^="btn-get-"] { min-block-size: 2.75rem; }
+.api-tutorial-trigger {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -136,7 +136,7 @@
 .tutorial-index button[aria-current] { background: rgb(255 212 121 / 9%); border-color: rgb(255 212 121 / 20%); color: #ffd479; }
 .tutorial-dialog button:disabled { opacity: 0.4; cursor: default; }
 .tutorial-dialog button:not(:disabled):hover { background: rgb(255 255 255 / 10%); }
-.tutorial-dialog :is(button, select):focus-visible, .tmdb-tutorial-trigger:focus-visible { outline: 2px solid #ffd479; outline-offset: 2px; }
+.tutorial-dialog :is(button, select):focus-visible, .api-tutorial-trigger:focus-visible { outline: 2px solid #ffd479; outline-offset: 2px; }
 .tutorial-status { font-size: 0.75rem; color: #ffd479; padding: 0.5rem 1rem; }
 .tutorial-status:empty { display: none; }
 .tutorial-player:is(:fullscreen, :-webkit-full-screen) { inline-size: 100%; block-size: 100%; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }

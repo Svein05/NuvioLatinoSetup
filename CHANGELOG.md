@@ -21,7 +21,7 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - Indicadores de carga en Cuenta, progreso de inicio de sesión, errores de acceso dentro
   del formulario y enlaces para configurar los addons que lo permiten.
 - Enlace de apoyo en Ko-fi y etiqueta de verificación de Google Search Console.
-- Video tutorial de TMDB junto a «Obtener», con capítulos, control de velocidad y
+- Videos tutoriales de TMDB y MDBList junto a «Obtener», con capítulos, control de velocidad y
   pantalla completa; índice adaptable y carga del video únicamente al abrirlo.
 
 ### Cambiado

@@ -1,7 +1,8 @@
-import { TMDB_CHAPTERS, mediaTime } from './chapters.js';
+import { mediaTime } from './chapters.js';
 
-function chapterButtons(container, marker = false) {
-  return TMDB_CHAPTERS.map(({ start, title }, index) => {
+function chapterButtons(container, catalog, marker = false) {
+  container.replaceChildren();
+  return catalog.map(({ start, title }, index) => {
     const button = container.ownerDocument.createElement('button');
     button.type = 'button';
     button.dataset.chapter = String(index);
@@ -24,23 +25,22 @@ function controlsFor(dialog) {
   const elements = Object.fromEntries(['play', 'seek', 'progress', 'time', 'status', 'speed']
     .map(key => [key, dialog.querySelector(`[data-tutorial-${key}]`)]));
   return { ...elements, video: dialog.querySelector('video'),
-    chapters: chapterButtons(dialog.querySelector('[data-tutorial-chapters]')),
-    markers: chapterButtons(dialog.querySelector('[data-tutorial-markers]'), true) };
+    catalog: [], chapters: [], markers: [] };
 }
 
-function synchronize({ video, play, seek, progress, time, chapters, markers }) {
+function synchronize({ video, play, seek, progress, time, chapters, markers, catalog }) {
   const duration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 0;
   const current = video.currentTime || 0;
-  const active = Math.max(0, TMDB_CHAPTERS.findLastIndex(chapter => current >= chapter.start));
+  const active = Math.max(0, catalog.findLastIndex(chapter => current >= chapter.start));
   seek.disabled = !duration;
   seek.max = String(duration);
   seek.value = String(current);
-  seek.setAttribute('aria-valuetext', `${mediaTime(current)} de ${mediaTime(duration)} · ${TMDB_CHAPTERS[active].title}`);
+  seek.setAttribute('aria-valuetext', `${mediaTime(current)} de ${mediaTime(duration)} · ${catalog[active]?.title || ''}`);
   progress.style.width = `${duration ? current / duration * 100 : 0}%`;
   time.textContent = `${mediaTime(current)} / ${mediaTime(duration)}`;
   play.setAttribute('aria-label', video.paused ? 'Reproducir video' : 'Pausar video');
   play.querySelector('i').className = `fa-solid fa-${video.paused ? 'play' : 'pause'}`;
-  for (const [index, chapter] of TMDB_CHAPTERS.entries()) {
+  for (const [index, chapter] of catalog.entries()) {
     for (const button of [chapters[index], markers[index]]) {
       button.disabled = !duration || chapter.start >= duration;
       if (index === active) button.setAttribute('aria-current', 'true');
@@ -52,7 +52,7 @@ function synchronize({ video, play, seek, progress, time, chapters, markers }) {
 
 export function mountTutorialControls(dialog, lifetime) {
   const controls = controlsFor(dialog);
-  const { video, play, seek, speed, status, chapters, markers } = controls;
+  const { video, play, seek, speed, status } = controls;
   const ready = () => Number.isFinite(video.duration) && video.duration > 0;
   async function togglePlayback() {
     if (!video.paused) { video.pause(); return; }
@@ -64,9 +64,10 @@ export function mountTutorialControls(dialog, lifetime) {
   lifetime.on(speed, 'change', event => {
     video.playbackRate = Number(event.target.value);
   });
-  for (const button of [...chapters, ...markers]) lifetime.on(button, 'click', () => {
-    if (!ready()) return;
-    video.currentTime = TMDB_CHAPTERS[Number(button.dataset.chapter)].start;
+  lifetime.on(dialog, 'click', event => {
+    const button = event.target.closest('[data-chapter]');
+    if (!button || !ready()) return;
+    video.currentTime = controls.catalog[Number(button.dataset.chapter)].start;
     synchronize(controls);
   });
   for (const event of ['loadedmetadata', 'durationchange', 'timeupdate', 'play', 'pause', 'ended', 'seeked']) {
@@ -85,4 +86,12 @@ export function mountTutorialControls(dialog, lifetime) {
     video.controls = true;
   });
   synchronize(controls);
+  return catalog => {
+    controls.catalog = catalog;
+    controls.chapters = chapterButtons(dialog.querySelector('[data-tutorial-chapters]'), catalog);
+    controls.markers = chapterButtons(dialog.querySelector('[data-tutorial-markers]'), catalog, true);
+    speed.value = '1';
+    video.playbackRate = 1;
+    synchronize(controls);
+  };
 }

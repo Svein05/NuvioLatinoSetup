@@ -37,7 +37,7 @@ Necesitas las claves API de **TMDB y MDBList**; el asistente incluye los enlaces
 para obtenerlas y valida ambas antes de continuar. La contraseña maestra del addon
 AIOMetadata debe tener al menos seis caracteres.
 
-Junto a «Obtener» de TMDB encontrarás un video tutorial con capítulos, pausa,
+Junto a «Obtener» de TMDB y MDBList encontrarás sus videos tutoriales con capítulos, pausa,
 velocidad ajustable y pantalla completa para seguir el proceso desde el asistente.
 
 Puedes iniciar sesión con Nuvio para configurar un perfil o usar el modo manual
