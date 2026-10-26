@@ -1,108 +1,90 @@
-# Worker
+# Cloudflare Worker
 
-See [METRICS.md](METRICS.md) for the Worker-only completion/avatar storage contract, the 55-setup migration baseline, production/testing isolation and operator cutover order.
+Código del backend, separado del build público de Vite. Guardar estos archivos en
+Git no despliega el Worker. Los secretos se configuran en Cloudflare: nunca deben
+incluirse en JavaScript del navegador, archivos del repositorio ni artefactos públicos.
 
-Fuentes versionadas del backend, separadas del build público de GitHub Pages.
-La refactorización no despliega este código ni cambia el Worker actualmente activo.
+## Rutas y contratos
 
-## Contratos
+| Ruta | Función |
+| --- | --- |
+| `POST /api/verify-auth` | Recibe `{ password, email }`; devuelve `{ success, role }` para el acceso de colaboradores. |
+| `POST /api/save-staged-changes` | Publica un lote de avatares validado; devuelve `{ success, commit, count }` tras confirmar la actualización de la referencia Git. |
+| `/https://host/path` | Proxy de compatibilidad limitado a hosts HTTPS permitidos. |
+| `GET /api/avatars/ranking?limit=8` | Devuelve `items`, `totalUsage` y el entorno; el límite 1–32 solo afecta al top visible. |
+| `POST /api/avatars/usage` | Recibe `{ key }` y una sesión Nuvio Bearer; confirma `recorded` o `duplicate` tras un guardado de avatar o creación de perfil confirmados. |
+| `POST /api/avatars/suggestions` | Recibe un formulario autenticado; confirma `sent` tras la respuesta de Discord o un envío ya confirmado con ese identificador. |
+| `GET /api/completions` | Lee el total confirmado de setups del entorno. |
+| `POST /api/completions` | Registra una ejecución exitosa con `completionId` idempotente; mantiene compatibilidad temporal con `clientId`. |
+| `GET /api/poster-feed`, `HEAD /api/poster-feed` | Lee la caché semanal de pósters en tendencia; las visitas no actualizan TMDB. |
 
-- `POST /api/verify-auth`: `{ password, email }` → `{ success, role }`.
-- `POST /api/save-staged-changes`: mismo contrato de lotes del publicador existente;
-  devuelve `{ success, commit, count }` tras confirmar una actualización de referencia.
-- `/https://host/ruta`: proxy de compatibilidad limitado a hosts HTTPS permitidos.
-- `GET /api/avatars/ranking?limit=8`: `{ items: [{ key, score }] }`, límite 1–32.
-- `POST /api/avatars/usage`: `{ key }` y sesión Nuvio en `Authorization: Bearer`;
-  devuelve `{ status: "recorded" | "duplicate", score }`. Solo se solicita tras
-  confirmar un guardado de avatar o creación de perfil.
-- `POST /api/avatars/suggestions`: formulario multipart con `requestId` UUID,
-  `mode`, `characterName`, `seriesName` y `file` o `url`, más sesión Nuvio en
-  `Authorization: Bearer`. Devuelve `{ status: "sent" }` únicamente tras confirmar
-  el mensaje de Discord o reconocer un envío ya confirmado con ese identificador.
-
-Los lotes admiten hasta 100 operaciones y un cuerpo de 25 MiB. Las imágenes nuevas
-deben ser WebP, PNG o JPEG, hasta 6 MiB decodificados, con cabecera coherente con la
-extensión. El editor actual convierte las subidas a WebP. Los SVG existentes pueden
-renombrarse o eliminarse, pero no se admiten nuevas subidas SVG sin sanitización.
-No se publican lotes parciales por renombrados que no pudieron leerse.
+[Métricas](METRICS.md) detalla respuestas, deduplicación, base condicional de 55
+setups, aislamiento de entornos y orden de migración. [Fondo semanal](POSTER-FEED.md)
+detalla KV, programación, caché e inicialización.
 
 ## Configuración privada
 
-Usar el panel de Cloudflare o su herramienta oficial para configurar secretos:
-`ADMIN_PASSWORD`, `MODDER_PASSWORD` y `GITHUB_TOKEN`. No guardarlos en este archivo,
-`wrangler.jsonc`, JavaScript del navegador ni el repositorio.
+- Colaboradores: `ADMIN_PASSWORD`, `MODDER_PASSWORD`, `GITHUB_TOKEN`.
+- Métricas y ranking: `AVATAR_REDIS_URL`, `AVATAR_REDIS_TOKEN` con permisos de lectura,
+  escritura y EVAL. Las operaciones autenticadas también necesitan `NUVIO_PUBLIC_ANON_KEY`.
+- Sugerencias: `AVATAR_SUGGESTION_WEBHOOK_URL`, webhook HTTPS de Discord sin parámetros.
+  El navegador no recibe esta URL.
+- Fondo: `TMDB_READ_ACCESS_TOKEN` y el binding KV descrito en su guía.
 
-El ranking opcional requiere `AVATAR_REDIS_URL` (URL HTTPS del servicio Upstash),
-`AVATAR_REDIS_TOKEN` (secreto privado con permisos de lectura, escritura y EVAL)
-y `NUVIO_PUBLIC_ANON_KEY` (clave pública de Nuvio para verificar sesiones).
-No se leen tokens Redis de localStorage ni archivos del frontend. El conjunto
-ordenado conserva el nombre `avatar_ranks`, por lo que puede utilizar la base existente.
-La sesión se verifica contra `https://api.nuvio.tv/auth/v1/user`; no se acepta un
-ID autodeclarado ni una cuenta anónima.
-
-Un script Lua agrupa deduplicación e incremento en una operación: un voto por
-cuenta/avatar cada 24 horas, máximo 100 votos por cuenta y día UTC. Las claves
-de deduplicación usan hashes; no contienen el token ni el ID de cuenta en claro.
-Estas reglas requieren probarse con Redis real antes de desplegar: los tests
-actuales verifican el contrato HTTP y EVAL con respuestas simuladas.
-Contratos de referencia: [sesiones Supabase](https://supabase.com/docs/guides/auth/jwts),
-[REST de Upstash](https://upstash.com/docs/redis/features/restapi) y
-[EVAL](https://upstash.com/docs/redis/sdks/ts/commands/scripts/eval).
-
-Las rutas y estos secretos todavía no se han desplegado. Con el Worker anterior
-o sin configurar Redis, el navegador conserva caché y los ocho avatares de respaldo;
-no simula un ranking remoto ni un voto confirmado. Si se configuraron tokens Redis
-en el navegador con versiones anteriores, retirarlos de allí y rotarlos al habilitar
-la integración privada. No copiar esos valores al repositorio ni al build público.
-
-Las sugerencias requieren además `AVATAR_SUGGESTION_WEBHOOK_URL`, configurado como
-secreto del Worker. Debe ser una URL de webhook de `https://discord.com/api/webhooks/…`
-sin parámetros. El navegador no recibe esa URL ni construye payloads de Discord.
-Se conservan PNG, WebP, JPEG y GIF de hasta 8 MiB, con comprobación de cabecera,
-y enlaces HTTPS de hasta 2048 caracteres. Personaje y obra admiten 100 caracteres.
-El cuerpo multipart se limita a 8 MiB más 16 KiB de cabeceras/campos.
-
-La reserva Redis aplica una espera de 120 segundos por cuenta y recuerda el estado
-del identificador durante 24 horas. Un envío pendiente/desconocido no se repite;
-un rechazo definitivo permite reintento explícito con el mismo identificador.
-Discord se invoca una sola vez con `wait=true`; se exige un ID de mensaje antes
-de confirmar. Las menciones están desactivadas. No se descargan URLs de imágenes
-desde el Worker; se incorporan al embed. Referencia:
-[Execute Webhook](https://docs.discord.com/developers/resources/webhook#execute-webhook).
-
-El envío privado de sugerencias tampoco está desplegado. Faltan pruebas reales
-con Discord, Redis y Cloudflare y la autorización de despliegue. Los tests no
-envían mensajes reales. La configuración antigua del webhook en localStorage o
-archivos `.local.js` ya no se utiliza ni debe volver a publicarse en el frontend.
-
-`MODDER_ACCOUNTS` admite un array JSON o lista de correos separados por comas.
-Cuando existe, el correo es obligatorio y se comprueba en ambas rutas. Sin esa
-restricción se usa acceso compartido mediante contraseña. Un correo autodeclarado
-no demuestra identidad individual. No existe una cuenta personal predeterminada.
+`MODDER_ACCOUNTS` acepta un array JSON o correos separados por comas. Si se configura,
+ambas rutas de colaboradores comprueban el correo. Un correo autodeclarado junto a
+una contraseña compartida no demuestra identidad individual; no existe una cuenta
+personal predeterminada.
 
 `GITHUB_OWNER`, `GITHUB_REPOSITORY` y `GITHUB_BRANCH` son configuración pública en
-`wrangler.jsonc`. `PROXY_ALLOWED_HOSTS` permite concretar una lista de hosts HTTPS
-separados por comas. El proxy no reenvía cookies ni contraseñas de colaboradores,
-ni sigue redirecciones desde el servidor.
+`wrangler.jsonc`. `PROXY_ALLOWED_HOSTS` permite concretar los hosts HTTPS admitidos.
+El proxy no reenvía contraseñas de colaboradores ni cookies, ni sigue redirecciones.
 
-Los errores distinguen `failed` y `unknown`. Ante resultado desconocido al actualizar
-la rama, verificar el repositorio antes de reintentar: el servidor no repite escrituras.
+## Publicación de avatares
 
-## Verificación
+Los lotes admiten 1–100 operaciones y un cuerpo de 25 MiB. Las imágenes nuevas deben
+ser WebP, PNG o JPEG con cabecera coherente, hasta 8 MiB de base64 (aproximadamente
+6 MiB decodificados). El editor convierte las subidas a WebP. Se pueden renombrar o
+eliminar SVG existentes; las nuevas subidas SVG se rechazan sin sanitización.
+Un renombrado ilegible no produce un lote parcial. Ante un resultado desconocido al
+actualizar la rama, inspecciona el repositorio antes de reintentar: no se repiten
+escrituras inciertas automáticamente.
 
-`npm test` incluye `worker/tests/` con red y credenciales ficticias. No publica commits
-ni modifica servicios reales. El runtime de Cloudflare y un despliegue de prueba
-siguen requiriendo comprobación antes de sustituir el Worker activo. Wrangler no es
-una dependencia instalada del proyecto actualmente.
+El catálogo de colaboradores puede cambiar independientemente de las versiones de
+la web. Conserva los archivos recibidos y actualiza el manifiesto incluido antes de
+publicar el frontend. Los assets existentes no determinan los límites de nuevas subidas.
 
-## Weekly poster feed
+## Ranking y sugerencias
 
-See [POSTER-FEED.md](POSTER-FEED.md) for the read-only feed contract, weekly refresh, testing prerequisites and operator-only initialization.
+Las sesiones se verifican contra `https://api.nuvio.tv/auth/v1/user`; no basta con
+un ID autodeclarado. El navegador no recibe credenciales de Redis. Lua agrupa la
+deduplicación y el incremento: un uso por cuenta/avatar cada 24 horas y un máximo de
+100 por cuenta y día UTC. Las claves usan hashes, no IDs o tokens en claro.
 
-## Avatar usage total
+`totalUsage` suma todos los valores válidos antes de recortar el top. Representa
+usos registrados, no personas únicas o perfiles actuales. Un almacenamiento vacío
+confirmado devuelve cero; datos inválidos o sumas inseguras fallan sin devolver un
+total parcial. La portada lee el ranking sin registrar usos.
 
-GET /api/avatars/ranking?limit=8 now returns { items, totalUsage }. The limit still controls only the displayed top (1–32); totalUsage sums every valid stored avatar score before slicing. Empty confirmed storage returns zero. Invalid scores or an unsafe sum fail the read rather than returning a partial total. Invalid legacy member names remain excluded consistently with the existing ranking validator.
+Las sugerencias reciben `requestId` UUID, `mode`, `characterName`, `seriesName` e
+imagen `file` o `url`. Admiten PNG, WebP, JPEG y GIF de hasta 8 MiB con comprobación
+de cabecera, más 16 KiB para campos y cabeceras multipart. Los nombres admiten 100
+caracteres y las URLs HTTPS, 2048. El Worker no descarga las imágenes enlazadas.
 
-The total represents recorded usage under the existing account/avatar 24-hour deduplication rules, not unique people, current profiles or an exact history of all profile saves. This change does not alter voting or authentication rules. Redis uses manual redirect handling to avoid following credentials to another host.
+Redis reserva el identificador durante 24 horas y aplica una espera de 120 segundos
+por cuenta. Los envíos pendientes o desconocidos no se repiten automáticamente; un
+rechazo definitivo permite reintentar explícitamente con el mismo ID. Discord usa
+`wait=true`, exige un ID de mensaje y desactiva las menciones.
 
-Configure AVATAR_REDIS_URL and secret AVATAR_REDIS_TOKEN on the Worker for reads. Usage writes additionally require NUVIO_PUBLIC_ANON_KEY as described above. The landing shares one ranking read between its carousel and metric, never increments usage, and caches only a last-confirmed total. Older Workers without totalUsage keep the carousel functional while the metric uses confirmed cache or an unavailable state. Deployment and live Redis verification are separate operator actions; automated tests use synthetic data only.
+## Verificación y publicación
+
+`npm test` incluye `worker/tests/` con red y credenciales ficticias. No publica
+commits, altera cifras reales ni envía mensajes a Discord. El despliegue y las
+comprobaciones con proveedores y dispositivos reales son operaciones separadas.
+Inspecciona la revisión desplegada y su configuración; este README no acredita qué
+versión está activa. Wrangler no es una dependencia del proyecto.
+
+Antes de retirar las inyecciones antiguas de GitHub, sigue la guía de métricas.
+Eliminar un secreto de GitHub no revoca un token incluido en un build anterior:
+las credenciales expuestas deben rotarse. No elimines la base ni reinicies un
+contador activo durante esa limpieza.

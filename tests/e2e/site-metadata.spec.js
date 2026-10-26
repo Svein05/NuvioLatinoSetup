@@ -1,5 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { isolateExternalServices } from './support/offline-services.js';
+
+const { version } = JSON.parse(readFileSync(new URL('../../version.json', import.meta.url), 'utf8'));
 
 test('homepage ships the exact public Search Console tag in its initial HTML', async ({ request }) => {
   const response = await request.get('/');
@@ -22,7 +25,7 @@ for (const blockedStorage of [false, true]) {
     await page.goto('/');
     await expect(page.locator('.github-stars-count').first()).toHaveText('7');
     await expect(page.locator('.github-stars-count').first()).toHaveAttribute('data-source', 'network');
-    await expect(page.locator('.app-version-badge').first()).toHaveText('v1.8.0');
+    await expect(page.locator('.app-version-badge').first()).toHaveText(`v${version}`);
     if (!blockedStorage) {
       await page.goto('/documentation/');
       await expect(page.locator('.github-stars-count').first()).toHaveText('7');
