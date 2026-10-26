@@ -2,7 +2,15 @@ name: Project checks
 
 on:
   push:
+    branches: [develop]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '*.md'
   pull_request:
+    branches: [develop]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '*.md'
 
 permissions:
   contents: read
