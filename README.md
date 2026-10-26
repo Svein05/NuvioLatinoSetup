@@ -37,6 +37,9 @@ Necesitas las claves API de **TMDB y MDBList**; el asistente incluye los enlaces
 para obtenerlas y valida ambas antes de continuar. La contraseña maestra del addon
 AIOMetadata debe tener al menos seis caracteres.
 
+Junto a «Obtener» de TMDB y MDBList encontrarás sus videos tutoriales con capítulos, pausa,
+velocidad ajustable y pantalla completa para seguir el proceso desde el asistente.
+
 Puedes iniciar sesión con Nuvio para configurar un perfil o usar el modo manual
 sin conectar tu cuenta. El asistente coloca AIOMetadata primero en el orden de addons;
 Cuenta también permite reorganizarlos explícitamente.
@@ -81,6 +84,36 @@ Publica únicamente `dist/`, nunca la raíz del repositorio. GitHub Pages despli
 el frontend desde `main`; el entorno de testing y el Worker se publican por separado.
 La versión pública procede de `version.json`. Los cambios están en [CHANGELOG.md](CHANGELOG.md).
 Las mejoras previstas están en el [roadmap de la Wiki](https://github.com/Svein05/NuvioLatinoSetup/wiki/Roadmap).
+
+## Buscadores y estadísticas de visitas
+
+El build de producción genera `robots.txt` y `sitemap.xml`, títulos y descripciones
+por página, URLs canónicas, metadatos para compartir y datos estructurados del sitio.
+Inicio y Documentación pueden indexarse; Cuenta, Colaboradores y el asistente usan
+`noindex`. La página 404 ofrece enlaces para continuar navegando.
+
+El workflow de GitHub Pages establece explícitamente `SITE_ENV=production`.
+Los builds normales, local y testing usan `noindex` y no generan un sitemap indexable.
+Para revisar un build de producción en PowerShell:
+
+```powershell
+$env:SITE_ENV = 'production'
+npm run build
+Remove-Item Env:SITE_ENV
+npm run preview
+```
+
+Cloudflare Web Analytics se carga únicamente en Inicio y Documentación del dominio
+de producción, evita duplicar un beacon existente y omite URLs con parámetros o
+fragmentos. No añadimos datos de formularios, sesiones, claves ni perfiles a la
+analítica. Los contadores de setups y avatares son independientes de las visitas.
+
+Tras publicar, verifica `https://guia.lat-add.com/` como propiedad de prefijo de URL
+en Google Search Console mediante la etiqueta HTML incluida. Envía
+`https://guia.lat-add.com/sitemap.xml` y revisa Inicio y Documentación con Inspección
+de URLs. Estas medidas facilitan el rastreo, pero no garantizan indexación ni posición.
+Comprueba también que el dominio entregue el sitemap y que Cloudflare conserve su
+referencia en `robots.txt`; las reglas del dominio pueden modificar la respuesta.
 
 ## Comprobaciones
 
