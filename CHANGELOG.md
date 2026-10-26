@@ -1,11 +1,58 @@
-# Historial de Cambios (Changelog)
+# Historial de cambios
 
-Todos los cambios notables en este proyecto serán documentados en este archivo.
+Los cambios destacados del proyecto se documentan en este archivo.
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/)
 y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
+
+## [1.9.0] - 2026-10-25
+
+### Añadido
+
+- Cuatro capítulos animados en la portada, una presentación de Cuenta con carátulas
+  reales y avatares del ranking, y preguntas frecuentes con apertura y cierre fluidos.
+- Fondo compartido entre Inicio, Asistente y Cuenta con películas y series en tendencia
+  de TMDB, caché semanal y soporte de movimiento reducido.
+- Métricas de setups completos y usos de avatares gestionadas por el Worker, con datos
+  separados entre producción y pruebas. Cada ejecución exitosa se registra una vez;
+  una estrella verde celebra la confirmación y actualiza el total del servidor.
+- Indicadores de carga en Cuenta, progreso de inicio de sesión, errores de acceso dentro
+  del formulario y enlaces para configurar los addons que lo permiten.
+- Enlace de apoyo en Ko-fi y etiqueta de verificación de Google Search Console.
+
+### Cambiado
+
+- Código reorganizado por páginas, flujos de aplicación, funcionalidades,
+  integraciones e infraestructura compartida, conservando las rutas públicas.
+- Integraciones privadas de Redis, publicación y sugerencias trasladadas al Worker;
+  el build del navegador ya no inserta credenciales de Redis ni Discord.
+- Campos del asistente simplificados a TMDB/MDBList, conservando la configuración
+  interna de RPDB. La ejecución automática destaca y las descargas se agrupan en
+  «Archivos de Configuración».
+- Packs de badges desplegables debajo de los pósters, que se contraen al elegir uno.
+- Addons y navegación adaptables al espacio disponible; avatares que completan filas,
+  desplegables animados e índice de pasos que amplía su contenedor exterior.
+- Botones principales de la portada más grandes y cómodos de pulsar.
+- Assets de colaboradores sincronizados desde main remoto y catálogo incluido actualizado,
+  con un generador reproducible y comprobación de cobertura de todas las imágenes.
+
+### Corregido
+
+- Difuminado del vidrio en el build, recortes de badges y ranking de avatares al filtrar
+  por estilo. Se conservan los avatares nativos y se usan iconos de persona o rompecabezas
+  cuando una imagen no está disponible.
+- Registros duplicados o inciertos de setups, uso de avatar al crear perfiles y destino
+  de la estrella en el menú compacto. Se retiró el popup de éxito anterior.
+- Barras de progreso contenidas en las carátulas, sombra del título en móvil y continuidad
+  del fondo y los carruseles durante su ciclo de animación.
+- Documentación actualizada con campos, archivos exportados, uso de datos y servicios
+  reales, sin promesas de latencia cero. Roadmap público depurado de trabajo completado.
+
+La configuración completa de indexación y analítica, la rotación de credenciales de
+producción y la confirmación en teléfonos físicos siguen siendo tareas independientes.
+Estas notas describen la versión preparada; no confirman su publicación o despliegue.
 
 ## [1.8.0] - 2026-10-18
 

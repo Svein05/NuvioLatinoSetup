@@ -1,6 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 
 import { isolateExternalServices } from './support/offline-services.js';
+
+const { version } = JSON.parse(readFileSync(new URL('../../version.json', import.meta.url), 'utf8'));
 
 for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
   test.describe(`public pages at ${viewport.width}px`, () => {
@@ -29,7 +32,20 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
           .map(url => url.pathname));
         expect(footerPaths).toEqual(['/configuration/', '/documentation/', '/account/']);
         await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(8, 9, 12)');
-        await expect(page.locator('.app-version-badge').first()).toHaveText('v1.8.0');
+        await expect(page.locator('.app-version-badge').first()).toHaveText(`v${version}`);
+        if (pathname === '/') {
+          const actions = page.locator('.hero-actions a');
+          await expect(actions).toHaveCount(2);
+          for (const action of await actions.all()) {
+            const bounds = await action.boundingBox();
+            expect(bounds.height).toBeGreaterThanOrEqual(56);
+            expect(bounds.x).toBeGreaterThanOrEqual(0);
+            expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+            await expect(action).toHaveCSS('font-size', '16px');
+          }
+          await expect(actions.nth(0)).toHaveAttribute('href', './configuration/');
+          await expect(actions.nth(1)).toHaveAttribute('href', 'https://ko-fi.com/xsvein');
+        }
         await page.evaluate(() => document.fonts.ready);
         await page.screenshot({
           path: `test-results/pages/${viewport.width}-${pathname.replaceAll('/', '') || 'index'}.png`,

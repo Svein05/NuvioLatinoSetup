@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-17T21:40:52.211Z",
+  "updatedAt": "2026-10-25",
   "styles": [
     {
       "style": "IconsStyle",
@@ -12,16 +12,16 @@
           ]
         },
         {
+          "franchise": "Naruto Shippuden",
+          "files": [
+            "NarutoShippuden_NarutoUzumaki.webp"
+          ]
+        },
+        {
           "franchise": "Naruto",
           "files": [
             "Naruto_NarutoUzumaki.webp",
             "Naruto_NarutoUzumaki2.webp"
-          ]
-        },
-        {
-          "franchise": "Naruto Shippuden",
-          "files": [
-            "NarutoShippuden_NarutoUzumaki.webp"
           ]
         }
       ]
@@ -33,9 +33,11 @@
           "franchise": "Black Clover",
           "files": [
             "Asta (Berserker).webp",
-            "Asta (Berserker)2.webp",
             "Asta (Demon).webp",
+            "Asta (Demon)2.webp",
             "Asta (Unite).webp",
+            "Asta (Unite)2.webp",
+            "Asta.webp",
             "Asta2.webp",
             "Asta3.webp",
             "Noelle (Valkyrie).webp",
@@ -63,9 +65,51 @@
           ]
         },
         {
+          "franchise": "Naruto Shippuden",
+          "files": [
+            "Itachi Uchiha.webp",
+            "Itachi Uchiha2.webp",
+            "Konan.webp",
+            "Nagato.webp",
+            "Naruto.webp",
+            "Pain.webp",
+            "Pain2.webp",
+            "Pain3.webp",
+            "Sasuke Uchiha.webp",
+            "Sasuke Uchiha2.webp",
+            "Sasuke Uchiha3.webp",
+            "Shikamaru.webp"
+          ]
+        },
+        {
           "franchise": "Naruto",
           "files": [
-            "Naruto Uzumaki (Color).webp"
+            "Gaara.webp",
+            "Gaara2.webp",
+            "Gaara3.webp",
+            "Hinata.webp",
+            "Hinata2.webp",
+            "Kiba.webp",
+            "Naruto Uzumaki.webp",
+            "Neji.webp",
+            "Neji2.webp",
+            "Rock Lee.webp",
+            "Rock Lee2.webp",
+            "Rock Lee3.webp",
+            "Sakura.webp",
+            "Sakura2.webp",
+            "Sasuke Uchiha.webp",
+            "Sasuke Uchiha2.webp",
+            "Shikamaru.webp"
+          ]
+        },
+        {
+          "franchise": "TokyoGhoul",
+          "files": [
+            "Kaneki Ken.webp",
+            "Kaneki Ken2.webp",
+            "Kaneki Ken3.webp",
+            "Touka.webp"
           ]
         }
       ]
@@ -73,6 +117,30 @@
     {
       "style": "NetflixStyle",
       "franchises": [
+        {
+          "franchise": "LosSimpsons",
+          "files": [
+            "Abuelo Simpson.webp",
+            "Ayudante de Santa.webp",
+            "Bart Simpson.webp",
+            "Bob Patiño.webp",
+            "Director Skinner.webp",
+            "Homero Simpson.webp",
+            "Jefe Gorgory.webp",
+            "Krusty el Payaso.webp",
+            "Lisa Simpson.webp",
+            "Maggie Simpson.webp",
+            "Marge Simpson.webp",
+            "Milhouse Van Houten.webp",
+            "Moe Szyslak.webp",
+            "Ned Flanders.webp",
+            "Nelson Muntz.webp",
+            "Patty Bouvier.webp",
+            "Selma Bouvier.webp",
+            "Sr. Burns.webp",
+            "Waylon Smithers.webp"
+          ]
+        },
         {
           "franchise": "Naruto Shippuden",
           "files": [
@@ -162,6 +230,20 @@
         {
           "franchise": "X-Men 97",
           "files": [
+            "Black Widow.webp",
+            "Cyclops3.webp",
+            "Danger.webp",
+            "Deadpool.webp",
+            "Dr. Octopus.webp",
+            "Hulk.webp",
+            "Morph3.webp",
+            "Phoenix3.webp",
+            "Storm3.webp",
+            "Sunspot2.webp",
+            "The Thing.webp",
+            "Thor.webp",
+            "Wolverine2.webp",
+            "Wolverine4.webp",
             "X-men97_Archangel.webp",
             "X-men97_Banshee.webp",
             "X-men97_Bastion.webp",
@@ -201,14 +283,14 @@
             "X-men97_Rogue2.webp",
             "X-men97_Sentinel.webp",
             "X-men97_SilverSamurai.webp",
-            "X-men97_SpiderMan1.webp",
-            "X-men97_SpiderMan2.webp",
+            "X-men97_Spider-Man1.webp",
+            "X-men97_Spider-Man2.webp",
             "X-men97_Spiral.webp",
             "X-men97_Storm1.webp",
             "X-men97_Storm2.webp",
             "X-men97_Sunspot.webp",
             "X-men97_Wolverine1.webp",
-            "X-men97_Wolverine2.webp",
+            "X-men97_Wolverine3.webp",
             "X-men97_X-cutioner.webp"
           ]
         }
