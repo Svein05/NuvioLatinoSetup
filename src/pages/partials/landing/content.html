@@ -12,12 +12,12 @@
           Configura y organiza tu Nuvio automáticamente en solo 7 sencillos pasos. Un asistente práctico para disfrutar de todas tus colecciones y contenido favorito en español latino sin complicaciones.
         </p>
 
-        <div class="flex flex-wrap items-center justify-center gap-3">
-          <a href="./configuration/" class="lat-capsule-btn solid text-sm sm:text-base px-8 py-3.5 shadow-[var(--shadow-lift)]">
+        <div class="hero-actions">
+          <a href="./configuration/" class="lat-capsule-btn solid hero-action shadow-[var(--shadow-lift)]">
             <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
             <span>Comenzar Configuración</span>
           </a>
-          <a href="https://ko-fi.com/xsvein" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn glass text-sm sm:text-base px-6 py-3.5">
+          <a href="https://ko-fi.com/xsvein" target="_blank" rel="noopener noreferrer" class="lat-capsule-btn glass hero-action">
             <img src="/assets/logo/kofi.avif" alt="" width="24" height="24" class="w-6 h-6 object-contain shrink-0" />
             <span>Apoyar en Ko-fi</span>
           </a>
@@ -54,7 +54,7 @@
             </div>
             <h3 class="text-lg font-semibold text-white">Colecciones de Nuvio</h3>
             <p class="text-xs sm:text-sm text-white/65 leading-relaxed font-light">
-              Carátulas cinematográficas apaisadas (Ahora en Nuvio, Plataformas de Streaming y Géneros). Todas las imágenes están almacenadas localmente para cargar a 0 ms sin depender de enlaces caídos.
+              Carátulas cinematográficas apaisadas (Ahora en Nuvio, Plataformas de Streaming y Géneros), con recursos incluidos en la web para organizar tus colecciones sin depender de imágenes externas.
             </p>
           </div>
 
@@ -110,7 +110,7 @@
             <div class="faq-panel" id="faq-answer-1">
               <div class="faq-panel-content">
                 <p class="text-xs sm:text-sm text-white/65 leading-relaxed">
-                  Sí, es totalmente seguro. Esta aplicación es 100% estática (código abierto en GitHub) y se ejecuta únicamente en tu navegador. Tus credenciales van directamente a los servidores oficiales de Nuvio (<code>api.nuvio.tv</code>) mediante llamadas autenticadas de Supabase. Ningún servidor externo o intermediario almacena ni ve tu contraseña. Y si prefieres no ingresarla, dispones del <strong>Modo Manual</strong>.
+                  El inicio de sesión envía tu correo y contraseña directamente a Nuvio (<code>api.nuvio.tv</code>) mediante HTTPS. La web utiliza la sesión resultante para gestionar tu perfil. Las funciones de avatares y sugerencias verifican esa sesión mediante nuestro Worker; las claves de metadatos se utilizan con sus proveedores. Si prefieres no iniciar sesión, dispones del <strong>Modo Manual</strong>.
                 </p>
               </div>
             </div>
@@ -124,7 +124,7 @@
             <div class="faq-panel" id="faq-answer-2">
               <div class="faq-panel-content">
                 <p class="text-xs sm:text-sm text-white/65 leading-relaxed">
-                  Solo necesitas tu cuenta de Nuvio (o usar el Modo Manual) y una clave API gratuita de TheMovieDatabase (TMDB). Esta clave se solicita en el Paso 4 para activar el enriquecimiento oficial de metadatos en español latino (sinopsis oficiales, actores, directores y puntuaciones) en tu perfil de Nuvio. En el Paso 3 podrás organizar y personalizar todas tus colecciones con cápsulas interactivas al instante, y el asistente te dará el enlace directo para obtener tu clave en 30 segundos si aún no la tienes.
+                  Necesitas tu cuenta de Nuvio (o usar el Modo Manual) y las claves API de <strong>TMDB y MDBList</strong>. Ambas se solicitan y validan en el Paso 4 para configurar metadatos y calificaciones. El asistente incluye los enlaces para obtenerlas y permite organizar tus colecciones antes de ejecutar la configuración.
                 </p>
               </div>
             </div>
