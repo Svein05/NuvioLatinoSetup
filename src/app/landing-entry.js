@@ -3,7 +3,6 @@ import { fetchAvatarRankingSummary } from './avatar-ranking.js';
 import { subscribeCompletionCount } from './completions.js';
 import { rankedCarouselPaths } from '../pages/landing/ranked-carousel.js';
 import { avatarPaths } from '../pages/landing/avatar-carousel.js';
-import { loadAvatarsCatalog, resolveAvatarCdnUrl } from './avatar-catalog.js';
 import { loadBundledAvatars } from '../integrations/github/bundled-avatars.js';
 import { initAvatarCarousel } from '../pages/landing/avatar-carousel.js';
 import { initLandingPresentation } from '../pages/landing/presentation.js';
@@ -22,15 +21,7 @@ function initialize() {
   const metrics = initLandingMetrics({ subscribe: subscribeCompletionCount, ranking });
   Promise.all([loadBundledAvatars(request.signal), ranking]).then(([manifest, summary]) => {
     if (!request.signal.aborted) carousel = initAvatarCarousel(rankedCarouselPaths(avatarPaths(manifest), summary.items));
-  }).catch(() => {}).finally(() => {
-    if (request.signal.aborted) return;
-    Promise.all([loadAvatarsCatalog(), ranking]).then(([avatars, summary]) => {
-      if (request.signal.aborted || !avatars.length) return;
-      const paths = rankedCarouselPaths(avatars.map(avatar => resolveAvatarCdnUrl(avatar.path)), summary.items);
-      if (carousel.update) carousel.update(paths);
-      else carousel = initAvatarCarousel(paths);
-    }).catch(() => {});
-  });
+  }).catch(() => {});
   dispose = () => { request.abort(); presentation(); metrics(); carousel(); faq(); };
 }
 function suspend() { dispose?.(); }

@@ -1,4 +1,4 @@
-const CACHE_DURATION_MS = 60 * 60 * 1000;
+const CACHE_DURATION_MS = 6 * 60 * 60 * 1000;
 
 function validSnapshot(snapshot) {
   return snapshot && Number.isSafeInteger(snapshot.stars) && snapshot.stars >= 0
@@ -8,7 +8,7 @@ function validSnapshot(snapshot) {
 /** Preserve the previous cache format while distinguishing live, cached and estimated counts. */
 export function createRepositoryStars({ readCount, store, now = Date.now }) {
   let cached = validSnapshot(store.read());
-  const initial = () => ({ count: cached?.stars ?? 3, source: cached ? 'cache' : 'estimate' });
+  const initial = () => ({ count: cached?.stars ?? '—', source: cached ? 'cache' : 'unavailable' });
   async function refresh({ signal } = {}) {
     signal?.throwIfAborted();
     const age = cached ? now() - cached.timestamp : Infinity;
@@ -22,7 +22,7 @@ export function createRepositoryStars({ readCount, store, now = Date.now }) {
     } catch {
       signal?.throwIfAborted();
       return {
-        count: cached?.stars ?? 3, source: cached ? 'stale-cache' : 'estimate',
+        count: cached?.stars ?? '—', source: cached ? 'stale-cache' : 'unavailable',
         warning: 'No se pudo actualizar el conteo de estrellas de GitHub.',
       };
     }

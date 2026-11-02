@@ -3,6 +3,7 @@ import { sharedAccess } from '../middleware/shared-access.js';
 import { validateAvatarBatch } from '../services/avatar-batch.js';
 import { publishAvatars } from '../services/publish-avatars.js';
 import { createGitHubClient } from '../integrations/github.js';
+import { invalidatePublicCatalog } from './public-metadata.js';
 
 export async function collaboratorRoute(request, env, { publish, fetchImpl }) {
   if (request.method !== 'POST') return json({ error: 'Método no permitido.' }, 405);
@@ -12,5 +13,8 @@ export async function collaboratorRoute(request, env, { publish, fetchImpl }) {
   if (!role) return json({ error: 'Credenciales de colaborador no válidas o correo no autorizado.' }, 401);
   if (!publish) return json({ success: true, role });
   const batch = validateAvatarBatch(payload);
-  return json(await publishAvatars(batch, createGitHubClient(env, fetchImpl)));
+  const result = await publishAvatars(batch, createGitHubClient(env, fetchImpl));
+  try { await invalidatePublicCatalog(env); }
+  catch { console.warn('Catalog cache invalidation failed after a confirmed publication.'); }
+  return json(result);
 }

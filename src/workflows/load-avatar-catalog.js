@@ -9,6 +9,21 @@ function cachedCatalog(cache, now) {
 
 async function loadSources({ client, cache, now, reportWarning }, forceRefresh, signal) {
   const cached = cachedCatalog(cache, now);
+  if (client.snapshot) {
+    if (!forceRefresh && cached && now() - cached.timestamp >= 0 && now() - cached.timestamp < 300000) {
+      client.restore?.(cached);
+      return { registry: cached.registry, commitSha: cached.commitSha, source: 'cache' };
+    }
+    try { return await client.snapshot({ signal }); }
+    catch {
+      signal?.throwIfAborted();
+      if (cached) {
+        client.restore?.(cached);
+        return { registry: cached.registry, commitSha: cached.commitSha, source: 'stale-cache', stale: true };
+      }
+      return { registry: await client.fallback(signal), commitSha: null, source: 'bundled', stale: true };
+    }
+  }
   let sha = null;
   try { sha = await client.latestCommit({ signal }); }
   catch { signal?.throwIfAborted(); reportWarning('No se pudo comprobar la revisión del catálogo de avatares.'); }
@@ -42,7 +57,7 @@ export function createAvatarCatalogLoader({ client, cache, catalog, now = Date.n
       if (revision !== catalog.revision()) return catalog.avatars();
       if (result.registry && (!result.stale || !catalog.loaded())) {
         catalog.accept(result.registry, result.commitSha);
-        if (!result.stale) cache.write({ registry: result.registry, commitSha: result.commitSha, timestamp: now() });
+        if (!result.stale) cache.write({ registry: result.registry, commitSha: result.commitSha, hashes: result.hashes, timestamp: now() });
       }
       if (result.stale) {
         reportWarning('Catálogo sin actualizar: se conserva el último disponible.');
