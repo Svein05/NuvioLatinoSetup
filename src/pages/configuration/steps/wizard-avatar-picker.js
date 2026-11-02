@@ -1,11 +1,14 @@
+import { responsiveImageAttributes } from '../../../shared/media/responsive-image.js';
+import { escapeHtml } from '../../../shared/ui/safe-markup.js';
+
 function renderAvatarCard(av, selectedUrl, resolveCdnUrl) {
   const cdnUrl = resolveCdnUrl(av.path);
   const isSelected = selectedUrl && (selectedUrl === cdnUrl || selectedUrl === av.path);
   return `
-    <div class="netflix-avatar-card ${isSelected ? 'is-selected' : ''}" data-avatar-path="${av.path}" data-avatar-name="${av.character}" title="${av.character} (${av.franchiseName || ''})">
-      <div class="avatar-circle-wrap"><img src="${cdnUrl}" alt="${av.character}" class="avatar-card-img" loading="lazy" data-image-fallback="avatar"></div>
-      <span class="avatar-card-name-label">${av.character}</span>
-    </div>
+    <button type="button" class="netflix-avatar-card ${isSelected ? 'is-selected' : ''}" data-avatar-path="${escapeHtml(av.path)}" data-avatar-name="${escapeHtml(av.character)}" title="${escapeHtml(av.character)} (${escapeHtml(av.franchiseName || '')})">
+      <span class="avatar-circle-wrap"><img ${responsiveImageAttributes(cdnUrl)} src="${escapeHtml(cdnUrl)}" alt="${escapeHtml(av.character)}" class="avatar-card-img" loading="lazy" data-image-fallback="avatar"></span>
+      <span class="avatar-card-name-label">${escapeHtml(av.character)}</span>
+    </button>
   `;
 }
 

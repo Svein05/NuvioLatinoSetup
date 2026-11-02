@@ -1,4 +1,5 @@
 import { decodeImage, mountDecodedStrip } from '../../shared/media/decoded-strip.js';
+import { responsiveImage } from '../../shared/media/responsive-image.js';
 
 export function avatarPaths(manifest) {
   if (Array.isArray(manifest)) return manifest;
@@ -19,6 +20,7 @@ export function initAvatarCarousel(manifest, root = document) {
   const prepare = async () => {
     for (let attempt = 0; attempt < Math.min(3, paths.length) && active; attempt++) {
       const image = new Image(56, 56);
+      responsiveImage(image, paths[cursor % paths.length], '56px');
       image.src = paths[cursor++ % paths.length];
       image.alt = '';
       image.decoding = 'async';

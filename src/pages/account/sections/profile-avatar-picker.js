@@ -1,5 +1,6 @@
 import { avatarCardMarkup } from './avatar-cards.js';
 import { escapeHtml } from '../../../shared/ui/safe-markup.js';
+import { responsiveImage } from '../../../shared/media/responsive-image.js';
 
 export function bindProfileAvatarPicker({ root, services, lifetime, notify }) {
   const modal = root.getElementById('modalCreateProfileAvatarPicker');
@@ -14,7 +15,9 @@ export function bindProfileAvatarPicker({ root, services, lifetime, notify }) {
     container.querySelectorAll('[data-avatar-path]').forEach(card => card.addEventListener('click', () => {
       const preview = root.getElementById('createProfileAvatarPreview');
       if (preview) {
-        preview.src = services.resolveAvatarCdnUrl(card.dataset.avatarPath);
+        const url = services.resolveAvatarCdnUrl(card.dataset.avatarPath);
+        responsiveImage(preview, url, '80px');
+        preview.src = url;
         preview.dataset.selectedUrl = preview.src;
       }
       close();

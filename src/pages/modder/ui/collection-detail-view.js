@@ -1,4 +1,5 @@
 import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
+import { responsiveImageAttributes } from '../../../shared/media/responsive-image.js';
 
 const CANONICAL_STYLES = [
   { id: 'NetflixStyle', name: 'Netflix Style' },
@@ -61,7 +62,7 @@ function renderAvatarCard(av, override, resolveCdnUrl) {
     <div class="${cardClasses}" data-avatar-id="${escapeHtml(av.id)}">
       ${badgeHtml}
       <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white/5 border border-white/10 overflow-hidden relative flex items-center justify-center group-hover:scale-105 transition-transform">
-        <img src="${escapeHtml(safeImageUrl(displayImg))}" alt="${escapeHtml(displayFilename)}" class="w-full h-full object-cover" loading="lazy">
+        <img ${responsiveImageAttributes(displayImg, '96px')} src="${escapeHtml(safeImageUrl(displayImg))}" alt="${escapeHtml(displayFilename)}" class="w-full h-full object-cover" loading="lazy">
       </div>
       <div class="w-full space-y-0.5">
         <h4 class="text-xs font-mono font-medium text-white truncate max-w-full" title="${escapeHtml(displayFilename)}">${escapeHtml(displayFilename)}</h4>
