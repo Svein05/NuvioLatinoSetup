@@ -3,7 +3,7 @@ import { sceneState } from './scene-state.js';
 const rendered = new WeakMap();
 
 /** Render decorative scene state only. Never mount functional application controllers. */
-export function renderScene(scene, name, progress, inView) {
+export function renderScene(scene, name, progress, inView, geometry = {}) {
   const signature = [name, progress.toFixed(4), inView, window.innerWidth, window.innerHeight].join(':');
   if (rendered.get(scene) === signature) return;
   rendered.set(scene, signature);
@@ -26,9 +26,9 @@ export function renderScene(scene, name, progress, inView) {
     });
   }
   if (name === 'style') {
-    scene.style.setProperty('--poster-depth', `${scene.querySelector('.scene-poster').clientWidth / 2}px`);
+    scene.style.setProperty('--poster-depth', `${(geometry.posterWidth ?? scene.querySelector('.scene-poster').clientWidth) / 2}px`);
   }
   if (name === 'assembly') {
-    scene.style.setProperty('--orbit-distance', `${Math.min(scene.clientWidth * .35, scene.clientHeight * .36)}px`);
+    scene.style.setProperty('--orbit-distance', `${Math.min((geometry.sceneWidth ?? scene.clientWidth) * .35, (geometry.sceneHeight ?? scene.clientHeight) * .36)}px`);
   }
 }

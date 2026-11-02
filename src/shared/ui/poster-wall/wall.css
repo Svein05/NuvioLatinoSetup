@@ -19,9 +19,10 @@ body[data-poster-page] { isolation: isolate; }
   object-position: top;
 }
 .poster-wall-rows {
-  opacity: 0;
+  opacity: 1;
 }
-.poster-wall.is-ready .poster-wall-rows { opacity: 1; }
+.poster-wall-rows > div { opacity: 0; }
+.poster-wall-rows > .is-ready, .poster-wall.is-ready .poster-wall-rows > div { opacity: 1; }
 .poster-wall.is-ready .poster-wall-fallback { opacity: 0; }
 .poster-wall-rows > div {
   height: 50%;

@@ -32,6 +32,10 @@ export function mountApiKeyTutorials(root = document) {
   let exitFullscreen = () => {};
   function settle() {
     video.pause();
+    for (const source of video.querySelectorAll('source')) source.removeAttribute('src');
+    video.removeAttribute('src');
+    video.load();
+    currentProvider = undefined;
     exitFullscreen();
     if (previousOverflow !== undefined) doc.documentElement.style.overflow = previousOverflow;
     previousOverflow = undefined;

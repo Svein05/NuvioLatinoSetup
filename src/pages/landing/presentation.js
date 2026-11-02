@@ -3,17 +3,20 @@ import { renderScene } from './render-scene.js';
 import { createScenePlayback } from './scene-playback.js';
 
 function renderChapter({ story, chapters, viewportHeight, playback }) {
-  const state = chapterProgress(chapters.map(chapter => chapter.getBoundingClientRect()), viewportHeight);
+  const measurements = chapters.map(chapter => {
+    const scene = chapter.querySelector('[data-scene]');
+    const poster = scene.querySelector('.scene-poster');
+    return { chapter, scene, rectangle: chapter.getBoundingClientRect(), bounds: scene.getBoundingClientRect(),
+      posterWidth: poster?.clientWidth, sceneWidth: scene.clientWidth, sceneHeight: scene.clientHeight };
+  });
+  const state = chapterProgress(measurements.map(item => item.rectangle), viewportHeight);
   story.dataset.activeChapter = chapters[state.index].dataset.chapter;
-  chapters.forEach(chapter => {
-    const rectangle = chapter.getBoundingClientRect();
+  measurements.forEach(({ chapter, scene, rectangle, bounds, posterWidth, sceneWidth, sceneHeight }) => {
     const enhanced = story.classList.contains('is-enhanced');
     const target = enhanced ? pinnedProgress(rectangle, viewportHeight, viewportHeight * .7) : 1;
-    const scene = chapter.querySelector('[data-scene]');
-    const bounds = scene.getBoundingClientRect();
     const inView = bounds.top < viewportHeight && bounds.bottom > 0;
     const progress = playback.value(scene, target, !enhanced || !inView || document.hidden);
-    renderScene(scene, chapter.dataset.chapter, progress, inView);
+    renderScene(scene, chapter.dataset.chapter, progress, inView, { posterWidth, sceneWidth, sceneHeight });
   });
 }
 

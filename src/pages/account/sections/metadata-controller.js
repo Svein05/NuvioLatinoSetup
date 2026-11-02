@@ -24,6 +24,7 @@ function applyMetadata(state, config) {
 export function createAccountMetadata({ root, state, services, notify, updateUI, setupPasswordToggles }) {
   let revision = 0;
   const render = () => {
+    if (state.activeSection !== 'aiometadata') return;
     const card = root.getElementById('accountAioCard');
     if (renderReadFeedback(card, { loading: state.isLoadingProfile || state.isLoadingMetadata,
       error: state.metadataError, retry: () => { void load(state.aioUuid).catch(() => {}); } })) return;

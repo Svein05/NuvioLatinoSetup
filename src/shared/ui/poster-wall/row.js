@@ -1,9 +1,9 @@
 import { posterResolution } from '../../media/poster-resolution.js';
 import { decodeImage, mountDecodedStrip } from '../../media/decoded-strip.js';
 
-export function createPosterRow({ row, queue, reverse, onReady }) {
+export function createPosterRow({ row, queue, reverse, onReady, schedule = task => task() }) {
   const width = Math.ceil(row.clientHeight * 2 / 3);
-  const count = Math.ceil(window.innerWidth / width) + 3;
+  const count = Math.ceil(window.innerWidth / width) + 1;
   const size = posterResolution(width, window.devicePixelRatio);
   const duration = (row.closest('[data-poster-theme="interior"]') ? 105 : 75) / 8 * 1000;
   const track = row.querySelector('.poster-wall-track') || document.createElement('div');
@@ -22,7 +22,7 @@ export function createPosterRow({ row, queue, reverse, onReady }) {
   const prepare = async () => {
     for (let attempt = 0; attempt < 3 && active; attempt++) {
       const item = queue.next();
-      try { return await decodeImage(makeImage('https://image.tmdb.org/t/p/w' + size + item.posterPath)); }
+      try { return await schedule(() => active ? decodeImage(makeImage('https://image.tmdb.org/t/p/w' + size + item.posterPath)) : null); }
       catch { /* Keep the old decoded frame if replacement artwork is unavailable. */ }
     }
     return null;
@@ -47,6 +47,7 @@ export function createPosterRow({ row, queue, reverse, onReady }) {
     if (!active || images.some(image => !image?.naturalWidth)) return;
     track.replaceChildren(...images);
     if (track.parentElement !== row) row.replaceChildren(track);
+    row.classList.add('is-ready');
     onReady();
     stop = mountDecodedStrip({ track, distance: width, duration, reverse, prepare });
   }
@@ -54,6 +55,6 @@ export function createPosterRow({ row, queue, reverse, onReady }) {
   return preserve => {
     active = false;
     stop();
-    if (!preserve) track.remove();
+    if (!preserve) { track.remove(); row.classList.remove('is-ready'); }
   };
 }

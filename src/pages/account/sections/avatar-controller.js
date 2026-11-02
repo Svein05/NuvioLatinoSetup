@@ -8,6 +8,7 @@ import { createAvatarGridLayout } from './avatar-grid.js';
 
 export function createAccountAvatars({ root, state, services, lifetime, notify, updateUI }) {
   const grids = createAvatarGridLayout();
+  let started = false;
   lifetime.add(grids.dispose);
   const select = url => {
     if (state.isSaving || state.isLoadingProfile) return;
@@ -19,6 +20,7 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
   const closeFranchises = () => root.getElementById('modalAvatarFranchises')?.classList.replace('flex', 'hidden');
   const reset = () => { state.avatarFilters = { style: 'all', franchise: 'all', query: '' }; render(); };
   function render() {
+    if (!started) { started = true; void refresh(); return; }
     grids.clear();
     if (renderReadFeedback(root.getElementById('avatarsCatalogContainer'), { loading: state.isLoadingAvatars && !services.getCompiledAvatars().length,
       error: !services.getCompiledAvatars().length ? state.avatarCatalogError : '', shape: 'avatars', retry: () => refresh(true) })) return;
@@ -50,5 +52,5 @@ export function createAccountAvatars({ root, state, services, lifetime, notify, 
   lifetime.on(root.getElementById?.('btnRefreshAvatarsCatalog'), 'click', () => refresh(true));
   setupAvatarUrlConfirmModal({ root, onConfirm: select, showToast: notify });
   const refresh = createAvatarRefresh({ state, services, lifetime, root, notify, render });
-  return { render, refresh };
+  return { render, refresh: force => { started = true; return refresh(force); } };
 }
