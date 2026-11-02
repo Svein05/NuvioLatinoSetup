@@ -23,7 +23,7 @@ export async function publicGitHub(env, fetchImpl, resource) {
   const repository = env.GITHUB_REPOSITORY || 'NuvioLatinoSetup';
   if (![owner, repository].every(value => /^[\w.-]+$/.test(value))) throw new WorkerError('Repositorio inválido.', 503);
   const response = await fetchImpl(`https://api.github.com/repos/${owner}/${repository}${resource}`, {
-    redirect: 'error', signal: AbortSignal.timeout(5000),
+    redirect: 'manual', signal: AbortSignal.timeout(5000),
     headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'NuvioPublicCatalog',
       ...(env.GITHUB_TOKEN ? { Authorization: `Bearer ${env.GITHUB_TOKEN}` } : {}) },
   });
