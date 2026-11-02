@@ -1,0 +1,5 @@
+/* Page-specific styles retain their original cascade order. */
+@import '../pages/landing.css';
+@import '../shared/ui/poster-wall/wall.css';
+@import '../pages/landing/metrics.css';
+@import '../pages/landing/faq.css';

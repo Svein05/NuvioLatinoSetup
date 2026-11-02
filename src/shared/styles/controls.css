@@ -1,0 +1,111 @@
+/* Shared button, field and entrance primitives. */
+.lat-capsule-btn,
+.lat-capsule-btn-solid,
+.lat-capsule-btn-glass {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-capsule);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.65rem 1.4rem;
+  transition: all 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  user-select: none;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+}
+
+.lat-capsule-btn:focus-visible,
+.lat-capsule-btn-solid:focus-visible,
+.lat-capsule-btn-glass:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+.lat-capsule-btn.solid,
+.lat-capsule-btn-solid {
+  background: #ffffff !important;
+  color: #08090c !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+
+.lat-capsule-btn.solid:hover,
+.lat-capsule-btn-solid:hover {
+  background: rgba(255, 255, 255, 0.92) !important;
+  transform: translateY(-1px);
+  color: #08090c !important;
+}
+
+.lat-capsule-btn.glass,
+.lat-capsule-btn-glass {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-ink);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: var(--brillo-vidrio);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.lat-capsule-btn.glass:hover,
+.lat-capsule-btn-glass:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px) translateZ(0);
+  color: var(--color-ink);
+}
+
+.lat-field {
+  background: var(--color-glass);
+  border: 1px solid var(--color-hairline-strong);
+  color: var(--color-ink);
+  border-radius: var(--radius-field);
+  padding: 0.75rem 1rem;
+  box-shadow: var(--brillo-vidrio);
+  font-size: 0.9375rem;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.lat-field::placeholder {
+  color: var(--color-ink-faint);
+}
+
+.lat-field:hover {
+  background: var(--color-glass-strong);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.lat-field:focus {
+  outline: none;
+  background: var(--color-glass-strong);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: var(--brillo-vidrio), 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efectos Glow Cinemáticos */
+.glow-brand {
+  box-shadow: 0 0 30px -5px rgba(255, 255, 255, 0.15), var(--brillo-vidrio);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.25), var(--brillo-vidrio);
+}
+
+/* ============================================================ */

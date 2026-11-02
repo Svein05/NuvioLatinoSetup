@@ -10,25 +10,3 @@
 .step-content.active {
   display: block !important;
 }
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Efectos Glow Cinemáticos */
-.glow-brand {
-  box-shadow: 0 0 30px -5px rgba(255, 255, 255, 0.15), var(--brillo-vidrio);
-}
-
-.glow-emerald {
-  box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.25), var(--brillo-vidrio);
-}
-
-/* ============================================================ */
