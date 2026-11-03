@@ -34,6 +34,10 @@
 }
 
 @media (pointer: coarse) {
+  /* Let the capsule grow around the touch targets and its own padding. */
+  header.lat-floating-nav nav.lat-floating-pill {
+    height: auto;
+  }
   :where(button.lat-nav-tab, a.lat-nav-tab, #btnMobileHeaderMenu, .account-addon-actions button) {
     min-block-size: 44px;
     min-inline-size: 44px;
