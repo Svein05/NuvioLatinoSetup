@@ -19,14 +19,16 @@ export function createPosterRow({ row, queue, reverse, onReady, schedule = task 
     image.src = source;
     return image;
   };
-  const prepare = async () => {
+  const prepare = async (enqueue = schedule) => {
     for (let attempt = 0; attempt < 3 && active; attempt++) {
       const item = queue.next();
-      try { return await schedule(() => active ? decodeImage(makeImage('https://image.tmdb.org/t/p/w' + size + item.posterPath)) : null); }
+      try { return await enqueue(() => active ? decodeImage(makeImage('https://image.tmdb.org/t/p/w' + size + item.posterPath)) : null); }
       catch { /* Keep the old decoded frame if replacement artwork is unavailable. */ }
     }
     return null;
   };
+  // Start the first visible strip together. Only rolling replacements use the queue.
+  const prepareInitial = () => prepare(task => task());
   async function start() {
     const existing = [...track.querySelectorAll('img')];
     const images = await Promise.all(Array.from({ length: count }, async (_, index) => {
@@ -34,7 +36,7 @@ export function createPosterRow({ row, queue, reverse, onReady, schedule = task 
       if (previous) {
         previous.width = width;
         previous.height = Math.ceil(width * 1.5);
-        try { await decodeImage(previous); } catch { return await prepare() || previous; }
+        try { await decodeImage(previous); } catch { return await prepareInitial() || previous; }
         const source = previous.src.replace(/\/w(185|342|500|780)\//, '/w' + size + '/');
         const currentSize = Number(previous.src.match(/\/w(185|342|500|780)\//)?.[1]);
         if (currentSize < size) {
@@ -42,7 +44,7 @@ export function createPosterRow({ row, queue, reverse, onReady, schedule = task 
         }
         return previous;
       }
-      return await prepare() || await decodeImage(makeImage('/assets/preview/landing/inception.jpg')).catch(() => null);
+      return await prepareInitial() || await decodeImage(makeImage('/assets/preview/landing/inception.jpg')).catch(() => null);
     }));
     if (!active || images.some(image => !image?.naturalWidth)) return;
     track.replaceChildren(...images);
