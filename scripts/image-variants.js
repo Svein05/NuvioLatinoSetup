@@ -8,7 +8,7 @@ const folders = ['profile_icons', 'collections', 'preview', 'logo'];
 
 function configuration(source) {
   if (source.includes('/badges/')) return { heights: [16, 32, 48], lossless: true };
-  if (source.includes('hero-posters-backdrop')) return { widths: [480, 960, 1440, 1920] };
+  if (source.includes('hero-posters-backdrop')) return { widths: [480, 960, 1440, 1920], quality: 72 };
   if (source.includes('/profile_icons/')) return { widths: [64, 128, 256, 512] };
   return { widths: [160, 320, 640, 960] };
 }
@@ -33,7 +33,7 @@ async function variants(repository, directory, source) {
       const temporary = path.join(directory, `${name}.${randomUUID()}.tmp`);
       try {
         await sharp(input).rotate().resize({ width, withoutEnlargement: true })
-          .webp({ quality: 82, lossless: options.lossless || false }).toFile(temporary);
+          .webp({ quality: options.quality ?? 82, lossless: options.lossless || false }).toFile(temporary);
         if (!existsSync(target)) renameSync(temporary, target);
       } finally { rmSync(temporary, { force: true }); }
     }
