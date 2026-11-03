@@ -18,6 +18,7 @@ function start() {
   if (!root) return;
   const interior = /^\/(account|configuration)(?:\/|$)/.test(window.location.pathname);
   root.dataset.posterTheme = interior ? 'interior' : 'landing';
+  if (interior && window.matchMedia('(max-width: 639px), (hover: none) and (pointer: coarse)').matches) return;
   let wall = initPosterWall({ root, feed: null, storage: storage('sessionStorage') });
   const request = new AbortController();
   dispose = preserve => { request.abort(); wall(preserve); };

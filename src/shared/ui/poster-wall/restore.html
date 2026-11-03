@@ -2,6 +2,8 @@
 (() => {
   // Restore cached images while HTML is parsed, before the deferred application starts.
   const root = document.currentScript.parentElement;
+  const interior = /^\/(account|configuration)(?:\/|$)/.test(location.pathname);
+  if (interior && matchMedia('(max-width: 639px), (hover: none) and (pointer: coarse)').matches) return;
   try {
     const saved = JSON.parse(sessionStorage.getItem('nuvio_poster_view_v1'));
     if (!saved || Date.now() - saved.at > 3600000 || Date.now() < saved.at
@@ -12,7 +14,6 @@
       && row.phase >= 0 && row.phase < 1 && row.sources.every(source =>
         /^https:\/\/image\.tmdb\.org\/t\/p\/w(185|342|500|780)\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(source)));
     if (!valid) return;
-    const interior = /^\/(account|configuration)(?:\/|$)/.test(location.pathname);
     root.dataset.posterTheme = interior ? 'interior' : 'landing';
     root.dataset.posterStamp = saved.stamp;
     root.dataset.posterRestored = 'true';
