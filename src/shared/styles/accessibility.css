@@ -34,14 +34,11 @@
 }
 
 @media (pointer: coarse) {
-  /* Let the capsule grow around the touch targets and its own padding. */
-  header.lat-floating-nav nav.lat-floating-pill {
-    height: auto;
-  }
   :where(button.lat-nav-tab, a.lat-nav-tab, #btnMobileHeaderMenu, .account-addon-actions button) {
-    min-block-size: 44px;
     min-inline-size: 44px;
   }
+  /* Navigation controls share the shell's capsule height. */
+  :where(.account-addon-actions button) { min-block-size: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
