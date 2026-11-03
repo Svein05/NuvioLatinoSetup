@@ -1,4 +1,4 @@
-import './poster-background.js';
+import { createPosterMotion } from '../shared/ui/poster-wall/motion.js';
 import { fetchAvatarRankingSummary } from './avatar-ranking.js';
 import { subscribeCompletionCount } from './completions.js';
 import { rankedCarouselPaths } from '../pages/landing/ranked-carousel.js';
@@ -14,6 +14,10 @@ let dispose;
 function initialize() {
   dispose?.();
   const presentation = initLandingPresentation();
+  const strips = document.querySelector('[data-hero-strips]');
+  const motion = strips && createPosterMotion(strips);
+  motion?.refresh();
+  if (motion) window.addEventListener('resize', motion.refresh, { passive: true });
   const faq = initLandingFaq();
   const request = new AbortController();
   let carousel = () => {};
@@ -22,7 +26,17 @@ function initialize() {
   Promise.all([loadBundledAvatars(request.signal), ranking]).then(([manifest, summary]) => {
     if (!request.signal.aborted) carousel = initAvatarCarousel(rankedCarouselPaths(avatarPaths(manifest), summary.items));
   }).catch(() => {});
-  dispose = () => { request.abort(); presentation(); metrics(); carousel(); faq(); };
+  dispose = () => {
+    request.abort();
+    if (motion) {
+      window.removeEventListener('resize', motion.refresh);
+      motion.dispose();
+    }
+    presentation();
+    metrics();
+    carousel();
+    faq();
+  };
 }
 function suspend() { dispose?.(); }
 function restore(event) { if (event.persisted) initialize(); }

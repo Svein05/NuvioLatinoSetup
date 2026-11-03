@@ -1,0 +1,27 @@
+.hero-strip-wall {
+  --poster-count: 8;
+  --loop-duration: 75s;
+  /* Keep at least one full poster outside the viewport at the seam. */
+  --tile-width: max(calc(100svh / 3), calc(100vw / (var(--poster-count) - 1)));
+  --strip-width: calc(var(--tile-width) * var(--poster-count));
+}
+
+.hero-strip-row { height: 50%; overflow: hidden; }
+.hero-strip-track {
+  width: calc(2 * var(--strip-width));
+  animation: hero-strip-loop var(--loop-duration) linear infinite;
+}
+.hero-strip-row:nth-child(2) .hero-strip-track { animation-direction: reverse; }
+.hero-strip-track picture { flex: 0 0 var(--strip-width); height: 100%; }
+.hero-strip-track img { display: block; width: 100%; height: 100%; object-fit: fill; }
+.hero-strip-wall.is-paused .hero-strip-track { animation-play-state: paused; }
+
+@keyframes hero-strip-loop { to { transform: translateX(-50%); } }
+
+@media (max-width: 639px) {
+  .hero-strip-wall { --poster-count: 4; --loop-duration: 37.5s; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-strip-track { animation: none; }
+}
