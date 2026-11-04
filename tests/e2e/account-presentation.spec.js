@@ -1,3 +1,4 @@
+import { publicCatalog } from './support/public-catalog.js';
 import { expect, test } from '@playwright/test';
 import { prepareAccount } from './support/account.js';
 
@@ -44,8 +45,7 @@ test('account restores styled avatar groups, the profile name and addon count', 
       ] };
     },
     respondExternal(url) {
-      if (url.pathname.includes('/git/ref/')) return { body: { object: { sha: 'a'.repeat(40) } } };
-      if (url.pathname.includes('/git/trees/')) return { body: { tree: files.map(path => ({ path, type: 'blob' })) } };
+      if (url.pathname === '/api/avatars/catalog') return { body: publicCatalog(files, 'a'.repeat(40)) };
     },
   });
   await page.locator('.account-nav-btn[data-section="avatars"]').click();

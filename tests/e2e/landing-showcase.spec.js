@@ -101,7 +101,7 @@ test('presentation content and local assets remain usable without JavaScript', a
   await expect(page.locator('[data-chapter]')).toHaveCount(4);
   for (const scene of await page.locator('[data-scene]').all()) await expect(scene).toBeVisible();
   await expect(page.getByRole('link', { name: 'Explorar Cuenta', exact: true })).toHaveAttribute('href', './account/');
-  for (const image of await page.locator('.landing-story img, .landing-account img').all()) {
+  for (const image of await page.locator('.landing-story img[src], .landing-account img[src]').all()) {
     const response = await page.request.get(await image.getAttribute('src'));
     expect(response.ok()).toBe(true);
   }

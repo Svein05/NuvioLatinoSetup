@@ -3,11 +3,11 @@ import { createRepositoryStars } from './load-repository-stars.js';
 
 function setup(snapshot, readCount = vi.fn(async () => 7)) {
   const store = { read: () => snapshot, write: vi.fn() };
-  return { stars: createRepositoryStars({ readCount, store, now: () => 4_000_000 }), store, readCount };
+  return { stars: createRepositoryStars({ readCount, store, now: () => 24_000_000 }), store, readCount };
 }
 
-it('uses a fresh one-hour cache without requesting GitHub', async () => {
-  const { stars, readCount } = setup({ stars: 5, timestamp: 3_999_000 });
+it('uses a fresh six-hour cache without requesting GitHub', async () => {
+  const { stars, readCount } = setup({ stars: 5, timestamp: 23_999_000 });
   expect(await stars.refresh()).toEqual({ count: 5, source: 'cache' });
   expect(readCount).not.toHaveBeenCalled();
 });
@@ -16,16 +16,16 @@ it('refreshes an expired cache and retains the old storage schema', async () => 
   const { stars, store } = setup({ stars: 5, timestamp: 0 });
   expect(stars.initial()).toEqual({ count: 5, source: 'cache' });
   expect(await stars.refresh()).toEqual({ count: 7, source: 'network' });
-  expect(store.write).toHaveBeenCalledWith({ stars: 7, timestamp: 4_000_000 });
+  expect(store.write).toHaveBeenCalledWith({ stars: 7, timestamp: 24_000_000 });
 });
 
 it.each([null, { stars: 5, timestamp: 0 }])('preserves a visible fallback with an explicit warning on outage: %j', async snapshot => {
   const { stars } = setup(snapshot, async () => { throw new Error('unavailable'); });
-  expect(await stars.refresh()).toMatchObject({ count: snapshot?.stars ?? 3, warning: expect.any(String) });
+  expect(await stars.refresh()).toMatchObject({ count: snapshot?.stars ?? '—', warning: expect.any(String) });
 });
 
 it('does not treat a future timestamp as a fresh cache', async () => {
-  const { stars, readCount } = setup({ stars: 5, timestamp: 9_000_000 });
+  const { stars, readCount } = setup({ stars: 5, timestamp: 90_000_000 });
   expect((await stars.refresh()).source).toBe('network');
   expect(readCount).toHaveBeenCalledTimes(1);
 });

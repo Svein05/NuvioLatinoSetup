@@ -32,7 +32,7 @@ export async function publicMetadataRoute(request, env, { kind, fetchImpl, now, 
     const pending = tasks.get(kv);
     if (!pending.has(kind)) {
       const generation = generations.get(kv) || 0;
-      const task = refreshPublicData(kind, valid ? previous : null, env, fetchImpl, now).then(async data => {
+      const task = refreshPublicData(kind, valid ? previous : null, env, { fetchImpl, now }).then(async data => {
         if (kind !== 'catalog' || generation === (generations.get(kv) || 0)) await kv.put(key, JSON.stringify(data));
         return data;
       }).catch(async error => {

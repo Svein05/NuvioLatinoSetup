@@ -34,7 +34,7 @@ async function variants(repository, directory, source) {
       try {
         await sharp(input).rotate().resize({ width, withoutEnlargement: true })
           .webp({ quality: options.quality ?? 82, lossless: options.lossless || false }).toFile(temporary);
-        if (!existsSync(target)) renameSync(temporary, target);
+        renameSync(temporary, target);
       } finally { rmSync(temporary, { force: true }); }
     }
     outputs.push({ width, url: `/assets/optimized/${name}` });

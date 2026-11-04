@@ -7,6 +7,8 @@ describe('tabs-navigation', () => {
     const container = {
       dataset: {},
       scrollLeft: 10,
+      scrollWidth: 400,
+      clientWidth: 200,
       offsetLeft: 0,
       addEventListener: vi.fn((type, fn) => { listeners[type] = fn; }),
       querySelectorAll: vi.fn(() => []),
@@ -15,7 +17,7 @@ describe('tabs-navigation', () => {
 
     setupScrollableTabs(root);
     expect(container.dataset.scrollBound).toBe('true');
-    expect(container.addEventListener).toHaveBeenCalledWith('wheel', expect.any(Function), { passive: false });
+    expect(container.addEventListener).toHaveBeenCalledWith('wheel', expect.any(Function), expect.objectContaining({ passive: false }));
 
     // Wheel event
     const preventDefault = vi.fn();

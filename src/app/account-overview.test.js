@@ -15,6 +15,7 @@ it('ignores late metadata from the previous profile without clearing the current
     settings: { tmdb_api_key: 'synthetic' }, addonsCount: 0, isCurrent: () => selected === title,
   });
   const previous = render('old');
+  await vi.waitFor(() => expect(finishPrevious).toBeTypeOf('function'));
   selected = 'new';
   await render('new');
   const calls = mocks.row.mock.calls.length;

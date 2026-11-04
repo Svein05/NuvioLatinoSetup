@@ -3,7 +3,7 @@ import { sceneState } from './scene-state.js';
 const rendered = new WeakMap();
 
 /** Render decorative scene state only. Never mount functional application controllers. */
-export function renderScene(scene, name, progress, inView, geometry = {}) {
+export function renderScene(scene, name, progress, { inView, ...geometry }) {
   const signature = [name, progress.toFixed(4), inView, window.innerWidth, window.innerHeight].join(':');
   if (rendered.get(scene) === signature) return;
   rendered.set(scene, signature);

@@ -16,7 +16,7 @@ function renderChapter({ story, chapters, viewportHeight, playback }) {
     const target = enhanced ? pinnedProgress(rectangle, viewportHeight, viewportHeight * .7) : 1;
     const inView = bounds.top < viewportHeight && bounds.bottom > 0;
     const progress = playback.value(scene, target, !enhanced || !inView || document.hidden);
-    renderScene(scene, chapter.dataset.chapter, progress, inView, { posterWidth, sceneWidth, sceneHeight });
+    renderScene(scene, chapter.dataset.chapter, progress, { inView, posterWidth, sceneWidth, sceneHeight });
   });
 }
 

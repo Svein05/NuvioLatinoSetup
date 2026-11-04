@@ -1,3 +1,4 @@
+import { publicCatalog } from './support/public-catalog.js';
 import { expect, test } from '@playwright/test';
 import { isolateExternalServices } from './support/offline-services.js';
 import { prepareAccount } from './support/account.js';
@@ -62,8 +63,7 @@ test('avatar previews complete actual rows after resize without dropping focus o
   await page.setViewportSize({ width: 390, height: 844 });
   await prepareAccount(page, 'rpc', { respondExternal(url, request) {
     if (request.method() === 'POST' && /sync_push|\/api\/avatars\/usage/.test(url.href)) writes.push(url.href);
-    if (url.pathname.includes('/git/ref/')) return { body: { object: { sha: 'a'.repeat(40) } } };
-    if (url.pathname.includes('/git/trees/')) return { body: { tree: Array.from({ length: 17 }, (_, i) => ({ type: 'blob', path: `assets/profile_icons/NetflixStyle/Naruto/Hero${i}.webp` })) } };
+    if (url.pathname === '/api/avatars/catalog') return { body: publicCatalog(Array.from({ length: 17 }, (_, i) => `NetflixStyle/Naruto/Hero${i}.webp`)) };
     if (url.pathname === '/api/avatars/ranking') return { body: { environment: 'testing', items: [], totalUsage: 0 } };
   } });
   await page.locator('.account-nav-btn[data-section="avatars"]').click();

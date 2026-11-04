@@ -31,7 +31,7 @@ export async function publicGitHub(env, fetchImpl, resource) {
   return readJson(response, resource.includes('/git/trees/') ? 6 * 1024 * 1024 : 128 * 1024);
 }
 
-export async function refreshPublicData(kind, previous, env, fetchImpl, now) {
+export async function refreshPublicData(kind, previous, env, { fetchImpl, now }) {
   if (kind === 'stars') {
     const data = await publicGitHub(env, fetchImpl, '');
     if (!Number.isSafeInteger(data.stargazers_count) || data.stargazers_count < 0) throw new WorkerError('Conteo inválido.', 502);
