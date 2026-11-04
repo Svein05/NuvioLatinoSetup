@@ -1,3 +1,5 @@
+import { readBoundedJson } from './response.js';
+
 /** Decode the public Stremio WatchedField format using its anchor against Cinemeta video order. */
 export async function watchedEpisodes(item, { signal, fetchImpl = fetch } = {}) {
   if (!item.state?.watched) return [];
@@ -26,13 +28,20 @@ export async function watchedEpisodes(item, { signal, fetchImpl = fetch } = {}) 
     credentials: 'omit', redirect: 'error',
   });
   if (!response.ok) throw new Error('episode metadata unavailable');
-  const videos = (await response.json()).meta?.videos;
+  const videos = (await readBoundedJson(response, 4 * 1024 * 1024)).meta?.videos;
   if (!Array.isArray(videos) || videos.length > 100000) throw new Error('invalid episode metadata');
+  // LibraryItemState sorts season zero first, unlike MetaItem's display order.
+  const number = value => Number.isSafeInteger(value) ? value : -Infinity;
+  videos.sort((a, b) => number(a.season) - number(b.season) || number(a.episode) - number(b.episode)
+    || (Date.parse(a.released) || -Infinity) - (Date.parse(b.released) || -Infinity));
+  if (videos.some(video => typeof video.id !== 'string') || new Set(videos.map(video => video.id)).size !== videos.length) {
+    throw new Error('ambiguous episode metadata');
+  }
   const anchorIndex = videos.findIndex(video => video.id === anchor);
   if (anchorIndex < 0) throw new Error('unknown watched anchor');
   const offset = length - anchorIndex - 1;
   return videos.flatMap((video, index) => {
     const bit = index + offset;
-    return bit >= 0 && (bits[Math.floor(bit / 8)] & (1 << (bit % 8))) ? [video.id] : [];
+    return bit >= 0 && bit < videos.length && (bits[Math.floor(bit / 8)] & (1 << (bit % 8))) ? [video.id] : [];
   });
 }
