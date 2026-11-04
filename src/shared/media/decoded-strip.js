@@ -47,7 +47,7 @@ export function mountDecodedStrip({ track, distance, duration, reverse = false, 
   document.addEventListener('visibilitychange', synchronize);
   reduced.addEventListener('change', synchronize);
   replacement = preload();
-  void step();
+  void replacement.then(() => { if (active) return step(); });
   return () => {
     active = false;
     track.dataset.stripPhase = String(Math.min(.999, Number(animation?.currentTime || 0) / duration));

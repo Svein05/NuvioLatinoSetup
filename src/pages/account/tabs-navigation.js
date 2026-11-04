@@ -1,10 +1,16 @@
+import { createLifetime } from '../../shared/ui/lifetime.js';
+
 export function setupScrollableTabs(root = document) {
   const container = root.querySelector?.('.account-tabs-pill');
   if (!container || container.dataset?.scrollBound === 'true') return;
   if (container.dataset) container.dataset.scrollBound = 'true';
+  const lifetime = createLifetime();
+  lifetime.add(() => { if (container.dataset) delete container.dataset.scrollBound; });
 
-  container.addEventListener('wheel', (e) => {
-    if (e.deltaY !== 0) {
+  lifetime.on(container, 'wheel', (e) => {
+    const overflow = container.scrollWidth - container.clientWidth;
+    const direction = e.deltaY > 0 ? container.scrollLeft < overflow - 1 : container.scrollLeft > 1;
+    if (e.deltaY !== 0 && overflow > 1 && direction && !e.ctrlKey) {
       e.preventDefault();
       container.scrollLeft += e.deltaY;
     }
@@ -15,7 +21,7 @@ export function setupScrollableTabs(root = document) {
   let scrollLeft = 0;
   let hasMoved = false;
 
-  container.addEventListener('mousedown', (e) => {
+  lifetime.on(container, 'mousedown', (e) => {
     isDown = true;
     hasMoved = false;
     startX = e.pageX - container.offsetLeft;
@@ -23,10 +29,10 @@ export function setupScrollableTabs(root = document) {
   });
 
   if (typeof window !== 'undefined') {
-    window.addEventListener('mouseup', () => { isDown = false; });
+    lifetime.on(window, 'mouseup', () => { isDown = false; });
   }
 
-  container.addEventListener('mousemove', (e) => {
+  lifetime.on(container, 'mousemove', (e) => {
     if (!isDown) return;
     const x = e.pageX - container.offsetLeft;
     const walk = x - startX;
@@ -38,14 +44,15 @@ export function setupScrollableTabs(root = document) {
   });
 
   container.querySelectorAll?.('.account-nav-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    lifetime.on(btn, 'click', (e) => {
       if (hasMoved) {
         e.preventDefault();
         e.stopImmediatePropagation();
         hasMoved = false;
       }
-    }, true);
+    }, { capture: true });
   });
+  return () => lifetime.dispose();
 }
 
 export function switchSection(sectionId, { root = document, state, onSectionActivated, updateUndoButton }) {

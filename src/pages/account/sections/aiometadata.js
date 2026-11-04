@@ -15,12 +15,12 @@ export function renderAioUnlockPrompt({ root = document, state, onUnlock, setupP
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
         <div>
-          <label class="text-xs text-white/70 block mb-1 font-medium">UUID del Addon</label>
+          <label for="inputAioUuidPrompt" class="text-xs text-white/70 block mb-1 font-medium">UUID del Addon</label>
           <input type="text" id="inputAioUuidPrompt" value="${escapeHtml(state.aioUuid || '')}" readonly
                  class="lat-field w-full text-xs font-mono opacity-80 cursor-not-allowed">
         </div>
         <div>
-          <label class="text-xs text-white/70 block mb-1 font-medium">Contraseña de AIOMetadata</label>
+          <label for="inputAioPasswordPrompt" class="text-xs text-white/70 block mb-1 font-medium">Contraseña de AIOMetadata</label>
           <div class="relative">
             <input type="password" id="inputAioPasswordPrompt" placeholder="Tu contraseña de addon"
                    class="lat-field w-full text-xs font-mono pr-10">
@@ -70,14 +70,14 @@ function buildAioHtml({ hasAddon, uuid, manifestUrl, stremioDeepLink, currentEng
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
           <div>
-            <label class="text-xs text-white/60 block mb-1">UUID de Configuración</label>
+            <label for="inputAioUuid" class="text-xs text-white/60 block mb-1">UUID de Configuración</label>
             <div class="flex gap-2">
               <input type="text" id="inputAioUuid" value="${escapeHtml(uuid)}" class="lat-field flex-1 text-xs font-mono">
               <button type="button" id="btnLoadAioByUuid" class="lat-capsule-btn glass text-xs py-1.5 px-3">Cargar</button>
             </div>
           </div>
           <div>
-            <label class="text-xs text-white/60 block mb-1">Contraseña de AIOMetadata</label>
+            <label for="inputAioPassword" class="text-xs text-white/60 block mb-1">Contraseña de AIOMetadata</label>
             <input type="password" id="inputAioPassword" value="${password || ''}" class="lat-field w-full text-xs font-mono">
           </div>
         </div>

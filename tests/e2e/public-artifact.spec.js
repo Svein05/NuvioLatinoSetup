@@ -3,7 +3,7 @@ import { isolateExternalServices } from './support/offline-services.js';
 
 test('compiled glass styles preserve the standard backdrop filter', async ({ page }) => {
   await isolateExternalServices(page);
-  await page.goto('/');
+  await page.goto('/account/');
   const declarations = await page.evaluate(() => {
     const selectors = ['.lat-floating-pill', '.lat-mobile-dropdown', '.lat-card',
       '.lat-toast', '.account-content-card'];

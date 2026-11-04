@@ -1,0 +1,49 @@
+/* Keep controls and text readable without changing decorative surfaces. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-estrella, #ffd479);
+  outline-offset: 4px;
+}
+:where(input, select, textarea) { min-inline-size: 0; max-inline-size: 100%; }
+:where(button, summary) { touch-action: manipulation; }
+:where(img, video) { max-inline-size: 100%; }
+:where(main, section, article, form, fieldset) { min-inline-size: 0; }
+:where(p, label, h1, h2, h3, h4, h5, h6) { overflow-wrap: break-word; }
+.lat-field:focus-visible { outline: 2px solid var(--color-estrella, #ffd479); outline-offset: 3px; }
+.tmdb-credit p { color: rgba(255,255,255,.65); }
+
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('../../../node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../../node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../../node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2') format('woff2');
+}
+
+@media (pointer: coarse) {
+  :where(button.lat-nav-tab, a.lat-nav-tab, #btnMobileHeaderMenu, .account-addon-actions button) {
+    min-inline-size: 44px;
+  }
+  /* Navigation controls share the shell's capsule height. */
+  :where(.account-addon-actions button) { min-block-size: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+@media (forced-colors: active) {
+  :where(button, input, select, textarea, summary) { border: 1px solid ButtonText; }
+  :focus-visible { outline-color: Highlight; }
+}

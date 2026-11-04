@@ -34,6 +34,11 @@ export function manageDialog(modal) {
     else if (!event.shiftKey && active === items.at(-1)) { event.preventDefault(); items[0].focus(); }
   };
   modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.tabIndex = -1;
+  const heading = modal.querySelector('h1,h2,h3,h4');
+  if (heading && !modal.hasAttribute('aria-label') && !modal.hasAttribute('aria-labelledby')) {
+    if (!heading.id) heading.id = `${modal.id}-heading`;
+    modal.setAttribute('aria-labelledby', heading.id);
+  }
   const observer = new MutationObserver(synchronize);
   observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
   modal.addEventListener('keydown', onKey);

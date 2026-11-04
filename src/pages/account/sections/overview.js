@@ -37,6 +37,9 @@ function cinemaCard({ item, details }, progress) {
   const card = node('div', 'nuvio-cinema-card group select-none');
   const poster = node('div', 'relative w-full aspect-[2/3] overflow-hidden bg-black/60');
   const image = node('img', 'poster-img');
+  image.width = 342;
+  image.height = 513;
+  image.decoding = 'async';
   image.src = posterSource(details?.poster_path || item.poster_url || item.poster);
   image.alt = title;
   image.loading = 'lazy';

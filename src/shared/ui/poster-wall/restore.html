@@ -2,17 +2,18 @@
 (() => {
   // Restore cached images while HTML is parsed, before the deferred application starts.
   const root = document.currentScript.parentElement;
+  const interior = /^\/(account|configuration)(?:\/|$)/.test(location.pathname);
+  if (interior && matchMedia('(max-width: 639px), (hover: none) and (pointer: coarse)').matches) return;
   try {
     const saved = JSON.parse(sessionStorage.getItem('nuvio_poster_view_v1'));
     if (!saved || Date.now() - saved.at > 3600000 || Date.now() < saved.at
       || saved.width !== innerWidth || saved.height !== root.clientHeight || saved.rows?.length !== 2) return;
     const width = Math.ceil(root.clientHeight / 3);
-    const count = Math.ceil(innerWidth / width) + 3;
+    const count = Math.ceil(innerWidth / width) + 1;
     const valid = saved.rows.every(row => row.sources?.length === count && Number.isFinite(row.phase)
       && row.phase >= 0 && row.phase < 1 && row.sources.every(source =>
         /^https:\/\/image\.tmdb\.org\/t\/p\/w(185|342|500|780)\/[A-Za-z0-9_-]+\.(jpg|png|webp)$/.test(source)));
     if (!valid) return;
-    const interior = /^\/(account|configuration)(?:\/|$)/.test(location.pathname);
     root.dataset.posterTheme = interior ? 'interior' : 'landing';
     root.dataset.posterStamp = saved.stamp;
     root.dataset.posterRestored = 'true';
@@ -28,7 +29,7 @@
       state.sources.forEach(source => {
         const image = document.createElement('img');
         image.alt = ''; image.width = width; image.height = Math.ceil(width * 1.5);
-        image.decoding = 'sync'; image.src = source;
+        image.decoding = 'async'; image.src = source;
         track.append(image);
       });
       root.querySelectorAll('[data-poster-row]')[index].append(track);

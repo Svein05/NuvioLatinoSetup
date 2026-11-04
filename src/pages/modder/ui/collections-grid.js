@@ -1,4 +1,5 @@
 import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
+import { responsiveImageAttributes } from '../../../shared/media/responsive-image.js';
 
 export function getCollectionPreviewLimit() {
   const grid = document.getElementById('collectionsGrid');
@@ -44,7 +45,7 @@ function renderCollectionCard(col, maxSlots, overrides, resolveCdnUrl) {
           const isDel = ov?.isDeleted;
           return `
             <div class="aspect-square w-full rounded-xl overflow-hidden bg-white/5 border ${isDel ? 'border-rose-500/60 opacity-40' : 'border-white/10'} relative group-hover:scale-105 transition-transform">
-              <img src="${escapeHtml(safeImageUrl(imgUrl))}" alt="${escapeHtml(av.fileName)}" class="w-full h-full object-cover" loading="lazy">
+              <img ${responsiveImageAttributes(imgUrl, '52px')} src="${escapeHtml(safeImageUrl(imgUrl))}" alt="${escapeHtml(av.fileName)}" class="w-full h-full object-cover" loading="lazy">
             </div>
           `;
         }).join('')}

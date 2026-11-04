@@ -1,3 +1,4 @@
+import { publicCatalog } from './support/public-catalog.js';
 import { expect, test } from '@playwright/test';
 import { isolateExternalServices } from './support/offline-services.js';
 
@@ -7,11 +8,7 @@ const sha = 'b'.repeat(40);
 async function prepareModder(page) {
   await isolateExternalServices(page);
   await page.addInitScript(() => sessionStorage.setItem('nuvio_modder_session', JSON.stringify({ token: 'synthetic', email: 'test@example.invalid' })));
-  await page.route('https://api.github.com/**', route => {
-    const pathname = new URL(route.request().url()).pathname;
-    return route.fulfill({ json: pathname.includes('/git/ref/') ? { object: { sha } }
-      : { tree: files.map(path => ({ type: 'blob', path: `assets/profile_icons/${path}` })) } });
-  });
+  await page.route('**/api/avatars/catalog', route => route.fulfill({ json: publicCatalog(files, sha) }));
   await page.goto('/modder/');
 }
 

@@ -7,6 +7,7 @@ export function posterPlaybackRate(progress) {
 /** Adjust CSS animation speed without changing its duration or restarting its phase. */
 export function createPosterMotion(root) {
   const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobile = window.matchMedia('(max-width: 639px), (hover: none) and (pointer: coarse)');
   const interior = root.dataset.posterTheme === 'interior';
   let frame = 0;
   let end = 1;
@@ -14,7 +15,9 @@ export function createPosterMotion(root) {
     frame = 0;
     const progress = interior ? 0 : Math.min(1, Math.max(0, window.scrollY / end));
     root.style.setProperty('--wall-visibility', interior ? '.22' : String(.9 - progress * .72));
-    root.classList.toggle('is-paused', media.matches || document.hidden);
+    const paused = media.matches || document.hidden || (mobile.matches && progress === 1);
+    root.classList.toggle('is-paused', paused);
+    if (paused) return;
     const rate = interior ? 1 : posterPlaybackRate(progress);
     root.querySelectorAll('.poster-wall-track').forEach(track => {
       track.getAnimations().forEach(animation => {
@@ -22,7 +25,10 @@ export function createPosterMotion(root) {
       });
     });
   };
-  const schedule = () => { if (!frame) frame = requestAnimationFrame(paint); };
+  const schedule = () => {
+    if (mobile.matches && window.scrollY >= end && root.classList.contains('is-paused')) return;
+    if (!frame) frame = requestAnimationFrame(paint);
+  };
   const refresh = () => {
     const chapter = document.querySelector('[data-chapter]');
     end = Math.max(1, chapter ? chapter.getBoundingClientRect().top + window.scrollY - root.clientHeight * .18
@@ -32,10 +38,12 @@ export function createPosterMotion(root) {
   document.addEventListener('visibilitychange', paint);
   window.addEventListener('scroll', schedule, { passive: true });
   media.addEventListener('change', paint);
+  mobile.addEventListener('change', paint);
   return { refresh, dispose() {
     cancelAnimationFrame(frame);
     document.removeEventListener('visibilitychange', paint);
     window.removeEventListener('scroll', schedule);
     media.removeEventListener('change', paint);
+    mobile.removeEventListener('change', paint);
   } };
 }

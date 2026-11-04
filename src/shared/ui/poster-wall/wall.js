@@ -1,6 +1,7 @@
 import { createPosterQueue } from './queue.js';
 import { createPosterRow } from './row.js';
 import { createPosterMotion } from './motion.js';
+import { createTaskScheduler } from '../../async/task-scheduler.js';
 
 function prepareFeed(root, feed) {
   if (!feed) return;
@@ -14,6 +15,7 @@ export function initPosterWall({ root, feed, storage }) {
   let resizeTimer;
   let width = window.innerWidth;
   const motion = createPosterMotion(root);
+  const schedule = createTaskScheduler(2);
   const ready = () => {
     const images = [...root.querySelectorAll('.poster-wall-track img')];
     if (root.querySelectorAll('.poster-wall-track').length === 2 && images.length && images.every(image => image.complete && image.naturalWidth > 0)) root.classList.add('is-ready');
@@ -23,7 +25,7 @@ export function initPosterWall({ root, feed, storage }) {
     rows.forEach(dispose => dispose(true));
     if (!queue) { motion.refresh(); return; }
     rows = [...root.querySelectorAll('[data-poster-row]')].map((row, index) =>
-      createPosterRow({ row, queue, reverse: index === 1, onReady: ready }));
+      createPosterRow({ row, queue, reverse: index === 1, onReady: ready, schedule }));
     motion.refresh();
   };
   const resize = () => {

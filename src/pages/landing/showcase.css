@@ -34,7 +34,7 @@
   align-items: center;
 }
 .story-copy { min-width: 0; }
-.story-copy h3 {
+.story-copy h2 {
   font: 400 clamp(36px, 4vw, 54px)/1.06 var(--font-serif);
   letter-spacing: -.02em;
   margin-bottom: 24px;

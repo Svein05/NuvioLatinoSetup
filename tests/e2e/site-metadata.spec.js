@@ -18,9 +18,9 @@ for (const blockedStorage of [false, true]) {
       Object.defineProperty(window, 'localStorage', { get() { throw new DOMException('synthetic blocked storage', 'SecurityError'); } });
     });
     let requests = 0;
-    await page.route('https://api.github.com/repos/Svein05/NuvioLatinoSetup', route => {
+    await page.route('**/api/repository/stars', route => {
       requests++;
-      return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ stargazers_count: 7 }) });
+      return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ count: 7 }) });
     });
     await page.goto('/');
     await expect(page.locator('.github-stars-count').first()).toHaveText('7');

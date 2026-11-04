@@ -1,8 +1,9 @@
 export function setAuthError(root, message = '') {
   const error = root.getElementById('accountAuthError');
-  if (error) { error.textContent = message; error.hidden = !message; }
+  if (error) { error.setAttribute('role', 'alert'); error.textContent = message; error.hidden = !message; }
   for (const id of ['accountEmail', 'accountPassword']) {
     const input = root.getElementById(id);
+    input?.setAttribute('aria-invalid', String(message === 'Correo o contraseña incorrectos.'));
     if (message) input?.setAttribute('aria-describedby', 'accountAuthError');
     else input?.removeAttribute('aria-describedby');
   }

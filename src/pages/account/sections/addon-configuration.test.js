@@ -29,6 +29,8 @@ it('retains configurable hints independently of missing or malformed artwork', a
 
 it('falls back once in the view and removes its error listener', () => {
   const image = { dataset: { imageFallback: 'avatar' }, src: '/broken.webp', complete: true, naturalWidth: 0,
+    hasAttribute() { return false; },
+    removeAttribute() {},
     getAttribute() { return this.src; } };
   const root = { querySelectorAll: () => [image], addEventListener: vi.fn(), removeEventListener: vi.fn() };
   const dispose = initImageFallbacks(root);

@@ -12,6 +12,8 @@ incluirse en JavaScript del navegador, archivos del repositorio ni artefactos p�
 | `POST /api/save-staged-changes` | Publica un lote de avatares validado; devuelve `{ success, commit, count }` tras confirmar la actualización de la referencia Git. |
 | `/https://host/path` | Proxy de compatibilidad limitado a hosts HTTPS permitidos. |
 | `GET /api/avatars/ranking?limit=8` | Devuelve `items`, `totalUsage` y el entorno; el límite 1–32 solo afecta al top visible. |
+| `GET /api/avatars/catalog` | Catálogo público con `registry`, revisión Git y hashes de los archivos; caché de cinco minutos. |
+| `GET /api/repository/stars` | Devuelve `count` y `updatedAt`; caché de seis horas. |
 | `POST /api/avatars/usage` | Recibe `{ key }` y una sesión Nuvio Bearer; confirma `recorded` o `duplicate` tras un guardado de avatar o creación de perfil confirmados. |
 | `POST /api/avatars/suggestions` | Recibe un formulario autenticado; confirma `sent` tras la respuesta de Discord o un envío ya confirmado con ese identificador. |
 | `GET /api/completions` | Lee el total confirmado de setups del entorno. |

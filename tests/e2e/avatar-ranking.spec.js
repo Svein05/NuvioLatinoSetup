@@ -1,3 +1,4 @@
+import { publicCatalog } from './support/public-catalog.js';
 import { expect, test } from '@playwright/test';
 import { prepareAccount } from './support/account.js';
 
@@ -19,8 +20,7 @@ for (const failProfileSave of [false, true]) {
         }
       },
       respondExternal(url, request) {
-        if (url.pathname.includes('/git/ref/')) return { body: { object: { sha } } };
-        if (url.pathname.includes('/git/trees/')) return { body: { tree: [{ type: 'blob', path: `assets/profile_icons/${key}` }] } };
+        if (url.pathname === '/api/avatars/catalog') return { body: publicCatalog([key], sha) };
         if (url.pathname === '/api/avatars/ranking') return { body: { environment: 'testing', items: [{ key, score: 7 }] } };
         if (url.pathname === '/api/avatars/usage') {
           events.push('vote');

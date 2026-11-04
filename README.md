@@ -155,6 +155,18 @@ una versión de la web. Al integrar esos cambios, conserva rutas y archivos orig
 Ejecuta `node scripts/generate-avatar-manifest.js` para actualizar el catálogo incluido;
 su fecha procede de `version.json`. La actualización del catálogo remoto es independiente.
 
+### Imágenes y recursos
+
+El servidor de desarrollo y el build generan variantes WebP adaptables con Sharp.
+Los originales de `assets/` se conservan; los derivados con hash se guardan en una
+caché local ignorada y se publican únicamente dentro de `dist/assets/optimized/`.
+La primera ejecución puede tardar más mientras se preparan; las siguientes reutilizan
+la caché. Las miniaturas de presentación no sustituyen las URLs guardadas en Nuvio.
+
+El catálogo remoto y las estrellas se consultan mediante la caché pública del Worker,
+con respaldo del catálogo incluido y del último conteo confirmado. Consulta los
+[contratos y el orden de publicación](worker/PERFORMANCE.md) antes de desplegar.
+
 ## Créditos
 
 - [Nuvio](https://nuvio.tv/) y su comunidad.
