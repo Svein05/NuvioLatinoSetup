@@ -13,5 +13,6 @@
 @import '../features/addons/ui/drag.css';
 @import '../features/avatars/ui/comparison.css';
 @import '../shared/ui/poster-wall/wall.css';
+@import '../pages/configuration/migration/styles.css';
 @import '../pages/configuration/steps/refinements.css';
 @import '../pages/configuration/tutorial/styles.css';

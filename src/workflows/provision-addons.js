@@ -1,4 +1,5 @@
 import { isAioMetadataAddon } from '../features/addons/index.js';
+import { prepareMigrationAddons, verifyMigrationAddons } from './migration-addons.js';
 
 async function generateAioStreamsConfig({ state, config, services }) {
   let template = state.rawAioStreamsTemplate;
@@ -69,6 +70,9 @@ export async function runAddonsPhase({ state, config, services, isSimulation, ma
     existingAioId: state.existingAioAddon?.id || null,
   });
   const finalAioId = aioResult?.addonId || state.existingAioAddon?.id || null;
+  const migrationContext = { apiUrl: config.nuvioApiUrl, apikey: auth?.apikey || config.nuvioPublicAnonKey,
+    accessToken: auth?.accessToken, userId: auth?.userId, profileId: targetProfileId };
+  await prepareMigrationAddons(state, client, migrationContext);
 
   const secondaryAddons = (state.profileAddons || []).filter(a => !isAioMetadataAddon(a));
   for (const addon of secondaryAddons) {
@@ -91,4 +95,5 @@ export async function runAddonsPhase({ state, config, services, isSimulation, ma
     addons: finalAddons,
   });
   log(`✓ ${secondaryAddons.length} addons organizados y sincronizados.`, 'success');
+  await verifyMigrationAddons(state, client, migrationContext, secondaryAddons);
 }

@@ -1,6 +1,10 @@
 import { createLifetime } from '../shared/ui/lifetime.js';
 import { bindWizardCommands } from '../pages/configuration/commands.js';
 import { managePageDialogs } from '../shared/ui/dialog-accessibility.js';
+import { mountMigration } from '../pages/configuration/migration/controller.js';
+import { readStremioAccount } from '../integrations/stremio/client.js';
+import { watchedEpisodes } from '../integrations/stremio/watched.js';
+import { readMigrationSnapshot } from '../workflows/read-stremio-account.js';
 
 function connectWizard(controller, state, lifetime) {
   bindWizardCommands({ controller, lifetime });
@@ -14,6 +18,9 @@ function connectWizard(controller, state, lifetime) {
   controller.setupStep7Injection();
   lifetime.add(controller.setupPasswordToggles());
   controller.restoreSession();
+  lifetime.add(mountMigration({ state, saveSession: () => controller.saveSession(), readSnapshot: credentials => readMigrationSnapshot(credentials, {
+    readAccount: readStremioAccount, readWatched: watchedEpisodes,
+  }) }));
   lifetime.add(state.subscribe((snapshot, eventType) => controller.handleStateUpdate(snapshot, eventType)));
   lifetime.add(() => {
     controller.disposeAuthStep?.(); controller.disposeApiKeys?.(); controller.disposeProfilesStep?.();

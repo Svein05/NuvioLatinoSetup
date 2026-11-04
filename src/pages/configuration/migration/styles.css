@@ -1,0 +1,6 @@
+.migration-dialog { max-height: calc(100svh - 2rem); overflow-y: auto; }
+.migration-list { max-height: 13rem; overflow-y: auto; overflow-wrap: anywhere; }
+.migration-choice { display: flex; align-items: center; gap: .75rem; padding: .65rem; border: 1px solid #ffffff20; border-radius: .8rem; }
+.migration-choice input { accent-color: #ffd479; width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.migration-close { position: absolute; right: 1rem; top: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #ffffff12; }
+.migration-summary { margin-top: 1rem; border: 1px solid #ffd47940; border-radius: 1rem; padding: 1rem; font-size: .8125rem; }
