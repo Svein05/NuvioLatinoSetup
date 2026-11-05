@@ -2,6 +2,17 @@ import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { attachMigrationNavigation } from './navigation.js';
 import { renderMigrationReview, renderMigrationSummary } from './view.js';
 
+function clearMigrationPassword(modal) {
+  const input = modal.querySelector('#migrationPassword');
+  input.value = '';
+  input.type = 'password';
+  const toggle = modal.querySelector('#btnToggleMigrationPassword');
+  toggle.title = 'Mostrar contraseña';
+  toggle.setAttribute('aria-label', toggle.title);
+  toggle.setAttribute('aria-pressed', 'false');
+  toggle.querySelector('i').className = 'fa-solid fa-eye text-xs pointer-events-none';
+}
+
 function createMigrationReader({ modal, readSnapshot, show, accept }) {
   let request;
   const password = modal.querySelector('#migrationPassword');
@@ -17,7 +28,7 @@ function createMigrationReader({ modal, readSnapshot, show, accept }) {
     error.classList.add('hidden');
     try {
       const reading = readSnapshot({ email: modal.querySelector('#migrationEmail').value.trim(), password: password.value, signal: current.signal });
-      password.value = '';
+      clearMigrationPassword(modal);
       const snapshot = await reading;
       if (current.signal.aborted || request !== current) return;
       accept(snapshot);
@@ -35,7 +46,7 @@ function createMigrationReader({ modal, readSnapshot, show, accept }) {
       }
     }
   };
-  return { run, cancel: () => { request?.abort(); password.value = ''; } };
+  return { run, cancel: () => { request?.abort(); clearMigrationPassword(modal); } };
 }
 
 function connectMigrationActions({ modal, state, lifetime, controls }) {
