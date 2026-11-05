@@ -76,6 +76,7 @@ function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
       state.migrationEnabled = true;
       state.migrationStage = panel;
       if (panel === 'review') synchronizeMigrationSelection(flow, state);
+      modal.ownerDocument.querySelector('#btnStartStremioMigration').hidden = true;
       updateUI();
       flow.querySelector(`[data-migration-panel="${panel}"] input, [data-migration-panel="${panel}"] button`)?.focus();
       return;
@@ -97,8 +98,13 @@ function createSummary(root) {
   const summary = root.createElement('section');
   summary.className = 'migration-summary';
   summary.hidden = true;
-  root.querySelector('#step-7')?.append(summary);
+  (root.querySelector('#summaryAddonsStatus')?.closest('.lat-card') || root.querySelector('#step-7'))?.append(summary);
   return summary;
+}
+
+function refreshMigrationStatus(root, summary, state) {
+  root.querySelector('#btnStartStremioMigration').hidden = Boolean(state.migrationEnabled || state.migration || state.migrationNeedsReconnect);
+  renderMigrationSummary(summary, state);
 }
 
 export function mountMigration({ state, readSnapshot, saveSession, updateUI, root = document }) {
@@ -110,7 +116,7 @@ export function mountMigration({ state, readSnapshot, saveSession, updateUI, roo
   const flow = root.querySelector('#stremioMigrationSteps');
   const error = flow.querySelector('[data-migration-error]');
   const summary = createSummary(root);
-  const refresh = () => renderMigrationSummary(summary, state);
+  const refresh = () => refreshMigrationStatus(root, summary, state);
   const show = createDialogPresentation({ modal, flow, state, lifetime, updateUI });
   const close = () => {
     reader.cancel();

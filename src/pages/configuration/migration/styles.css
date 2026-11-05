@@ -1,6 +1,6 @@
 .migration-dialog { max-height: calc(100svh - 2rem); overflow-y: auto; }
 .migration-close { position: absolute; right: 1rem; top: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #ffffff12; }
-.migration-summary { margin-top: 1rem; border: 1px solid #ffd47940; border-radius: 1rem; padding: 1rem; font-size: .8125rem; }
+.migration-summary { border-top: 1px solid rgb(255 255 255 / .08); padding-top: 1.25rem; font-size: .8125rem; }
 [data-migration-route][hidden] { display: none !important; }
 
 .migration-brand { display: flex; align-items: center; gap: .75rem; }
@@ -53,3 +53,14 @@
 .migration-addon-logo { position: relative; flex: 0 0 2rem; width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: .5rem; background: rgb(255 255 255 / .05); color: rgb(255 255 255 / .5); }
 .migration-addon-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; background: #181b20; }
 @media (prefers-reduced-motion: reduce) { .migration-addon-collapse { transition: none; } }
+
+#btnStartStremioMigration[hidden] { display: none !important; }
+.migration-addon-grid { padding: .25rem; margin: -.25rem; }
+.migration-addon:focus-within { outline: none; box-shadow: inset 0 0 0 2px #ffd479; }
+.migration-addon-collapse.is-open > div { overflow: visible; }
+.migration-summary-heading { display: flex; align-items: center; gap: .6rem; font-size: .875rem; font-weight: 600; }
+.migration-summary-rows { display: grid; gap: .7rem; margin-top: 1rem; }
+.migration-summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; color: rgb(255 255 255 / .6); }
+.migration-summary-row > span:last-child { text-align: end; }
+.migration-summary-row strong { color: #fff; font-variant-numeric: tabular-nums; font-weight: 500; }
+.migration-summary-row small { display: block; font-size: .7rem; color: #ffd479; margin-top: .2rem; }

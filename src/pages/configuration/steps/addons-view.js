@@ -42,11 +42,12 @@ function renderAddonDetails(addon, debridsMap = {}) {
       </div>
     `;
   }
+  const stremioSymbol = document.querySelector('[data-stremio-symbol]')?.src || '';
   const name = addon.name || 'Addon';
   const url = addon.manifest_url || addon.url || '';
   return `
     <div class="min-w-0 flex-1">
-      <h4 class="font-semibold text-sm sm:text-base text-white truncate">${escapeHtml(name)}</h4>
+      <h4 class="font-semibold text-sm sm:text-base text-white flex items-center gap-2"><span class="truncate">${escapeHtml(name)}</span>${addon.migrationSource ? `<img src="${stremioSymbol}" alt="Importado de Stremio" title="Importado de Stremio" class="w-4 h-4 shrink-0">` : ''}</h4>
       <p class="text-[10px] sm:text-[11px] font-mono text-white/40 truncate mt-0.5 select-all" title="${escapeHtml(url)}">
         ${escapeHtml(url || 'Sin URL de manifiesto')}
       </p>

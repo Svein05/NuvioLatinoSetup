@@ -44,14 +44,14 @@ export function renderMigrationSummary(container, state) {
   const snapshot = state.migration;
   container.hidden = !snapshot;
   if (!snapshot) return;
-  const target = state.selectedProfileName || 'Por elegir';
   const rows = Object.entries(categoryLabels).filter(([key]) => snapshot.selected[key]).map(([key, label]) => {
     const count = key === 'addons' ? snapshot.addons.filter(addon => addon.selected).length : snapshot[key].length;
     const result = !snapshot.targetProfile || snapshot.targetProfile === String(state.selectedProfileId) ? snapshot.results[key] : null;
     const status = result?.status === 'confirmed' ? 'Confirmado' : result?.status === 'uncertain' ? 'Pendiente de verificación'
       : result?.status === 'failed' ? 'Pendiente de reintento' : result?.status === 'writing' ? 'Guardando'
         : result?.status === 'reading' ? 'Comprobando destino' : 'Preparado';
-    return `<li>${label} · ${count} · ${status}</li>`;
+    return `<li class="migration-summary-row"><span>${label}</span><span><strong>${count}</strong>${result ? `<small>${status}</small>` : ''}</span></li>`;
   }).join('');
-  container.innerHTML = `<h3 class="font-semibold">Importación de Stremio</h3><p class="mt-1">Perfil destino: ${escapeHtml(target)}</p><ul class="mt-2 space-y-1">${rows}</ul><p class="mt-2 text-white/60">Se conservarán los datos que ya existen en Nuvio.</p>`;
+  const stremioSymbol = container.ownerDocument.querySelector('[data-stremio-symbol]').src;
+  container.innerHTML = `<h3 class="migration-summary-heading"><img src="${stremioSymbol}" alt="" width="24" height="24">Desde Stremio</h3><ul class="migration-summary-rows">${rows}</ul>`;
 }
