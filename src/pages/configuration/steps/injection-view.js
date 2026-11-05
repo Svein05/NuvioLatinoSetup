@@ -36,7 +36,11 @@ export function updateManualModeButtons(root, state) {
 
   const toggle = (id, visible) => {
     const el = root.querySelector?.(id);
-    if (el) el.classList.toggle('hidden', !visible);
+    if (el) {
+      el.classList.toggle('hidden', !visible);
+      el.hidden = !visible;
+      el.style.display = visible ? 'flex' : 'none';
+    }
   };
 
   toggle('#btnCopyBadgeUrl', isBadgesEnabled);

@@ -63,8 +63,8 @@ function bindManualCopyActions({ lifetime, root, state, actions }) {
     } catch { actions.notify?.('No se pudo copiar automáticamente al portapapeles.', 'warning'); }
   });
 
-  lifetime.on(root.querySelector?.('#btnCopyBadgeUrl'), 'click', () => actions.copyBadgeJsonUrl?.());
-  lifetime.on(root.querySelector?.('#btnCopyBadgeCompiledJson'), 'click', () => actions.copyCompiledBadgeJson?.());
+  lifetime.on(root.querySelector?.('#btnCopyBadgeUrl'), 'click', () => { if (state.preferences?.badgesEnabled) actions.copyBadgeJsonUrl?.(); });
+  lifetime.on(root.querySelector?.('#btnCopyBadgeCompiledJson'), 'click', () => { if (state.preferences?.badgesEnabled) actions.copyCompiledBadgeJson?.(); });
   lifetime.on(root.querySelector?.('#btnCopyAioStreamsManifest'), 'click', () => actions.copyAioStreamsManifest?.());
 }
 
@@ -88,7 +88,7 @@ function bindManualDownloadActions({ lifetime, root, state, actions }) {
     actions.checkCompletion?.();
   });
 
-  lifetime.on(root.querySelector?.('#btnDownloadBadges'), 'click', () => actions.downloadCompiledBadgeJson?.());
+  lifetime.on(root.querySelector?.('#btnDownloadBadges'), 'click', () => { if (state.preferences?.badgesEnabled) actions.downloadCompiledBadgeJson?.(); });
 }
 
 function bindExecutePipeline({ lifetime, root, state, actions }) {
