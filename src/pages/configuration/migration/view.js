@@ -47,10 +47,9 @@ export function renderMigrationSummary(container, state) {
   const rows = Object.entries(categoryLabels).filter(([key]) => snapshot.selected[key]).map(([key, label]) => {
     const count = key === 'addons' ? snapshot.addons.filter(addon => addon.selected).length : snapshot[key].length;
     const result = !snapshot.targetProfile || snapshot.targetProfile === String(state.selectedProfileId) ? snapshot.results[key] : null;
-    const status = result?.status === 'confirmed' ? 'Confirmado' : result?.status === 'uncertain' ? 'Pendiente de verificación'
-      : result?.status === 'failed' ? 'Pendiente de reintento' : result?.status === 'writing' ? 'Guardando'
-        : result?.status === 'reading' ? 'Comprobando destino' : 'Preparado';
-    return `<li class="migration-summary-row"><span>${label}</span><span><strong>${count}</strong>${result ? `<small>${status}</small>` : ''}</span></li>`;
+    const warning = result?.status === 'uncertain' ? 'Pendiente de verificación'
+      : result?.status === 'failed' ? 'Pendiente de reintento' : '';
+    return `<li class="migration-summary-row"><span>${label}</span><span><strong>${count}</strong>${warning ? `<small>${warning}</small>` : ''}</span></li>`;
   }).join('');
   const stremioSymbol = container.ownerDocument.querySelector('[data-stremio-symbol]').src;
   container.innerHTML = `<h3 class="migration-summary-heading"><img src="${stremioSymbol}" alt="" width="24" height="24">Desde Stremio</h3><ul class="migration-summary-rows">${rows}</ul>`;
