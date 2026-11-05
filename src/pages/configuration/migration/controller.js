@@ -1,6 +1,6 @@
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { attachMigrationNavigation } from './navigation.js';
-import { renderMigrationReview, renderMigrationSummary } from './view.js';
+import { renderMigrationReview, renderMigrationSummary, synchronizeMigrationSelection } from './view.js';
 
 function clearMigrationPassword(modal) {
   const input = modal.querySelector('#migrationPassword');
@@ -62,6 +62,7 @@ function connectMigrationActions({ modal, state, lifetime, controls }) {
   };
   lifetime.on(modal, 'click', dispatch);
   lifetime.on(controls.flow, 'click', dispatch);
+  lifetime.on(controls.flow, 'change', () => { synchronizeMigrationSelection(controls.flow, state); controls.updateUI(); });
 }
 
 function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
@@ -73,6 +74,7 @@ function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
       modal.classList.remove('flex');
       state.migrationEnabled = true;
       state.migrationStage = panel;
+      if (panel === 'review') synchronizeMigrationSelection(flow, state);
       updateUI();
       flow.querySelector(`[data-migration-panel="${panel}"] input, [data-migration-panel="${panel}"] button`)?.focus();
       return;
@@ -132,7 +134,7 @@ export function mountMigration({ state, readSnapshot, saveSession, updateUI, roo
   const accept = () => {
     if (!pending) return;
     pending.selected = Object.fromEntries([...flow.querySelectorAll('[data-migration-category]')].map(input => [input.dataset.migrationCategory, input.checked]));
-    if (!Object.values(pending.selected).some(Boolean)) { skip(); return; }
+    if (!state.migrationSelectionReady) return;
     pending.addons.forEach((addon, index) => { addon.selected = flow.querySelector(`[data-migration-addon="${index}"]`).checked; });
     state.migration = pending;
     state.migrationNeedsReconnect = false;
@@ -141,7 +143,7 @@ export function mountMigration({ state, readSnapshot, saveSession, updateUI, roo
     close();
     refresh();
   };
-  connectMigrationActions({ modal, state, lifetime, controls: { flow, reader, skip, close, actions: {
+  connectMigrationActions({ modal, state, lifetime, controls: { flow, reader, skip, close, updateUI, actions: {
     login: () => show('login'), skip, accept, connect: close,
     manual: () => { const proceed = manual; skip(); proceed?.(); },
   } } });
@@ -151,7 +153,7 @@ export function mountMigration({ state, readSnapshot, saveSession, updateUI, roo
   lifetime.add(() => { close(); summary.remove(); delete state.requestMigrationManualMode; });
   if (state.migrationNeedsReconnect) {
     show('login');
-    error.textContent = 'Vuelve a conectar Stremio para recuperar la importación pendiente, o continúa sin importar.';
+    error.textContent = 'Vuelve a conectar Stremio para recuperar la importación pendiente.';
     error.classList.remove('hidden');
   } else if (!state.nuvioAuth?.isAuthenticated && state.currentStep === 1) show('choice');
   refresh();

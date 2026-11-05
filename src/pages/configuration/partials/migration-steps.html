@@ -22,16 +22,25 @@
       <p class="text-xs text-white/50">Si entras con Google o Apple, necesitas una contraseña de Stremio para conectar aquí.</p>
       <p data-migration-error role="alert" class="hidden text-sm text-rose-300"></p>
       <button type="submit" data-migration-submit class="lat-capsule-btn solid w-full">Leer mi cuenta de Stremio</button>
-      <button type="button" data-migration-action="skip" class="lat-capsule-btn glass w-full">Continuar sin importar</button>
     </form>
-    <div id="migration-review" data-migration-panel="review" class="step-content space-y-4 max-w-3xl mx-auto w-full">
-      <h2 class="font-serif text-3xl">Elige qué quieres importar</h2>
-      <p class="text-sm text-white/70">Elige qué quieres traer. Lo guardarás al completar la configuración en el perfil de Nuvio que selecciones.</p>
-      <div data-migration-categories class="space-y-2"></div>
-      <div data-migration-addons class="migration-list space-y-2"></div>
-      <details class="text-sm text-white/60"><summary>Elementos omitidos <span data-migration-omitted-count></span></summary><ul data-migration-omitted class="migration-list mt-2 space-y-2"></ul></details>
-      <p class="text-xs text-white/50">Los datos existentes de Nuvio tienen prioridad. En los episodios vistos se conserva la fecha del estado de Stremio, que puede ser compartida por varios episodios.</p>
-      <button type="button" data-migration-action="accept" class="lat-capsule-btn solid w-full">Continuar con esta selección</button>
-      <button type="button" data-migration-action="skip" class="lat-capsule-btn glass w-full">Continuar sin importar</button>
+    <div id="migration-review" data-migration-panel="review" class="step-content space-y-6 max-w-4xl mx-auto w-full">
+      <header class="text-center space-y-2">
+        <h2 class="font-serif text-2xl sm:text-3xl">Trae tu biblioteca contigo</h2>
+        <p class="text-sm text-white/60">Elige los datos de Stremio que quieres llevar a Nuvio.</p>
+      </header>
+      <fieldset class="migration-categories" data-migration-categories aria-label="Datos para importar"></fieldset>
+      <section class="migration-addon-section" data-migration-addon-section aria-labelledby="migrationAddonsTitle">
+        <div class="migration-section-heading">
+          <h3 id="migrationAddonsTitle" class="text-sm font-semibold">Addons para importar</h3>
+          <span data-migration-addon-count class="text-xs text-white/50" aria-live="polite"></span>
+        </div>
+        <fieldset data-migration-addons class="migration-addon-grid" aria-label="Seleccionar addons"></fieldset>
+      </section>
+      <details class="migration-notes" data-migration-omissions>
+        <summary>Elementos que no se importarán <span data-migration-omitted-count></span></summary>
+        <ul data-migration-omitted class="mt-3 space-y-2"></ul>
+      </details>
+      <p class="text-xs text-white/50 text-center">Tus datos se guardarán al finalizar la configuración. Lo que ya tienes en Nuvio se conserva.</p>
+      <p data-migration-selection-error role="status" class="hidden text-sm text-amber-300 text-center">Selecciona al menos un dato o addon para continuar.</p>
     </div>
 </div>

@@ -93,7 +93,8 @@ export function updateNavigationButtons(root, state) {
   const btnNext = root.querySelector?.('#btnNext');
   if (!btnNext) return;
 
-  const val = state.migrationStage ? { valid: state.migrationStage === 'review', error: 'Conecta Stremio para continuar' } : state.validateStep(state.currentStep);
+  const val = state.migrationStage ? { valid: state.migrationStage === 'review' && state.migrationSelectionReady,
+    error: state.migrationStage === 'review' ? 'Selecciona los datos que quieres importar' : 'Conecta Stremio para continuar' } : state.validateStep(state.currentStep);
   if (val.valid) {
     btnNext.disabled = false;
     btnNext.className = 'lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-lift)] cursor-pointer flex items-center gap-1.5';
