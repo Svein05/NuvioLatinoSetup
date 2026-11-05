@@ -50,6 +50,17 @@ function createMigrationReader({ modal, readSnapshot, show, accept }) {
 }
 
 function connectMigrationActions({ modal, state, lifetime, controls }) {
+  lifetime.on(modal.ownerDocument.querySelector('.lat-nav-tab[aria-label="Asistente"]'), 'click', event => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (!state.migrationEnabled && !state.migrationNeedsReconnect && !state.migration) return;
+    event.preventDefault();
+    state.currentStep = 1;
+    state.isManualMode = false;
+    controls.skip();
+    controls.flow.querySelector('form').reset();
+    controls.flow.querySelector('[data-migration-error]').classList.add('hidden');
+    modal.ownerDocument.querySelector('#nuvioEmail')?.focus();
+  });
   lifetime.on(modal.ownerDocument.querySelector('#btnStartStremioMigration'), 'click', controls.actions.login);
   lifetime.on(controls.flow.querySelector('form'), 'submit', controls.reader.run);
   lifetime.on(modal.querySelector('#btnCancelMigration'), 'click', () => {
