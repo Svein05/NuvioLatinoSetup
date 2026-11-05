@@ -2,7 +2,7 @@ function drawerHeight(drawer) {
   const list = drawer.querySelector('#drawerStepList');
   if (!list) return drawer.scrollHeight;
   const style = getComputedStyle(list);
-  const items = [...list.children];
+  const items = [...list.children].filter(item => item.getClientRects().length);
   const listHeight = items.reduce((height, item) => height + item.getBoundingClientRect().height, 0)
     + Math.max(0, items.length - 1) * (parseFloat(style.rowGap) || 0)
     + (parseFloat(style.paddingTop) || 0) + (parseFloat(style.paddingBottom) || 0);

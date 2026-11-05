@@ -18,7 +18,7 @@ function connectWizard(controller, state, lifetime) {
   controller.setupStep7Injection();
   lifetime.add(controller.setupPasswordToggles());
   controller.restoreSession();
-  lifetime.add(mountMigration({ state, saveSession: () => controller.saveSession(), readSnapshot: credentials => readMigrationSnapshot(credentials, {
+  lifetime.add(mountMigration({ state, updateUI: () => controller.updateUI(), saveSession: () => controller.saveSession(), readSnapshot: credentials => readMigrationSnapshot(credentials, {
     readAccount: readStremioAccount, readWatched: watchedEpisodes,
   }) }));
   lifetime.add(state.subscribe((snapshot, eventType) => controller.handleStateUpdate(snapshot, eventType)));

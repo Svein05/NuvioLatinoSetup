@@ -1,4 +1,5 @@
 import { createLifetime } from '../../../shared/ui/lifetime.js';
+import { attachMigrationNavigation } from './navigation.js';
 import { renderMigrationReview, renderMigrationSummary } from './view.js';
 
 function createMigrationReader({ modal, readSnapshot, show, accept }) {
@@ -12,6 +13,7 @@ function createMigrationReader({ modal, readSnapshot, show, accept }) {
     const current = request = new AbortController();
     submit.disabled = true;
     submit.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Leyendo tu cuenta...';
+    accept(null);
     error.classList.add('hidden');
     try {
       const reading = readSnapshot({ email: modal.querySelector('#migrationEmail').value.trim(), password: password.value, signal: current.signal });
@@ -37,20 +39,32 @@ function createMigrationReader({ modal, readSnapshot, show, accept }) {
 }
 
 function connectMigrationActions({ modal, state, lifetime, controls }) {
-  lifetime.on(modal.querySelector('form'), 'submit', controls.reader.run);
+  lifetime.on(controls.flow.querySelector('form'), 'submit', controls.reader.run);
   lifetime.on(modal.querySelector('#btnCancelMigration'), 'click', () => {
     if (state.migrationNeedsReconnect) controls.skip();
     else controls.close();
   });
-  lifetime.on(modal, 'click', event => {
+  const dispatch = event => {
     const action = event.target.closest('[data-migration-action]')?.dataset.migrationAction;
     controls.actions[action]?.();
-  });
+  };
+  lifetime.on(modal, 'click', dispatch);
+  lifetime.on(controls.flow, 'click', dispatch);
 }
 
-function createDialogPresentation(modal, lifetime) {
+function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
   let animation;
   const show = panel => {
+    if (panel === 'login' || panel === 'review') {
+      if (panel === 'review' && !state.migrationReviewReady) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      state.migrationEnabled = true;
+      state.migrationStage = panel;
+      updateUI();
+      flow.querySelector(`[data-migration-panel="${panel}"] input, [data-migration-panel="${panel}"] button`)?.focus();
+      return;
+    }
     modal.querySelectorAll('[data-migration-panel]').forEach(node => node.classList.toggle('hidden', node.dataset.migrationPanel !== panel));
     modal.classList.remove('hidden');
     modal.classList.add('flex');
@@ -72,35 +86,42 @@ function createSummary(root) {
   return summary;
 }
 
-export function mountMigration({ state, readSnapshot, saveSession, root = document }) {
+export function mountMigration({ state, readSnapshot, saveSession, updateUI, root = document }) {
   const modal = root.querySelector('#modalStremioMigration');
   if (!modal) return () => {};
   const lifetime = createLifetime();
   let pending;
   let manual;
-  const error = modal.querySelector('[data-migration-error]');
+  const flow = root.querySelector('#stremioMigrationSteps');
+  const error = flow.querySelector('[data-migration-error]');
   const summary = createSummary(root);
   const refresh = () => renderMigrationSummary(summary, state);
-  const show = createDialogPresentation(modal, lifetime);
+  const show = createDialogPresentation({ modal, flow, state, lifetime, updateUI });
   const close = () => {
     reader.cancel();
-    pending = null;
+    state.migrationStage = null;
     modal.classList.add('hidden');
     modal.classList.remove('flex');
+    updateUI();
   };
   const skip = () => {
     state.migration = null;
+    state.profileAddons = (state.profileAddons || []).filter(addon => !addon.migrationSource);
+    state.hasLoadedAddonsForProfile = null;
+    pending = null;
+    state.migrationEnabled = false;
+    state.migrationReviewReady = false;
     state.migrationNeedsReconnect = false;
     close();
     saveSession?.();
     refresh();
   };
-  const reader = createMigrationReader({ modal, readSnapshot, show, accept: value => { pending = value; } });
+  const reader = createMigrationReader({ modal: flow, readSnapshot, show, accept: value => { pending = value; state.migrationReviewReady = Boolean(value); updateUI(); } });
   const accept = () => {
     if (!pending) return;
-    pending.selected = Object.fromEntries([...modal.querySelectorAll('[data-migration-category]')].map(input => [input.dataset.migrationCategory, input.checked]));
+    pending.selected = Object.fromEntries([...flow.querySelectorAll('[data-migration-category]')].map(input => [input.dataset.migrationCategory, input.checked]));
     if (!Object.values(pending.selected).some(Boolean)) { skip(); return; }
-    pending.addons.forEach((addon, index) => { addon.selected = modal.querySelector(`[data-migration-addon="${index}"]`).checked; });
+    pending.addons.forEach((addon, index) => { addon.selected = flow.querySelector(`[data-migration-addon="${index}"]`).checked; });
     state.migration = pending;
     state.migrationNeedsReconnect = false;
     state.hasLoadedAddonsForProfile = null;
@@ -108,10 +129,11 @@ export function mountMigration({ state, readSnapshot, saveSession, root = docume
     close();
     refresh();
   };
-  connectMigrationActions({ modal, state, lifetime, controls: { reader, skip, close, actions: {
+  connectMigrationActions({ modal, state, lifetime, controls: { flow, reader, skip, close, actions: {
     login: () => show('login'), skip, accept, connect: close,
     manual: () => { const proceed = manual; skip(); proceed?.(); },
   } } });
+  attachMigrationNavigation({ root, state, lifetime, actions: { show, accept } });
   state.requestMigrationManualMode = proceed => { manual = proceed; show('manual'); };
   lifetime.add(state.subscribe(refresh));
   lifetime.add(() => { close(); summary.remove(); delete state.requestMigrationManualMode; });

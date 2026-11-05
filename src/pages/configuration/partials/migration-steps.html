@@ -1,0 +1,24 @@
+<div id="stremioMigrationSteps">
+    <form id="migration-connect" data-migration-panel="login" class="step-content space-y-4 max-w-2xl mx-auto w-full">
+      <h2 class="font-serif text-3xl">Conecta tu cuenta de Stremio</h2>
+      <p class="text-sm text-white/70">Tus credenciales se envían directamente a Stremio y se usan durante esta lectura. Tu cuenta de origen no se modificará.</p>
+      <label class="block text-sm" for="migrationEmail">Correo de Stremio</label>
+      <input id="migrationEmail" type="email" class="lat-field w-full" autocomplete="username" required>
+      <label class="block text-sm" for="migrationPassword">Contraseña de Stremio</label>
+      <input id="migrationPassword" type="password" class="lat-field w-full" autocomplete="current-password" required>
+      <p class="text-xs text-white/50">Si entras con Google o Apple, necesitas una contraseña de Stremio para conectar aquí.</p>
+      <p data-migration-error role="alert" class="hidden text-sm text-rose-300"></p>
+      <button type="submit" data-migration-submit class="lat-capsule-btn solid w-full">Leer mi cuenta de Stremio</button>
+      <button type="button" data-migration-action="skip" class="lat-capsule-btn glass w-full">Continuar sin importar</button>
+    </form>
+    <div id="migration-review" data-migration-panel="review" class="step-content space-y-4 max-w-3xl mx-auto w-full">
+      <h2 class="font-serif text-3xl">Elige qué quieres importar</h2>
+      <p class="text-sm text-white/70">Elige qué quieres traer. Lo guardarás al completar la configuración en el perfil de Nuvio que selecciones.</p>
+      <div data-migration-categories class="space-y-2"></div>
+      <div data-migration-addons class="migration-list space-y-2"></div>
+      <details class="text-sm text-white/60"><summary>Elementos omitidos <span data-migration-omitted-count></span></summary><ul data-migration-omitted class="migration-list mt-2 space-y-2"></ul></details>
+      <p class="text-xs text-white/50">Los datos existentes de Nuvio tienen prioridad. En los episodios vistos se conserva la fecha del estado de Stremio, que puede ser compartida por varios episodios.</p>
+      <button type="button" data-migration-action="accept" class="lat-capsule-btn solid w-full">Continuar con esta selección</button>
+      <button type="button" data-migration-action="skip" class="lat-capsule-btn glass w-full">Continuar sin importar</button>
+    </div>
+</div>

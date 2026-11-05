@@ -1,3 +1,4 @@
+import { renderMigrationNavigation } from './migration/navigation.js';
 import { createDrawerSize } from './drawer-size.js';
 import { createLifetime } from '../../shared/ui/lifetime.js';
 
@@ -28,8 +29,9 @@ function setupDrawer({ lifetime, root }) {
 }
 
 function handleGoToStep({ targetStep, state, actions, closeDrawer }) {
+  if (state.migrationNavigation?.go(targetStep)) { closeDrawer(); return; }
   if (targetStep === state.currentStep) { closeDrawer(); return; }
-  if (state.isManualMode && targetStep === 2) { actions.notify?.('En modo sin cuenta, el paso 2 de perfiles está omitido.', 'info'); return; }
+  if (state.isManualMode && targetStep === 2) { actions.notify?.('En modo sin cuenta, la selección de perfiles está omitida.', 'info'); return; }
 
   if (targetStep < state.currentStep) {
     state.currentStep = targetStep;
@@ -61,6 +63,7 @@ function handleGoToStep({ targetStep, state, actions, closeDrawer }) {
 }
 
 function handleChangeStep({ delta, state, actions }) {
+  if (state.migrationNavigation?.change(delta)) return;
   if (delta < 0) {
     if (state.isManualMode && state.currentStep === 3) { state.currentStep = 1; actions.onStepChanged?.(); return; }
     const prev = state.currentStep + delta;
@@ -90,7 +93,7 @@ export function updateNavigationButtons(root, state) {
   const btnNext = root.querySelector?.('#btnNext');
   if (!btnNext) return;
 
-  const val = state.validateStep(state.currentStep);
+  const val = state.migrationStage ? { valid: state.migrationStage === 'review', error: 'Conecta Stremio para continuar' } : state.validateStep(state.currentStep);
   if (val.valid) {
     btnNext.disabled = false;
     btnNext.className = 'lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-lift)] cursor-pointer flex items-center gap-1.5';
@@ -153,6 +156,7 @@ export function updateStepperUI(root, state) {
   if (drawerCounter) drawerCounter.innerText = `Paso ${currentStep} de ${totalSteps}`;
 
   updateNavigationButtons(root, state);
+  renderMigrationNavigation(root, state);
   return currentStep;
 }
 

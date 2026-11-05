@@ -1,4 +1,5 @@
 export function handleStepRouting({ currentStep, state, controller }) {
+  if (state.migrationStage) { controller.stopPosterRotation?.(); return; }
   if (currentStep === 2) {
     controller.renderProfiles?.();
   } else if (currentStep === 3) {
