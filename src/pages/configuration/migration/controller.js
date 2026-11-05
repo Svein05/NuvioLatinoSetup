@@ -39,6 +39,7 @@ function createMigrationReader({ modal, readSnapshot, show, accept }) {
 }
 
 function connectMigrationActions({ modal, state, lifetime, controls }) {
+  lifetime.on(modal.ownerDocument.querySelector('#btnStartStremioMigration'), 'click', controls.actions.login);
   lifetime.on(controls.flow.querySelector('form'), 'submit', controls.reader.run);
   lifetime.on(modal.querySelector('#btnCancelMigration'), 'click', () => {
     if (state.migrationNeedsReconnect) controls.skip();

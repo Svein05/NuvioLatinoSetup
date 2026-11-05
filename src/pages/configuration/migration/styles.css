@@ -5,3 +5,7 @@
 .migration-close { position: absolute; right: 1rem; top: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #ffffff12; }
 .migration-summary { margin-top: 1rem; border: 1px solid #ffd47940; border-radius: 1rem; padding: 1rem; font-size: .8125rem; }
 [data-migration-route][hidden] { display: none !important; }
+
+.migration-brand { display: flex; align-items: center; gap: .75rem; }
+.migration-brand img:first-child { width: 3rem; height: 3rem; object-fit: contain; }
+.migration-brand img:last-child { width: min(10rem, 55vw); height: auto; object-fit: contain; }
