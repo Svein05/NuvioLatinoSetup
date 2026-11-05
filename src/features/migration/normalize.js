@@ -14,7 +14,12 @@ function normalizeAddons(items, omitted, isMetadataAddon) {
       omitted.push({ category: 'addons', title: name, reason: url ? 'AIOMetadata se configura desde el asistente.' : 'Enlace de addon no compatible.' });
       return [];
     }
-    return [{ name, manifest_url: url, url, enabled: true, selected: true }];
+    let logo = null;
+    try {
+      const candidate = new URL(item.manifest?.logo, url);
+      if (item.manifest?.logo && candidate.protocol === 'https:' && !candidate.username && !candidate.password) logo = candidate.href;
+    } catch { /* A missing image does not exclude a compatible addon. */ }
+    return [{ name, logo, manifest_url: url, url, enabled: true, selected: true }];
   });
   return mergeMissing([], addons, item => item.url);
 }

@@ -29,12 +29,15 @@
         <p class="text-sm text-white/60">Elige los datos de Stremio que quieres llevar a Nuvio.</p>
       </header>
       <fieldset class="migration-categories" data-migration-categories aria-label="Datos para importar"></fieldset>
-      <section class="migration-addon-section" data-migration-addon-section aria-labelledby="migrationAddonsTitle">
+      <section class="migration-addon-section" aria-labelledby="migrationAddonsTitle">
         <div class="migration-section-heading">
-          <h3 id="migrationAddonsTitle" class="text-sm font-semibold">Addons para importar</h3>
-          <span data-migration-addon-count class="text-xs text-white/50" aria-live="polite"></span>
+          <div><h3 id="migrationAddonsTitle" class="text-sm font-semibold">Importar addons</h3><p class="text-xs text-white/50 mt-1">Conserva los addons de tu cuenta de Stremio.</p></div>
+          <div class="migration-addon-controls">
+            <span data-migration-addon-count class="text-xs text-white/50" aria-live="polite"></span>
+            <label class="lat-switch shrink-0"><input type="checkbox" role="switch" data-migration-category="addons" aria-label="Importar addons de Stremio" aria-controls="migrationAddonOptions" aria-expanded="false"><span class="lat-switch-track"><span class="lat-switch-thumb"></span></span></label>
+          </div>
         </div>
-        <fieldset data-migration-addons class="migration-addon-grid" aria-label="Seleccionar addons"></fieldset>
+        <div id="migrationAddonOptions" class="migration-addon-collapse" inert><div><fieldset data-migration-addons class="migration-addon-grid" aria-label="Seleccionar addons"></fieldset></div></div>
       </section>
       <details class="migration-notes" data-migration-omissions>
         <summary>Elementos que no se importarán <span data-migration-omitted-count></span></summary>

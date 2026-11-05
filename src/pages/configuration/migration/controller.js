@@ -62,6 +62,7 @@ function connectMigrationActions({ modal, state, lifetime, controls }) {
   };
   lifetime.on(modal, 'click', dispatch);
   lifetime.on(controls.flow, 'click', dispatch);
+  lifetime.on(controls.flow, 'error', event => { if (event.target.matches?.('[data-migration-logo]')) event.target.remove(); }, { capture: true });
   lifetime.on(controls.flow, 'change', () => { synchronizeMigrationSelection(controls.flow, state); controls.updateUI(); });
 }
 
