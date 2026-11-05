@@ -49,11 +49,6 @@ function bindManualCopyActions({ lifetime, root, state, actions }) {
   });
 
   lifetime.on(root.querySelector?.('#btnCopyAioConfig'), 'click', async () => {
-    if (!state.aiometadata?.password || state.aiometadata.password.length < 6) {
-      actions.notify?.('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
-      root.querySelector?.('#aioPassword')?.focus();
-      return;
-    }
     state.manualCompletionId ||= crypto.randomUUID();
     try {
       await actions.copyText(JSON.stringify(state.getSynchronizedMetadataPayload(), null, 2));
@@ -78,11 +73,6 @@ function bindManualDownloadActions({ lifetime, root, state, actions }) {
 
   lifetime.on(root.querySelector?.('#btnDownloadAioConfig'), 'click', () => {
     state.manualCompletionId ||= crypto.randomUUID();
-    if (state.isManualMode && (!state.aiometadata?.password || state.aiometadata.password.length < 6)) {
-      actions.notify?.('Debes ingresar o generar una contraseña para tus addons (mínimo 6 caracteres) primero.', 'warning');
-      root.querySelector?.('#aioPassword')?.focus();
-      return;
-    }
     actions.downloadAioConfigJson?.(state.getSynchronizedMetadataPayload());
     state.manualCopiedAio = true;
     actions.checkCompletion?.();
