@@ -42,3 +42,7 @@
 .popup-panel .migration-brand img:first-child { width: 2rem; height: 2rem; }
 .popup-panel .migration-brand img:last-child { max-width: 9rem; }
 .popup-panel .lat-capsule-btn:focus-visible { outline: 2px solid rgb(255 255 255 / 65%); outline-offset: 3px; }
+
+/* Initial dialog focus announces its title without highlighting an action. */
+.popup-panel .popup-title[tabindex="-1"]:focus { outline: none; }
+.popup-panel .migration-brand[hidden] { display: none; }

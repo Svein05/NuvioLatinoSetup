@@ -31,6 +31,7 @@ export function manageDialog(modal) {
     const items = targets();
     const active = modal.ownerDocument.activeElement;
     if (!items.length) { event.preventDefault(); modal.focus(); }
+    else if (!items.includes(active)) { event.preventDefault(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
     else if (event.shiftKey && active === items[0]) { event.preventDefault(); items.at(-1).focus(); }
     else if (!event.shiftKey && active === items.at(-1)) { event.preventDefault(); items[0].focus(); }
   };

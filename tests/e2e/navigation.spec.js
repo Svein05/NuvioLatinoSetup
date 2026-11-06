@@ -36,6 +36,7 @@ for (const pathname of ['/configuration/', '/account/']) {
   test(`password controls at ${pathname} toggle once per click and announce their state`, async ({ page }) => {
     await isolateExternalServices(page);
     await page.goto(pathname);
+    if (pathname === '/configuration/') await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
     const button = page.locator('.btn-toggle-key:visible').first();
     const target = await button.getAttribute('data-target');
     const input = page.locator(`[id="${target}"]`);

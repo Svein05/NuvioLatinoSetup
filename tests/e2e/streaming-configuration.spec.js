@@ -14,7 +14,7 @@ for (const failCreation of [false, true]) {
     const writes = [];
     await prepareAccount(page, 'rpc', {
       respondExternal(url, request) {
-        if (url.hostname === 'api.torbox.app') return { body: { success: true, data: { email: user, plan: 0 } } };
+        if (url.pathname === '/api/debrid/torbox/validate') return { body: { valid: true, status: 'valid', user, plan: 'Gratis' } };
         if (request.method() === 'POST' && url.pathname.endsWith('/api/v1/user')) {
           writes.push({ origin: url.origin, body: request.postDataJSON() });
           return failCreation ? { status: 503, body: {} }

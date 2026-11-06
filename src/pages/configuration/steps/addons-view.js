@@ -29,7 +29,7 @@ function renderAddonLogo(addon, pos) {
   return `<div class="w-full h-full flex items-center justify-center font-bold text-white/70 text-xs bg-white/[0.08]">${escapeHtml(initials)}</div>`;
 }
 
-function renderAddonDetails(addon, debridsMap = {}) {
+function renderAddonDetails(addon, debridsMap = {}, root) {
   if (addon.isAioStreams) {
     const activeDebrids = Object.keys(debridsMap).filter(k => debridsMap[k]);
     const debridsStr = activeDebrids.length > 0 ? activeDebrids.map(d => d.toUpperCase()).join(', ') : 'Sin debrids';
@@ -42,7 +42,7 @@ function renderAddonDetails(addon, debridsMap = {}) {
       </div>
     `;
   }
-  const stremioSymbol = document.querySelector('[data-stremio-symbol]')?.src || '';
+  const stremioSymbol = root.querySelector('[data-stremio-symbol]')?.src || '';
   const name = addon.name || 'Addon';
   const url = addon.manifest_url || addon.url || '';
   return `
@@ -118,7 +118,7 @@ export function renderAddonsContainer(root, { addons = [], aioDebrids = {} } = {
             <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center shrink-0 shadow-md">
               ${renderAddonLogo(addon, pos)}
             </div>
-            ${renderAddonDetails(addon, addon.debrids || aioDebrids)}
+            ${renderAddonDetails(addon, addon.debrids || aioDebrids, root)}
           </div>
           ${renderAddonActions(addon, idx, addons.length)}
         </div>

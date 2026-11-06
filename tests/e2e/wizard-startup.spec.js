@@ -20,7 +20,9 @@ test('wizard becomes interactive only after templates and handlers are ready', a
   release();
   await expect(wizard).not.toHaveAttribute('inert', '');
   await expect(wizard).toHaveAttribute('aria-busy', 'false');
+  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
+  await page.locator('[data-migration-action="manual"]').click();
   await expect(page.locator('#step-3')).toBeVisible();
   await expect(page.locator('.section-container').first()).toBeVisible();
 });

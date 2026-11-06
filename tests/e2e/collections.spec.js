@@ -4,7 +4,9 @@ import { isolateExternalServices } from './support/offline-services.js';
 test.beforeEach(async ({ page }) => {
   await isolateExternalServices(page);
   await page.goto('/configuration/');
+  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
+  await page.locator('[data-migration-action="manual"]').click();
   await expect(page.locator('.section-container').first()).toBeVisible();
 });
 

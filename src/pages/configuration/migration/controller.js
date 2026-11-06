@@ -77,6 +77,7 @@ function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
   let animation;
   const show = panel => {
     modal.dataset.dialogRequired = String(panel === 'choice');
+    modal.querySelector('.migration-brand').hidden = panel === 'manual';
     modal.querySelector('#migrationTitle').textContent = panel === 'manual' ? '¿Continuar en modo manual?' : '¿Vienes de Stremio?';
     modal.querySelector('[data-manual-migration-warning]').hidden = !(state.migration || state.migrationNeedsReconnect);
     if (panel === 'login' || panel === 'review') {
@@ -94,7 +95,7 @@ function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
     modal.querySelectorAll('[data-migration-panel]').forEach(node => node.classList.toggle('hidden', node.dataset.migrationPanel !== panel));
     modal.classList.remove('hidden');
     modal.classList.add('flex');
-    modal.querySelector(`[data-migration-panel="${panel}"] input, [data-migration-panel="${panel}"] button`)?.focus();
+    modal.querySelector('#migrationTitle').focus({ preventScroll: true });
     animation?.cancel();
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
       animation = modal.firstElementChild.animate([{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 250, easing: 'ease-out' });
