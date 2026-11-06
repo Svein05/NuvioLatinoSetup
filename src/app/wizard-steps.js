@@ -72,7 +72,7 @@ export function mountStep6Addons(controller, state, root) {
     state,
     actions: {
       notify: (msg, type) => controller.showToast(msg, type),
-      validateDebridKey: (provider, key) => validateDebridKey(provider, key, { proxyUrl: CONFIG.WORKER_API_URL }),
+      validateDebridKey: (provider, key) => validateDebridKey(provider, key, { proxyUrl: CONFIG.WORKER_API_URL, allowFormatValidation: true }),
       onUpdate: () => controller.updateUI(),
     },
     root: targetRoot,

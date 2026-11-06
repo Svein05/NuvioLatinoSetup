@@ -57,7 +57,8 @@ export function syncDebridModalInputs(root, draft, isEditing = false) {
     const statusEl = root.querySelector?.(`#statusDebrid${id}`);
     if (!statusEl) return;
     if (draft.validatedKeys[key]) {
-      statusEl.innerHTML = '<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>';
+      renderVerifiedKeyStatus(statusEl, { status: draft.validatedKeys[key] === 'format' ? 'format-valid' : 'valid',
+        user: 'Verificada', plan: draft.validatedKeys[key] === 'format' ? 'Solo se comprobó el formato.' : 'Verificada con el proveedor' });
     } else {
       renderDebridLink(statusEl, id);
     }
@@ -74,7 +75,7 @@ async function validateSingleKey(item, validateKey, draft, statusEl) {
       return false;
     }
     if (res.valid) {
-      draft.validatedKeys[item.key] = true;
+      draft.validatedKeys[item.key] = res.status === 'format-valid' ? 'format' : true;
       draft.debrids[item.key] = item.val;
       if (statusEl) renderVerifiedKeyStatus(statusEl, res);
       return true;
@@ -134,7 +135,7 @@ export async function validateDraftKeys({ root, draft, validateKey }) {
   if (btnText) btnText.innerText = 'Validar Claves';
   updateInstallButtonState(root, draft, false);
 
-  showValidationFeedback(root, failed ? 'Hay claves sin verificar. Revisa el estado junto a cada proveedor.' : 'Claves verificadas. Ya puedes instalar el addon.');
+  showValidationFeedback(root, failed ? 'Revisa las claves pendientes junto a cada proveedor.' : 'Claves comprobadas. Ya puedes instalar el addon.');
 }
 
 export function commitAioStreamsInstall({ root, draft, state, onClose, notify }) {
