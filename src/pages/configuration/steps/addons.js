@@ -79,6 +79,7 @@ function bindDebridInputs({ lifetime, root, getDraft, state }) {
 function openDebridsDialog(root, state) {
   toggleModal(root.querySelector?.('#modalAioStreamsRequirement'), false);
   toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), true);
+  root.querySelector('#debridValidationFeedback')?.classList.add('hidden');
   const draft = { debrids: { ...(state.aiostreams.debrids || {}) }, validatedKeys: { ...(state.aiostreams.validatedKeys || {}) } };
   syncDebridModalInputs(root, draft, state.hasAioStreamsInstance());
   updateInstallButtonState(root, draft, state.hasAioStreamsInstance());
@@ -96,7 +97,7 @@ function createAioStreamsActions({ root, state, getDraft, setDraft, render, acti
       toggleModal(root.querySelector?.('#modalAioStreamsRequirement'), true);
     },
     openAioStreamsDebridsModal: () => setDraft(openDebridsDialog(root, state)),
-    closeAioStreamsDebridsModal: () => { toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); },
+    closeAioStreamsDebridsModal: () => { if (getDraft()) getDraft().cancelled = true; toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); },
     validateDebridKeys: () => validateDraftKeys({ root, draft: getDraft(), validateKey: actions.validateDebridKey, notify: actions.notify }),
     installAioStreamsFromModal: () => commitAioStreamsInstall({ root, draft: getDraft(), state, onClose: () => { toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); render(); }, notify: actions.notify }),
   };

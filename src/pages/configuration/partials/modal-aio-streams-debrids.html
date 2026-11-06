@@ -1,38 +1,14 @@
-<div id="modalAioStreamsDebrids" class="fixed inset-0 bg-black/75 backdrop-blur-md z-50 hidden items-center justify-center p-3 sm:p-5 transition-all duration-200 overflow-y-auto">
-    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[24px] sm:rounded-[26px] max-w-xl w-full p-4 sm:p-5 shadow-[var(--shadow-lift)] relative text-white flex flex-col max-h-[88vh] my-auto overflow-hidden">
-      
-      <!-- Cabecera Anclada con Botones de Acción Superiores -->
-      <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0 gap-2">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain shrink-0" alt="AIOStreams">
-          <div class="min-w-0">
-            <h3 class="font-bold text-sm text-white flex items-center gap-2 truncate">
-              <span class="truncate">Proveedores Debrid</span>
-            </h3>
-          </div>
-        </div>
-        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <button id="btnValidateDebridKeys" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-2.5 sm:px-3 flex items-center gap-1.5 border-amber-500/40 text-amber-300 hover:text-white bg-amber-500/[0.08] hover:bg-amber-500/[0.15] transition-all">
-            <i class="fa-solid fa-key text-[10px]"></i>
-            <span id="btnValidateDebridKeysText">Validar Claves</span>
-          </button>
-          <button id="btnInstallAioStreams" type="button" disabled class="lat-capsule-btn solid text-xs py-1.5 px-3 sm:px-3.5 flex items-center gap-1.5 opacity-40 cursor-not-allowed transition-all shadow-[var(--shadow-pill)]">
-            <i id="iconInstallAioStreams" class="fa-solid fa-plus text-[10px]"></i>
-            <span id="textInstallAioStreams">Instalar Addon</span>
-          </button>
-          <button id="btnCloseAioStreamsDebridsModal" type="button" class="w-7 h-7 rounded-lg text-white/40 hover:text-white hover:bg-white/[0.08] flex items-center justify-center transition-colors ml-0.5 shrink-0" title="Cerrar ventana">
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
+<div id="modalAioStreamsDebrids" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 overflow-y-auto">
+  <div class="debrid-dialog lat-card w-full max-w-2xl p-5 sm:p-6 relative text-white">
+    <header class="debrid-dialog-header">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-8 h-8 object-contain shrink-0" alt="AIOStreams">
+        <h2 class="font-serif text-2xl sm:text-3xl">Proveedores Debrid</h2>
       </div>
-
-      <!-- Contenido Scrolleable de Debrids Adaptativo (flex-1 min-h-0) -->
-      <div class="flex-1 min-h-0 overflow-y-auto py-3 space-y-2.5 sm:space-y-3 pr-1 text-xs">
-        <p class="text-white/60 leading-snug text-[11px] pb-0.5">
-          Ingresa la clave API de al menos un proveedor Debrid. Pulsa <strong class="text-white font-medium">"Validar Claves"</strong> arriba para verificarla en vivo y luego <strong class="text-white font-medium">"Instalar Addon"</strong>.
-        </p>
-
-        <!-- 1. TorBox (Prioridad #1 Recomendada) -->
+      <button id="btnCloseAioStreamsDebridsModal" type="button" class="debrid-close" aria-label="Cerrar proveedores"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </header>
+      <div class="debrid-dialog-body space-y-3 text-xs">
+<!-- 1. TorBox (Prioridad #1 Recomendada) -->
         <div class="p-2.5 sm:p-3 rounded-[15px] bg-white/[0.03] border border-emerald-500/30 hover:border-emerald-500/50 transition-all space-y-1.5">
           <div class="flex items-center justify-between">
             <label class="font-medium text-white flex items-center gap-1.5 text-xs">
@@ -46,7 +22,7 @@
               </a>
             </div>
           </div>
-          <input id="inputDebridTorbox" type="password" placeholder="Ingresa tu TorBox API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-emerald-400/50 focus:ring-1 focus:ring-emerald-400/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+          <div class="relative"><input id="inputDebridTorbox" aria-label="Clave API de TorBox" autocomplete="off" spellcheck="false" type="password" placeholder="Ingresa tu TorBox API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridTorbox" aria-label="Mostrar contraseña" aria-controls="inputDebridTorbox" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
         </div>
 
         <!-- 2. AllDebrid (Prioridad #2) -->
@@ -62,7 +38,7 @@
               </a>
             </div>
           </div>
-          <input id="inputDebridAlldebrid" type="password" placeholder="Ingresa tu AllDebrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+          <div class="relative"><input id="inputDebridAlldebrid" aria-label="Clave API de AllDebrid" autocomplete="off" spellcheck="false" type="password" placeholder="Ingresa tu AllDebrid API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridAlldebrid" aria-label="Mostrar contraseña" aria-controls="inputDebridAlldebrid" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
         </div>
 
         <!-- 3. Real-Debrid (Prioridad #3) -->
@@ -78,7 +54,7 @@
               </a>
             </div>
           </div>
-          <input id="inputDebridRealdebrid" type="password" placeholder="Ingresa tu Real-Debrid API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+          <div class="relative"><input id="inputDebridRealdebrid" aria-label="Clave API de Real-Debrid" autocomplete="off" spellcheck="false" type="password" placeholder="Ingresa tu Real-Debrid API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridRealdebrid" aria-label="Mostrar contraseña" aria-controls="inputDebridRealdebrid" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
         </div>
 
         <!-- 4. Premiumize (Prioridad #4) -->
@@ -94,7 +70,7 @@
               </a>
             </div>
           </div>
-          <input id="inputDebridPremiumize" type="password" placeholder="Ingresa tu Premiumize API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+          <div class="relative"><input id="inputDebridPremiumize" aria-label="Clave API de Premiumize" autocomplete="off" spellcheck="false" type="password" placeholder="Ingresa tu Premiumize API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridPremiumize" aria-label="Mostrar contraseña" aria-controls="inputDebridPremiumize" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
         </div>
 
         <!-- 5. Debrid-Link (Prioridad #5) -->
@@ -110,7 +86,7 @@
               </a>
             </div>
           </div>
-          <input id="inputDebridDebridlink" type="password" placeholder="Ingresa tu Debrid-Link API Key..." class="w-full px-3 py-1.5 sm:py-2 rounded-[12px] bg-white/[0.04] border border-white/[0.12] focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 text-xs text-white placeholder:text-white/30 font-mono transition-all">
+          <div class="relative"><input id="inputDebridDebridlink" aria-label="Clave API de Debrid-Link" autocomplete="off" spellcheck="false" type="password" placeholder="Ingresa tu Debrid-Link API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridDebridlink" aria-label="Mostrar contraseña" aria-controls="inputDebridDebridlink" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
         </div>
 
         <!-- Acordeón Desplegable: Otros Proveedores Debrid Opcionales -->
@@ -125,33 +101,31 @@
           <div class="pt-2.5 space-y-2.5">
             <div>
               <label class="block text-[11px] text-white/60 mb-1" for="inputDebridEasydebrid">EasyDebrid API Key</label>
-              <input id="inputDebridEasydebrid" type="password" placeholder="EasyDebrid API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+              <div class="relative"><input id="inputDebridEasydebrid" aria-label="Clave API de EasyDebrid" autocomplete="off" spellcheck="false" type="password" placeholder="EasyDebrid API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridEasydebrid" aria-label="Mostrar contraseña" aria-controls="inputDebridEasydebrid" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
             </div>
             <div>
               <label class="block text-[11px] text-white/60 mb-1" for="inputDebridDebrider">Debrider API Key</label>
-              <input id="inputDebridDebrider" type="password" placeholder="Debrider API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+              <div class="relative"><input id="inputDebridDebrider" aria-label="Clave API de Debrider" autocomplete="off" spellcheck="false" type="password" placeholder="Debrider API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridDebrider" aria-label="Mostrar contraseña" aria-controls="inputDebridDebrider" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
             </div>
             <div>
               <label class="block text-[11px] text-white/60 mb-1" for="inputDebridTorrin">Torrin API Key</label>
-              <input id="inputDebridTorrin" type="password" placeholder="tr_..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+              <div class="relative"><input id="inputDebridTorrin" aria-label="Clave API de Torrin" autocomplete="off" spellcheck="false" type="password" placeholder="tr_..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridTorrin" aria-label="Mostrar contraseña" aria-controls="inputDebridTorrin" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
             </div>
             <div>
               <label class="block text-[11px] text-white/60 mb-1" for="inputDebridOffcloud">Offcloud API Key</label>
-              <input id="inputDebridOffcloud" type="password" placeholder="Offcloud API Key..." class="w-full px-2.5 py-1.5 rounded-[10px] bg-white/[0.04] border border-white/[0.1] text-xs text-white font-mono">
+              <div class="relative"><input id="inputDebridOffcloud" aria-label="Clave API de Offcloud" autocomplete="off" spellcheck="false" type="password" placeholder="Offcloud API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridOffcloud" aria-label="Mostrar contraseña" aria-controls="inputDebridOffcloud" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
             </div>
           </div>
         </details>
 
       </div>
 
-      <!-- Pie del Modal Anclado Inferior -->
-      <div class="border-t border-white/[0.08] pt-2.5 sm:pt-3 shrink-0 flex items-center justify-between text-[11px] text-white/50 gap-2">
-        <span class="flex items-center gap-1.5 truncate">
-          <i class="fa-solid fa-shield-halved text-emerald-400 shrink-0"></i>
-          <span class="truncate">El manifiesto se generará con tu Clave Maestra en el Paso 7.</span>
-        </span>
-        <button id="btnCancelAioStreamsDebrids" type="button" class="lat-capsule-btn glass text-xs py-1.5 px-3 shrink-0">Cerrar</button>
+    <footer class="debrid-dialog-footer">
+      <p id="debridValidationFeedback" role="status" class="hidden text-xs text-white/60"></p>
+      <div class="debrid-dialog-actions">
+        <button id="btnValidateDebridKeys" type="button" class="lat-capsule-btn glass text-xs px-4 py-2.5"><i class="fa-solid fa-key" aria-hidden="true"></i><span id="btnValidateDebridKeysText">Validar claves</span></button>
+        <button id="btnInstallAioStreams" type="button" disabled class="lat-capsule-btn solid text-xs px-4 py-2.5 opacity-40 cursor-not-allowed"><i id="iconInstallAioStreams" class="fa-solid fa-plus" aria-hidden="true"></i><span id="textInstallAioStreams">Instalar addon</span></button>
       </div>
-
-    </div>
+    </footer>
   </div>
+</div>
