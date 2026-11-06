@@ -8,6 +8,7 @@ incluirse en JavaScript del navegador, archivos del repositorio ni artefactos p�
 
 | Ruta | Función |
 | --- | --- |
+| `POST /api/debrid/torbox/validate` | Verifica una clave de TorBox desde los orígenes permitidos mediante un destino fijo; no devuelve datos privados de la cuenta ni almacena la respuesta en caché. |
 | `POST /api/verify-auth` | Recibe `{ password, email }`; devuelve `{ success, role }` para el acceso de colaboradores. |
 | `POST /api/save-staged-changes` | Publica un lote de avatares validado; devuelve `{ success, commit, count }` tras confirmar la actualización de la referencia Git. |
 | `/https://host/path` | Proxy de compatibilidad limitado a hosts HTTPS permitidos. |
