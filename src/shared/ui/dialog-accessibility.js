@@ -22,6 +22,7 @@ export function manageDialog(modal) {
     if (!open) return;
     if (event.key === 'Escape' && modal.getAttribute('aria-busy') !== 'true') {
       event.preventDefault(); event.stopPropagation();
+      if (modal.dataset.dialogRequired === 'true') return;
       const closeButton = modal.querySelector('button[id*="Close"],button[id*="Cancel"]');
       if (closeButton) closeButton.click();
       else modal.classList.add('hidden');

@@ -63,10 +63,6 @@ function connectMigrationActions({ modal, state, lifetime, controls }) {
   });
   lifetime.on(modal.ownerDocument.querySelector('#btnStartStremioMigration'), 'click', controls.actions.login);
   lifetime.on(controls.flow.querySelector('form'), 'submit', controls.reader.run);
-  lifetime.on(modal.querySelector('#btnCancelMigration'), 'click', () => {
-    if (state.migrationNeedsReconnect) controls.skip();
-    else controls.close();
-  });
   const dispatch = event => {
     const action = event.target.closest('[data-migration-action]')?.dataset.migrationAction;
     controls.actions[action]?.();
@@ -80,6 +76,9 @@ function connectMigrationActions({ modal, state, lifetime, controls }) {
 function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
   let animation;
   const show = panel => {
+    modal.dataset.dialogRequired = String(panel === 'choice');
+    modal.querySelector('#migrationTitle').textContent = panel === 'manual' ? '¿Continuar en modo manual?' : '¿Vienes de Stremio?';
+    modal.querySelector('[data-manual-migration-warning]').hidden = !(state.migration || state.migrationNeedsReconnect);
     if (panel === 'login' || panel === 'review') {
       if (panel === 'review' && !state.migrationReviewReady) return;
       modal.classList.add('hidden');

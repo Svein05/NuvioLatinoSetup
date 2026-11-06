@@ -1,6 +1,5 @@
-<div id="modalStremioMigration" class="popup-overlay fixed inset-0 z-[80] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md" aria-labelledby="migrationTitle">
+<div id="modalStremioMigration" class="popup-overlay fixed inset-0 z-[80] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md" aria-labelledby="migrationTitle" data-dialog-required="true">
   <div class="popup-panel migration-dialog w-full max-w-xl p-5 sm:p-7 relative">
-    <button id="btnCancelMigration" type="button" class="migration-close" aria-label="Cerrar importación"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     <div class="migration-brand mb-4" aria-label="Stremio">
       <img src="../../../assets/logo/stremio-symbol.png" alt="" width="48" height="48" />
       <img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio" width="334" height="43" />
@@ -14,9 +13,10 @@
       </div>
     </div>
     <div data-migration-panel="manual" class="hidden space-y-4 mt-4">
-      <p class="text-sm text-white/70">Para guardar tus datos de Stremio necesitas conectar tu cuenta de Nuvio y elegir un perfil.</p>
-      <button type="button" data-migration-action="connect" class="lat-capsule-btn solid w-full">Conectar Nuvio</button>
-      <button type="button" data-migration-action="manual" class="lat-capsule-btn glass w-full">Omitir importación y usar modo manual</button>
+      <p class="text-sm text-white/70">El asistente preparará los archivos JSON, pero no los instalará en tu cuenta. Tendrás que descargarlos o copiarlos e importarlos manualmente en Nuvio.</p>
+      <p data-manual-migration-warning class="text-sm text-white/70">La importación desde Stremio se omitirá: necesita una cuenta de Nuvio conectada.</p>
+      <button type="button" data-migration-action="connect" class="lat-capsule-btn solid w-full">Volver</button>
+      <button type="button" data-migration-action="manual" class="lat-capsule-btn glass w-full">Continuar en modo manual</button>
     </div>
   </div>
 </div>

@@ -64,7 +64,7 @@ export function createAuthStepMountOptions({
       updateUI?.();
     },
     onManual: () => {
-      if ((state.migration || state.migrationNeedsReconnect) && state.requestMigrationManualMode) {
+      if (state.requestMigrationManualMode) {
         state.requestMigrationManualMode(() => { handleManualMode(state, notify); updateUI?.(); });
         return false;
       }
