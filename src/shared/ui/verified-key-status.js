@@ -1,11 +1,11 @@
 /** Provider names are external data, never markup. */
-export function renderVerifiedKeyStatus(container, { user, plan }) {
+export function renderVerifiedKeyStatus(container, { user, plan, status }) {
   const label = document.createElement('span');
   label.className = 'text-emerald-400 font-medium flex items-center gap-1';
   label.title = plan || 'Válido';
   const icon = document.createElement('i');
   icon.className = 'fa-solid fa-check text-[10px]';
-  label.append(icon, document.createTextNode(` ${user || 'Válida'}`));
+  label.append(icon, document.createTextNode(` ${status === 'format-valid' ? 'Formato correcto' : user || 'Válida'}`));
   container.replaceChildren(label);
 }
 

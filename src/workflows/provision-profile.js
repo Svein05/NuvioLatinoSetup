@@ -146,11 +146,20 @@ export async function executeProfileProvisioning(state, { config = {}, services 
   const isSimulation = setupExecution(state, log);
 
   try {
+    if (state.migrationNeedsReconnect) throw new Error('Vuelve a conectar Stremio o elige continuar sin importar antes de ejecutar.');
+    if (state.migration && state.isManualMode) throw new Error('Conecta Nuvio o continúa sin importar para usar el modo manual.');
+    if (!isSimulation && state.migration && !services.migrateStremio) throw new Error('La importación no está disponible. Recarga el asistente.');
     const { manifestUrl } = await runAiometadataPhase({ state, config, services, isSimulation, log });
     const { targetProfileId, targetProfileName } = await runAuthPhase({ state, config, services, isSimulation, log });
     await runSettingsPhase({ state, config, services, isSimulation, targetProfileId, log });
     await runAddonsPhase({ state, config, services, isSimulation, manifestUrl, targetProfileId, log });
     const collectionsCount = await runCollectionsPhase({ state, config, services, isSimulation, targetProfileId, log });
+    if (!isSimulation && state.migration && services.migrateStremio) {
+      await services.migrateStremio(state, { context: {
+        apiUrl: config.nuvioApiUrl, apikey: state.nuvioAuth?.apikey || config.nuvioPublicAnonKey,
+        accessToken: state.nuvioAuth?.accessToken, profileId: targetProfileId,
+      }, log });
+    }
 
     const uuid = manifestUrl.split('/stremio/')[1]?.replace('/manifest.json', '') || 'ok';
     state.execution.result = { uuid, manifestUrl, addonId: 'aio-metadata', collectionsCount, profileName: targetProfileName };
@@ -161,6 +170,7 @@ export async function executeProfileProvisioning(state, { config = {}, services 
       services.recordCompletion(state.execution.completionId).catch(err => console.warn('[Pipeline] Error en contador:', err));
     }
   } catch (err) {
+    if (state.migration?.results.addons?.status === 'writing') state.migration.results.addons.status = 'uncertain';
     const errMsg = err?.message || String(err);
     state.execution.error = errMsg;
     log(`❌ Error en el proceso: ${errMsg}`, 'error');

@@ -1,5 +1,5 @@
-<div id="modalDeleteProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
-    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+<div id="modalDeleteProfile" class="popup-overlay fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="popup-panel bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-xs text-rose-400">
@@ -20,7 +20,7 @@
         <p class="text-[11px] text-white/50">Se borrarán sus addons, colecciones y datos asociados en Nuvio. Esta acción no se puede deshacer.</p>
       </div>
 
-      <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+      <div class="popup-actions border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
         <button type="button" id="btnCancelDeleteProfile" class="lat-capsule-btn glass text-xs py-2 px-3">
           Cancelar
         </button>

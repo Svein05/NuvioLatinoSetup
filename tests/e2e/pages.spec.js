@@ -61,7 +61,9 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
 test('manual configuration loads collections without authentication or remote services', async ({ page }) => {
   await isolateExternalServices(page);
   await page.goto('/configuration/');
+  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
+  await page.locator('[data-migration-action="manual"]').click();
   await expect(page.locator('#step-3')).toBeVisible();
   await expect(page.locator('.section-container').first()).toBeVisible();
   await expect(page.locator('#stepCounter')).toContainText('3');

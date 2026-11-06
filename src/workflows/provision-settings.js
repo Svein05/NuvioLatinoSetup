@@ -71,8 +71,7 @@ export async function runSettingsPhase({ state, config, services, isSimulation, 
 
   await syncCredentials({ client, config, auth: state.nuvioAuth, profileId: targetProfileId, apiKeys: state.apiKeys, isSimulation, services, log });
 
-  const enrichment = Boolean(state.preferences?.tmdbEnrichment);
-  const ratings = Boolean(state.preferences?.mdblistRatings && state.apiKeys?.mdblist?.trim());
+  const { tmdb: enrichment, mdblist: ratings } = getEnrichmentState(state.preferences, state.apiKeys);
   const badges = await buildBadgeSettings(state.preferences, services);
 
   const payload = {
@@ -103,3 +102,4 @@ export async function runSettingsPhase({ state, config, services, isSimulation, 
   log(`✓ TMDB Enrichment ${enrichment ? 'activado' : 'desactivado'} en es-MX (TV, Mobile y Desktop).`, enrichment ? 'success' : 'info');
   log(`✓ Calificaciones de MDBList ${ratings ? 'activadas' : 'desactivadas'} para TV, Mobile y Desktop.`, ratings ? 'success' : 'info');
 }
+import { getEnrichmentState } from '../features/wizard/index.js';

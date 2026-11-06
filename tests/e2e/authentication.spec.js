@@ -11,6 +11,7 @@ test('wizard login preserves profile navigation without persisting account or ad
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
   });
   await page.goto('/configuration/');
+  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await expect(page.locator('#wizardView')).toHaveAttribute('aria-busy', 'false');
   await page.locator('#nuvioEmail').fill('test@example.invalid');
   await page.locator('#nuvioPassword').fill('synthetic-private-password');
@@ -38,6 +39,7 @@ test('signup validates matching passwords and submits once after switching form 
     return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
   });
   await page.goto('/configuration/');
+  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#tabAuthSignup').click();
   await page.locator('#tabAuthLogin').click();
   await page.locator('#tabAuthSignup').click();

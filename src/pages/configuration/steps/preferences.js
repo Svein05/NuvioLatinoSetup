@@ -1,11 +1,12 @@
 import { createLifetime } from '../../../shared/ui/lifetime.js';
+import { getEnrichmentState } from '../../../features/wizard/index.js';
 import { renderToggleLabel, renderPosterCardsUI } from './preferences-view.js';
 import { createPostersCarousel } from './posters-demo.js';
 import { mountBadgesStep } from './badges.js';
 import { mountBadgesDisclosure } from './badges-disclosure.js';
 
 function bindToggleEvents({ lifetime, elements, state, actions, updateToggles }) {
-  const { toggleEnrichment, toggleRatings, toggleBadges, labelEnrichment, labelRatings } = elements;
+  const { toggleEnrichment, toggleRatings, toggleBadges, labelEnrichment } = elements;
   if (toggleEnrichment) {
     lifetime.on(toggleEnrichment, 'change', e => {
       state.preferences.tmdbEnrichment = e.target.checked;
@@ -16,7 +17,7 @@ function bindToggleEvents({ lifetime, elements, state, actions, updateToggles })
   if (toggleRatings) {
     lifetime.on(toggleRatings, 'change', e => {
       state.preferences.mdblistRatings = e.target.checked;
-      renderToggleLabel(toggleRatings, labelRatings);
+      syncToggles(elements, state);
       actions.onUpdate?.();
     });
   }
@@ -75,6 +76,7 @@ function syncToggles(elements, state) {
   if (elements.toggleRatings) {
     elements.toggleRatings.checked = Boolean(state.preferences.mdblistRatings);
     renderToggleLabel(elements.toggleRatings, elements.labelRatings);
+    if (getEnrichmentState(state.preferences, state.apiKeys).mdblistMissingKey && elements.labelRatings) elements.labelRatings.textContent = 'Falta clave';
   }
   const isBadgesEnabled = Boolean(state.preferences.badgesEnabled);
   if (elements.toggleBadges) {

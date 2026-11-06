@@ -1,5 +1,5 @@
-<div id="modalWizardAvatarPicker" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[60] hidden items-center justify-center p-3 sm:p-5 transition-all duration-300">
-    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-4xl w-full max-h-[88vh] shadow-[var(--shadow-lift)] text-white relative flex flex-col my-auto overflow-hidden">
+<div id="modalWizardAvatarPicker" class="popup-overlay fixed inset-0 bg-black/85 backdrop-blur-md z-[60] hidden items-center justify-center p-3 sm:p-5 transition-all duration-300">
+    <div class="popup-panel bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-4xl w-full max-h-[88vh] shadow-[var(--shadow-lift)] text-white relative flex flex-col my-auto overflow-hidden">
       <!-- Cabecera -->
       <div class="flex items-center justify-between border-b border-white/[0.08] p-4 sm:p-5 shrink-0">
         <div class="flex items-center gap-2.5">
@@ -25,7 +25,7 @@
           <i class="fa-solid fa-chevron-right text-[10px] text-white/40 ml-1"></i>
         </button>
 
-        <div class="relative flex-1 sm:max-w-xs">
+        <div class="popup-search relative flex-1 sm:max-w-xs">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-white/40 pointer-events-none"></i>
           <input type="text" id="inputWizardAvatarSearch" placeholder="Buscar (ej: Luffy, pj: Naruto)..." class="lat-field w-full text-xs pl-8 pr-7 py-2">
         </div>

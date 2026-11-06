@@ -8,6 +8,7 @@ export function saveWizardSession(state, store) {
     newlyCreatedProfileIds: Array.from(state.newlyCreatedProfileIds || []),
     currentStep: state.currentStep,
     maxUnlockedStep: state.maxUnlockedStep,
+    migrationPending: Boolean(state.migration || state.migrationNeedsReconnect),
   });
 }
 
@@ -16,6 +17,7 @@ export function restoreWizardSession(state, store, { setAuthBadge, updateProfile
     const data = store.read();
     if (data?.auth?.isAuthenticated) {
       state.nuvioAuth = { ...state.nuvioAuth, ...data.auth };
+      state.migrationNeedsReconnect = data.migrationPending === true;
       state.profiles = data.profiles || [];
       state.selectedProfileId = data.selectedProfileId || null;
       state.selectedProfileName = data.selectedProfileName || '';

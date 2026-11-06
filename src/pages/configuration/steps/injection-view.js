@@ -22,21 +22,24 @@ export function updateStep7ExecuteButton(root, state) {
 }
 
 export function updateManualModeButtons(root, state) {
-  const hasPassword = Boolean(state.aiometadata?.password?.trim().length >= 6);
   for (const id of ['#btnCopyAioConfig', '#btnDownloadAioConfig']) {
     const button = root.querySelector?.(id);
     if (!button) continue;
-    button.disabled = !hasPassword;
-    button.classList.toggle('opacity-40', !hasPassword);
-    button.classList.toggle('cursor-not-allowed', !hasPassword);
-    button.title = hasPassword ? 'Exportar configuración de AIOMetadata' : 'Define una contraseña de al menos 6 caracteres';
+    button.disabled = false;
+    button.classList.remove('opacity-40');
+    button.classList.remove('cursor-not-allowed');
+    button.title = 'Exportar configuración de AIOMetadata';
   }
   const isBadgesEnabled = Boolean(state.preferences?.badgesEnabled);
   const isAioStreamsInstalled = Boolean(state.aiostreams?.installed || (state.profileAddons || []).some(a => a.isAioStreams));
 
   const toggle = (id, visible) => {
     const el = root.querySelector?.(id);
-    if (el) el.classList.toggle('hidden', !visible);
+    if (el) {
+      el.classList.toggle('hidden', !visible);
+      el.hidden = !visible;
+      el.style.display = visible ? 'flex' : 'none';
+    }
   };
 
   toggle('#btnCopyBadgeUrl', isBadgesEnabled);

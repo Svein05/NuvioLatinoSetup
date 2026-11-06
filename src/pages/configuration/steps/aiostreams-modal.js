@@ -30,7 +30,7 @@ export function updateInstallButtonState(root, draft, isEditing) {
     if (val && !draft?.validatedKeys?.[id.toLowerCase()]) { hasUnvalidated = true; break; }
   }
 
-  const enabled = hasValidated && !hasUnvalidated;
+  const enabled = hasValidated && !hasUnvalidated && !draft?.validating;
   btn.disabled = !enabled;
   btn.className = `lat-capsule-btn solid text-xs py-1.5 px-3.5 flex items-center gap-1.5 ${enabled ? 'opacity-100 cursor-pointer shadow-[var(--shadow-pill)]' : 'opacity-40 cursor-not-allowed shadow-[var(--shadow-pill)]'}`;
   btn.title = enabled
@@ -39,6 +39,10 @@ export function updateInstallButtonState(root, draft, isEditing) {
 }
 
 export function syncDebridModalInputs(root, draft, isEditing = false) {
+  const validateButton = root.querySelector('#btnValidateDebridKeys');
+  if (validateButton) validateButton.disabled = false;
+  const validateText = root.querySelector('#btnValidateDebridKeysText');
+  if (validateText) validateText.textContent = 'Validar claves';
   const iconEl = root.querySelector?.('#iconInstallAioStreams');
   const textEl = root.querySelector?.('#textInstallAioStreams');
   if (iconEl && textEl) {
@@ -53,7 +57,8 @@ export function syncDebridModalInputs(root, draft, isEditing = false) {
     const statusEl = root.querySelector?.(`#statusDebrid${id}`);
     if (!statusEl) return;
     if (draft.validatedKeys[key]) {
-      statusEl.innerHTML = '<span class="text-emerald-400 font-medium flex items-center gap-1"><i class="fa-solid fa-check text-[10px]"></i> Verificada</span>';
+      renderVerifiedKeyStatus(statusEl, { status: draft.validatedKeys[key] === 'format' ? 'format-valid' : 'valid',
+        user: 'Verificada', plan: draft.validatedKeys[key] === 'format' ? 'Solo se comprobó el formato.' : 'Verificada con el proveedor' });
     } else {
       renderDebridLink(statusEl, id);
     }
@@ -64,8 +69,13 @@ async function validateSingleKey(item, validateKey, draft, statusEl) {
   if (statusEl) statusEl.innerHTML = '<span class="text-amber-300 flex items-center gap-1"><i class="fa-solid fa-spinner fa-spin text-[10px]"></i> Verificando...</span>';
   try {
     const res = await validateKey(item.key, item.val);
+    if (draft.cancelled) return false;
+    if (item.input.value.trim() !== item.val) {
+      renderUnverifiedKeyStatus(statusEl, { status: 'unverifiable', error: 'La clave cambió. Vuelve a validarla.' });
+      return false;
+    }
     if (res.valid) {
-      draft.validatedKeys[item.key] = true;
+      draft.validatedKeys[item.key] = res.status === 'format-valid' ? 'format' : true;
       draft.debrids[item.key] = item.val;
       if (statusEl) renderVerifiedKeyStatus(statusEl, res);
       return true;
@@ -74,47 +84,58 @@ async function validateSingleKey(item, validateKey, draft, statusEl) {
     delete draft.debrids[item.key];
     if (statusEl) renderUnverifiedKeyStatus(statusEl, res);
     return false;
-  } catch (err) {
+  } catch {
     delete draft.validatedKeys[item.key];
     delete draft.debrids[item.key];
-    if (statusEl) statusEl.innerHTML = `<span class="text-rose-400 font-medium flex items-center gap-1" title="${err.message}"><i class="fa-solid fa-xmark text-[10px]"></i> Error de red</span>`;
+    if (!draft.cancelled && statusEl) renderUnverifiedKeyStatus(statusEl, { status: 'unverifiable', error: 'No se pudo conectar con el proveedor.' });
     return false;
   }
 }
 
-export async function validateDraftKeys({ root, draft, validateKey, notify }) {
+function showValidationFeedback(root, message) {
+  const feedback = root.querySelector('#debridValidationFeedback');
+  if (!feedback) return;
+  feedback.textContent = message;
+  feedback.classList.remove('hidden');
+}
+
+export async function validateDraftKeys({ root, draft, validateKey }) {
+  if (!draft || draft.validating) return;
   const btnValidate = root.querySelector?.('#btnValidateDebridKeys');
   const btnText = root.querySelector?.('#btnValidateDebridKeysText');
   const entries = [];
   DEBRID_IDS.forEach(id => {
-    const val = (root.querySelector?.(`#inputDebrid${id}`)?.value || '').trim();
-    if (val) entries.push({ id, key: id.toLowerCase(), val });
+    const input = root.querySelector?.(`#inputDebrid${id}`);
+    const val = (input?.value || '').trim();
+    if (val) entries.push({ id, key: id.toLowerCase(), val, input });
   });
 
   if (!entries.length) {
-    notify?.('Ingresa la clave API de al menos un proveedor Debrid para validar.', 'warning');
+    showValidationFeedback(root, 'Ingresa una clave para validar.');
     root.querySelector?.('#inputDebridTorbox')?.focus();
     return;
   }
 
+  draft.validating = true;
+  updateInstallButtonState(root, draft, false);
   if (btnValidate) btnValidate.disabled = true;
   if (btnText) btnText.innerText = 'Validando en vivo...';
-  let passed = 0;
   let failed = 0;
 
   for (const item of entries) {
+    if (draft.cancelled) break;
     const statusEl = root.querySelector?.(`#statusDebrid${item.id}`);
     const ok = await validateSingleKey(item, validateKey, draft, statusEl);
-    if (ok) passed++; else failed++;
+    if (!ok) failed++;
   }
 
+  draft.validating = false;
+  if (draft.cancelled) return;
   if (btnValidate) btnValidate.disabled = false;
   if (btnText) btnText.innerText = 'Validar Claves';
   updateInstallButtonState(root, draft, false);
 
-  if (passed > 0 && failed === 0) notify?.(`✓ ${passed} clave(s) Debrid verificada(s) con éxito.`, 'success');
-  else if (passed > 0) notify?.(`Se verificaron ${passed} clave(s), pero ${failed} falló. Corrige las erróneas para guardar.`, 'warning');
-  else notify?.('No se pudo validar ninguna de las claves ingresadas. Verifica tus credenciales.', 'error');
+  showValidationFeedback(root, failed ? 'Revisa las claves pendientes junto a cada proveedor.' : 'Claves comprobadas. Ya puedes instalar el addon.');
 }
 
 export function commitAioStreamsInstall({ root, draft, state, onClose, notify }) {

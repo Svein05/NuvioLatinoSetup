@@ -1,4 +1,5 @@
 import { mountApiKeysStep } from '../pages/configuration/steps/api-keys.js';
+import { CONFIG } from './config.js';
 import { verifyWizardApiKeys } from './api-key-validation.js';
 import { mountPreferencesStep } from '../pages/configuration/steps/preferences.js';
 import { mountAddonsStep } from '../pages/configuration/steps/addons.js';
@@ -71,7 +72,7 @@ export function mountStep6Addons(controller, state, root) {
     state,
     actions: {
       notify: (msg, type) => controller.showToast(msg, type),
-      validateDebridKey,
+      validateDebridKey: (provider, key) => validateDebridKey(provider, key, { proxyUrl: CONFIG.WORKER_API_URL, allowFormatValidation: true }),
       onUpdate: () => controller.updateUI(),
     },
     root: targetRoot,

@@ -1,4 +1,5 @@
 import { getBadgePackById } from '../../../features/badges/index.js';
+import { getEnrichmentState } from '../../../features/wizard/index.js';
 
 function countActiveFolders(collections = []) {
   let count = 0;
@@ -19,8 +20,8 @@ function getPosterEngineLabel(engine) {
 }
 
 function getEnrichmentLabel(preferences, apiKeys = {}) {
-  const enr = Boolean(preferences?.tmdbEnrichment);
-  const rat = Boolean(preferences?.mdblistRatings && apiKeys.mdblist);
+  const { tmdb: enr, mdblist: rat, mdblistMissingKey } = getEnrichmentState(preferences, apiKeys);
+  if (mdblistMissingKey) return { text: enr ? 'TMDB activo · MDBList: falta clave' : 'MDBList: falta clave', active: enr };
   if (enr && rat) return { text: 'TMDB + MDBList (Activos)', active: true };
   if (enr) return { text: 'Solo TMDB (Activo)', active: true };
   if (rat) return { text: 'Solo MDBList (Activo)', active: true };
@@ -62,7 +63,7 @@ export function refreshStep7Summary(root, state) {
   if (enrichmentEl) {
     const enr = getEnrichmentLabel(state.preferences, state.apiKeys);
     enrichmentEl.innerText = enr.text;
-    enrichmentEl.className = `text-xs sm:text-sm ${enr.active ? 'text-white' : 'text-white/40'} font-medium block truncate`;
+    enrichmentEl.className = `text-xs sm:text-sm ${enr.active ? 'text-white' : 'text-white/40'} font-medium block leading-relaxed`;
   }
 
   if (badgesEl) {

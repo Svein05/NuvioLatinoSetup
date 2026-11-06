@@ -1,4 +1,6 @@
 import { CONFIG } from './config.js';
+import { applyStremioMigration } from '../workflows/migrate-stremio.js';
+import { readMigrationTarget, writeMigrationTarget } from '../integrations/nuvio/migration.js';
 import { provisionMetadataConfiguration, inspectSavedMetadataManifest } from './metadata-configuration.js';
 import { createStreamingConfiguration } from './streaming-configuration.js';
 import { compileStreamingConfig } from '../features/addons/index.js';
@@ -31,6 +33,9 @@ export async function executePipeline(state, options = {}) {
     getBadgePackById,
     compileBadgeRules: compileUniversalBadgeRules,
     recordCompletion: recordSuccessfulCompletion,
+    migrateStremio: (state, options) => applyStremioMigration(state, {
+      ...options, read: readMigrationTarget, write: writeMigrationTarget,
+    }),
     ...(options.services || {}),
     ...(options.nuvioClient ? { nuvioClient: options.nuvioClient } : {}),
   };

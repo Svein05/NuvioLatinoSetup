@@ -55,7 +55,7 @@ export function mountAuthStep(actions, root = document) {
   }
   lifetime.on(elements.manual, 'click', () => {
     if (state.busy) return;
-    actions.onManual();
+    if (actions.onManual() === false) return;
     actions.onContinue('manual');
   });
   const dispose = () => {
