@@ -7,6 +7,8 @@ import { avatarRankingRoute } from './routes/avatar-ranking.js';
 import { avatarSuggestionsRoute } from './routes/avatar-suggestions.js';
 import { completionsRoute } from './routes/completions.js';
 import { metricsResponse } from './middleware/production-metrics.js';
+import { publicMetadataRoute } from './routes/public-metadata.js';
+import { validateTorboxRoute } from './routes/debrid-validation.js';
 
 /** Dependency injection keeps all tests offline and independent of private credentials. */
 export function createWorker({ fetchImpl = fetch, now = Date.now } = {}) {
@@ -19,10 +21,14 @@ export function createWorker({ fetchImpl = fetch, now = Date.now } = {}) {
         throw new Error('Weekly poster refresh failed', { cause: error });
       }
     },
-    async fetch(request, env) {
+    async fetch(request, env, context) {
       try {
         if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
         const { pathname } = new URL(request.url);
+        if (pathname === '/api/debrid/torbox/validate') return await validateTorboxRoute(request, fetchImpl);
+        if (['/api/avatars/catalog', '/api/repository/stars'].includes(pathname)) {
+          return await publicMetadataRoute(request, env, { kind: pathname.endsWith('catalog') ? 'catalog' : 'stars', fetchImpl, now, context });
+        }
         if (pathname === '/api/completions') return metricsResponse(await completionsRoute(request, env, { fetchImpl, now }));
         if (pathname === '/api/poster-feed') return await posterFeedRoute(request, env);
         if (pathname === '/api/avatars/suggestions') return await avatarSuggestionsRoute(request, env, fetchImpl);

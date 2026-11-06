@@ -1,3 +1,4 @@
+import { mountDisclosure } from '../../../shared/ui/disclosure/mount.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { isAioMetadataAddon } from '../../../features/addons/index.js';
 import { renderAddonsContainer } from './addons-view.js';
@@ -79,6 +80,7 @@ function bindDebridInputs({ lifetime, root, getDraft, state }) {
 function openDebridsDialog(root, state) {
   toggleModal(root.querySelector?.('#modalAioStreamsRequirement'), false);
   toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), true);
+  root.querySelector('#debridValidationFeedback')?.classList.add('hidden');
   const draft = { debrids: { ...(state.aiostreams.debrids || {}) }, validatedKeys: { ...(state.aiostreams.validatedKeys || {}) } };
   syncDebridModalInputs(root, draft, state.hasAioStreamsInstance());
   updateInstallButtonState(root, draft, state.hasAioStreamsInstance());
@@ -93,10 +95,10 @@ function createAioStreamsActions({ root, state, getDraft, setDraft, render, acti
       const idx = state.getAioStreamsIndex();
       if (idx !== -1) { state.removeAddon(idx); render(); }
       toggleModal(root.querySelector?.('#modalAioStreamsConflict'), false);
-      toggleModal(root.querySelector?.('#modalAioStreamsRequirement'), true);
+      setDraft(openDebridsDialog(root, state));
     },
     openAioStreamsDebridsModal: () => setDraft(openDebridsDialog(root, state)),
-    closeAioStreamsDebridsModal: () => { toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); },
+    closeAioStreamsDebridsModal: () => { if (getDraft()) getDraft().cancelled = true; toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); },
     validateDebridKeys: () => validateDraftKeys({ root, draft: getDraft(), validateKey: actions.validateDebridKey, notify: actions.notify }),
     installAioStreamsFromModal: () => commitAioStreamsInstall({ root, draft: getDraft(), state, onClose: () => { toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); render(); }, notify: actions.notify }),
   };
@@ -121,6 +123,7 @@ function setupRemoveModal({ lifetime, root, state, getPending, setPending, rende
 
 export function mountAddonsStep({ state, actions, root = document } = {}) {
   const lifetime = createLifetime();
+  lifetime.add(mountDisclosure(root.querySelector('#optionalDebridProviders')));
   const cache = new Map();
   let pendingDeleteIndex = null;
   let draft = null;

@@ -108,7 +108,7 @@ function updatePosterDom(root, { item, defaultUrl, betterUrl, plusUrl }) {
   if (imgDefault) imgDefault.src = defaultUrl;
 }
 
-async function renderVerifiedItem(root, verified, withTransition) {
+async function renderVerifiedItem(root, verified, withTransition, isCurrent = () => true) {
   const titleEl = root.getElementById ? root.getElementById('posterDemoTitle') : root.querySelector?.('#posterDemoTitle');
   const imgDefault = root.getElementById ? root.getElementById('posterPreviewDefault') : root.querySelector?.('#posterPreviewDefault');
   const imgBetter = root.getElementById ? root.getElementById('posterPreviewBetter') : root.querySelector?.('#posterPreviewBetter');
@@ -119,7 +119,7 @@ async function renderVerifiedItem(root, verified, withTransition) {
     imgs.forEach(img => { img.style.opacity = '0'; });
     if (titleEl) titleEl.style.opacity = '0';
     await new Promise(r => setTimeout(r, 300));
-    updatePosterDom(root, verified);
+    if (isCurrent()) updatePosterDom(root, verified);
     imgs.forEach(img => { img.style.opacity = '1'; });
     if (titleEl) titleEl.style.opacity = '1';
   } else {
@@ -147,57 +147,83 @@ async function findPrevCandidate(currentIndex, opts) {
   return null;
 }
 
-export function createPostersCarousel({ getKeys, getCustomUrls, root = document } = {}) {
-  let currentIndex = 19;
-  let currentItem = DEMO_POSTERS[19] || DEMO_POSTERS[0];
-  let deck = [];
-  let timer = null;
-  let transitioning = false;
+class PostersCarousel {
+  currentIndex = 19;
+  currentItem = DEMO_POSTERS[19] || DEMO_POSTERS[0];
+  deck = [];
+  timer = null;
+  active = false;
+  revision = 0;
+  busy = false;
+  prepared = null;
+  constructor({ getKeys, getCustomUrls, root = document }) { Object.assign(this, { getKeys, getCustomUrls, root }); }
+  options() {
+    const keys = this.getKeys?.() || {}, urls = this.getCustomUrls?.() || {};
+    return { tmdbKey: keys.tmdb || '', mdblistKey: keys.mdblist || '', customBetterUrl: urls.better || '', customPlusUrl: urls.plus || '' };
+  }
+  drawNext() {
+    if (!this.deck.length) this.deck = refillPosterDeck(this.currentItem?.imdbId);
+    return this.deck.shift() || DEMO_POSTERS[0];
+  }
+  prepare() {
+    this.prepared ||= findNextCandidate(() => this.drawNext(), this.options());
+    return this.prepared;
+  }
+  async display(verified, transition, revision) {
+    if (!verified || revision !== this.revision) return;
+    await renderVerifiedItem(this.root, verified, transition, () => revision === this.revision);
+    if (revision !== this.revision) return;
+    this.currentItem = verified.item;
+    this.currentIndex = Math.max(0, DEMO_POSTERS.findIndex(p => p.imdbId === verified.item.imdbId));
+  }
+  async rotate(previous = false) {
+    if (this.busy) return;
+    this.busy = true;
+    const revision = this.revision;
+    try {
+      const verified = await (previous ? findPrevCandidate(this.currentIndex, this.options()) : this.prepare());
+      if (revision !== this.revision) return;
+      this.prepared = null;
+      await this.display(verified, true, revision);
+    } catch { /* Keep the last complete comparison if a provider or transition fails. */ }
+    finally { this.busy = false; }
+  }
+  schedule() {
+    this.prepare();
+    this.timer = setTimeout(async () => {
+      const revision = this.revision;
+      await this.rotate();
+      if (this.active && revision === this.revision) this.schedule();
+    }, 5500);
+  }
+  start() { if (this.active) return; this.active = true; this.schedule(); }
+  stop() { this.active = false; this.revision++; clearTimeout(this.timer); this.timer = null; }
+  async manual(previous) {
+    this.stop();
+    const revision = this.revision;
+    await this.rotate(previous);
+    if (revision === this.revision) this.start();
+  }
+  next = () => this.manual(false);
+  prev = () => this.manual(true);
+  async updatePreviews() {
+    const revision = ++this.revision;
+    this.prepared = null;
+    clearTimeout(this.timer);
+    const verified = await verifyAndPreloadTriple(this.currentItem, this.options());
+    await this.display(verified, false, revision);
+    if (this.active && revision === this.revision) this.schedule();
+  }
+  getCurrentItem() { return this.currentItem; }
+  getCurrentIndex() { return this.currentIndex; }
+  dispose() { this.stop(); this.prepared = null; }
+}
 
-  const drawNext = () => {
-    if (!deck.length) deck = refillPosterDeck(currentItem?.imdbId);
-    return deck.shift() || DEMO_POSTERS[0];
-  };
-
-  const getOptions = () => ({
-    tmdbKey: getKeys?.()?.tmdb || '',
-    mdblistKey: getKeys?.()?.mdblist || '',
-    customBetterUrl: getCustomUrls?.()?.better || '',
-    customPlusUrl: getCustomUrls?.()?.plus || '',
-  });
-
-  const displayVerified = async (verified, withTransition = true) => {
-    transitioning = true;
-    await renderVerifiedItem(root, verified, withTransition);
-    currentItem = verified.item;
-    currentIndex = Math.max(0, DEMO_POSTERS.findIndex(p => p.imdbId === verified.item.imdbId));
-    transitioning = false;
-  };
-
-  const rotateToNext = async (withTransition = true) => {
-    if (transitioning) return;
-    const verified = await findNextCandidate(drawNext, getOptions());
-    if (verified) await displayVerified(verified, withTransition);
-  };
-
-  const start = () => { stop(); timer = setInterval(() => rotateToNext(true), 5500); };
-  const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
-
+export function createPostersCarousel(options = {}) {
+  const carousel = new PostersCarousel(options);
   return {
-    start, stop,
-    next: async () => { stop(); await rotateToNext(true); start(); },
-    prev: async () => {
-      stop();
-      const verified = await findPrevCandidate(currentIndex, getOptions());
-      if (verified) await displayVerified(verified, true);
-      start();
-    },
-    updatePreviews: async () => {
-      const verified = await verifyAndPreloadTriple(currentItem || DEMO_POSTERS[currentIndex] || DEMO_POSTERS[0], getOptions());
-      if (verified) await displayVerified(verified, false);
-    },
-    getCurrentItem: () => currentItem,
-    getCurrentIndex: () => currentIndex,
-    dispose: () => stop(),
+    start: () => carousel.start(), stop: () => carousel.stop(), next: carousel.next, prev: carousel.prev,
+    updatePreviews: () => carousel.updatePreviews(), getCurrentItem: () => carousel.getCurrentItem(),
+    getCurrentIndex: () => carousel.getCurrentIndex(), dispose: () => carousel.dispose(),
   };
 }

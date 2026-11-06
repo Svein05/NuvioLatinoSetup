@@ -1,5 +1,5 @@
-<div id="modalNewProfile" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
-    <div class="bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
+<div id="modalNewProfile" class="popup-overlay fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="popup-panel bg-[#0b0d12]/98 border border-white/[0.14] rounded-[26px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] text-white relative flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs text-emerald-400">
@@ -32,11 +32,11 @@
         </div>
 
         <div>
-          <label class="text-xs text-white/70 block mb-1.5 font-medium">Nombre del Perfil</label>
+          <label class="text-xs text-white/70 block mb-1.5 font-medium" for="inputNewProfileName">Nombre del Perfil</label>
           <input type="text" id="inputNewProfileName" required maxlength="30" placeholder="Ej. Familia, Cine, Anime..." class="lat-field w-full text-sm">
         </div>
 
-        <div class="border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
+        <div class="popup-actions border-t border-white/[0.08] pt-3 flex items-center justify-end gap-2">
           <button type="button" id="btnCancelNewProfile" class="lat-capsule-btn glass text-xs py-2 px-3">
             Cancelar
           </button>

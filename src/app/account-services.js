@@ -17,7 +17,8 @@ import { fetchTopAvatarKeys } from './avatar-ranking.js';
 const modder = createModderClient({ baseUrl: CONFIG.WORKER_API_URL });
 
 export const accountServices = {
-  requestJson, presentOverview: presentAccountOverview, validateDebridKey,
+  requestJson, presentOverview: presentAccountOverview,
+  validateDebridKey: (provider, key) => validateDebridKey(provider, key, { proxyUrl: CONFIG.WORKER_API_URL }),
   resolveAvatarCdnUrl, loadAvatarsCatalog, getCompiledAvatars, getStylesSummary,
   getFranchisesSummary, filterAvatars, fetchTopAvatarKeys,
   copyText: text => navigator.clipboard.writeText(text),

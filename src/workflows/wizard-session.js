@@ -7,6 +7,7 @@ function sanitizeWizardSnapshot(value, now) {
   if (!auth || sessionExpired(auth, now)) return null;
   return {
     auth: { ...auth, isAuthenticated: true },
+    migrationPending: value.migrationPending === true,
     profiles: Array.isArray(value.profiles) ? value.profiles : [],
     selectedProfileId: value.selectedProfileId ?? null,
     selectedProfileName: typeof value.selectedProfileName === 'string' ? value.selectedProfileName : '',

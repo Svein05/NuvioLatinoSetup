@@ -1,0 +1,7 @@
+/* Page-specific styles retain their original cascade order. */
+@import '../features/profiles/ui/selected-profile.css';
+@import '../pages/landing.css';
+@import '../features/profiles/ui/popover.css';
+@import '../features/avatars/ui/catalog.css';
+@import '../features/avatars/ui/collections.css';
+@import '../features/avatars/ui/comparison.css';

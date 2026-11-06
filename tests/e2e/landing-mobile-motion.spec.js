@@ -78,7 +78,7 @@ test('mobile surfaces avoid live backdrop blur and do not rewrite static scene c
     return route.fulfill({ path: 'assets/preview/landing/' + ['inception.jpg', 'matrix.jpg', 'interstellar.jpg', 'godfather.jpg'][index % 4] });
   });
   await page.goto('/');
-  await expect(page.locator('[data-poster-wall]')).toHaveClass(/is-ready/);
+  await expect(page.locator('[data-hero-strips]')).toBeVisible();
   await page.addStyleTag({ content: 'html { scroll-behavior: auto !important; }' });
   await page.locator('[data-scene="profile"]').scrollIntoViewIfNeeded();
   await expect(page.locator('[data-scene="profile"]')).toHaveClass(/is-in-view/);

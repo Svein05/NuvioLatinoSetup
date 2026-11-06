@@ -5,6 +5,7 @@ import { excludePrivateConfiguration, publicResources } from '../scripts/public-
 import postcss from './postcss.config.js';
 import { htmlFragments } from '../scripts/html-fragments.js';
 import { siteSeo } from '../scripts/site-seo.js';
+import { optimizedImages } from '../scripts/optimized-images.js';
 
 const repository = fileURLToPath(new URL('../', import.meta.url));
 const pages = ['index', 'configuration/index', 'account/index', 'documentation/index', 'modder/index'];
@@ -14,7 +15,7 @@ export default defineConfig({
   css: { postcss },
   root: path.join(repository, 'src/pages'),
   publicDir: path.join(repository, 'public'),
-  plugins: [htmlFragments(path.join(repository, 'src')), siteSeo(repository, process.env.SITE_ENV), excludePrivateConfiguration(),
+  plugins: [htmlFragments(path.join(repository, 'src')), siteSeo(repository, process.env.SITE_ENV), optimizedImages(repository), excludePrivateConfiguration(),
     publicResources(repository)],
   server: { fs: { allow: [repository] } },
   build: {

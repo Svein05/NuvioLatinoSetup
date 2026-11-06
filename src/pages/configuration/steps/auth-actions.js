@@ -63,7 +63,13 @@ export function createAuthStepMountOptions({
       else renderProfiles?.();
       updateUI?.();
     },
-    onManual: () => handleManualMode(state, notify),
+    onManual: () => {
+      if (state.requestMigrationManualMode) {
+        state.requestMigrationManualMode(() => { handleManualMode(state, notify); updateUI?.(); });
+        return false;
+      }
+      handleManualMode(state, notify);
+    },
     notify: (message, type) => notify?.(message, type),
     onFailure: () => setAuthBadge?.(false),
   };

@@ -22,6 +22,7 @@ import {
   addCustomProfileAddon,
 } from '../features/addons/index.js';
 import { loadWizardTemplates } from '../workflows/load-wizard-templates.js';
+import { stageMigrationAddons } from '../features/migration/index.js';
 
 export { isAioStreamsAddon };
 export function isAioMetadataAddon(addon) {
@@ -32,6 +33,7 @@ export class WizardState extends WizardCollectionsState {
   constructor() {
     super();
     this.currentStep = 1;
+    this.migration = null;
     this.totalSteps = 7;
     this.maxUnlockedStep = 1;
     this.preferences = createDefaultPreferences();
@@ -108,6 +110,7 @@ export class WizardState extends WizardCollectionsState {
     this.existingAioAddon = result.existingAioAddon;
     result.duplicateAioIds.forEach(id => this.deletedAddonIds.add(id));
     this.profileAddons = result.profileAddons;
+    stageMigrationAddons(this);
     this.notify('ADDONS_UPDATED');
   }
 

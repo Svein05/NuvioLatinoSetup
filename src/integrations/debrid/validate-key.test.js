@@ -9,6 +9,16 @@ const accounts = [
   ['debridlink', { success: true, value: { pseudo: 'Synthetic user', premium: true } }, 'Synthetic user', 'Premium'],
 ];
 
+it('limits format-only acceptance to explicitly opted-in optional providers', async () => {
+  const fetchImpl = vi.fn();
+  expect(await validateDebridKey('easydebrid', 'synthetic-key', { fetchImpl })).toMatchObject({ status: 'unsupported' });
+  expect(await validateDebridKey('easydebrid', 'synthetic-key', { fetchImpl, allowFormatValidation: true }))
+    .toMatchObject({ status: 'format-valid' });
+  expect(await validateDebridKey('easydebrid', 'bad key', { fetchImpl, allowFormatValidation: true }))
+    .toMatchObject({ valid: false, status: 'invalid' });
+  expect(fetchImpl).not.toHaveBeenCalled();
+});
+
 it.each(accounts)('preserves a verified %s account and request credentials', async (provider, payload, user, plan) => {
   const fetchImpl = vi.fn().mockResolvedValue(Response.json(payload));
   expect(await validateDebridKey(provider.toUpperCase(), ' synthetic key ', { fetchImpl, now: () => 0 }))

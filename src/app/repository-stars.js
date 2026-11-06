@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { fetchRepositoryStars } from '../integrations/github/repository-stars.js';
+import { createPublicMetadataClient } from '../integrations/worker/public-metadata.js';
 import { createRepositoryStars } from '../workflows/load-repository-stars.js';
 import { createJsonStore } from '../shared/storage/json-store.js';
 import { mountRepositoryStars } from '../shared/ui/navigation/repository-stars.js';
@@ -15,7 +15,7 @@ function initialize() {
     },
     reportWarning: () => console.warn('No se pudo acceder a la caché de estrellas de GitHub.'),
   });
-  const stars = createRepositoryStars({ readCount: options => fetchRepositoryStars(CONFIG.GITHUB_REPO, options), store });
+  const stars = createRepositoryStars({ readCount: createPublicMetadataClient(CONFIG.WORKER_API_URL).stars, store });
   dispose = mountRepositoryStars(stars);
 }
 

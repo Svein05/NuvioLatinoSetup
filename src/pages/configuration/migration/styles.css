@@ -1,0 +1,66 @@
+.migration-dialog { max-height: calc(100svh - 2rem); overflow-y: auto; }
+.migration-close { position: absolute; right: 1rem; top: 1rem; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: #ffffff12; }
+.migration-summary { border-top: 1px solid rgb(255 255 255 / .08); padding-top: 1.25rem; font-size: .8125rem; }
+[data-migration-route][hidden] { display: none !important; }
+
+.migration-brand { display: flex; align-items: center; gap: .75rem; }
+.migration-brand img:first-child { width: 3rem; height: 3rem; object-fit: contain; }
+.migration-brand img:last-child { width: min(10rem, 55vw); height: auto; object-fit: contain; }
+
+.migration-categories, .migration-addon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: .75rem;
+  min-width: 0;
+}
+.migration-category, .migration-addon {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid rgb(255 255 255 / .1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / .03);
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.migration-category:has(input:checked), .migration-addon:has(input:checked) {
+  border-color: rgb(255 212 121 / .35);
+  background: rgb(255 212 121 / .05);
+}
+.migration-category:focus-within, .migration-addon:focus-within { outline: 2px solid #ffd479; outline-offset: 3px; }
+.migration-category input, .migration-addon input { accent-color: #ffd479; width: 1rem; height: 1rem; flex-shrink: 0; }
+.migration-category-icon { color: #ffd479; width: 1.25rem; text-align: center; }
+.migration-category-copy { display: grid; gap: .35rem; min-width: 0; flex: 1; }
+.migration-category-title { display: flex; align-items: center; justify-content: space-between; gap: .75rem; font-size: .875rem; font-weight: 600; }
+.migration-count { font-size: .75rem; font-variant-numeric: tabular-nums; color: #ffd479; }
+.migration-description { font-size: .75rem; line-height: 1.5; color: rgb(255 255 255 / .5); }
+.migration-category.is-empty { opacity: .45; cursor: default; }
+.migration-addon-section { border-top: 1px solid rgb(255 255 255 / .08); padding-top: 1.25rem; }
+.migration-section-heading { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: .5rem; margin-bottom: .85rem; }
+.migration-addon { padding: .85rem 1rem; font-size: .8125rem; }
+.migration-addon > i { color: rgb(255 255 255 / .45); }
+.migration-addon > span, .migration-notes li { overflow-wrap: anywhere; min-width: 0; }
+.migration-notes { font-size: .75rem; color: rgb(255 255 255 / .55); line-height: 1.6; }
+.migration-notes summary { cursor: pointer; }
+[data-migration-omissions][hidden] { display: none !important; }
+
+.migration-addon-controls { display: flex; align-items: center; gap: 1rem; }
+.migration-addon-collapse { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows 350ms cubic-bezier(.215,.61,.355,1), opacity 350ms; }
+.migration-addon-collapse.is-open { grid-template-rows: 1fr; opacity: 1; }
+.migration-addon-collapse > div { min-height: 0; overflow: hidden; }
+.migration-addon-logo { position: relative; flex: 0 0 2rem; width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: .5rem; background: rgb(255 255 255 / .05); color: rgb(255 255 255 / .5); }
+.migration-addon-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: inherit; background: #181b20; }
+@media (prefers-reduced-motion: reduce) { .migration-addon-collapse { transition: none; } }
+
+#btnStartStremioMigration[hidden] { display: none !important; }
+.migration-addon-grid { padding: .25rem; margin: -.25rem; }
+.migration-addon:focus-within { outline: none; box-shadow: inset 0 0 0 2px #ffd479; }
+.migration-addon-collapse.is-open > div { overflow: visible; }
+.migration-summary-heading { display: flex; align-items: center; gap: .6rem; font-size: .875rem; font-weight: 600; }
+.migration-summary-rows { display: grid; gap: .7rem; margin-top: 1rem; }
+.migration-summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; color: rgb(255 255 255 / .6); }
+.migration-summary-row > span:last-child { text-align: end; }
+.migration-summary-row strong { color: #fff; font-variant-numeric: tabular-nums; font-weight: 500; }
+.migration-summary-row small { display: block; font-size: .7rem; color: #ffd479; margin-top: .2rem; }

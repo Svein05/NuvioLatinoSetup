@@ -1,7 +1,9 @@
 import { CONFIG } from './config.js';
 import { createAvatarCatalogStore, getStylesSummary as styles, getFranchisesSummary as franchises,
   filterAvatars as filter } from '../features/avatars/index.js';
-import { createAvatarCatalogClient } from '../integrations/github/avatar-catalog.js';
+import { createPublicMetadataClient } from '../integrations/worker/public-metadata.js';
+import { loadBundledAvatars } from '../integrations/github/bundled-avatars.js';
+import { setImageSourceHashes } from '../shared/media/responsive-image.js';
 import { avatarImageUrl } from '../integrations/github/avatar-image-url.js';
 import { createAvatarCatalogLoader } from '../workflows/load-avatar-catalog.js';
 import { createJsonStore } from '../shared/storage/json-store.js';
@@ -17,7 +19,19 @@ const cache = createJsonStore({
   },
   reportWarning: () => console.warn('No se pudo acceder a la caché del catálogo de avatares.'),
 });
-const client = createAvatarCatalogClient(CONFIG.GITHUB_REPO);
+const metadata = createPublicMetadataClient(CONFIG.WORKER_API_URL);
+const client = {
+  snapshot: async options => {
+    const data = await metadata.catalog(options);
+    setImageSourceHashes(data.hashes);
+    return { registry: data.registry, commitSha: data.revision, hashes: data.hashes, source: 'worker' };
+  },
+  fallback: async signal => {
+    const manifest = await loadBundledAvatars(signal);
+    return manifest.styles.flatMap(style => style.franchises.map(group => ({ style: style.style, ...group })));
+  },
+  restore: snapshot => setImageSourceHashes(snapshot.hashes),
+};
 const loader = createAvatarCatalogLoader({ client, cache, catalog });
 
 export const loadAvatarsCatalog = (forceRefresh = false) => loader.load(forceRefresh);

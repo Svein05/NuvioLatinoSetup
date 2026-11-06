@@ -10,6 +10,9 @@ Abre el [asistente web](https://guia.lat-add.com/) o consulta la
 
 - Completar un asistente de siete pasos: conexión o modo manual, perfil,
   colecciones, claves API, apariencia, addons y configuración final.
+- Migrar opcionalmente biblioteca, vistos, progreso y addons desde Stremio al perfil
+  elegido de Nuvio, conservando los datos existentes. La migración añade dos pasos
+  previos de conexión y selección; no modifica tu cuenta de Stremio.
 - Organizar colecciones nativas con carátulas panorámicas. El «Ghost Mode» oculta
   las filas de inicio de los catálogos de AIOMetadata para dar protagonismo a tus colecciones.
 - Elegir entre AioMetadata, BetterPoster y Poster+, y personalizar los badges de streams.
@@ -35,7 +38,8 @@ reglas de deduplicación; no representa personas únicas.
 
 Necesitas las claves API de **TMDB y MDBList**; el asistente incluye los enlaces
 para obtenerlas y valida ambas antes de continuar. La contraseña maestra del addon
-AIOMetadata debe tener al menos seis caracteres.
+AIOMetadata debe tener al menos seis caracteres para la configuración automática;
+las descargas JSON no requieren esa contraseña.
 
 Junto a «Obtener» de TMDB y MDBList encontrarás sus videos tutoriales con capítulos, pausa,
 velocidad ajustable y pantalla completa para seguir el proceso desde el asistente.
@@ -154,6 +158,18 @@ Los colaboradores pueden actualizar los avatares de `main` independientemente de
 una versión de la web. Al integrar esos cambios, conserva rutas y archivos originales.
 Ejecuta `node scripts/generate-avatar-manifest.js` para actualizar el catálogo incluido;
 su fecha procede de `version.json`. La actualización del catálogo remoto es independiente.
+
+### Imágenes y recursos
+
+El servidor de desarrollo y el build generan variantes WebP adaptables con Sharp.
+Los originales de `assets/` se conservan; los derivados con hash se guardan en una
+caché local ignorada y se publican únicamente dentro de `dist/assets/optimized/`.
+La primera ejecución puede tardar más mientras se preparan; las siguientes reutilizan
+la caché. Las miniaturas de presentación no sustituyen las URLs guardadas en Nuvio.
+
+El catálogo remoto y las estrellas se consultan mediante la caché pública del Worker,
+con respaldo del catálogo incluido y del último conteo confirmado. Consulta los
+[contratos y el orden de publicación](worker/PERFORMANCE.md) antes de desplegar.
 
 ## Créditos
 

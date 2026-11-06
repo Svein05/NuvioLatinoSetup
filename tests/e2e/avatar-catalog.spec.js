@@ -1,3 +1,4 @@
+import { publicCatalog } from './support/public-catalog.js';
 import { expect, test } from '@playwright/test';
 import { prepareAccount } from './support/account.js';
 
@@ -15,9 +16,7 @@ test('most-used avatars remain style-filtered, preserve scores and fill unranked
     { key: 'NetflixStyle/Naruto Shippuden/Naruto1.webp', score: 7 },
   ];
   await prepareAccount(page, 'rpc', { respondExternal(url, request) {
-    if (url.pathname.includes('/git/ref/')) return { body: { object: { sha } } };
-    if (url.pathname.includes('/git/trees/')) return { body: { tree: [...files,
-      'assets/profile_icons/IconsStyle/Robot.webp'].map(path => ({ path, type: 'blob' })) } };
+    if (url.pathname === '/api/avatars/catalog') return { body: publicCatalog([...files, 'assets/profile_icons/IconsStyle/Robot.webp'], sha) };
     if (url.pathname === '/api/avatars/ranking') {
       expect(url.searchParams.get('limit')).toBe('32');
       return { body: { environment: 'testing', items: ranked, totalUsage: 24 } };
@@ -60,8 +59,7 @@ for (const blockedCache of [false, true]) {
     await prepareAccount(page, 'rpc', {
       respondExternal(url) {
         if (offline) return;
-        if (url.pathname.includes('/git/ref/')) return { body: { object: { sha } } };
-        if (url.pathname.includes('/git/trees/')) return { body: { tree: files.map(path => ({ path, type: 'blob' })) } };
+        if (url.pathname === '/api/avatars/catalog') return { body: publicCatalog(files, sha) };
       },
     });
     await page.locator('.account-nav-btn[data-section="avatars"]').click();
@@ -81,21 +79,13 @@ for (const blockedCache of [false, true]) {
   });
 }
 
-test('an incomplete GitHub tree uses the pinned manifest without displaying a partial catalog', async ({ page }) => {
-  const manifestCalls = [];
-  await prepareAccount(page, 'rpc', {
-    respondExternal(url) {
-      if (url.pathname.includes('/git/ref/')) return { body: { object: { sha } } };
-      if (url.pathname.includes('/git/trees/')) return { body: { truncated: true, tree: [{ type: 'blob', path: files[0] }] } };
-      if (url.pathname.endsWith('/assets/profile_icons/manifest.json')) {
-        manifestCalls.push(url.pathname);
-        return { body: { styles: [{ style: 'NetflixStyle', franchises: [{ franchise: 'Naruto Shippuden', files: ['Naruto1.webp', 'Naruto2.webp', 'Sasuke.webp'] }] }] } };
-      }
-    },
-  });
+test('a failed public catalog uses bundled avatars without presenting a partial remote snapshot', async ({ page }) => {
+  const warnings = [];
+  page.on('console', message => warnings.push(message.text()));
+  await prepareAccount(page, 'rpc', { respondExternal(url) {
+    if (url.pathname === '/api/avatars/catalog') return { status: 503, body: {} };
+  } });
   await page.locator('.account-nav-btn[data-section="avatars"]').click();
-  await page.locator('#inputAvatarSearch').fill('ob: naruto');
-  await expect(page.locator('#avatarsCatalogContainer .netflix-avatar-card')).toHaveCount(3);
-  expect(manifestCalls).toHaveLength(1);
-  expect(manifestCalls[0]).toContain(`/${sha}/assets/`);
+  await expect(page.locator('#avatarsCatalogContainer .netflix-avatar-card').first()).toBeVisible();
+  await expect.poll(() => warnings.join(' ')).toContain('Catálogo sin actualizar');
 });

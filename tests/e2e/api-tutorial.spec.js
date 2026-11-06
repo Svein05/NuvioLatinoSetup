@@ -4,7 +4,9 @@ import { isolateExternalServices } from './support/offline-services.js';
 async function openKeys(page) {
   await isolateExternalServices(page);
   await page.goto('/configuration/');
+  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
+  await page.locator('[data-migration-action="manual"]').click();
   await page.locator('#btnNext').click();
 }
 

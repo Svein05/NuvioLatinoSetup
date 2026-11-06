@@ -22,6 +22,7 @@ export function manageDialog(modal) {
     if (!open) return;
     if (event.key === 'Escape' && modal.getAttribute('aria-busy') !== 'true') {
       event.preventDefault(); event.stopPropagation();
+      if (modal.dataset.dialogRequired === 'true') return;
       const closeButton = modal.querySelector('button[id*="Close"],button[id*="Cancel"]');
       if (closeButton) closeButton.click();
       else modal.classList.add('hidden');
@@ -30,10 +31,16 @@ export function manageDialog(modal) {
     const items = targets();
     const active = modal.ownerDocument.activeElement;
     if (!items.length) { event.preventDefault(); modal.focus(); }
+    else if (!items.includes(active)) { event.preventDefault(); (event.shiftKey ? items.at(-1) : items[0]).focus(); }
     else if (event.shiftKey && active === items[0]) { event.preventDefault(); items.at(-1).focus(); }
     else if (!event.shiftKey && active === items.at(-1)) { event.preventDefault(); items[0].focus(); }
   };
   modal.setAttribute('role', 'dialog'); modal.setAttribute('aria-modal', 'true'); modal.tabIndex = -1;
+  const heading = modal.querySelector('h1,h2,h3,h4');
+  if (heading && !modal.hasAttribute('aria-label') && !modal.hasAttribute('aria-labelledby')) {
+    if (!heading.id) heading.id = `${modal.id}-heading`;
+    modal.setAttribute('aria-labelledby', heading.id);
+  }
   const observer = new MutationObserver(synchronize);
   observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
   modal.addEventListener('keydown', onKey);

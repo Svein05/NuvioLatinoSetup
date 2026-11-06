@@ -12,12 +12,12 @@ function buildSettingsHtml(st) {
               <span>TMDB API Key & Enriquecimiento</span>
             </label>
             <label class="lat-switch" title="Activar/desactivar enriquecimiento oficial">
-              <input type="checkbox" id="chkEnrichment" ${st.enrichment_enabled ? 'checked' : ''}>
+              <input aria-label="Activar metadatos de TMDB" type="checkbox" id="chkEnrichment" ${st.enrichment_enabled ? 'checked' : ''}>
               <span class="lat-switch-track"><span class="lat-switch-thumb"></span></span>
             </label>
           </div>
           <div>
-            <label class="text-xs text-white/60 block mb-1">Clave de API TMDB</label>
+            <label for="inputTmdbKey" class="text-xs text-white/60 block mb-1">Clave de API TMDB</label>
             <div class="relative">
               <input type="password" id="inputTmdbKey" value="${escapeHtml(st.tmdb_api_key || '')}"
                      placeholder="API Key v3 de TMDB" class="lat-field w-full text-xs font-mono pr-10">
@@ -37,12 +37,12 @@ function buildSettingsHtml(st) {
               <span>MDBList API Key & Calificaciones</span>
             </label>
             <label class="lat-switch" title="Activar/desactivar calificaciones">
-              <input type="checkbox" id="chkRatings" ${st.ratings_enabled ? 'checked' : ''}>
+              <input aria-label="Activar calificaciones de MDBList" type="checkbox" id="chkRatings" ${st.ratings_enabled ? 'checked' : ''}>
               <span class="lat-switch-track"><span class="lat-switch-thumb"></span></span>
             </label>
           </div>
           <div>
-            <label class="text-xs text-white/60 block mb-1">Clave de API MDBList</label>
+            <label for="inputMdblistKey" class="text-xs text-white/60 block mb-1">Clave de API MDBList</label>
             <div class="relative">
               <input type="password" id="inputMdblistKey" value="${escapeHtml(st.mdblist_api_key || '')}"
                      placeholder="API Key de MDBList" class="lat-field w-full text-xs font-mono pr-10">

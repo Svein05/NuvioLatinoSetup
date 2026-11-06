@@ -1,20 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { openLanding, revealChapter } from './support/landing.js';
 
-test('landing refreshes its avatar strip from the shared public GitHub catalog', async ({ page }) => {
+test('landing uses the bundled avatar pool without a catalog request', async ({ page }) => {
+  const calls = [];
+  page.on('request', request => { if (/api.github.com|api\/avatars\/catalog/.test(request.url())) calls.push(request.url()); });
   await openLanding(page);
-  const sha = 'b'.repeat(40);
-  await page.route('https://api.github.com/**', route => {
-    const body = route.request().url().includes('/git/ref/') ? { object: { sha } }
-      : { tree: [{ type: 'blob', path: 'assets/profile_icons/NetflixStyle/Naruto/Naruto.webp' }] };
-    return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
-  });
-  const catalogRead = page.waitForResponse(response => response.url().includes('/git/trees/'));
-  await page.reload();
-  await catalogRead;
   await page.locator('.preview-avatar-tray').scrollIntoViewIfNeeded();
-  await expect(page.locator('[data-avatar-carousel] img')).toHaveCount(14);
-  await expect(page.locator('[data-avatar-carousel] img').first()).toHaveAttribute('src', new RegExp(`Naruto.webp\\?v=${sha}$`));
+  await expect(page.locator('[data-avatar-carousel] img').first()).toBeVisible();
+  expect(calls).toEqual([]);
 });
 
 test('translucent scenes avoid opaque panels and keep profile and library centered', async ({ page }) => {
@@ -81,25 +74,19 @@ test('avatar strip cycles a ranked pool with bounded images and addons reorder b
 
 test('landing carousel uses most-used avatars without recording usage', async ({ page }) => {
   await openLanding(page);
-  await page.route('https://api.github.com/**', route => {
-    const body = route.request().url().includes('/git/ref/') ? { object: { sha: 'a'.repeat(40) } }
-      : { tree: ['A', 'B', 'C'].map(name => ({ type: 'blob', path: 'assets/profile_icons/NetflixStyle/Show/' + name + '.webp' })) };
-    return route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
-  });
+
   await page.route('**/api/avatars/ranking**', route => route.fulfill({
-    contentType: 'application/json', body: JSON.stringify({ environment: 'testing', items: [
-      { key: 'NetflixStyle/Show/B.webp', score: 20 }, { key: 'NetflixStyle/Show/A.webp', score: 10 },
+    contentType: 'application/json', body: JSON.stringify({ environment: 'testing', totalUsage: 30, items: [
+      { key: 'MangaStyle/Black Clover/Asta3.webp', score: 20 }, { key: 'NetflixStyle/Naruto Shippuden/NarutoShippuden_Gaara.webp', score: 10 },
     ] }),
   }));
   const writes = [];
   page.on('request', request => { if (request.method() === 'POST') writes.push(request.url()); });
-  const catalogRead = page.waitForResponse(response => response.url().includes('/git/trees/'));
   await page.reload();
-  await catalogRead;
   await page.locator('.preview-avatar-tray').scrollIntoViewIfNeeded();
   const images = page.locator('[data-avatar-carousel] img');
-  await expect(images.first()).toHaveAttribute('src', /B.webp/);
-  await expect(images.nth(1)).toHaveAttribute('src', /A.webp/);
+  await expect(images.first()).toHaveAttribute('src', /Asta/);
+  await expect(images.nth(1)).toHaveAttribute('src', /Gaara/);
   expect(await images.evaluateAll(nodes => nodes.every(image => !image.src.includes('/C.webp')))).toBe(true);
   await expect(page.locator('#account-showcase-title')).toHaveText('Tu espacio sigue evolucionando contigo.');
   expect(writes).toEqual([]);
