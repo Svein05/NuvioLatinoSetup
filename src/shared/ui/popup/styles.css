@@ -1,0 +1,44 @@
+/* Shared dialog material, independent of generated opacity utilities. */
+.popup-overlay {
+  background: rgb(0 0 0 / 65%);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.popup-panel {
+  --popup-surface: #0b0d12;
+  background: var(--popup-surface);
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 26px;
+  box-shadow: var(--shadow-lift);
+  color: white;
+  min-inline-size: 0;
+  max-block-size: calc(100svh - 2rem);
+}
+.popup-overlay > .popup-panel { margin-block: auto; }
+.popup-panel :is(h2, h3, .popup-title) {
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.popup-panel .popup-title { padding-block-end: .75rem; border-block-end: 1px solid rgb(255 255 255 / 8%); }
+.popup-panel .lat-capsule-btn { white-space: normal; text-align: center; }
+.popup-panel :is(.debrid-dialog-actions, .popup-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .625rem;
+}
+.popup-panel .debrid-dialog-actions button { flex: 0 1 auto; min-inline-size: min(100%, 9rem); }
+.popup-panel .popup-actions > button { max-inline-size: 100%; }
+.popup-search > input.lat-field { padding-inline-start: 2.25rem; }
+.popup-search > .fa-magnifying-glass { inset-inline-start: .875rem; }
+.popup-panel .debrid-dialog-header .popup-title { border: 0; padding: 0; }
+.popup-panel .debrid-close { flex-basis: 2rem; height: 2rem; border-radius: .5rem; background: transparent; }
+.popup-panel .migration-brand { justify-content: flex-start; padding-inline-end: 2rem; }
+.popup-panel .migration-brand img:first-child { width: 2rem; height: 2rem; }
+.popup-panel .migration-brand img:last-child { max-width: 9rem; }
+.popup-panel .lat-capsule-btn:focus-visible { outline: 2px solid #ffd479; outline-offset: 3px; }

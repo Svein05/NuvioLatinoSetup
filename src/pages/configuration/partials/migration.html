@@ -1,11 +1,11 @@
-<div id="modalStremioMigration" class="fixed inset-0 z-[80] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md" aria-labelledby="migrationTitle">
-  <div class="migration-dialog lat-card w-full max-w-xl p-5 sm:p-7 relative">
+<div id="modalStremioMigration" class="popup-overlay fixed inset-0 z-[80] hidden items-center justify-center p-4 bg-black/70 backdrop-blur-md" aria-labelledby="migrationTitle">
+  <div class="popup-panel migration-dialog w-full max-w-xl p-5 sm:p-7 relative">
     <button id="btnCancelMigration" type="button" class="migration-close" aria-label="Cerrar importación"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
     <div class="migration-brand mb-4" aria-label="Stremio">
       <img src="../../../assets/logo/stremio-symbol.png" alt="" width="48" height="48" />
       <img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio" width="334" height="43" />
     </div>
-    <h2 id="migrationTitle" class="font-serif text-3xl pr-8">¿Vienes de Stremio?</h2>
+    <h2 id="migrationTitle" class="popup-title">¿Vienes de Stremio?</h2>
     <div data-migration-panel="choice" class="space-y-5 mt-4">
       <p class="text-sm text-white/70">Trae tus addons, biblioteca y estados de reproducción al perfil que elijas en Nuvio.</p>
       <div class="flex flex-col gap-3">
