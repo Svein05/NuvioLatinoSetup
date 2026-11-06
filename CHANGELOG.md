@@ -7,6 +7,37 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.10.0] - 2026-11-06
+
+### Añadido
+
+- Migración opcional desde Stremio: conexión y selección de biblioteca, vistos,
+  progreso y addons antes de conectar el perfil de Nuvio. La cuenta de origen se
+  consulta sin modificarla; los datos existentes del destino tienen prioridad.
+- Revisión de categorías y addons con sus logos, indicación de origen y resumen
+  de importación. Los errores parciales se distinguen de las escrituras confirmadas
+  y los reintentos vuelven a leer el destino antes de añadir elementos pendientes.
+- Confirmación del modo manual con explicación de la importación de archivos JSON.
+
+### Cambiado
+
+- Carga de la portada con imágenes iniciales optimizadas, filas de pósters ajustadas
+  al espacio visible y menor trabajo de animación en dispositivos móviles. El fondo
+  se detiene fuera del hero y permanece estático en Cuenta y Asistente en móvil.
+- Popups del asistente con una superficie oscura y controles homogéneos; conexión
+  de Stremio dentro del recorrido del asistente y salida al flujo normal disponible.
+- Validación de TorBox mediante una ruta limitada del Worker. Los proveedores
+  opcionales sin verificación remota admiten una comprobación de formato explícita,
+  sin presentarla como autenticación confirmada.
+
+### Corregido
+
+- Cadencia de las comparaciones de pósters, evitando reinicios y cargas solapadas.
+- Descarga de AIOMetadata JSON sin exigir la contraseña de aprovisionamiento.
+- Exportación de badges oculta cuando están desactivados y estado de enriquecimiento
+  coherente entre preferencias, resumen y configuración generada.
+- Búsqueda de avatares, foco inicial de los diálogos y navegación del modo manual.
+
 ## [1.9.0] - 2026-10-25
 
 ### Añadido
