@@ -90,14 +90,15 @@
         </div>
 
         <!-- Acordeón Desplegable: Otros Proveedores Debrid Opcionales -->
-        <details class="group p-2.5 sm:p-3 rounded-[14px] bg-white/[0.02] border border-white/[0.06] text-xs">
+        <details id="optionalDebridProviders" class="group p-2.5 sm:p-3 rounded-[14px] bg-white/[0.02] border border-white/[0.06] text-xs">
           <summary class="font-medium text-white/70 cursor-pointer list-none flex items-center justify-between select-none hover:text-white">
             <span class="flex items-center gap-2">
               <i class="fa-solid fa-layer-group text-[11px] text-white/40"></i>
-              <span>Otros proveedores Debrid (Opcionales)</span>
+              <span>Otros proveedores</span>
             </span>
-            <i class="fa-solid fa-chevron-down text-[10px] transition-transform group-open:rotate-180"></i>
+            <i class="fa-solid fa-chevron-down text-[10px] disclosure-icon"></i>
           </summary>
+          <div class="disclosure-panel" id="optionalDebridPanel"><div class="disclosure-content">
           <div class="pt-2.5 space-y-2.5">
             <div>
               <label class="block text-[11px] text-white/60 mb-1" for="inputDebridEasydebrid">EasyDebrid API Key</label>
@@ -116,6 +117,7 @@
               <div class="relative"><input id="inputDebridOffcloud" aria-label="Clave API de Offcloud" autocomplete="off" spellcheck="false" type="password" placeholder="Offcloud API Key..." class="lat-field w-full pr-12"><button type="button" class="btn-toggle-key absolute right-3 top-1/2 -translate-y-1/2 p-2 text-white/40 hover:text-white" data-target="inputDebridOffcloud" aria-label="Mostrar contraseña" aria-controls="inputDebridOffcloud" aria-pressed="false"><i class="fa-solid fa-eye text-xs pointer-events-none" aria-hidden="true"></i></button></div>
             </div>
           </div>
+          </div></div>
         </details>
 
       </div>

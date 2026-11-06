@@ -88,30 +88,16 @@
   <!-- @include "partials/modal-aio-streams-conflict.html" -->
 
   <!-- Modal 1: Requisito de Debrid para AIOStreams (Montado en body) -->
-  <div id="modalAioStreamsRequirement" class="fixed inset-0 bg-black/65 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-200 overflow-y-auto">
-    <div class="bg-[#0b0d12]/95 border border-white/[0.12] rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] relative text-white space-y-4 my-auto">
+  <div id="modalAioStreamsRequirement" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="lat-card max-w-md w-full p-5 sm:p-6 space-y-5 text-white">
       <div class="flex items-center gap-3">
-        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/[0.12] border border-emerald-500/30 flex items-center justify-center shrink-0">
-          <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-6 h-6 object-contain" alt="AIOStreams">
-        </div>
-        <div>
-          <h3 class="font-bold text-sm sm:text-base text-white">¿Instalar AIOStreams Latino?</h3>
-          <p class="text-[11px] sm:text-xs text-white/50">Addon unificado de streaming y fuentes</p>
-        </div>
+        <img src="https://numb3rs.stream/assets/images/aiostreams.svg" class="w-8 h-8 object-contain shrink-0" alt="">
+        <h2 class="font-serif text-2xl sm:text-3xl">Configurar AIOStreams</h2>
       </div>
-      <div class="p-3.5 sm:p-4 bg-white/[0.03] border border-white/[0.08] rounded-[18px] text-xs text-white/70 leading-relaxed space-y-2 shadow-[var(--brillo-vidrio)]">
-        <p>
-          Para utilizar <strong>AIOStreams</strong>, requerirás una clave de API de al menos un servicio <strong>Debrid</strong> (como TorBox, AllDebrid, Real-Debrid, Premiumize, etc.).
-        </p>
-        <p class="text-[11px] text-white/50">
-          AIOStreams unifica indexadores como Torrentio, Comet, SeaDex y MediaFusion priorizando audio e idioma español latino en tu perfil. ¿Aceptas continuar?
-        </p>
-      </div>
-      <div class="flex justify-end gap-2.5 pt-1">
-        <button id="btnCancelAioStreamsReq" type="button" class="lat-capsule-btn glass text-xs py-2 px-4">Cancelar</button>
-        <button id="btnAcceptAioStreamsReq" type="button" class="lat-capsule-btn solid text-xs py-2 px-4 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold shadow-[var(--shadow-pill)]">
-          Aceptar y Configurar
-        </button>
+      <p class="text-sm text-white/60">Necesitas la clave de al menos un proveedor Debrid.</p>
+      <div class="flex flex-wrap justify-end gap-2.5">
+        <button id="btnCancelAioStreamsReq" type="button" class="lat-capsule-btn glass text-xs py-2.5 px-4">Cancelar</button>
+        <button id="btnAcceptAioStreamsReq" type="button" class="lat-capsule-btn solid text-xs py-2.5 px-4">Configurar proveedores</button>
       </div>
     </div>
   </div>

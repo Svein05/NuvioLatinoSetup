@@ -1,3 +1,4 @@
+import { mountDisclosure } from '../../../shared/ui/disclosure/mount.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { isAioMetadataAddon } from '../../../features/addons/index.js';
 import { renderAddonsContainer } from './addons-view.js';
@@ -94,7 +95,7 @@ function createAioStreamsActions({ root, state, getDraft, setDraft, render, acti
       const idx = state.getAioStreamsIndex();
       if (idx !== -1) { state.removeAddon(idx); render(); }
       toggleModal(root.querySelector?.('#modalAioStreamsConflict'), false);
-      toggleModal(root.querySelector?.('#modalAioStreamsRequirement'), true);
+      setDraft(openDebridsDialog(root, state));
     },
     openAioStreamsDebridsModal: () => setDraft(openDebridsDialog(root, state)),
     closeAioStreamsDebridsModal: () => { if (getDraft()) getDraft().cancelled = true; toggleModal(root.querySelector?.('#modalAioStreamsDebrids'), false); setDraft(null); },
@@ -122,6 +123,7 @@ function setupRemoveModal({ lifetime, root, state, getPending, setPending, rende
 
 export function mountAddonsStep({ state, actions, root = document } = {}) {
   const lifetime = createLifetime();
+  lifetime.add(mountDisclosure(root.querySelector('#optionalDebridProviders')));
   const cache = new Map();
   let pendingDeleteIndex = null;
   let draft = null;
