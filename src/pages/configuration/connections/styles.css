@@ -24,3 +24,11 @@
 .connection-lists-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .2rem; }
 .connection-lists-panel [hidden] { display: none !important; }
 .connection-lists-panel .connection-catalog { scroll-margin-block: .5rem; }
+
+.connection-card[data-connected="true"] { border-color: rgb(52 211 153 / .32); box-shadow: 0 0 18px rgb(52 211 153 / .09); }
+.connection-card { transition: border-color .25s ease, box-shadow .25s ease; }
+.connection-actions { align-items: center; }
+.connection-actions > button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.5rem; }
+.connection-actions > .connection-remove { color: #fda4af; border-color: rgb(251 113 133 / .18); background: rgb(251 113 133 / .05); }
+.connection-actions > .connection-remove:hover { background: rgb(251 113 133 / .1); }
+@media (prefers-reduced-motion: reduce) { .connection-card { transition: none; } .connection-card .fa-spin { animation: none; } }

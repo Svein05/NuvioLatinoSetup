@@ -2,7 +2,7 @@ import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { mountConnectionLists } from './lists-modal.js';
 import { connectionProviders, availableConnectionCatalogs, synchronizeConnectionCollections } from '../../../features/connections/index.js';
-import { composeConnectionCard, connectionStatus, renderConnectionAccount, toggleConnectionSecret, showConnectionWarning } from './view.js';
+import { composeConnectionCard, connectionStatus, renderConnectionAccount, renderConnectionBusy, toggleConnectionSecret, showConnectionWarning } from './view.js';
 import { attachConnectionsNavigation } from './navigation.js';
 
 function mountCapabilities({ root, client, instance, lifetime }) {
@@ -14,14 +14,14 @@ function mountCapabilities({ root, client, instance, lifetime }) {
     capabilityRequest?.abort();
     const current = capabilityRequest = new AbortController();
     capabilities = null;
-    status.textContent = 'Comprobando disponibilidad de AIOMetadata…';
+    status.textContent = 'Comprobando disponibilidad de AIOMetadata…'; status.hidden = false;
     retry.hidden = true;
     root.querySelectorAll('[data-connection-authorize]').forEach(link => { link.removeAttribute('href'); link.setAttribute('aria-disabled', 'true'); });
     try {
       const result = await client.capabilities(instance, AbortSignal.any([current.signal, lifetime.signal]));
       if (current.signal.aborted) return;
       capabilities = result;
-      status.textContent = 'Elige un servicio para conectar o continúa sin conexiones.';
+      status.textContent = ''; status.hidden = true;
     } catch {
       if (current.signal.aborted || lifetime.signal.aborted) return;
       status.textContent = 'No se pudo consultar esta instancia. Reintenta en unos momentos.';
@@ -39,7 +39,7 @@ function mountCapabilities({ root, client, instance, lifetime }) {
   };
   lifetime.on(retry, 'click', refresh);
   lifetime.add(() => capabilityRequest?.abort());
-  status.textContent = 'Puedes continuar sin conectar servicios.';
+  status.textContent = ''; status.hidden = true;
   return { instance, ready: () => Boolean(capabilities), refresh };
 }
 
@@ -60,7 +60,7 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
     requests.set(provider, request);
     const instance = capabilities.instance;
     const signal = AbortSignal.any([request.signal, lifetime.signal]);
-    card.setAttribute('aria-busy', 'true');
+    renderConnectionBusy(card, true);
     connectionStatus(card, '', 'Comprobando conexión y listas…');
     showConnectionWarning(card);
     try {
@@ -88,14 +88,14 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
       }
     } finally {
       if (requests.get(provider) === request) {
-        requests.delete(provider); card.setAttribute('aria-busy', 'false');
+        requests.delete(provider); renderConnectionBusy(card, false);
         if (signal.aborted && !lifetime.signal.aborted) renderConnectionAccount(card, state.connections.accounts[provider]);
       }
     }
   };
   const remove = card => {
     requests.get(card.dataset.connectionProvider)?.abort();
-    requests.delete(card.dataset.connectionProvider);
+    requests.delete(card.dataset.connectionProvider); renderConnectionBusy(card, false);
     delete state.connections.accounts[card.dataset.connectionProvider];
     delete state.connections.drafts[card.dataset.connectionProvider];
     if (!Object.keys(state.connections.accounts).length) state.connections.instance = null;
