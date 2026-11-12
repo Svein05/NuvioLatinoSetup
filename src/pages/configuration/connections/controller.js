@@ -1,6 +1,6 @@
 import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
-import { mountDisclosure } from '../../../shared/ui/disclosure/mount.js';
+import { mountConnectionLists } from './lists-modal.js';
 import { connectionProviders, availableConnectionCatalogs, synchronizeConnectionCollections } from '../../../features/connections/index.js';
 import { composeConnectionCard, connectionStatus, renderConnectionAccount, toggleConnectionSecret, showConnectionWarning } from './view.js';
 import { attachConnectionsNavigation } from './navigation.js';
@@ -120,12 +120,10 @@ export function mountConnections({ state, client, instance, updateUI, root = doc
   }]));
   cards.forEach(card => {
     composeConnectionCard(card, card.dataset.connectionProvider);
-    lifetime.add(mountDisclosure(card.querySelector('details')));
   });
   const synchronize = () => {
     state.collections = synchronizeConnectionCollections(state.collections, state.connections, artwork);
     state.notify('COLLECTIONS_UPDATED');
-    root.querySelector('#connectionsReview').hidden = !Object.values(state.connections.accounts).some(account => account.selected.length);
     updateUI();
   };
   const capabilities = mountCapabilities({ root, state, client, instance, lifetime });
@@ -147,21 +145,7 @@ export function mountConnections({ state, client, instance, updateUI, root = doc
     if (event.target.closest('[data-connection-visibility]')) toggleConnectionSecret(event.target.closest('[data-connection-provider]'));
     if (event.target.closest('[data-connection-remove]')) actions.remove(event.target.closest('[data-connection-provider]'));
   });
-  lifetime.on(view, 'change', event => {
-    if (!event.target.matches('[data-connection-catalog]')) return;
-    const card = event.target.closest('[data-connection-provider]');
-    const account = state.connections.accounts[card.dataset.connectionProvider];
-    account.selected = [...card.querySelectorAll('[data-connection-catalog]:checked')].map(input => {
-      const catalog = account.catalogs[Number(input.dataset.connectionCatalog)];
-      return `${catalog.type}:${catalog.id}`;
-    });
-    synchronize();
-  });
-  lifetime.on(root.querySelector('#connectionsReview'), 'click', () => {
-    actions.cancelAll();
-    state.connectionsStage = false; state.currentStep = 3; updateUI();
-    root.querySelector('#step-3 h2')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  });
+  lifetime.add(mountConnectionLists({ root, state, view, synchronize }));
   attachConnectionsNavigation({ root, state, lifetime, updateUI });
   synchronize();
   return () => lifetime.dispose();

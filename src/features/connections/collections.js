@@ -2,7 +2,7 @@ import { selectedConnectionCatalogs, connectionProviders } from './providers.js'
 
 export const CONNECTION_SECTION_ID = 'nuvio-optional-connections';
 const recommendation = source => /^trakt\.recommendations\.(movies|shows)$/.test(source.catalogId || '');
-const nativeSource = catalog => ({ addonId: 'aio-metadata', provider: 'addon', type: catalog.type, catalogId: catalog.id, title: catalog.name });
+const nativeSource = catalog => ({ addonId: 'aio-metadata', provider: 'addon', connectionProvider: catalog.source, type: catalog.type, catalogId: catalog.id, title: catalog.name });
 
 function synchronizeRecommendations(collections, catalogs) {
   const sources = catalogs.filter(catalog => /^trakt\.recommendations\./.test(catalog.id)).map(nativeSource);

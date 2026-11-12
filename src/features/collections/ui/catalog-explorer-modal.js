@@ -34,8 +34,8 @@ export function renderCatalogCapsuleRow({ sectionId, folderId, source, idx, tota
   const displayTitle = escapeHtml(resolveCatalogTitle(source, catalogMap) || source.title || catMeta.name || catId);
   const isTrakt = catId.startsWith('trakt.');
   const mediaType = source.type || catMeta.type || '';
-  const typeLabel = mediaType === 'series' || mediaType === 'tv' ? 'Series' : mediaType === 'anime' ? 'Anime' : 'Películas';
-  const traktNote = isTrakt ? '<span class="text-[#ffd479] font-medium font-sans">• Requiere login en Trakt</span>' : '';
+  const typeLabel = mediaType === 'series' || mediaType === 'tv' ? 'Series' : mediaType === 'anime' ? 'Anime' : mediaType === 'all' ? 'Películas y series' : 'Películas';
+  const traktNote = isTrakt && source.connectionProvider === 'trakt' ? '<span class="text-emerald-400 font-medium font-sans">• Incluido por tu conexión de Trakt</span>' : isTrakt ? '<span class="text-[#ffd479] font-medium font-sans">• Requiere login en Trakt</span>' : '';
 
   return `
     <div class="catalog-explorer-row p-3 bg-white/[0.03] border border-white/10 hover:border-white/20 rounded-2xl transition-colors flex flex-wrap items-center justify-between gap-3 backdrop-blur-[12px]" data-catalog-index="${idx}">
@@ -59,7 +59,7 @@ export function renderCatalogCapsuleRow({ sectionId, folderId, source, idx, tota
 }
 
 export function renderCatalogExplorerModal({ section, folder, sources, catalogMap }) {
-  const cover = folder.coverImageUrl || folder.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
+  const cover = folder.previewCoverImageUrl || folder.coverImageUrl || folder.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
   const capsulesHtml = sources.length === 0
     ? `<div class="p-8 text-center text-white/50"><i class="fa-solid fa-film text-3xl text-white/20 mb-2"></i><p class="text-sm">Esta colección no tiene catálogos activos asignados.</p><button type="button" ${collectionAction('openAddCatalogModal', section.id, folder.id)} class="mt-3 lat-capsule-btn solid text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> Añadir Catálogo</button></div>`
     : sources.map((s, idx) => renderCatalogCapsuleRow({ sectionId: section.id, folderId: folder.id, source: s, idx, total: sources.length, catalogMap })).join('');

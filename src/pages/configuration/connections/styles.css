@@ -11,8 +11,6 @@
 .connection-status { font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
 .connection-status[data-state="connected"] { color: #34d399; }
 .connection-status[data-state="error"] { color: #fda4af; }
-.connection-options summary { display: flex; align-items: center; justify-content: space-between; gap: .5rem; cursor: pointer; font-size: .8rem; padding-block: .5rem; }
-.connection-options summary::marker { content: ''; }
 .connection-catalogs { display: grid; gap: .5rem; padding: .5rem .2rem; }
 .connection-catalog { display: flex; align-items: flex-start; gap: .65rem; padding: .7rem; border: 1px solid rgb(255 255 255 / .1); border-radius: .75rem; font-size: .75rem; cursor: pointer; }
 .connection-catalog input { accent-color: #ffd479; margin-top: .15rem; flex-shrink: 0; }
@@ -20,5 +18,9 @@
 .connection-catalog span { min-width: 0; overflow-wrap: anywhere; }
 .connection-catalog:has(input:checked) { border-color: rgb(255 212 121 / .5); background: rgb(255 212 121 / .05); }
 #connectionsTitle:focus { outline: none; }
-.connections-instance select option { background: #0b0d12; color: white; }
 .connection-card [hidden], #connectionsStep [hidden] { display: none !important; }
+
+.connection-lists-panel { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 1rem; max-height: min(42rem, calc(100svh - 2rem)); }
+.connection-lists-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .2rem; }
+.connection-lists-panel [hidden] { display: none !important; }
+.connection-lists-panel .connection-catalog { scroll-margin-block: .5rem; }
