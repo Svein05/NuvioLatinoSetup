@@ -1,3 +1,4 @@
+import { initializeConnections } from './wizard-connections.js';
 import { createLifetime } from '../shared/ui/lifetime.js';
 import { bindWizardCommands } from '../pages/configuration/commands.js';
 import { managePageDialogs } from '../shared/ui/dialog-accessibility.js';
@@ -21,6 +22,7 @@ function connectWizard(controller, state, lifetime) {
   lifetime.add(mountMigration({ state, updateUI: () => controller.updateUI(), saveSession: () => controller.saveSession(), readSnapshot: credentials => readMigrationSnapshot(credentials, {
     readAccount: readStremioAccount, readWatched: watchedEpisodes,
   }) }));
+  lifetime.add(initializeConnections(controller, state));
   lifetime.add(state.subscribe((snapshot, eventType) => controller.handleStateUpdate(snapshot, eventType)));
   lifetime.add(() => {
     controller.disposeAuthStep?.(); controller.disposeApiKeys?.(); controller.disposeProfilesStep?.();

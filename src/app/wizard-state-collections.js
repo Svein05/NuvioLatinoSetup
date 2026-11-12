@@ -1,3 +1,4 @@
+import { synchronizeConnectionCollections } from '../features/connections/index.js';
 import { editWizardCollections } from '../workflows/edit-wizard-collections.js';
 import { prepareMetadataPayload } from '../workflows/prepare-metadata-payload.js';
 import { selectedCollections, flattenedCollections, initializeCollections } from '../features/collections/index.js';
@@ -18,7 +19,7 @@ export class WizardCollectionsState {
 
   resetCollections() {
     if (!this.originalCollectionsTemplate) return;
-    this.collections = initializeCollections(this.originalCollectionsTemplate, { reset: true });
+    this.collections = synchronizeConnectionCollections(initializeCollections(this.originalCollectionsTemplate, { reset: true }), this.connections, this.connections?.artwork || {});
     this.notify('COLLECTIONS_UPDATED');
   }
 
@@ -97,6 +98,7 @@ export class WizardCollectionsState {
       preferences: this.preferences,
       apiKeys: this.apiKeys,
       searchAiEnabled: this.searchAiEnabled,
+      connections: this.connections,
       password: this.aiometadata.password || 'NuvioSetupMaster2026',
     });
   }

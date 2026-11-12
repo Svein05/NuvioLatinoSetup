@@ -1,0 +1,23 @@
+<section id="connectionsStep" class="step-content space-y-6" aria-labelledby="connectionsTitle">
+  <header class="space-y-2">
+    <h2 id="connectionsTitle" tabindex="-1" class="font-serif text-2xl sm:text-3xl text-white">Conecta lo que te gusta</h2>
+    <p class="text-sm text-white/60">Trae tus listas y descubre recomendaciones en Nuvio. Tú eliges qué conectar; también puedes omitir este paso.</p>
+  </header>
+  <div class="connections-instance lat-card p-4 space-y-2">
+    <label class="lat-label block" for="connectionsInstance">Instancia de AIOMetadata</label>
+    <select id="connectionsInstance" class="lat-field w-full" aria-describedby="connectionsInstanceHelp"></select>
+    <p id="connectionsInstanceHelp" class="text-xs text-white/50">Las conexiones y tu configuración se guardarán en esta misma instancia. Si recargas antes de guardar, tendrás que volver a pegar los identificadores.</p>
+    <p id="connectionsCapabilities" class="text-xs text-white/60" role="status"></p>
+    <button id="connectionsRetry" type="button" class="lat-capsule-btn glass text-xs" hidden>Reintentar conexión</button>
+  </div>
+  <div class="connections-grid" data-connections-grid>
+    <article data-connection-provider="trakt" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/logo/connections/trakt.png" alt="" width="40" height="40"><h3>Trakt</h3></header></article>
+    <article data-connection-provider="simkl" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/logo/connections/simkl.png" alt="" width="40" height="40"><h3>Simkl</h3></header></article>
+    <article data-connection-provider="anilist" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/logo/connections/anilist.png" alt="" width="40" height="40"><h3>AniList</h3></header></article>
+    <article data-connection-provider="mal" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/logo/connections/mal.png" alt="" width="40" height="40"><h3>MyAnimeList</h3></header></article>
+  </div>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-xs text-white/50">Tus listas seguirán conectadas a AIOMetadata. Este paso no activa el seguimiento de reproducción.</p>
+    <button id="connectionsReview" type="button" class="lat-capsule-btn glass text-xs" hidden><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Revisar en Mini Nuvio</button>
+  </div>
+</section>

@@ -21,7 +21,7 @@ function renderFolderRowControls(secId, idx, total) {
 function renderSectionFolderRow(secId, f, idx, total) {
   const isEnabled = f.enabled !== false;
   const cover = f.coverImageUrl || f.heroBackdropUrl || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400';
-  const escapedTitle = (f.title || '').replace(/"/g, '&quot;');
+  const escapedTitle = escapeHtml(f.title || '');
 
   return `
     <div class="flex items-center justify-between gap-2 sm:gap-3 p-2.5 sm:p-3 bg-white/[0.02] border border-white/10 rounded-2xl hover:border-white/20 transition-colors">
@@ -30,7 +30,7 @@ function renderSectionFolderRow(secId, f, idx, total) {
         <img src="${escapeHtml(safeImageUrl(cover))}" alt="${escapeHtml(f.title)}" class="w-full h-full object-cover" data-fallback-src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400">
       </div>
       <div class="flex-1 min-w-0 pr-1 flex items-center gap-2">
-        <span class="text-xs font-semibold text-white truncate block sm:hidden">${f.coverEmoji ? f.coverEmoji + ' ' : ''}${f.title || 'Colección'}</span>
+        <span class="text-xs font-semibold text-white truncate block sm:hidden">${escapeHtml(f.coverEmoji ? f.coverEmoji + ' ' : '')}${escapeHtml(f.title || 'Colección')}</span>
         <input type="text" class="sec-folder-title-input hidden sm:block w-full px-2.5 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 focus:outline-none focus:border-[#ffd479] text-xs text-white" data-folder-id="${f.id}" value="${escapedTitle}" placeholder="Título de la fila">
         <span class="text-[9px] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/50 font-mono shrink-0 hidden sm:inline-block">${f.tileShape || 'LANDSCAPE'}</span>
       </div>

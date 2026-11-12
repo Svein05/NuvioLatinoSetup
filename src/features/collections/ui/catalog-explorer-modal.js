@@ -1,5 +1,6 @@
 import { collectionAction } from './actions.js';
 import { resolveCatalogTitle } from '../model/catalog-title.js';
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
 
 function renderReorderButtons(sectionId, folderId, idx, total) {
   const isFirst = idx === 0;
@@ -30,7 +31,7 @@ function renderReorderButtons(sectionId, folderId, idx, total) {
 export function renderCatalogCapsuleRow({ sectionId, folderId, source, idx, total, catalogMap }) {
   const catId = source.catalogId || source.id || '';
   const catMeta = catalogMap?.get(catId) || { name: source.title || catId, type: source.type };
-  const displayTitle = resolveCatalogTitle(source, catalogMap) || source.title || catMeta.name || catId;
+  const displayTitle = escapeHtml(resolveCatalogTitle(source, catalogMap) || source.title || catMeta.name || catId);
   const isTrakt = catId.startsWith('trakt.');
   const mediaType = source.type || catMeta.type || '';
   const typeLabel = mediaType === 'series' || mediaType === 'tv' ? 'Series' : mediaType === 'anime' ? 'Anime' : 'Películas';
@@ -45,7 +46,7 @@ export function renderCatalogCapsuleRow({ sectionId, folderId, source, idx, tota
         </div>
         <div class="min-w-0">
           <h4 class="text-xs font-bold text-white flex items-center gap-2 truncate"><i class="${isTrakt ? 'fa-solid fa-tv text-[#ffd479]' : 'fa-solid fa-film text-[#ffd479]'} shrink-0 text-xs"></i><span class="truncate">${displayTitle}</span></h4>
-          <p class="text-[10px] text-white/40 font-mono truncate flex items-center gap-1.5 mt-0.5"><span>${catId}</span>${traktNote}</p>
+          <p class="text-[10px] text-white/40 font-mono truncate flex items-center gap-1.5 mt-0.5"><span>${escapeHtml(catId)}</span>${traktNote}</p>
         </div>
       </div>
       <div class="flex items-center gap-1.5 shrink-0 no-drag">
@@ -68,10 +69,10 @@ export function renderCatalogExplorerModal({ section, folder, sources, catalogMa
       <div class="bg-[#0b0d12]/95 border border-white/10 rounded-3xl max-w-4xl w-full p-5 sm:p-6 shadow-[var(--shadow-lift)] backdrop-blur-[34px] flex flex-col max-h-[90vh] text-white/90">
         <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4 shrink-0">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl overflow-hidden border border-white/10 shrink-0 bg-black/60 shadow-sm"><img src="${cover}" alt="${folder.title}" class="w-full h-full object-cover"></div>
+            <div class="w-10 h-10 rounded-2xl overflow-hidden border border-white/10 shrink-0 bg-black/60 shadow-sm"><img src="${escapeHtml(safeImageUrl(cover))}" alt="${escapeHtml(folder.title)}" class="w-full h-full object-cover"></div>
             <div>
-              <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2"><span>${folder.coverEmoji || '🎬'}</span><span>${folder.title}</span></h3>
-              <p class="text-[11px] text-white/50">Sección: <span class="text-white/80 font-medium">${section.title || section.id}</span> • ${sources.length} catálogos en esta fila</p>
+              <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2"><span>${escapeHtml(folder.coverEmoji || '🎬')}</span><span>${escapeHtml(folder.title)}</span></h3>
+              <p class="text-[11px] text-white/50">Sección: <span class="text-white/80 font-medium">${escapeHtml(section.title || section.id)}</span> • ${sources.length} catálogos en esta fila</p>
             </div>
           </div>
           <div class="flex items-center gap-2">

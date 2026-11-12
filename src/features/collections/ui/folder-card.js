@@ -57,7 +57,7 @@ export function renderFolderCard({ section, folder, fIndex, totalFolders, isFocu
 
       ${collectionAction('focusFolder', section.id, folder.id)}
     >
-      <img src="${escapeHtml(safeImageUrl(imageSrc, DEFAULT_COVER))}" alt="${escapeHtml(folder.title)}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none" loading="lazy" data-fallback-src="${DEFAULT_COVER}">
+      <img src="${escapeHtml(safeImageUrl(imageSrc, DEFAULT_COVER))}" alt="${escapeHtml(folder.title)}" class="w-full h-full ${folder.connectionProvider ? 'object-contain p-7' : 'object-cover'} transition-transform duration-300 group-hover:scale-105 pointer-events-none" loading="lazy" data-fallback-src="${DEFAULT_COVER}">
       <div class="absolute inset-0 bg-gradient-to-t from-[#08090c] via-[#08090c]/40 to-transparent pointer-events-none"></div>
 
       ${renderCardReorderButtons(section.id, fIndex, totalFolders)}

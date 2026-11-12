@@ -1,3 +1,4 @@
+import { verifyConnectionCatalogs } from './verify-connection-catalogs.js';
 import { runSettingsPhase } from './provision-settings.js';
 import { runAddonsPhase } from './provision-addons.js';
 
@@ -28,7 +29,7 @@ async function runAiometadataPhase({ state, config, services, isSimulation, log 
   if (!services.provisionMetadata) throw new Error('Servicio de aprovisionamiento de metadatos no configurado.');
   log('[1/5] Guardando configuración en AIOMetadata con pool de instancias...', 'info');
   const saveRes = await services.provisionMetadata({
-    instances: config.aiometadataInstances || [],
+    instances: Object.keys(state.connections?.accounts || {}).length ? [state.connections.instance] : config.aiometadataInstances || [],
     payload,
     onAttempt: (inst, curr, total) => log(`[1/5] Conectando con AIOMetadata (${curr}/${total}): ${inst}...`, 'info'),
   });
@@ -38,8 +39,10 @@ async function runAiometadataPhase({ state, config, services, isSimulation, log 
   log(`✓ Manifest generado: ${saveRes.manifestUrl}`, 'success');
 
   let addonName = 'AIOMetadata Latino';
+  if (!services.inspectManifest) verifyConnectionCatalogs(state, null);
   if (services.inspectManifest) {
     const inspection = await services.inspectManifest({ manifestUrl: saveRes.manifestUrl });
+    verifyConnectionCatalogs(state, inspection);
     addonName = inspection.manifest?.name || addonName;
     if (inspection.verified) log(`✓ Addon verificado: "${addonName}" (ID: aio-metadata)`, 'success');
     (inspection.warnings || []).forEach(w => log(w, 'warning'));
