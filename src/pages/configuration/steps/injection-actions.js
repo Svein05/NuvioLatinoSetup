@@ -1,4 +1,5 @@
 import { getBadgePackById, getBadgePackUrl } from '../../../features/badges/index.js';
+import { isDemoSetup, DEMO_LOCK_MESSAGE } from '../../../shared/demo/setup.js';
 
 async function copyBadgeUrl(state, notify, copyText) {
   try {
@@ -30,7 +31,7 @@ export function createInjectionStepActions({
   downloadAioConfigJson,
   copyText = text => navigator.clipboard.writeText(text),
 }) {
-  return {
+  const actions = {
     notify: (msg, type) => notify?.(msg, type),
     saveSession: () => controller.saveSession?.(),
     onUpdate: () => {
@@ -50,4 +51,13 @@ export function createInjectionStepActions({
     executePipeline: () => executePipeline?.(),
     checkCompletion: () => checkManualCompletion(state, { recordCompletion, notify }),
   };
+  for (const key of ['copyText', 'copyBadgeJsonUrl', 'copyCompiledBadgeJson', 'copyAioStreamsManifest', 'downloadCollectionsJson',
+    'downloadAioConfigJson', 'downloadCompiledBadgeJson', 'recordCompletion', 'executePipeline', 'checkCompletion']) {
+    const action = actions[key];
+    actions[key] = (...args) => {
+      if (isDemoSetup(state)) throw new Error(DEMO_LOCK_MESSAGE);
+      return action(...args);
+    };
+  }
+  return actions;
 }

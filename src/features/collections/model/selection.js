@@ -21,7 +21,7 @@ export function collectActiveCatalogIds(collections) {
 export function selectedCollections(collections) {
   return collections.filter(section => section.enabled !== false && (section.folders || []).some(folder => folder.enabled !== false))
     .map(section => ({ ...structuredClone(section), pinToTop: section.pinToTop ?? true,
-      folders: structuredClone(section.folders.filter(folder => folder.enabled !== false)) }));
+      folders: structuredClone(section.folders.filter(folder => folder.enabled !== false)).map(folder => { delete folder.previewCoverImageUrl; return folder; }) }));
 }
 
 export function flattenedCollections(collections, { profileId, addonId }) {

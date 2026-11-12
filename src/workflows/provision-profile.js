@@ -1,3 +1,4 @@
+import { assertRealSetup } from '../shared/demo/setup.js';
 import { verifyConnectionCatalogs } from './verify-connection-catalogs.js';
 import { runSettingsPhase } from './provision-settings.js';
 import { runAddonsPhase } from './provision-addons.js';
@@ -149,6 +150,7 @@ export async function executeProfileProvisioning(state, { config = {}, services 
   const isSimulation = setupExecution(state, log);
 
   try {
+    assertRealSetup(state);
     if (state.migrationNeedsReconnect) throw new Error('Vuelve a conectar Stremio o elige continuar sin importar antes de ejecutar.');
     if (state.migration && state.isManualMode) throw new Error('Conecta Nuvio o continúa sin importar para usar el modo manual.');
     if (!isSimulation && state.migration && !services.migrateStremio) throw new Error('La importación no está disponible. Recarga el asistente.');

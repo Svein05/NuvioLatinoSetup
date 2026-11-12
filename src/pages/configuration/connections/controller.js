@@ -1,16 +1,15 @@
+import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { mountDisclosure } from '../../../shared/ui/disclosure/mount.js';
 import { connectionProviders, availableConnectionCatalogs, synchronizeConnectionCollections } from '../../../features/connections/index.js';
-import { composeConnectionCard, connectionStatus, renderConnectionAccount, showConnectionWarning } from './view.js';
+import { composeConnectionCard, connectionStatus, renderConnectionAccount, toggleConnectionSecret, showConnectionWarning } from './view.js';
 import { attachConnectionsNavigation } from './navigation.js';
 
-function mountCapabilities({ root, state, client, instances, lifetime }) {
-  const select = root.querySelector('#connectionsInstance');
+function mountCapabilities({ root, client, instance, lifetime }) {
   const status = root.querySelector('#connectionsCapabilities');
   const retry = root.querySelector('#connectionsRetry');
   let capabilityRequest;
   let capabilities = null;
-  instances.forEach(instance => select.add(new Option(new URL(instance).hostname, instance)));
   const refresh = async () => {
     capabilityRequest?.abort();
     const current = capabilityRequest = new AbortController();
@@ -19,14 +18,13 @@ function mountCapabilities({ root, state, client, instances, lifetime }) {
     retry.hidden = true;
     root.querySelectorAll('[data-connection-authorize]').forEach(link => { link.removeAttribute('href'); link.setAttribute('aria-disabled', 'true'); });
     try {
-      const result = await client.capabilities(select.value, AbortSignal.any([current.signal, lifetime.signal]));
+      const result = await client.capabilities(instance, AbortSignal.any([current.signal, lifetime.signal]));
       if (current.signal.aborted) return;
       capabilities = result;
-      status.textContent = Object.keys(state.connections.accounts).length
-        ? 'Instancia fijada para tus conexiones. Quita las conexiones antes de cambiarla.' : 'Instancia disponible. Elige un servicio para conectar.';
+      status.textContent = 'Elige un servicio para conectar o continúa sin conexiones.';
     } catch {
       if (current.signal.aborted || lifetime.signal.aborted) return;
-      status.textContent = 'No se pudo consultar esta instancia. Reintenta o elige otra si aún no tienes conexiones.';
+      status.textContent = 'No se pudo consultar esta instancia. Reintenta en unos momentos.';
       retry.hidden = false;
     }
     for (const [provider, config] of Object.entries(connectionProviders)) {
@@ -35,15 +33,14 @@ function mountCapabilities({ root, state, client, instances, lifetime }) {
         || (provider === 'simkl' && !(capabilities.hasSimkl ?? capabilities.simkl));
       const path = provider === 'simkl' && capabilities?.simklAuthMode === 'pin' ? '/configure' : config.auth;
       if (unavailable) link.removeAttribute('href');
-      else link.href = `${select.value}${path}`;
+      else link.href = `${instance}${path}`;
       link.setAttribute('aria-disabled', String(unavailable));
     }
   };
-  lifetime.on(select, 'change', refresh);
   lifetime.on(retry, 'click', refresh);
   lifetime.add(() => capabilityRequest?.abort());
   status.textContent = 'Puedes continuar sin conectar servicios.';
-  return { select, ready: () => Boolean(capabilities), refresh };
+  return { instance, ready: () => Boolean(capabilities), refresh };
 }
 
 const limitationText = code => ({
@@ -53,17 +50,15 @@ const limitationText = code => ({
 
 function createConnectionActions({ state, client, lifetime, capabilities, synchronize }) {
   const requests = new Map();
-  const lock = () => { capabilities.select.disabled = requests.size > 0 || Object.keys(state.connections.accounts).length > 0; };
   const verify = async card => {
     const provider = card.dataset.connectionProvider;
-    const input = card.querySelector('input[type="password"]');
+    const input = card.querySelector('[data-connection-input]');
     const tokenId = input.value.trim() || state.connections.accounts[provider]?.tokenId;
-    if (!capabilities.ready()) { connectionStatus(card, 'error', 'Primero comprueba la disponibilidad de la instancia.'); return; }
+    if (!isDemoCode(tokenId) && !capabilities.ready()) { connectionStatus(card, 'error', 'Primero comprueba la disponibilidad de la instancia.'); return; }
     requests.get(provider)?.abort();
     const request = new AbortController();
     requests.set(provider, request);
-    lock();
-    const instance = capabilities.select.value;
+    const instance = capabilities.instance;
     const signal = AbortSignal.any([request.signal, lifetime.signal]);
     card.setAttribute('aria-busy', 'true');
     connectionStatus(card, '', 'Comprobando conexión y listas…');
@@ -75,15 +70,16 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
       try { result = await client.lists(instance, provider, account, signal); }
       catch { signal.throwIfAborted(); result = { lists: [], limitation: 'unavailable' }; }
       signal.throwIfAborted();
-      account.catalogs = availableConnectionCatalogs(provider, result.lists, account.username);
+      account.catalogs = result.empty ? [] : availableConnectionCatalogs(provider, result.lists, account.username);
       const previous = state.connections.accounts[provider];
       if (result.limitation && previous?.tokenId === tokenId) account.catalogs = previous.catalogs;
+      if (provider === 'trakt') account.selected = account.catalogs.filter(c => c.id.startsWith('trakt.recommendations.')).map(c => `${c.type}:${c.id}`);
       if (previous?.tokenId === tokenId) account.selected = previous.selected.filter(key => account.catalogs.some(c => key === `${c.type}:${c.id}`));
       state.connections.accounts[provider] = account;
       state.connections.instance = instance;
       input.value = '';
       renderConnectionAccount(card, account);
-      showConnectionWarning(card, limitationText(result.limitation));
+      showConnectionWarning(card, limitationText(result.limitation) || (!account.catalogs.length ? 'Esta cuenta no tiene listas disponibles.' : ''));
       synchronize();
     } catch (error) {
       if (!signal.aborted) {
@@ -92,7 +88,7 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
       }
     } finally {
       if (requests.get(provider) === request) {
-        requests.delete(provider); card.setAttribute('aria-busy', 'false'); lock();
+        requests.delete(provider); card.setAttribute('aria-busy', 'false');
         if (signal.aborted && !lifetime.signal.aborted) renderConnectionAccount(card, state.connections.accounts[provider]);
       }
     }
@@ -101,10 +97,11 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
     requests.get(card.dataset.connectionProvider)?.abort();
     requests.delete(card.dataset.connectionProvider);
     delete state.connections.accounts[card.dataset.connectionProvider];
+    delete state.connections.drafts[card.dataset.connectionProvider];
     if (!Object.keys(state.connections.accounts).length) state.connections.instance = null;
-    card.querySelector('input[type="password"]').value = ''; renderConnectionAccount(card, null);
+    card.querySelector('[data-connection-input]').value = ''; renderConnectionAccount(card, null);
     showConnectionWarning(card);
-    synchronize(); lock(); capabilities.refresh();
+    synchronize(); capabilities.refresh();
   };
   const cancel = card => { requests.get(card.dataset.connectionProvider)?.abort(); };
   const cancelAll = () => { requests.forEach(request => request.abort()); };
@@ -112,12 +109,15 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
   return { verify, remove, cancel, cancelAll };
 }
 
-export function mountConnections({ state, client, instances, updateUI, root = document }) {
+export function mountConnections({ state, client, instance, updateUI, root = document }) {
   const view = root.querySelector('#connectionsStep');
   if (!view) return () => {};
   const lifetime = createLifetime();
   const cards = [...view.querySelectorAll('[data-connection-provider]')];
-  const artwork = Object.fromEntries(Object.entries(connectionProviders).map(([provider, config]) => [provider, config.artwork]));
+  const artwork = Object.fromEntries(Object.keys(connectionProviders).map(provider => [provider, {
+    local: view.querySelector('[data-connection-provider="' + provider + '"] img').src,
+    public: 'https://cdn.jsdelivr.net/gh/Svein05/NuvioLatinoSetup@main/assets/connections/' + (provider === 'mal' ? 'myanimelist' : provider) + '.webp',
+  }]));
   cards.forEach(card => {
     composeConnectionCard(card, card.dataset.connectionProvider);
     lifetime.add(mountDisclosure(card.querySelector('details')));
@@ -128,16 +128,23 @@ export function mountConnections({ state, client, instances, updateUI, root = do
     root.querySelector('#connectionsReview').hidden = !Object.values(state.connections.accounts).some(account => account.selected.length);
     updateUI();
   };
-  const capabilities = mountCapabilities({ root, state, client, instances, lifetime });
+  const capabilities = mountCapabilities({ root, state, client, instance, lifetime });
   state.connectionsOpened = () => { if (!capabilities.ready()) capabilities.refresh(); };
   state.connections.artwork = artwork;
+  state.connections.drafts = {};
   lifetime.add(() => { delete state.connectionsOpened; });
   const actions = createConnectionActions({ root, state, client, lifetime, capabilities, synchronize });
   state.connectionsCancel = actions.cancelAll;
   lifetime.add(() => { delete state.connectionsCancel; });
   lifetime.on(view, 'submit', event => { event.preventDefault(); actions.verify(event.target.closest('[data-connection-provider]')); });
-  lifetime.on(view, 'input', event => { if (event.target.type === 'password') actions.cancel(event.target.closest('[data-connection-provider]')); });
+  lifetime.on(view, 'input', event => {
+    if (!event.target.matches('[data-connection-input]')) return;
+    const card = event.target.closest('[data-connection-provider]');
+    state.connections.drafts[card.dataset.connectionProvider] = event.target.value;
+    actions.cancel(card); updateUI();
+  });
   lifetime.on(view, 'click', event => {
+    if (event.target.closest('[data-connection-visibility]')) toggleConnectionSecret(event.target.closest('[data-connection-provider]'));
     if (event.target.closest('[data-connection-remove]')) actions.remove(event.target.closest('[data-connection-provider]'));
   });
   lifetime.on(view, 'change', event => {
@@ -156,5 +163,6 @@ export function mountConnections({ state, client, instances, updateUI, root = do
     root.querySelector('#step-3 h2')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   });
   attachConnectionsNavigation({ root, state, lifetime, updateUI });
+  synchronize();
   return () => lifetime.dispose();
 }

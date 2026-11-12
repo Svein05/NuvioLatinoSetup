@@ -15,7 +15,7 @@ function formatTypeBadges(folder) {
 export function renderHeroBanner(folder) {
   if (!folder) return '';
 
-  const backdrop = folder.heroBackdropUrl || folder.coverImageUrl || DEFAULT_BACKDROP;
+  const backdrop = folder.previewCoverImageUrl || folder.heroBackdropUrl || folder.coverImageUrl || DEFAULT_BACKDROP;
   const logo = folder.titleLogoUrl;
   const emoji = folder.coverEmoji || '🎬';
   const title = folder.title || 'Colección';

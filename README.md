@@ -9,9 +9,9 @@ Abre el [asistente web](https://guia.lat-add.com/) o consulta la
 ## Qué puedes hacer
 
 - Completar un asistente de ocho pasos: conexión o modo manual, perfil,
-  colecciones, claves API, conexiones opcionales, apariencia, addons y configuración final.
+  conexiones opcionales, colecciones, claves API, apariencia, addons y configuración final.
 - Conectar Trakt, Simkl, AniList y MyAnimeList mediante AIOMetadata y elegir listas
-  de tu propia cuenta. Aparecen como colecciones nativas en «Mis conexiones»;
+  de tu propia cuenta. Aparecen como colecciones nativas en «Conexiones»;
   esta integración no registra automáticamente lo que reproduces.
 - Migrar opcionalmente biblioteca, vistos, progreso y addons desde Stremio al perfil
   elegido de Nuvio, conservando los datos existentes. La migración añade dos pasos
@@ -47,10 +47,9 @@ las descargas JSON no requieren esa contraseña.
 Junto a «Obtener» de TMDB y MDBList encontrarás sus videos tutoriales con capítulos, pausa,
 velocidad ajustable y pantalla completa para seguir el proceso desde el asistente.
 
-El paso «Conexiones» se puede omitir. Para utilizarlo, elige una instancia de
-AIOMetadata, autoriza el servicio en su pestaña y pega el identificador de conexión
-que te entrega. Después de comprobarlo, elige las listas que quieras añadir. La
-instancia queda fijada mientras existan conexiones. Algunas listas personalizadas
+El paso «Conexiones», antes de Mini Nuvio, se puede omitir. Para utilizarlo,
+autoriza el servicio en su pestaña y pega el identificador de conexión
+que te entrega. Después de comprobarlo, elige las listas que quieras añadir. Se usa la instancia Midnight de AIOMetadata, fijada mientras existan conexiones. Algunas listas personalizadas
 de Simkl requieren PRO o VIP. La disponibilidad depende de cada instancia y servicio.
 
 Los identificadores de conexión permanecen en memoria durante la sesión del

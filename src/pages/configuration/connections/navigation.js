@@ -1,15 +1,16 @@
-/** Optional view between stable steps 4 and 5; existing persisted step IDs stay valid. */
+/** Optional view before stable collection step 3; existing persisted step IDs stay valid. */
 export function attachConnectionsNavigation({ root, state, lifetime, updateUI }) {
   const item = root.createElement('button');
   item.id = 'drawer-connections';
   item.type = 'button';
   item.className = 'drawer-step-item locked';
-  item.innerHTML = '<span class="drawer-badge">5</span><span class="text-left text-xs">Conexiones<span class="block text-[10px] text-white/50">Opcional</span></span>';
-  root.querySelector('#drawer-step-5').before(item);
+  item.innerHTML = '<span class="drawer-badge">3</span><span class="text-left text-xs">Conexiones<span class="block text-[10px] text-white/50">Opcional</span></span>';
+  root.querySelector('#drawer-step-3').before(item);
+  const previous = () => state.isManualMode ? 1 : 2;
   const show = () => {
-    if (state.currentStep < 4 || !state.validateStep(4).valid) return false;
+    if (state.currentStep < previous() || !state.validateStep(previous()).valid) return false;
     state.connectionsStage = true;
-    state.currentStep = 4;
+    state.currentStep = previous();
     state.connectionsOpened?.();
     updateUI();
     root.querySelector('#connectionsTitle').focus({ preventScroll: true });
@@ -24,15 +25,16 @@ export function attachConnectionsNavigation({ root, state, lifetime, updateUI })
   };
   lifetime.on(item, 'click', () => { if (show()) root.querySelector('#btnCloseIndex')?.click(); });
   state.connectionsNavigation = {
+    show,
     change(delta) {
       if (state.migrationStage) return false;
-      if (state.connectionsStage) { leave(delta < 0 ? 4 : 5); return true; }
-      if ((state.currentStep === 4 && delta > 0) || (state.currentStep === 5 && delta < 0)) return show();
+      if (state.connectionsStage) { leave(delta < 0 ? previous() : 3); return true; }
+      if ((state.currentStep === previous() && delta > 0) || (state.currentStep === 3 && delta < 0)) return show();
       return false;
     },
     go(target) {
-      if (state.connectionsStage) { if (target <= 5 && !(state.isManualMode && target === 2)) leave(target); return true; }
-      if (!state.migrationStage && state.currentStep === 4 && target === 5) return show();
+      if (state.connectionsStage) { if (target <= 3 && !(state.isManualMode && target === 2)) leave(target); return true; }
+      if (!state.migrationStage && state.currentStep === previous() && target === 3) return show();
       return false;
     },
   };
@@ -44,10 +46,10 @@ export function renderConnectionsNavigation(root, state) {
   root.querySelector('#connectionsStep')?.classList.toggle('active', active);
   const item = root.querySelector('#drawer-connections');
   if (item) {
-    const unlocked = state.currentStep >= 4 && state.validateStep(4).valid;
+    const unlocked = state.currentStep >= (state.isManualMode ? 1 : 2) && state.validateStep(state.isManualMode ? 1 : 2).valid;
     item.disabled = !unlocked;
     item.className = `drawer-step-item ${active ? 'active' : unlocked ? 'completed' : 'locked'}`;
-    item.querySelector('.drawer-badge').textContent = String(5 + (state.migrationEnabled ? 2 : 0));
+    item.querySelector('.drawer-badge').textContent = String(3 + (state.migrationEnabled ? 2 : 0));
   }
   if (active) {
     root.querySelector(`#step-${state.currentStep}`)?.classList.remove('active');
