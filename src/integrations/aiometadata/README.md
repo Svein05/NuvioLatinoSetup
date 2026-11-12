@@ -1,7 +1,15 @@
 # Conexiones opcionales de AIOMetadata
 
 El asistente delega la autorización de Trakt, Simkl, AniList y MyAnimeList a la
-instancia de AIOMetadata elegida. No implementa seguimiento de reproducción.
+instancia Midnight de AIOMetadata. Las conexiones comprobadas activan por defecto
+`simklWatchTracking`, `anilistWatchTracking` o `malWatchTracking`, según el servicio;
+el usuario puede desactivar cada una. Al quitar una conexión se desactiva su flag.
+Trakt conserva el seguimiento nativo de Nuvio y no recibe un flag ficticio.
+
+En AIOMetadata 3.8.3, el mecanismo de subtítulos puede registrar vistos al solicitar
+subtítulos. No equivale a confirmar una reproducción completada; la interfaz lo
+explica junto al switch. El seguimiento por eventos depende de que el reproductor
+los envíe. Conectar una cuenta no acredita compatibilidad de todos los clientes.
 
 ## Contrato de integración
 

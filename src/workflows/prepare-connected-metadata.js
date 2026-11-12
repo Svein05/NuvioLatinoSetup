@@ -14,5 +14,9 @@ export function withConnectionCatalogs(rawTemplate, connections) {
 export function applyConnectionCredentials(payload, connections) {
   const config = payload.config || payload;
   config.apiKeys = { ...config.apiKeys, ...connectionCredentials(connections) };
+  for (const provider of ['simkl', 'anilist', 'mal']) {
+    const account = connections?.accounts?.[provider];
+    config[`${provider}WatchTracking`] = Boolean(account && account.trackingEnabled !== false);
+  }
   return payload;
 }

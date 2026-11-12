@@ -32,3 +32,14 @@
 .connection-actions > .connection-remove { color: #fda4af; border-color: rgb(251 113 133 / .18); background: rgb(251 113 133 / .05); }
 .connection-actions > .connection-remove:hover { background: rgb(251 113 133 / .1); }
 @media (prefers-reduced-motion: reduce) { .connection-card { transition: none; } .connection-card .fa-spin { animation: none; } }
+
+.connection-credentials { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; }
+.connection-authorize { flex: 0 1 auto; min-width: 0; }
+.connection-authorize > a { max-width: 100%; white-space: normal; }
+.connection-token { flex: 1 1 14rem; min-width: min(100%, 14rem); }
+.connection-token > label { display: block; margin-bottom: .4rem; }
+.connection-submit { justify-content: center; margin-top: .25rem; }
+.connection-tracking { display: grid; gap: .5rem; padding-top: .75rem; border-top: 1px solid rgb(255 255 255 / .08); }
+
+.connection-tracking label { min-height: 2.75rem; cursor: pointer; }
+.connection-tracking input:focus-visible + .lat-switch-track { outline: 2px solid white; outline-offset: 3px; }

@@ -12,7 +12,8 @@ Abre el [asistente web](https://guia.lat-add.com/) o consulta la
   conexiones opcionales, colecciones, claves API, apariencia, addons y configuración final.
 - Conectar Trakt, Simkl, AniList y MyAnimeList mediante AIOMetadata y elegir listas
   de tu propia cuenta. Aparecen como colecciones nativas en «Conexiones»;
-  esta integración no registra automáticamente lo que reproduces.
+  Simkl, AniList y MyAnimeList incluyen un switch de registro de vistos, activado
+  por defecto al conectar; Trakt ofrece instrucciones para su conexión nativa en Nuvio.
 - Migrar opcionalmente biblioteca, vistos, progreso y addons desde Stremio al perfil
   elegido de Nuvio, conservando los datos existentes. La migración añade dos pasos
   previos de conexión y selección; no modifica tu cuenta de Stremio.
@@ -51,6 +52,10 @@ El paso «Conexiones», antes de Mini Nuvio, se puede omitir. Para utilizarlo,
 autoriza el servicio en su pestaña y pega el identificador de conexión
 que te entrega. Después de comprobarlo, elige las listas que quieras añadir. Se usa la instancia Midnight de AIOMetadata, fijada mientras existan conexiones. Algunas listas personalizadas
 de Simkl requieren PRO o VIP. La disponibilidad depende de cada instancia y servicio.
+
+El registro de AIOMetadata puede dispararse al solicitar subtítulos y no confirma
+que hayas terminado de ver el contenido. AniList y MyAnimeList se aplican a anime.
+Puedes desactivar el registro en cada conexión.
 
 Los identificadores de conexión permanecen en memoria durante la sesión del
 asistente; al recargar tendrás que volver a introducirlos. Se incluyen en la

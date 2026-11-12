@@ -1,3 +1,4 @@
+import { mountConnectionTracking } from './tracking.js';
 import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { mountConnectionLists } from './lists-modal.js';
@@ -71,7 +72,7 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
       catch { signal.throwIfAborted(); result = { lists: [], limitation: 'unavailable' }; }
       signal.throwIfAborted();
       account.catalogs = result.empty ? [] : availableConnectionCatalogs(provider, result.lists, account.username);
-      const previous = state.connections.accounts[provider];
+      const previous = state.connections.accounts[provider]; account.trackingEnabled = previous?.trackingEnabled ?? true;
       if (result.limitation && previous?.tokenId === tokenId) account.catalogs = previous.catalogs;
       if (provider === 'trakt') account.selected = account.catalogs.filter(c => c.id.startsWith('trakt.recommendations.')).map(c => `${c.type}:${c.id}`);
       if (previous?.tokenId === tokenId) account.selected = previous.selected.filter(key => account.catalogs.some(c => key === `${c.type}:${c.id}`));
@@ -146,6 +147,7 @@ export function mountConnections({ state, client, instance, updateUI, root = doc
     if (event.target.closest('[data-connection-remove]')) actions.remove(event.target.closest('[data-connection-provider]'));
   });
   lifetime.add(mountConnectionLists({ root, state, view, synchronize }));
+  lifetime.add(mountConnectionTracking({ root, state, view, synchronize }));
   attachConnectionsNavigation({ root, state, lifetime, updateUI });
   synchronize();
   return () => lifetime.dispose();
