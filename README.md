@@ -8,8 +8,11 @@ Abre el [asistente web](https://guia.lat-add.com/) o consulta la
 
 ## Qué puedes hacer
 
-- Completar un asistente de siete pasos: conexión o modo manual, perfil,
-  colecciones, claves API, apariencia, addons y configuración final.
+- Completar un asistente de ocho pasos: conexión o modo manual, perfil,
+  colecciones, claves API, conexiones opcionales, apariencia, addons y configuración final.
+- Conectar Trakt, Simkl, AniList y MyAnimeList mediante AIOMetadata y elegir listas
+  de tu propia cuenta. Aparecen como colecciones nativas en «Mis conexiones»;
+  esta integración no registra automáticamente lo que reproduces.
 - Migrar opcionalmente biblioteca, vistos, progreso y addons desde Stremio al perfil
   elegido de Nuvio, conservando los datos existentes. La migración añade dos pasos
   previos de conexión y selección; no modifica tu cuenta de Stremio.
@@ -43,6 +46,18 @@ las descargas JSON no requieren esa contraseña.
 
 Junto a «Obtener» de TMDB y MDBList encontrarás sus videos tutoriales con capítulos, pausa,
 velocidad ajustable y pantalla completa para seguir el proceso desde el asistente.
+
+El paso «Conexiones» se puede omitir. Para utilizarlo, elige una instancia de
+AIOMetadata, autoriza el servicio en su pestaña y pega el identificador de conexión
+que te entrega. Después de comprobarlo, elige las listas que quieras añadir. La
+instancia queda fijada mientras existan conexiones. Algunas listas personalizadas
+de Simkl requieren PRO o VIP. La disponibilidad depende de cada instancia y servicio.
+
+Los identificadores de conexión permanecen en memoria durante la sesión del
+asistente; al recargar tendrás que volver a introducirlos. Se incluyen en la
+configuración de AIOMetadata necesaria para acceder a tus listas: no compartas
+ese archivo ni la dirección de configuración. Las credenciales de autorización
+las gestiona AIOMetadata, sin un nuevo sistema de inicio de sesión en esta web.
 
 Puedes iniciar sesión con Nuvio para configurar un perfil o usar el modo manual
 sin conectar tu cuenta. El asistente coloca AIOMetadata primero en el orden de addons;
