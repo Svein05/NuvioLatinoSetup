@@ -15,4 +15,4 @@ Los archivos `stremio-symbol.png` y `stremio-wordmark.png` identifican la conexi
 
 Los archivos `nuvio-mark.png` y `nuvio-wordmark.png` son las marcas oficiales sin modificar de Nuvio TV: https://github.com/NuvioMedia/NuvioTV/tree/main/assets/brand. Pertenecen a sus respectivos titulares.
 
-`aiometadata.png` es el logo de AIOMetadata, obtenido sin modificaciones desde https://aiometadatafortheweebs.midnightignite.me/logo.png. Se aloja localmente para evitar fallos de la URL externa. La marca pertenece a su titular.
+`aiometadata.webp` es el logo de AIOMetadata, adaptado a WebP de 96 px desde https://aiometadatafortheweebs.midnightignite.me/logo.png. Se aloja localmente para evitar fallos de la URL externa. La marca pertenece a su titular.
