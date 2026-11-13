@@ -2,9 +2,9 @@ import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { manageDialog } from '../../../shared/ui/dialog-accessibility.js';
 
 export function connectionTrackingControl(provider) {
-  if (provider === 'trakt') return '<button type="button" data-trakt-tracking class="lat-capsule-btn glass text-xs"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Seguimiento</button>';
+  if (provider === 'trakt') return '<div data-connection-tracking hidden class="connection-tracking"><div class="connection-tracking-row"><span>Seguimiento</span><button type="button" data-trakt-tracking class="lat-capsule-btn glass text-xs">Configurar en Nuvio <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button></div><p class="text-xs text-white/50">Conecta Trakt desde Nuvio para registrar lo que ves.</p></div>';
   return `<div data-connection-tracking hidden class="connection-tracking">
-    <label class="flex items-center justify-between gap-3 text-xs"><span>Registrar vistos</span><span class="lat-switch shrink-0">
+    <label class="connection-tracking-row"><span>Seguimiento</span><span class="lat-switch shrink-0">
       <input type="checkbox" role="switch" data-tracking-toggle aria-label="Registrar vistos" aria-describedby="tracking-help-${provider}">
       <span class="lat-switch-track"><span class="lat-switch-thumb"></span></span></span></label>
     <p id="tracking-help-${provider}" class="text-xs text-white/50">AIOMetadata puede registrar el contenido al solicitar subtítulos, aunque no termines de verlo.${provider === 'simkl' ? '' : ' Solo anime.'}</p>
@@ -15,7 +15,8 @@ export function renderConnectionTracking(card, account) {
   const group = card.querySelector('[data-connection-tracking]');
   if (!group) return;
   group.hidden = !account;
-  card.querySelector('[data-tracking-toggle]').checked = account?.trackingEnabled !== false;
+  const toggle = card.querySelector('[data-tracking-toggle]');
+  if (toggle) toggle.checked = account?.trackingEnabled !== false;
 }
 
 function createInstructions(root) {

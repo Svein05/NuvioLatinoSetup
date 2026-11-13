@@ -3,7 +3,7 @@ import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { mountConnectionLists } from './lists-modal.js';
 import { connectionProviders, availableConnectionCatalogs, synchronizeConnectionCollections } from '../../../features/connections/index.js';
-import { composeConnectionCard, connectionStatus, renderConnectionAccount, renderConnectionBusy, toggleConnectionSecret, showConnectionWarning } from './view.js';
+import { composeConnectionCard, connectionStatus, renderConnectionAccount, renderConnectionBusy, toggleConnectionSecret, toggleConnectionEditor, showConnectionWarning } from './view.js';
 import { attachConnectionsNavigation } from './navigation.js';
 
 function mountCapabilities({ root, client, instance, lifetime }) {
@@ -78,7 +78,7 @@ function createConnectionActions({ state, client, lifetime, capabilities, synchr
       if (previous?.tokenId === tokenId) account.selected = previous.selected.filter(key => account.catalogs.some(c => key === `${c.type}:${c.id}`));
       state.connections.accounts[provider] = account;
       state.connections.instance = instance;
-      input.value = '';
+      input.value = ''; card.dataset.editing = 'false';
       renderConnectionAccount(card, account);
       showConnectionWarning(card, limitationText(result.limitation) || (!account.catalogs.length ? 'Esta cuenta no tiene listas disponibles.' : ''));
       synchronize();
@@ -143,6 +143,7 @@ export function mountConnections({ state, client, instance, updateUI, root = doc
     actions.cancel(card); updateUI();
   });
   lifetime.on(view, 'click', event => {
+    if (event.target.closest('[data-connection-edit]')) toggleConnectionEditor(event.target.closest('[data-connection-provider]'));
     if (event.target.closest('[data-connection-visibility]')) toggleConnectionSecret(event.target.closest('[data-connection-provider]'));
     if (event.target.closest('[data-connection-remove]')) actions.remove(event.target.closest('[data-connection-provider]'));
   });
