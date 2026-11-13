@@ -6,6 +6,7 @@ async function openKeys(page) {
   await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
   await page.locator('[data-migration-action="manual"]').click();
+  await page.locator('#btnNext').click();
   await expect(page.locator('#step-3')).toBeVisible();
   await page.locator('#btnNext').click();
   await expect(page.locator('#step-4')).toBeVisible();

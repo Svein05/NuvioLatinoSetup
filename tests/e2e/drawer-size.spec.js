@@ -10,6 +10,7 @@ for (const width of [1440, 390]) {
     await page.locator('#btnContinueWithoutAccount').click();
     await page.locator('[data-migration-action="manual"]').click();
     await page.locator('#btnNext').click();
+    await page.locator('#btnNext').click();
     const card = page.locator('#wizardView');
     const height = await card.evaluate(node => node.getBoundingClientRect().height);
     await page.locator('#btnOpenIndex').click();

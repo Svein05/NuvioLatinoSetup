@@ -21,10 +21,11 @@ test('entry requires a path and manual confirmation has no Stremio branding', as
   await expect(page.locator('#step-1')).toBeVisible();
   await page.locator('#btnContinueWithoutAccount').click();
   await modal.locator('[data-migration-action="manual"]').click();
+  await page.locator('#btnNext').click();
   await expect(page.locator('#step-3')).toBeVisible();
 });
 
-test('mobile Stremio connection can return to the ordinary seven-step setup', async ({ page }) => {
+test('mobile Stremio connection can return to the ordinary setup', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await isolateExternalServices(page);
   await page.goto('/configuration/');
