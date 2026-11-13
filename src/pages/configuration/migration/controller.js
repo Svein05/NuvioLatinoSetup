@@ -82,6 +82,7 @@ function createDialogPresentation({ modal, flow, state, lifetime, updateUI }) {
     modal.querySelector('[data-manual-migration-warning]').hidden = !(state.migration || state.migrationNeedsReconnect);
     if (panel === 'login' || panel === 'review') {
       if (panel === 'review' && !state.migrationReviewReady) return;
+      state.connectionsCancel?.(); state.connectionsStage = false;
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       state.migrationEnabled = true;

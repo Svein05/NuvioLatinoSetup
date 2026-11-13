@@ -1,0 +1,19 @@
+<section id="connectionsStep" class="step-content space-y-6" aria-labelledby="connectionsTitle">
+  <header class="space-y-2">
+    <h2 id="connectionsTitle" tabindex="-1" class="font-serif text-2xl sm:text-3xl text-white">Conecta lo que te gusta</h2>
+    <p class="text-sm text-white/60">Trae tus listas y descubre recomendaciones en Nuvio. Tú eliges qué conectar, también puedes omitir este paso.</p>
+  </header>
+  <div class="space-y-2">
+    <p id="connectionsCapabilities" class="text-xs text-white/60" role="status"></p>
+    <button id="connectionsRetry" type="button" class="lat-capsule-btn glass text-xs" hidden>Reintentar conexión</button>
+  </div>
+  <div class="connections-grid" data-connections-grid>
+    <article data-connection-provider="trakt" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/connections/trakt.webp" alt="" width="40" height="40"><h3>Trakt</h3></header></article>
+    <article data-connection-provider="simkl" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/connections/simkl.webp" alt="" width="40" height="40"><h3>Simkl</h3></header></article>
+    <article data-connection-provider="anilist" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/connections/anilist.webp" alt="" width="40" height="40"><h3>AniList</h3></header></article>
+    <article data-connection-provider="mal" class="lat-card connection-card"><header><img data-connection-logo src="../../../assets/connections/myanimelist.webp" alt="" width="40" height="40"><h3>MyAnimeList</h3></header></article>
+  </div>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-xs text-white/50">Puedes ajustar el registro de vistos por servicio. Trakt se conecta desde Nuvio.</p>
+  </div>
+</section>

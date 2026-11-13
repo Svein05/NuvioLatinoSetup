@@ -46,6 +46,12 @@ export function refreshStep7Summary(root, state) {
   const badgesEl = root.querySelector?.('#summaryBadgesStatus');
   const addonsEl = root.querySelector?.('#summaryAddonsStatus');
 
+  const connectionsEl = root.querySelector('#summaryConnections');
+  if (connectionsEl) {
+    const names = Object.values(state.connections?.accounts || {}).map(account => account.username);
+    connectionsEl.closest('[data-connections-summary]').hidden = !names.length;
+    connectionsEl.textContent = `${names.length} servicios · ${names.join(', ')}`;
+  }
   const activeFolders = countActiveFolders(state.collections || []);
   let catalogsCount = 0;
   try {

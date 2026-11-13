@@ -64,9 +64,10 @@ test('manual configuration loads collections without authentication or remote se
   await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
   await page.locator('[data-migration-action="manual"]').click();
+  await page.locator('#btnNext').click();
   await expect(page.locator('#step-3')).toBeVisible();
   await expect(page.locator('.section-container').first()).toBeVisible();
-  await expect(page.locator('#stepCounter')).toContainText('3');
+  await expect(page.locator('#stepCounter')).toHaveText('Paso 4 de 8');
 });
 
 test('modder page remains available at its public route', async ({ page }) => {

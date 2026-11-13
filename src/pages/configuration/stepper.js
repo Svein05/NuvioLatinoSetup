@@ -1,3 +1,4 @@
+import { renderConnectionsNavigation } from './connections/navigation.js';
 import { renderMigrationNavigation } from './migration/navigation.js';
 import { createDrawerSize } from './drawer-size.js';
 import { createLifetime } from '../../shared/ui/lifetime.js';
@@ -29,6 +30,7 @@ function setupDrawer({ lifetime, root }) {
 }
 
 function handleGoToStep({ targetStep, state, actions, closeDrawer }) {
+  if (state.connectionsNavigation?.go(targetStep)) { closeDrawer(); return; }
   if (state.migrationNavigation?.go(targetStep)) { closeDrawer(); return; }
   if (targetStep === state.currentStep) { closeDrawer(); return; }
   if (state.isManualMode && targetStep === 2) { actions.notify?.('En modo sin cuenta, la selección de perfiles está omitida.', 'info'); return; }
@@ -63,6 +65,7 @@ function handleGoToStep({ targetStep, state, actions, closeDrawer }) {
 }
 
 function handleChangeStep({ delta, state, actions }) {
+  if (state.connectionsNavigation?.change(delta)) return;
   if (state.migrationNavigation?.change(delta)) return;
   if (delta < 0) {
     if (state.isManualMode && state.currentStep === 3) { state.currentStep = 1; actions.onStepChanged?.(); return; }
@@ -93,8 +96,9 @@ export function updateNavigationButtons(root, state) {
   const btnNext = root.querySelector?.('#btnNext');
   if (!btnNext) return;
 
-  const val = state.migrationStage ? { valid: state.migrationStage === 'review' && state.migrationSelectionReady,
+  const val = state.connectionsStage ? { valid: true } : state.migrationStage ? { valid: state.migrationStage === 'review' && state.migrationSelectionReady,
     error: state.migrationStage === 'review' ? 'Selecciona los datos que quieres importar' : 'Conecta Stremio para continuar' } : state.validateStep(state.currentStep);
+  btnNext.innerHTML = `${state.connectionsStage && !Object.values(state.connections.accounts).some(account => account.selected.length) ? 'Omitir' : 'Siguiente'} <i class="fa-solid fa-chevron-right text-[10px]" aria-hidden="true"></i>`;
   if (val.valid) {
     btnNext.disabled = false;
     btnNext.className = 'lat-capsule-btn solid text-xs py-1.5 px-4 shadow-[var(--shadow-lift)] cursor-pointer flex items-center gap-1.5';
@@ -158,6 +162,7 @@ export function updateStepperUI(root, state) {
 
   updateNavigationButtons(root, state);
   renderMigrationNavigation(root, state);
+  renderConnectionsNavigation(root, state);
   return currentStep;
 }
 

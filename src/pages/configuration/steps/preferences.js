@@ -1,3 +1,4 @@
+import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
 import { getEnrichmentState } from '../../../features/wizard/index.js';
 import { renderToggleLabel, renderPosterCardsUI } from './preferences-view.js';
@@ -89,7 +90,7 @@ export function mountPreferencesStep({ state, actions, root = document } = {}) {
   const lifetime = createLifetime();
   const elements = queryPreferenceElements(root);
   const carousel = createPostersCarousel({
-    getKeys: () => state.apiKeys,
+    getKeys: () => Object.fromEntries(Object.entries(state.apiKeys).map(([key, value]) => [key, isDemoCode(value) ? '' : value])),
     getCustomUrls: () => ({ better: elements.customBetterInput?.value?.trim() || '', plus: elements.customPlusInput?.value?.trim() || '' }),
     root,
   });

@@ -20,6 +20,7 @@ function applyAuthenticatedState({ state, auth, profiles, email, anonKey }) {
 
 function handleManualMode(state, notify) {
   state.enableManualMode();
+  state.connectionsNavigation?.show();
   const badge = document.getElementById('authStatusBadge');
   if (badge) {
     badge.className = 'text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-mono flex items-center gap-1.5';

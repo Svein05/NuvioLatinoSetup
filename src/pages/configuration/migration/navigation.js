@@ -16,12 +16,12 @@ export function renderMigrationNavigation(root, state) {
     if (stage) root.querySelector(`#step-${i}`)?.classList.remove('active');
     if (stage) root.querySelector(`#drawer-step-${i}`)?.classList.remove('active');
     const badge = root.querySelector(`#drawer-step-${i} .drawer-badge`);
-    if (badge) badge.textContent = String(i + (enabled ? 2 : 0));
+    if (badge) badge.textContent = String(i + (enabled ? 2 : 0) + (i >= 3 ? 1 : 0));
   }
-  const index = stage ? (stage === 'login' ? 1 : 2) : state.currentStep + (enabled ? 2 : 0);
+  const index = stage ? (stage === 'login' ? 1 : 2) : state.connectionsStage ? 3 + (enabled ? 2 : 0) : state.currentStep + (enabled ? 2 : 0) + (state.currentStep >= 3 ? 1 : 0);
   for (const id of ['stepCounter', 'drawerStepCounter']) {
     const counter = root.querySelector(`#${id}`);
-    if (counter) counter.textContent = `Paso ${index} de ${state.totalSteps + (enabled ? 2 : 0)}`;
+    if (counter) counter.textContent = `Paso ${index} de ${state.totalSteps + 1 + (enabled ? 2 : 0)}`;
   }
   if (stage || (enabled && state.currentStep === 1)) {
     root.querySelector('#btnBack').style.visibility = stage === 'login' ? 'hidden' : 'visible';

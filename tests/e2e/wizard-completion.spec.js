@@ -34,6 +34,7 @@ test('manual exports register once and celebrate safely: ' + scenario, async ({ 
   await page.locator('#btnContinueWithoutAccount').click();
   await page.locator('[data-migration-action="manual"]').click();
   await page.locator('#btnNext').click();
+  await page.locator('#btnNext').click();
   await page.locator('#keyTmdb').fill('0123456789abcdef0123456789abcdef');
   await page.locator('#keyMdblist').fill('synthetic-mdblist-key');
   await page.locator('#btnValidateApiKeys').click();

@@ -41,11 +41,11 @@ function renderCardHoverOverlay(sectionId, folderId) {
 export function renderFolderCard({ section, folder, fIndex, totalFolders, isFocused }) {
   const isEnabled = folder.enabled !== false && section.enabled !== false;
   const isLandscape = (folder.tileShape || 'LANDSCAPE') === 'LANDSCAPE';
-  const sizeClasses = isLandscape ? 'w-48 sm:w-56 shrink-0 aspect-video' : 'w-32 sm:w-36 shrink-0 aspect-[2/3]';
+  const sizeClasses = folder.tileShape === 'SQUARE' ? 'w-32 sm:w-40 shrink-0 aspect-square' : isLandscape ? 'w-48 sm:w-56 shrink-0 aspect-video' : 'w-32 sm:w-36 shrink-0 aspect-[2/3]';
   const borderClasses = isFocused
     ? 'border-2 border-[#ffd479] ring-2 ring-[#ffd479]/40 shadow-lg shadow-[#ffd479]/20'
     : isEnabled ? 'border border-white/10 hover:border-white/30' : 'border border-white/5 opacity-40';
-  const imageSrc = folder.coverImageUrl || folder.focusGifUrl || folder.heroBackdropUrl || DEFAULT_COVER;
+  const imageSrc = folder.previewCoverImageUrl || folder.coverImageUrl || folder.focusGifUrl || folder.heroBackdropUrl || DEFAULT_COVER;
 
   return `
     <div

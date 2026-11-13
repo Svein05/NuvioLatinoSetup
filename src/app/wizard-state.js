@@ -34,6 +34,7 @@ export class WizardState extends WizardCollectionsState {
     super();
     this.currentStep = 1;
     this.migration = null;
+    this.connections = { instance: null, accounts: {} };
     this.totalSteps = 7;
     this.maxUnlockedStep = 1;
     this.preferences = createDefaultPreferences();

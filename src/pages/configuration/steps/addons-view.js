@@ -37,7 +37,7 @@ function renderAddonDetails(addon, debridsMap = {}, root) {
       <div class="min-w-0 flex-1">
         <h4 class="font-semibold text-sm sm:text-base text-white truncate">AIOStreams Latino</h4>
         <p class="text-[10px] sm:text-[11px] text-white/50 truncate mt-0.5">
-          <span class="text-emerald-400 font-medium">Debrids: ${escapeHtml(debridsStr)}</span> • El manifiesto se generará con tu clave maestra en el Paso 7
+          <span class="text-emerald-400 font-medium">Debrids: ${escapeHtml(debridsStr)}</span> • El manifiesto se generará con tu clave maestra al finalizar
         </p>
       </div>
     `;

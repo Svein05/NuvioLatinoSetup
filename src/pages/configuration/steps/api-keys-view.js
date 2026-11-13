@@ -34,6 +34,9 @@ export function renderKeySummary(result, root) {
   message.textContent = result.valid
     ? `✓ Claves obligatorias verificadas.${result.warnings.length ? ' Hay proveedores opcionales sin verificar.' : ' Ya puedes avanzar al siguiente paso.'}`
     : 'No se pudieron verificar las claves obligatorias. Revisa los resultados e intenta de nuevo.';
+  if (Object.values(result.providers).some(provider => provider.demo)) message.textContent = result.valid
+    ? 'Demostración: puedes avanzar para revisar la interfaz. La configuración final está bloqueada.'
+    : 'Demostración: este código representa una clave inválida o un servicio no disponible.';
   message.className = `text-[11px] mt-0.5 font-medium ${result.valid ? 'text-emerald-400' : 'text-amber-400'}`;
 }
 

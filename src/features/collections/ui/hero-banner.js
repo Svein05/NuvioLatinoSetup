@@ -15,7 +15,7 @@ function formatTypeBadges(folder) {
 export function renderHeroBanner(folder) {
   if (!folder) return '';
 
-  const backdrop = folder.heroBackdropUrl || folder.coverImageUrl || DEFAULT_BACKDROP;
+  const backdrop = folder.previewCoverImageUrl || folder.heroBackdropUrl || folder.coverImageUrl || DEFAULT_BACKDROP;
   const logo = folder.titleLogoUrl;
   const emoji = folder.coverEmoji || '🎬';
   const title = folder.title || 'Colección';
@@ -27,7 +27,7 @@ export function renderHeroBanner(folder) {
 
   return `
     <div id="miniNuvioHeroBanner" class="relative w-full h-48 md:h-56 rounded-2xl overflow-hidden border border-white/10 shadow-[var(--shadow-lift)] bg-[#08090c] flex flex-col justify-end p-4 sm:p-6 transition-all duration-300">
-      <img src="${escapeHtml(safeImageUrl(backdrop, DEFAULT_BACKDROP))}" alt="${escapeHtml(title)}" class="absolute inset-0 w-full h-full object-cover opacity-35 filter blur-[1px] scale-105 transition-all duration-500" data-fallback-src="${DEFAULT_BACKDROP}">
+      <img src="${escapeHtml(safeImageUrl(backdrop, DEFAULT_BACKDROP))}" alt="${escapeHtml(title)}" class="absolute inset-0 w-full h-full ${folder.connectionProvider ? 'object-contain p-6' : 'object-cover'} opacity-35 filter blur-[1px] scale-105 transition-all duration-500" data-fallback-src="${DEFAULT_BACKDROP}">
       <div class="absolute inset-0 bg-gradient-to-t from-[#08090c] via-[#08090c]/70 to-transparent"></div>
       <div class="absolute inset-0 bg-gradient-to-r from-[#08090c]/90 via-[#08090c]/40 to-transparent"></div>
 

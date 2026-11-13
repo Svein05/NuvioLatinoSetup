@@ -1,3 +1,4 @@
+import { renderDemoLock } from './demo-lock.js';
 export function updateStep7ExecuteButton(root, state) {
   const btn = root.querySelector?.('#btnExecutePipeline');
   if (!btn) return;
@@ -46,6 +47,7 @@ export function updateManualModeButtons(root, state) {
   toggle('#btnCopyBadgeCompiledJson', isBadgesEnabled);
   toggle('#btnDownloadBadges', isBadgesEnabled);
   toggle('#btnCopyAioStreamsManifest', isAioStreamsInstalled);
+  renderDemoLock(root, state);
 }
 
 export function renderExecutionProgress(root, { current, total, message }) {

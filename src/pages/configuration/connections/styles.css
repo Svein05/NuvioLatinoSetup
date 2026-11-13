@@ -1,0 +1,54 @@
+.connections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr)); gap: 1rem; align-items: start; }
+.connection-card { padding: 1.125rem; min-width: 0; display: flex; flex-direction: column; gap: .75rem; }
+.connection-card > header { display: flex; align-items: center; gap: .75rem; }
+.connection-card > header img { width: 2.125rem; height: 2.125rem; object-fit: contain; border-radius: .5rem; }
+.connection-card h3 { font-size: .95rem; font-weight: 600; }
+.connection-form { display: grid; gap: .65rem; }
+.connection-form .lat-field { width: 100%; min-width: 0; }
+.connection-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.connection-actions > * { max-width: 100%; white-space: normal; text-align: center; }
+.connection-actions a[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.connection-status { margin-inline-start: auto; text-align: end; max-width: 55%; font-size: .6875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.connection-status[data-state="connected"] { color: #34d399; }
+.connection-status[data-state="error"] { color: #fda4af; }
+.connection-catalogs { display: grid; gap: .5rem; padding: .5rem .2rem; }
+.connection-catalog { display: flex; align-items: flex-start; gap: .65rem; padding: .7rem; border: 1px solid rgb(255 255 255 / .1); border-radius: .75rem; font-size: .75rem; cursor: pointer; }
+.connection-catalog input { accent-color: #ffd479; margin-top: .15rem; flex-shrink: 0; }
+.connection-catalog:has(input:focus-visible) { outline: 2px solid white; outline-offset: 2px; }
+.connection-catalog span { min-width: 0; overflow-wrap: anywhere; }
+.connection-catalog:has(input:checked) { border-color: rgb(255 212 121 / .5); background: rgb(255 212 121 / .05); }
+#connectionsTitle:focus { outline: none; }
+.connection-card [hidden], #connectionsStep [hidden] { display: none !important; }
+
+.connection-lists-panel { display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 1rem; max-height: min(42rem, calc(100svh - 2rem)); }
+.connection-lists-scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .2rem; }
+.connection-lists-panel [hidden] { display: none !important; }
+.connection-lists-panel .connection-catalog { scroll-margin-block: .5rem; }
+
+.connection-card[data-connected="true"] { border-color: rgb(52 211 153 / .32); box-shadow: 0 0 18px rgb(52 211 153 / .09); }
+.connection-card { transition: border-color .25s ease, box-shadow .25s ease; }
+.connection-actions { align-items: center; }
+.connection-actions > button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.5rem; }
+.connection-actions > .connection-remove { color: #fda4af; border-color: rgb(251 113 133 / .18); background: rgb(251 113 133 / .05); }
+.connection-actions > .connection-remove:hover { background: rgb(251 113 133 / .1); }
+@media (prefers-reduced-motion: reduce) { .connection-card { transition: none; } .connection-card .fa-spin { animation: none; } }
+
+.connection-credentials { display: flex; align-items: center; flex-wrap: wrap; gap: .625rem; }
+.connection-authorize { flex: 0 1 auto; min-width: 0; }
+.connection-authorize > a { max-width: 100%; white-space: normal; }
+.connection-token { flex: 1 1 12rem; min-width: min(100%, 12rem); }
+.connection-token > label { display: block; margin-bottom: .4rem; }
+.connection-submit { justify-content: center; margin-top: .25rem; }
+.connection-tracking { display: grid; gap: .5rem; padding-top: .75rem; border-top: 1px solid rgb(255 255 255 / .08); }
+
+.connection-tracking label { cursor: pointer; }
+.connection-tracking input:focus-visible + .lat-switch-track { outline: 2px solid white; outline-offset: 3px; }
+
+.connection-account { display: flex; align-items: center; justify-content: space-between; gap: .75rem; font-size: .75rem; }
+.connection-account > span { color: #34d399; min-width: 0; overflow-wrap: anywhere; }
+.connection-account > button { flex-shrink: 0; color: rgb(255 255 255 / .55); font-size: .6875rem; min-height: 2.125rem; padding: .375rem .75rem; background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .16); border-radius: 999px; cursor: pointer; gap: .375rem; }
+.connection-account > button:hover { color: white; background: rgb(255 255 255 / .1); border-color: rgb(255 255 255 / .3); }
+.connection-tracking-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 2.75rem; font-size: .75rem; }
+.connection-tracking-row > button { font-size: .6875rem; padding: .375rem .75rem; }
+.connection-authorize a[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.connection-authorize > a { font-size: .75rem; }
