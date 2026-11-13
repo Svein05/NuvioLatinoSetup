@@ -174,7 +174,7 @@ export function mountMigration({ state, readSnapshot, saveSession, updateUI, roo
     show('login');
     error.textContent = 'Vuelve a conectar Stremio para recuperar la importación pendiente.';
     error.classList.remove('hidden');
-  } else if (!state.nuvioAuth?.isAuthenticated && state.currentStep === 1) show('choice');
+  }
   refresh();
   return () => lifetime.dispose();
 }

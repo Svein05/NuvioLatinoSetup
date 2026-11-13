@@ -198,6 +198,7 @@ export class AppController {
   }
 
   async renderAddonsManager() {
+    if (state.targetApplication === 'stremio') { this.addonsStep?.render(); this.updateNavigationButtons(); return; }
     const container = document.getElementById('addonsManagerContainer');
     if (!container) return;
     const loaded = await syncProfileAddonsIfNeeded({

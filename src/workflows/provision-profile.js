@@ -144,6 +144,7 @@ function setupExecution(state, log) {
 }
 
 export async function executeProfileProvisioning(state, { config = {}, services = {} } = {}) {
+  if (state.targetApplication === 'stremio') throw new Error('Usa el flujo de configuración de Stremio.');
   if (!state?.execution || state.execution.isRunning) return;
 
   const log = (msg, level = 'info') => state.addLog?.(msg, level);

@@ -1,4 +1,5 @@
 import { initializeConnections } from './wizard-connections.js';
+import { initializeStremioSetup } from './stremio-setup.js';
 import { createLifetime } from '../shared/ui/lifetime.js';
 import { bindWizardCommands } from '../pages/configuration/commands.js';
 import { managePageDialogs } from '../shared/ui/dialog-accessibility.js';
@@ -23,6 +24,7 @@ function connectWizard(controller, state, lifetime) {
     readAccount: readStremioAccount, readWatched: watchedEpisodes,
   }) }));
   lifetime.add(initializeConnections(controller, state));
+  lifetime.add(initializeStremioSetup(controller, state));
   lifetime.add(state.subscribe((snapshot, eventType) => controller.handleStateUpdate(snapshot, eventType)));
   lifetime.add(() => {
     controller.disposeAuthStep?.(); controller.disposeApiKeys?.(); controller.disposeProfilesStep?.();
@@ -52,12 +54,18 @@ function connectPageNavigation(controller, lifetime) {
 export async function initializeWizard({ controller, state, MiniNuvio, loadAvatarsCatalog, initCounter }) {
   const lifetime = createLifetime();
   lifetime.on(window, 'pagehide', event => { if (!event.persisted) lifetime.dispose(); });
-  controller.miniNuvio = new MiniNuvio('miniNuvioContainer', { notify: (message, type) => controller.showToast(message, type) });
   initCounter();
   loadAvatarsCatalog().catch(() => console.warn('[Wizard] Catálogo de avatares no disponible.'));
   await state.loadTemplates();
   if (lifetime.signal.aborted) return;
-  controller.miniNuvio.init();
+  let miniInitialized = false;
+  controller.initializeNuvioPreview = () => {
+    if (miniInitialized) return;
+    miniInitialized = true;
+    controller.miniNuvio = new MiniNuvio('miniNuvioContainer', { notify: (message, type) => controller.showToast(message, type) });
+    controller.miniNuvio.init();
+  };
+  lifetime.add(() => { delete controller.initializeNuvioPreview; });
   connectWizard(controller, state, lifetime);
   connectPageNavigation(controller, lifetime);
   const wizard = document.getElementById('wizardView');

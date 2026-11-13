@@ -23,6 +23,7 @@ import {
 } from '../features/addons/index.js';
 import { loadWizardTemplates } from '../workflows/load-wizard-templates.js';
 import { stageMigrationAddons } from '../features/migration/index.js';
+import { validateStremioStep } from '../features/stremio-setup/index.js';
 
 export { isAioStreamsAddon };
 export function isAioMetadataAddon(addon) {
@@ -33,6 +34,8 @@ export class WizardState extends WizardCollectionsState {
   constructor() {
     super();
     this.currentStep = 1;
+    this.targetApplication = null;
+    this.stremio = { session: null, originalAddons: [], selected: null, completed: false, pendingWrite: null };
     this.migration = null;
     this.connections = { instance: null, accounts: {} };
     this.totalSteps = 7;
@@ -94,6 +97,10 @@ export class WizardState extends WizardCollectionsState {
   }
 
   validateStep(stepNumber) {
+    if (this.targetApplication === 'stremio') {
+      const verdict = validateStremioStep(stepNumber, this);
+      if (verdict) return verdict;
+    }
     return validateWizardStep(stepNumber, this);
   }
 
