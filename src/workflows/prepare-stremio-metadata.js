@@ -20,7 +20,8 @@ export function prepareStremioMetadata(state) {
   payload.config.catalogs = chosen.map(item => {
     const catalog = compiled.get(`${item.type}:${item.id}`);
     if (!catalog) throw new Error('Uno de los catálogos seleccionados ya no está disponible.');
-    return { ...catalog, showInHome: true };
+    const name = state.stremio.names?.[`${item.type}:${item.id}`];
+    return { ...catalog, ...(name ? { name } : {}), showInHome: true };
   });
   return applyConnectionCredentials(payload, state.connections);
 }

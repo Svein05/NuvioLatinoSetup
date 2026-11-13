@@ -1,6 +1,7 @@
 import { isDemoSetup, DEMO_LOCK_MESSAGE } from '../../../shared/demo/setup.js';
 import { escapeHtml } from '../../../shared/ui/safe-markup.js';
 import { mountStremioInstructions } from './instructions.js';
+import { installedCatalogBlocks } from '../../../features/stremio-setup/index.js';
 
 export function mountStremioFinish({ state, root, lifetime, execute }) {
   const view = root.querySelector('#stremioFinishStep');
@@ -18,7 +19,7 @@ export function mountStremioFinish({ state, root, lifetime, execute }) {
     if (!password.value && state.aiometadata.password) password.value = state.aiometadata.password;
     const values = [
       ['Cuenta', state.stremio.session?.email || 'Sin conectar'],
-      ['Catálogos', String(state.stremio.selected?.length || 0)],
+      ['Catálogos', String((state.stremio.selected?.length || 0) + installedCatalogBlocks(state).reduce((total, block) => total + block.catalogs.length, 0))],
       ['Metadatos', 'Español latino'],
       ['Pósters', state.preferences.posterEngine === 'default' ? 'AIOMetadata' : state.preferences.posterEngine === 'betterposter' ? 'BetterPoster' : 'Poster+'],
       ['Addons', `AIOMetadata + ${state.profileAddons.length}`],

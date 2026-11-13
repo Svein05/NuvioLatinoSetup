@@ -1,5 +1,5 @@
 const ROUTE = [1, 'connections', 3, 4, 5, 6, 7];
-const TITLES = { 1: 'Cuenta Stremio', 3: 'Mini Stremio', 4: 'API Keys', 5: 'Pósters', 6: 'Addons', 7: 'Aplicar configuración' };
+const TITLES = { 1: 'Cuenta Stremio', 3: 'Catálogos', 4: 'API Keys', 5: 'Pósters', 6: 'Addons', 7: 'Aplicar configuración' };
 
 function renderDrawer(root, stremio) {
   root.querySelector('#drawer-step-2').hidden = stremio;
@@ -8,11 +8,21 @@ function renderDrawer(root, stremio) {
     const label = item.querySelector('.text-left');
     label.dataset.originalMarkup ??= label.innerHTML;
     if (stremio) {
-      label.textContent = title;
+      label.children[0].textContent = title;
+      label.children[1].textContent = Number(step) === 1 ? 'Conectar tu cuenta' : Number(step) === 3 ? 'Selección y orden de filas' : Number(step) === 7 ? 'Revisar e instalar addons' : label.children[1].textContent;
       item.querySelector('.drawer-badge').textContent = String(ROUTE.indexOf(Number(step)) + 1);
     } else label.innerHTML = label.dataset.originalMarkup;
   }
   if (stremio) root.querySelector('#drawer-connections .drawer-badge').textContent = '2';
+}
+
+function renderTargetSteps(root, state, stremio) {
+  root.querySelector('#platformChoice').classList.toggle('active', !state.targetApplication);
+  if (!state.targetApplication) root.querySelectorAll('.step-content:not(#platformChoice)').forEach(node => node.classList.remove('active'));
+  for (const [id, step] of [['stremioLoginStep', 1], ['stremioCatalogStep', 3], ['stremioFinishStep', 7]]) {
+    root.querySelector(`#${id}`).classList.toggle('active', stremio && !state.connectionsStage && state.currentStep === step);
+  }
+  if (stremio) for (const step of [1, 2, 3, 7]) root.querySelector(`#step-${step}`).classList.remove('active');
 }
 
 export function attachPlatformNavigation({ root, state, updateUI, choose, refresh }) {
@@ -29,6 +39,7 @@ export function attachPlatformNavigation({ root, state, updateUI, choose, refres
     view?.querySelector('h2')?.focus({ preventScroll: true });
   };
   const renderButtons = () => {
+    root.querySelector('#wizardStepToolbar').hidden = !state.targetApplication;
     const next = root.querySelector('#btnNext');
     const back = root.querySelector('#btnBack');
     root.querySelector('#btnOpenIndex').hidden = !state.targetApplication;
@@ -60,13 +71,8 @@ export function attachPlatformNavigation({ root, state, updateUI, choose, refres
     },
     renderButtons,
     render() {
-      root.querySelector('#platformChoice').classList.toggle('active', !state.targetApplication);
-      if (!state.targetApplication) root.querySelectorAll('.step-content:not(#platformChoice)').forEach(node => node.classList.remove('active'));
-      root.querySelector('#stremioLoginStep').classList.toggle('active', target() && !state.connectionsStage && state.currentStep === 1);
-      root.querySelector('#stremioCatalogStep').classList.toggle('active', target() && !state.connectionsStage && state.currentStep === 3);
-      root.querySelector('#stremioFinishStep').classList.toggle('active', target() && !state.connectionsStage && state.currentStep === 7);
+      renderTargetSteps(root, state, target());
       if (target()) {
-        for (const step of [1, 2, 3, 7]) root.querySelector(`#step-${step}`).classList.remove('active');
         for (const id of ['stepCounter', 'drawerStepCounter']) root.querySelector(`#${id}`).textContent = `Paso ${ROUTE.indexOf(current()) + 1} de ${ROUTE.length}`;
       }
       renderDrawer(root, target());

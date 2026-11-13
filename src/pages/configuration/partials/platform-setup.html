@@ -1,8 +1,8 @@
-<section id="platformChoice" class="step-content" aria-labelledby="platformChoiceTitle">
+<section id="platformChoice" class="step-content active" aria-labelledby="platformChoiceTitle">
   <header class="text-center space-y-2 mb-8"><h2 id="platformChoiceTitle" class="font-serif text-3xl sm:text-4xl" tabindex="-1">¿Dónde quieres disfrutarlo?</h2><p class="text-sm text-white/60">Elige la aplicación que quieres configurar.</p></header>
   <div class="setup-platforms">
-    <article class="lat-card setup-platform"><div class="setup-platform-logo"><img src="../../../assets/logo/logo.webp" alt="Nuvio"></div><h3>Tu biblioteca, a tu manera.</h3><p>Colecciones, metadatos en español latino y tus addons en su lugar.</p><button type="button" data-setup-platform="nuvio" class="lat-capsule-btn solid">Continuar con Nuvio</button></article>
-    <article class="lat-card setup-platform"><div class="setup-platform-logo setup-stremio-brand"><img src="../../../assets/logo/stremio-symbol.png" alt=""><img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio"></div><h3>Todo lo que te gusta, más cerca.</h3><p>Tus catálogos, pósters y addons, preparados para Stremio.</p><button type="button" data-setup-platform="stremio" class="lat-capsule-btn solid">Continuar con Stremio</button></article>
+    <article class="lat-card setup-platform"><div class="setup-platform-logo setup-nuvio-brand"><img src="../../../assets/logo/nuvio-mark.png" alt=""><img src="../../../assets/logo/nuvio-wordmark.png" alt="Nuvio"></div><button type="button" data-setup-platform="nuvio" aria-label="Seleccionar Nuvio" class="lat-capsule-btn solid">Seleccionar</button></article>
+    <article class="lat-card setup-platform"><div class="setup-platform-logo setup-stremio-brand"><img src="../../../assets/logo/stremio-symbol.png" alt=""><img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio"></div><button type="button" data-setup-platform="stremio" aria-label="Seleccionar Stremio" class="lat-capsule-btn solid">Seleccionar</button></article>
   </div>
 </section>
 <section id="stremioLoginStep" class="step-content" aria-labelledby="stremioLoginTitle">
@@ -21,18 +21,9 @@
   </div>
 </section>
 <section id="stremioCatalogStep" class="step-content" aria-labelledby="stremioCatalogTitle">
-  <header class="space-y-2 mb-6"><h2 id="stremioCatalogTitle" class="font-serif text-3xl sm:text-4xl" tabindex="-1">Haz espacio para tus próximas historias.</h2><p class="text-sm text-white/60">Organiza los catálogos que verás en Stremio. Empieza con nuestra selección y hazla tuya.</p></header>
-  <div class="stremio-workspace">
-    <div class="stremio-screen">
-      <header class="stremio-screen-nav"><div class="setup-stremio-brand"><img src="../../../assets/logo/stremio-symbol.png" alt=""><img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio"></div><span>Inicio</span><span>Descubrir</span></header>
-      <div class="stremio-spotlight"><span>Tu próxima historia</span><h3>Un universo por descubrir.</h3></div>
-      <div data-stremio-rows></div>
-      <div class="stremio-row-pagination"><button type="button" data-stremio-page="-1" class="lat-capsule-btn glass text-xs">‹ Anteriores</button><span data-stremio-page-status></span><button type="button" data-stremio-page="1" class="lat-capsule-btn glass text-xs">Siguientes ›</button></div>
-    </div>
-    <aside class="stremio-catalog-tools"><h3>Tu inicio en Stremio</h3><p data-stremio-count role="status"></p><button type="button" data-stremio-manage class="lat-capsule-btn solid">Administrar catálogos</button><div data-stremio-groups class="stremio-groups"></div><p class="text-xs text-white/50">Cambia el orden con las flechas de cada fila.</p><button type="button" data-stremio-restore class="lat-capsule-btn glass text-xs">Restablecer selección</button></aside>
-  </div>
-  <div data-stremio-posters hidden><img loading="lazy" src="../../../assets/preview/landing/inception.jpg" alt="El Origen"><img loading="lazy" src="../../../assets/preview/landing/interstellar.jpg" alt="Interestelar"><img loading="lazy" src="../../../assets/preview/landing/matrix.jpg" alt="Matrix"><img loading="lazy" src="../../../assets/preview/landing/godfather.jpg" alt="El Padrino"></div>
-  <div data-stremio-series hidden><img loading="lazy" src="../../../assets/preview/stremio/lupin.webp" alt="Lupin"><img loading="lazy" src="../../../assets/preview/stremio/dexter-resurrection.webp" alt="Dexter: Resurrección"><img loading="lazy" src="../../../assets/preview/stremio/the-institute.webp" alt="El instituto"><img loading="lazy" src="../../../assets/preview/stremio/black-doves.webp" alt="Palomas negras"></div>
+  <header class="space-y-2 mb-6"><h2 id="stremioCatalogTitle" class="font-serif text-3xl" tabindex="-1">Organiza tus catálogos</h2><p class="text-sm text-white/60">Ordena las filas de AIOMetadata y la prioridad de tus otros addons.</p></header>
+  <div class="stremio-catalog-toolbar"><p data-stremio-count role="status"></p><button type="button" data-stremio-manage class="lat-capsule-btn solid text-xs"><i class="fa-solid fa-plus" aria-hidden="true"></i> Elegir catálogos</button><button type="button" data-stremio-restore class="lat-capsule-btn glass text-xs">Restablecer</button></div>
+  <div data-stremio-rows class="stremio-catalog-blocks"></div>
 </section>
 <section id="stremioFinishStep" class="step-content" aria-labelledby="stremioFinishTitle">
   <header class="space-y-2 mb-6"><h2 id="stremioFinishTitle" class="font-serif text-3xl" tabindex="-1">Tu Stremio, listo para disfrutar.</h2><p class="text-sm text-white/60">Revisa lo que vas a aplicar. Tu biblioteca y tu historial se conservan.</p></header>

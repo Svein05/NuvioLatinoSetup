@@ -1,6 +1,6 @@
 import { assertRealSetup } from '../shared/demo/setup.js';
 import { prepareStremioMetadata } from './prepare-stremio-metadata.js';
-import { stremioAddonSnapshot, matchesStremioInstallation } from '../features/stremio-setup/index.js';
+import { stremioAddonSnapshot, matchesStremioInstallation, orderStremioDescriptors } from '../features/stremio-setup/index.js';
 
 function verifyCatalogs(manifest, catalogs) {
   if (!manifest?.id || !Array.isArray(manifest.catalogs)) throw new Error('No se pudo verificar el manifiesto de AIOMetadata. No se modificó Stremio.');
@@ -16,7 +16,12 @@ async function metadataDescriptor(state, services) {
   });
   const inspection = await services.inspectManifest({ manifestUrl: saved.manifestUrl });
   verifyCatalogs(inspection.manifest, payload.config.catalogs);
-  return { transportUrl: saved.manifestUrl, manifest: inspection.manifest, flags: { official: false, protected: false } };
+  const descriptor = { transportUrl: saved.manifestUrl, manifest: inspection.manifest, flags: { official: false, protected: false } };
+  // Conservative application budget, not a universal row-count limit across Stremio clients.
+  if (new TextEncoder().encode(JSON.stringify(descriptor)).length > 8192) {
+    throw new Error('AIOMetadata supera el presupuesto de 8 KiB por addon. Reduce los catálogos antes de instalar. Tu cuenta no se modificó.');
+  }
+  return descriptor;
 }
 
 async function addonDescriptor(addon, services, state) {
@@ -41,11 +46,11 @@ async function assembleAddons(state, services) {
     if (original.flags?.protected && !addons.some(item => item.transportUrl === original.transportUrl)) addons.push(structuredClone(original));
   }
   const urls = new Set();
-  return addons.filter(item => {
+  return orderStremioDescriptors(addons.filter(item => {
     if (urls.has(item.transportUrl)) return false;
     urls.add(item.transportUrl);
     return true;
-  });
+  }), state);
 }
 
 /** Stremio replaces its addon collection as a whole. Never silently overwrite a newer snapshot. */

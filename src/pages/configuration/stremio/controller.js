@@ -33,6 +33,7 @@ function mountLogin({ root, state, lifetime, services, connected }) {
       if (state.targetApplication !== 'stremio') return;
       state.stremio.session = result.session;
       state.stremio.originalAddons = result.addons;
+      state.stremio.addonOrder = null;
       state.stremio.completed = false; state.stremio.pendingWrite = null; state.stremio.completionId = null;
       state.selectedProfileId = 'stremio-account'; state.selectedProfileName = result.session.email;
       state.setProfileAddons(result.addons.map(addon => ({ id: addon.manifest.id, name: addon.manifest.name,
@@ -69,6 +70,7 @@ export function mountStremioSetup({ state, controller, services, root = document
     } else if (state.targetApplication === 'stremio' && application !== 'stremio' && nuvioSnapshot) {
       Object.assign(state, nuvioSnapshot); state.stremio.session = null;
     }
+    if (application === 'nuvio') controller.initializeNuvioPreview?.();
     state.targetApplication = application;
     state.currentStep = 1; state.connectionsStage = false;
     wizard.dataset.setupTarget = application || '';
