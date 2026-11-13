@@ -1,5 +1,5 @@
 import { catalogKey, METADATA_BLOCK } from '../../../features/stremio-setup/index.js';
-import { escapeHtml } from '../../../shared/ui/safe-markup.js';
+import { escapeHtml, safeImageUrl } from '../../../shared/ui/safe-markup.js';
 
 const typeLabel = type => type === 'movie' ? 'Películas' : type === 'series' ? 'Series' : type === 'anime' ? 'Anime' : type;
 const grip = kind => `<span class="stremio-drag-handle" data-drag-${kind} title="Arrastrar para ordenar"><i class="fa-solid fa-grip-vertical" aria-hidden="true"></i></span>`;
@@ -19,5 +19,5 @@ export function blockMarkup(block, index, context) {
   const open = context.expanded.has(block.key);
   const count = metadata ? context.chosen.length : block.catalogs.length;
   const rows = metadata ? context.chosen.map((catalog, position) => metadataRow(catalog, position, { names: context.names, total: count })).join('') : block.catalogs.map(catalog => `<li class="stremio-catalog-row"><i class="fa-solid fa-list text-white/40" aria-hidden="true"></i><div class="stremio-row-name"><span>${escapeHtml(catalog.name || catalog.id)}</span><small>${escapeHtml(typeLabel(catalog.type))}</small></div></li>`).join('');
-  return `<section class="stremio-catalog-block" data-block-key="${escapeHtml(block.key)}" data-expanded="${open}"><header>${grip('block')}<button type="button" class="stremio-block-toggle" data-block-toggle aria-expanded="${open}" aria-controls="stremioBlock${index}"><span>${escapeHtml(block.title)} <small>${count} filas</small></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><div class="stremio-row-actions">${moveButtons('data-block-move', index, context.blockCount, block.title)}</div></header><div id="stremioBlock${index}" class="stremio-block-body" ${open ? '' : 'inert'}><div><ol ${metadata ? 'data-sortable-rows' : ''}>${rows}</ol></div></div></section>`;
+  return `<section class="stremio-catalog-block" data-block-key="${escapeHtml(block.key)}" data-expanded="${open}"><header>${grip('block')}<img class="stremio-addon-logo" src="${escapeHtml(safeImageUrl(block.logo, '/assets/icons/addon-placeholder.svg'))}" alt="" width="36" height="36" loading="lazy" data-image-fallback="addon"><button type="button" class="stremio-block-toggle" data-block-toggle aria-expanded="${open}" aria-controls="stremioBlock${index}"><span>${escapeHtml(block.title)} <small>${count} filas</small></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button><div class="stremio-row-actions">${moveButtons('data-block-move', index, context.blockCount, block.title)}</div></header><div id="stremioBlock${index}" class="stremio-block-body" ${open ? '' : 'inert'}><div><ol ${metadata ? 'data-sortable-rows' : ''}>${rows}</ol></div></div></section>`;
 }

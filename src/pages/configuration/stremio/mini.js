@@ -5,12 +5,22 @@ import { mountStremioCatalogManager } from './manager.js';
 import { blockMarkup } from './catalog-markup.js';
 import { mountCatalogSorting } from './catalog-sorting.js';
 import { mountCatalogRename } from './catalog-rename.js';
+import { createCatalogMotion } from './catalog-motion.js';
+
+function toggleBlock(toggle, expanded) {
+  const block = toggle.closest('[data-block-key]');
+  const open = !expanded.has(block.dataset.blockKey);
+  if (open) expanded.add(block.dataset.blockKey); else expanded.delete(block.dataset.blockKey);
+  block.dataset.expanded = String(open); toggle.setAttribute('aria-expanded', String(open));
+  block.querySelector('.stremio-block-body').inert = !open;
+}
 
 export function mountMiniStremio({ state, root, lifetime, updateUI }) {
   const view = root.querySelector('#stremioCatalogStep');
   let signature;
   let sorting;
   const expanded = new Set();
+  const motion = createCatalogMotion(view, lifetime);
   const catalogs = () => availableStremioCatalogs(state.rawMetadataTemplate, state.originalCollectionsTemplate, selectedConnectionCatalogs(state.connections));
   const synchronize = () => {
     const available = catalogs();
@@ -21,7 +31,7 @@ export function mountMiniStremio({ state, root, lifetime, updateUI }) {
   const render = () => {
     if (state.stremio.selected === null) synchronize();
     const chosen = selectedStremioCatalogs(catalogs(), state.stremio.selected);
-    const blocks = orderedCatalogBlocks(state);
+    const blocks = orderedCatalogBlocks(state).map(block => block.key === 'setup:aiometadata' ? { ...block, logo: view.querySelector('[data-stremio-metadata-logo]').src } : block);
     const names = state.stremio.names || {};
     const next = JSON.stringify([chosen, blocks, names]);
     if (signature === next) return;
@@ -39,13 +49,7 @@ export function mountMiniStremio({ state, root, lifetime, updateUI }) {
   lifetime.on(view, 'click', event => {
     if (event.target.closest('[data-stremio-manage]')) manager.open();
     const toggle = event.target.closest('[data-block-toggle]');
-    if (toggle) {
-      const block = toggle.closest('[data-block-key]');
-      const open = !expanded.has(block.dataset.blockKey);
-      if (open) expanded.add(block.dataset.blockKey); else expanded.delete(block.dataset.blockKey);
-      block.dataset.expanded = String(open); toggle.setAttribute('aria-expanded', String(open));
-      block.querySelector('.stremio-block-body').inert = !open;
-    }
+    if (toggle) toggleBlock(toggle, expanded);
     const edit = event.target.closest('[data-row-edit]');
     if (edit) rename.open(edit.dataset.rowEdit, edit.closest('li').querySelector('.stremio-row-name>span').textContent);
     const move = event.target.closest('[data-row-move],[data-block-move]');
@@ -55,9 +59,11 @@ export function mountMiniStremio({ state, root, lifetime, updateUI }) {
       const index = Number(block ? move.dataset.blockMove : move.dataset.rowMove);
       const destination = index + Number(move.dataset.direction);
       if (destination < 0 || destination >= values.length) return;
+      const animate = motion.capture(block);
       [values[index], values[destination]] = [values[destination], values[index]];
       if (block) state.stremio.addonOrder = values;
       changed();
+      animate();
       view.querySelector(`[${block ? 'data-block-move' : 'data-row-move'}="${destination}"][data-direction="${move.dataset.direction}"]`)?.focus({ preventScroll: true });
     }
     const remove = event.target.closest('[data-row-remove]');

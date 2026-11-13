@@ -9,12 +9,12 @@ export function installedCatalogBlocks(state) {
       if (catalog.extraRequired?.length) return false;
       return !(catalog.extra || []).some(extra => extra.isRequired && !extra.options?.length);
     });
-    return { key: url, title: addon.name || descriptor?.manifest.name || 'Addon', catalogs };
+    return { key: url, title: addon.name || descriptor?.manifest.name || 'Addon', logo: addon.logo || descriptor?.manifest.logo, catalogs };
   }).filter(block => block.key && block.catalogs.length);
 }
 
 export function orderedCatalogBlocks(state) {
-  const blocks = [{ key: METADATA_BLOCK, title: 'AIOMetadata', catalogs: [] }, ...installedCatalogBlocks(state)];
+  const blocks = [{ key: METADATA_BLOCK, title: 'AIOMetadata', logo: state.existingAioAddon?.logo, catalogs: [] }, ...installedCatalogBlocks(state)];
   const available = new Map(blocks.map(block => [block.key, block]));
   const order = [...new Set([...(state.stremio.addonOrder || []), ...available.keys()])];
   return order.map(key => available.get(key)).filter(Boolean);

@@ -19,6 +19,7 @@
 .stremio-catalog-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin-bottom: 1rem; }
 .stremio-catalog-toolbar>p { margin-right: auto; font-size: .8rem; color: rgb(255 255 255/.6); }
 .stremio-catalog-blocks { display: grid; gap: 1rem; }
+.stremio-addon-logo { width: 2.25rem; height: 2.25rem; object-fit: contain; flex-shrink: 0; padding: .25rem; border-radius: .6rem; background: rgb(255 255 255/.06); border: 1px solid rgb(255 255 255/.1); }
 .stremio-catalog-block { border: 1px solid rgb(255 255 255/.12); border-radius: 16px; background: rgb(255 255 255/.025); min-width: 0; }
 .stremio-catalog-block>header { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .875rem 1rem; }
 .stremio-block-toggle { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; font-size: .875rem; font-weight: 600; }

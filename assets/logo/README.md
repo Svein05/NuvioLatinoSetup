@@ -14,3 +14,5 @@ Ko-fi retains its trademarks. The icon links to the project creator’s support 
 Los archivos `stremio-symbol.png` y `stremio-wordmark.png` identifican la conexión con Stremio. El símbolo proviene de https://www.stremio.com/assets/stremio-logo-small-DmKKoSIJ.png; el logotipo de texto fue proporcionado por el responsable del proyecto. Se conservan sin modificaciones. Las marcas pertenecen a sus respectivos titulares.
 
 Los archivos `nuvio-mark.png` y `nuvio-wordmark.png` son las marcas oficiales sin modificar de Nuvio TV: https://github.com/NuvioMedia/NuvioTV/tree/main/assets/brand. Pertenecen a sus respectivos titulares.
+
+`aiometadata.png` es el logo de AIOMetadata, obtenido sin modificaciones desde https://aiometadatafortheweebs.midnightignite.me/logo.png. Se aloja localmente para evitar fallos de la URL externa. La marca pertenece a su titular.
