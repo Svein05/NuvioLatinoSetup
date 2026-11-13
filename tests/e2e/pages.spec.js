@@ -61,7 +61,7 @@ for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844
 test('manual configuration loads collections without authentication or remote services', async ({ page }) => {
   await isolateExternalServices(page);
   await page.goto('/configuration/');
-  await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
+  await page.locator('[data-setup-platform="nuvio"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
   await page.locator('[data-migration-action="manual"]').click();
   await page.locator('#btnNext').click();

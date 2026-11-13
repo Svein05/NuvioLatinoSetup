@@ -6,7 +6,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await isolateExternalServices(page);
     await page.goto('/configuration/');
-    await page.locator('#modalStremioMigration [data-migration-action="skip"]').click();
+    await page.locator('[data-setup-platform="nuvio"]').click();
     await page.locator('#btnContinueWithoutAccount').click();
     await page.locator('[data-migration-action="manual"]').click();
     await page.locator('#btnNext').click();

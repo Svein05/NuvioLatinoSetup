@@ -5,14 +5,10 @@ test('entry requires a path and manual confirmation has no Stremio branding', as
   await isolateExternalServices(page);
   await page.goto('/configuration/');
   const modal = page.locator('#modalStremioMigration');
-  await expect(modal).toBeVisible();
-  await expect(page.locator('#migrationTitle')).toBeFocused();
-  await page.keyboard.press('Escape');
-  await expect(modal).toBeVisible();
-  await expect(modal.locator('.fa-xmark')).toHaveCount(0);
-  await page.keyboard.press('Tab');
-  await expect(modal.locator('[data-migration-action="login"]')).toBeFocused();
-  await modal.locator('[data-migration-action="skip"]').click();
+  await expect(modal).toBeHidden();
+  await expect(page.locator('#platformChoice')).toBeVisible();
+  await expect(page.locator('#wizardStepToolbar')).toBeHidden();
+  await page.locator('[data-setup-platform="nuvio"]').click();
   await page.locator('#btnContinueWithoutAccount').click();
   await expect(modal.locator('.migration-brand')).toBeHidden();
   await expect(modal).toContainText('importarlos manualmente');
@@ -29,7 +25,8 @@ test('mobile Stremio connection can return to the ordinary setup', async ({ page
   await page.setViewportSize({ width: 390, height: 844 });
   await isolateExternalServices(page);
   await page.goto('/configuration/');
-  await page.locator('[data-migration-action="login"]').click();
+  await page.locator('[data-setup-platform="nuvio"]').click();
+  await page.locator('#btnStartStremioMigration').click();
   await expect(page.locator('#migration-connect')).toBeVisible();
   await page.locator('#migrationPassword').fill('synthetic-password');
   await page.locator('#btnToggleMigrationPassword').click();
