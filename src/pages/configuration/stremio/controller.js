@@ -55,10 +55,12 @@ export function mountStremioSetup({ state, controller, services, root = document
   const mini = mountMiniStremio({ state, root, lifetime, updateUI: () => controller.updateUI() });
   const finish = mountStremioFinish({ state, root, lifetime, execute: services.execute });
   let nuvioSnapshot;
+  let nuvioResumeStep = state.currentStep;
   let cancelLogin = () => {};
   const choose = application => {
     if (state.stremio.running) return;
     cancelLogin(); state.connectionsCancel?.();
+    if (state.targetApplication === 'nuvio') nuvioResumeStep = state.currentStep;
     if (application === 'stremio' && state.targetApplication !== 'stremio') {
       nuvioSnapshot = Object.fromEntries(PROFILE_FIELDS.map(key => [key, state[key]]));
       state.preferences = structuredClone(state.preferences); state.aiostreams = structuredClone(state.aiostreams);
@@ -72,7 +74,8 @@ export function mountStremioSetup({ state, controller, services, root = document
     }
     if (application === 'nuvio') controller.initializeNuvioPreview?.();
     state.targetApplication = application;
-    state.currentStep = 1; state.connectionsStage = false;
+    state.currentStep = application === 'nuvio' && state.nuvioAuth?.isAuthenticated ? Math.max(2, nuvioResumeStep) : 1;
+    state.connectionsStage = false;
     wizard.dataset.setupTarget = application || '';
     controller.updateUI();
     root.querySelector('.step-content.active h2')?.focus({ preventScroll: true });
