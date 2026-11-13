@@ -52,6 +52,7 @@ test(`Stremio catalogs are collapsible, reorderable and add-only at ${width}px`,
   await metadata.locator('[data-block-move="0"][data-direction="1"]').click();
   await expect(blocks.last()).toHaveAttribute('data-block-key', 'setup:aiometadata');
   if (width === 1280) {
+    await page.locator('[data-stremio-rows]').evaluate(node => Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {}))));
     await metadata.locator('[data-drag-block]').dragTo(blocks.first().locator('[data-drag-block]'));
     await expect(blocks.first()).toHaveAttribute('data-block-key', 'setup:aiometadata');
   }
