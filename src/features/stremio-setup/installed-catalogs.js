@@ -10,7 +10,7 @@ export function installedCatalogBlocks(state) {
       return !(catalog.extra || []).some(extra => extra.isRequired && !extra.options?.length);
     });
     return { key: url, title: addon.name || descriptor?.manifest.name || 'Addon', catalogs };
-  }).filter(block => block.key);
+  }).filter(block => block.key && block.catalogs.length);
 }
 
 export function orderedCatalogBlocks(state) {
