@@ -18,7 +18,7 @@ export function renderDemoLock(root, state) {
     execute.disabled = true;
     execute.title = DEMO_LOCK_MESSAGE;
     execute.innerHTML = '<i class="fa-solid fa-lock" aria-hidden="true"></i><span>Configuración bloqueada · Demostración</span>';
-  } else if (execute.textContent.includes('Demostración')) {
+  } else if (execute.textContent?.includes('Demostración')) {
     execute.innerHTML = '<i class="fa-solid fa-bolt" aria-hidden="true"></i><span>Ejecutar configuración automática</span>';
   }
 }
