@@ -6,7 +6,7 @@ export function attachConnectionsNavigation({ root, state, lifetime, updateUI })
   item.className = 'drawer-step-item locked';
   item.innerHTML = '<span class="drawer-badge">3</span><span class="text-left text-xs">Conexiones<span class="block text-[10px] text-white/50">Opcional</span></span>';
   root.querySelector('#drawer-step-3').before(item);
-  const previous = () => state.isManualMode ? 1 : 2;
+  const previous = () => state.targetApplication === 'stremio' || state.isManualMode ? 1 : 2;
   const show = () => {
     if (state.currentStep < previous() || !state.validateStep(previous()).valid) return false;
     state.connectionsStage = true;
@@ -23,7 +23,7 @@ export function attachConnectionsNavigation({ root, state, lifetime, updateUI })
     state.currentStep = target;
     updateUI();
   };
-  lifetime.on(item, 'click', () => { if (show()) root.querySelector('#btnCloseIndex')?.click(); });
+  lifetime.on(item, 'click', () => { if (state.targetApplication === 'stremio') state.platformNavigation?.go('connections'); else show(); root.querySelector('#btnCloseIndex')?.click(); });
   state.connectionsNavigation = {
     show,
     change(delta) {
@@ -46,7 +46,8 @@ export function renderConnectionsNavigation(root, state) {
   root.querySelector('#connectionsStep')?.classList.toggle('active', active);
   const item = root.querySelector('#drawer-connections');
   if (item) {
-    const unlocked = state.currentStep >= (state.isManualMode ? 1 : 2) && state.validateStep(state.isManualMode ? 1 : 2).valid;
+    const previous = state.targetApplication === 'stremio' || state.isManualMode ? 1 : 2;
+    const unlocked = state.currentStep >= previous && state.validateStep(previous).valid;
     item.disabled = !unlocked;
     item.className = `drawer-step-item ${active ? 'active' : unlocked ? 'completed' : 'locked'}`;
     item.querySelector('.drawer-badge').textContent = String(3 + (state.migrationEnabled ? 2 : 0));

@@ -30,6 +30,7 @@ function setupDrawer({ lifetime, root }) {
 }
 
 function handleGoToStep({ targetStep, state, actions, closeDrawer }) {
+  if (state.platformNavigation?.go(targetStep)) { closeDrawer(); return; }
   if (state.connectionsNavigation?.go(targetStep)) { closeDrawer(); return; }
   if (state.migrationNavigation?.go(targetStep)) { closeDrawer(); return; }
   if (targetStep === state.currentStep) { closeDrawer(); return; }
@@ -65,6 +66,7 @@ function handleGoToStep({ targetStep, state, actions, closeDrawer }) {
 }
 
 function handleChangeStep({ delta, state, actions }) {
+  if (state.platformNavigation?.change(delta)) return;
   if (state.connectionsNavigation?.change(delta)) return;
   if (state.migrationNavigation?.change(delta)) return;
   if (delta < 0) {
@@ -108,6 +110,7 @@ export function updateNavigationButtons(root, state) {
     btnNext.className = 'lat-capsule-btn glass opacity-40 text-xs py-1.5 px-4 cursor-not-allowed flex items-center gap-1.5';
     btnNext.title = val.error || 'Completa este paso para continuar';
   }
+  state.platformNavigation?.renderButtons();
 }
 
 function updateDrawerItems(root, state) {
@@ -163,6 +166,7 @@ export function updateStepperUI(root, state) {
   updateNavigationButtons(root, state);
   renderMigrationNavigation(root, state);
   renderConnectionsNavigation(root, state);
+  state.platformNavigation?.render();
   return currentStep;
 }
 

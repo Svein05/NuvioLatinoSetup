@@ -2,6 +2,7 @@
 export const isDemoCode = value => /^NUVIO-DEMO-/i.test(String(value || '').trim());
 export const demoScenario = value => String(value || '').trim().toUpperCase().replace(/^NUVIO-DEMO-/, '');
 export const isDemoSetup = state => Object.values(state.apiKeys || {}).some(isDemoCode)
+  || Boolean(state.stremio?.session?.demo)
   || Object.values(state.connections?.accounts || {}).some(account => account.demo || isDemoCode(account.tokenId))
   || Object.values(state.connections?.drafts || {}).some(isDemoCode);
 export const DEMO_LOCK_MESSAGE = 'Demostración: completa la configuración solo con conexiones y claves reales.';

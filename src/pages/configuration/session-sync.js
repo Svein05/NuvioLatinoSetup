@@ -1,4 +1,5 @@
 export function saveWizardSession(state, store) {
+  if (state.targetApplication === 'stremio') return;
   if (!state.nuvioAuth?.isAuthenticated || !state.nuvioAuth?.accessToken) return;
   store.write({
     auth: state.nuvioAuth,

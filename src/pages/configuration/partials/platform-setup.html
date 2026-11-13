@@ -1,0 +1,49 @@
+<section id="platformChoice" class="step-content" aria-labelledby="platformChoiceTitle">
+  <header class="text-center space-y-2 mb-8"><h2 id="platformChoiceTitle" class="font-serif text-3xl sm:text-4xl" tabindex="-1">¿Dónde quieres disfrutarlo?</h2><p class="text-sm text-white/60">Elige la aplicación que quieres configurar.</p></header>
+  <div class="setup-platforms">
+    <article class="lat-card setup-platform"><div class="setup-platform-logo"><img src="../../../assets/logo/logo.webp" alt="Nuvio"></div><h3>Tu biblioteca, a tu manera.</h3><p>Colecciones, metadatos en español latino y tus addons en su lugar.</p><button type="button" data-setup-platform="nuvio" class="lat-capsule-btn solid">Continuar con Nuvio</button></article>
+    <article class="lat-card setup-platform"><div class="setup-platform-logo setup-stremio-brand"><img src="../../../assets/logo/stremio-symbol.png" alt=""><img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio"></div><h3>Todo lo que te gusta, más cerca.</h3><p>Tus catálogos, pósters y addons, preparados para Stremio.</p><button type="button" data-setup-platform="stremio" class="lat-capsule-btn solid">Continuar con Stremio</button></article>
+  </div>
+</section>
+<section id="stremioLoginStep" class="step-content" aria-labelledby="stremioLoginTitle">
+  <div class="stremio-login space-y-5">
+    <div class="setup-stremio-brand justify-center"><img src="../../../assets/logo/stremio-symbol.png" alt=""><img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio"></div>
+    <header class="text-center space-y-2"><h2 id="stremioLoginTitle" class="font-serif text-3xl" tabindex="-1">Conecta tu cuenta de Stremio</h2><p class="text-sm text-white/60">Prepara tus catálogos y conserva los addons que quieras seguir usando.</p></header>
+    <form id="stremioSetupLogin" class="space-y-4">
+      <div><label class="lat-label block mb-2" for="stremioSetupEmail">Correo electrónico</label><input id="stremioSetupEmail" type="email" autocomplete="username" required placeholder="usuario@correo.com" class="lat-field w-full"></div>
+      <div><label class="lat-label block mb-2" for="stremioSetupPassword">Contraseña</label><div class="relative"><input id="stremioSetupPassword" type="password" autocomplete="current-password" required placeholder="Tu contraseña de Stremio" class="lat-field w-full !pr-12"><button id="stremioSetupEye" type="button" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 text-white/50" aria-label="Mostrar contraseña" aria-pressed="false"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
+      <p class="text-xs text-white/50">Si usas Google o Apple, necesitas una contraseña de Stremio para conectar aquí.</p>
+      <p id="stremioSetupLoginError" class="text-sm text-red-300" role="alert" hidden></p>
+      <button type="submit" class="lat-capsule-btn solid w-full"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Conectar Stremio</button>
+    </form>
+    <p id="stremioSetupConnected" class="text-sm text-emerald-400 text-center" role="status" hidden></p>
+    <button type="button" data-setup-change class="lat-capsule-btn glass w-full text-xs">Cambiar aplicación</button>
+  </div>
+</section>
+<section id="stremioCatalogStep" class="step-content" aria-labelledby="stremioCatalogTitle">
+  <header class="space-y-2 mb-6"><h2 id="stremioCatalogTitle" class="font-serif text-3xl sm:text-4xl" tabindex="-1">Haz espacio para tus próximas historias.</h2><p class="text-sm text-white/60">Organiza los catálogos que verás en Stremio. Empieza con nuestra selección y hazla tuya.</p></header>
+  <div class="stremio-workspace">
+    <div class="stremio-screen">
+      <header class="stremio-screen-nav"><div class="setup-stremio-brand"><img src="../../../assets/logo/stremio-symbol.png" alt=""><img src="../../../assets/logo/stremio-wordmark.png" alt="Stremio"></div><span>Inicio</span><span>Descubrir</span></header>
+      <div class="stremio-spotlight"><span>Tu próxima historia</span><h3>Un universo por descubrir.</h3></div>
+      <div data-stremio-rows></div>
+      <div class="stremio-row-pagination"><button type="button" data-stremio-page="-1" class="lat-capsule-btn glass text-xs">‹ Anteriores</button><span data-stremio-page-status></span><button type="button" data-stremio-page="1" class="lat-capsule-btn glass text-xs">Siguientes ›</button></div>
+    </div>
+    <aside class="stremio-catalog-tools"><h3>Tu inicio en Stremio</h3><p data-stremio-count role="status"></p><button type="button" data-stremio-manage class="lat-capsule-btn solid">Administrar catálogos</button><div data-stremio-groups class="stremio-groups"></div><p class="text-xs text-white/50">Cambia el orden con las flechas de cada fila.</p><button type="button" data-stremio-restore class="lat-capsule-btn glass text-xs">Restablecer selección</button></aside>
+  </div>
+  <div data-stremio-posters hidden><img loading="lazy" src="../../../assets/preview/landing/inception.jpg" alt="El Origen"><img loading="lazy" src="../../../assets/preview/landing/interstellar.jpg" alt="Interestelar"><img loading="lazy" src="../../../assets/preview/landing/matrix.jpg" alt="Matrix"><img loading="lazy" src="../../../assets/preview/landing/godfather.jpg" alt="El Padrino"></div>
+  <div data-stremio-series hidden><img loading="lazy" src="../../../assets/preview/stremio/lupin.webp" alt="Lupin"><img loading="lazy" src="../../../assets/preview/stremio/dexter-resurrection.webp" alt="Dexter: Resurrección"><img loading="lazy" src="../../../assets/preview/stremio/the-institute.webp" alt="El instituto"><img loading="lazy" src="../../../assets/preview/stremio/black-doves.webp" alt="Palomas negras"></div>
+</section>
+<section id="stremioFinishStep" class="step-content" aria-labelledby="stremioFinishTitle">
+  <header class="space-y-2 mb-6"><h2 id="stremioFinishTitle" class="font-serif text-3xl" tabindex="-1">Tu Stremio, listo para disfrutar.</h2><p class="text-sm text-white/60">Revisa lo que vas a aplicar. Tu biblioteca y tu historial se conservan.</p></header>
+  <div class="stremio-finish-grid">
+    <div class="space-y-5">
+      <div class="lat-card p-5 space-y-3"><label class="lat-label block" for="stremioAddonPassword">Contraseña para administrar tus addons</label><div class="relative"><input type="password" id="stremioAddonPassword" autocomplete="new-password" placeholder="Mínimo 6 caracteres" class="lat-field w-full !pr-12"><button type="button" data-stremio-final-eye aria-label="Mostrar contraseña" aria-pressed="false" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 text-white/50"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div><button type="button" data-stremio-generate class="lat-capsule-btn glass text-xs">Generar contraseña</button></div>
+      <p class="text-xs text-white/60">Se instalará AIOMetadata y se aplicará el orden de addons que elegiste. Los addons protegidos por Stremio se conservan.</p>
+      <p data-stremio-final-status class="text-sm" role="status" aria-live="polite"></p>
+      <button type="button" data-stremio-execute class="lat-capsule-btn solid w-full">Aplicar configuración en Stremio</button>
+      <p class="text-xs text-white/50">El idioma de la interfaz, audio y subtítulos se elige desde cada aplicación de Stremio. Los metadatos del addon se preparan en español latino.</p>
+    </div>
+    <div class="lat-card p-5"><h3 class="font-semibold text-sm mb-4">Resumen de configuración</h3><dl data-stremio-summary class="stremio-summary"></dl><button type="button" data-stremio-instructions class="lat-capsule-btn glass w-full text-xs mt-5">Idioma y seguimiento por dispositivo</button></div>
+  </div>
+</section>

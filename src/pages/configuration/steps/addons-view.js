@@ -56,6 +56,7 @@ function renderAddonDetails(addon, debridsMap = {}, root) {
 }
 
 function renderAddonActions(addon, idx, total) {
+  const protectedAddon = Boolean(addon.raw?.stremioProtected);
   const isFirst = idx === 0;
   const isLast = idx === total - 1;
   const editBtn = addon.isAioStreams ? `
@@ -73,7 +74,7 @@ function renderAddonActions(addon, idx, total) {
       <button type="button" ${wizardAction('moveAddon', idx, 1)} ${isLast ? 'disabled' : ''} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg ${isLast ? 'opacity-20 cursor-not-allowed text-white/20' : 'text-white/60 hover:text-white hover:bg-white/[0.1] active:scale-95'} border border-white/[0.08] flex items-center justify-center transition-all" title="${isLast ? 'Último elemento de la lista' : 'Bajar prioridad'}">
         <i class="fa-solid fa-chevron-down text-[10px]"></i>
       </button>
-      <button type="button" ${wizardAction('removeAddon', idx)} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" title="Eliminar addon de este perfil">
+      <button type="button" ${wizardAction('removeAddon', idx)} ${protectedAddon ? 'disabled' : ''} class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/15 active:scale-95 border border-white/[0.08] flex items-center justify-center transition-all ml-0.5" title="${protectedAddon ? 'Addon protegido por Stremio' : 'Eliminar addon de este perfil'}">
         <i class="fa-solid fa-trash-can text-[10px]"></i>
       </button>
     </div>

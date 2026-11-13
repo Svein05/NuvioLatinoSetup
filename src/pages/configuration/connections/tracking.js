@@ -42,6 +42,7 @@ function createInstructions(root) {
 export function mountConnectionTracking({ root, view, state, synchronize }) {
   const lifetime = createLifetime();
   const modal = createInstructions(root);
+  const original = { title: modal.querySelector('h2').textContent, list: modal.querySelector('ol').innerHTML, copy: modal.querySelector('section>p').textContent };
   let opener;
   lifetime.add(manageDialog(modal));
   const close = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); opener?.focus({ preventScroll: true }); };
@@ -51,6 +52,15 @@ export function mountConnectionTracking({ root, view, state, synchronize }) {
     const button = event.target.closest('[data-trakt-tracking]');
     if (!button) return;
     opener = button;
+    if (state.targetApplication === 'stremio') {
+      modal.querySelector('h2').textContent = 'Seguimiento de Trakt en Stremio';
+      modal.querySelector('ol').innerHTML = '<li>Abre las opciones oficiales de cuenta o integraciones de Stremio.</li><li>Vincula tu cuenta de Trakt mediante su autorización oficial.</li><li>Revisa las opciones de seguimiento disponibles en tu cliente de Stremio.</li><li>Comprueba con una reproducción que tu actividad aparece en Trakt. La disponibilidad puede variar por cliente.</li>';
+      modal.querySelector('section>p').textContent = 'Esta autorización es independiente de las listas de AIOMetadata. El identificador de conexión de listas no activa el seguimiento nativo de Stremio.';
+    } else {
+      modal.querySelector('h2').textContent = original.title;
+      modal.querySelector('ol').innerHTML = original.list;
+      modal.querySelector('section>p').textContent = original.copy;
+    }
     modal.classList.remove('hidden'); modal.classList.add('flex');
     modal.querySelector('h2').focus({ preventScroll: true });
   });

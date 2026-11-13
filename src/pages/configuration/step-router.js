@@ -1,4 +1,6 @@
 export function handleStepRouting({ currentStep, state, controller }) {
+  if (state.targetApplication === null) { controller.stopPosterRotation?.(); return; }
+  if (state.targetApplication === 'stremio' && currentStep === 7) { controller.stopPosterRotation?.(); return; }
   if (state.migrationStage || state.connectionsStage) { controller.stopPosterRotation?.(); return; }
   if (currentStep === 2) {
     controller.renderProfiles?.();
