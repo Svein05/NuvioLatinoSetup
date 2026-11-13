@@ -5,7 +5,7 @@ export function composeConnectionCard(card, provider) {
   const config = connectionProviders[provider];
   card.querySelector('header').insertAdjacentHTML('beforeend', '<p class="connection-status" role="status" data-connection-status>Sin conectar</p>');
   card.insertAdjacentHTML('beforeend', `<p class="text-xs text-white/60">${config.description}</p>
-<div class="connection-account" data-connection-account hidden><span data-connection-username></span><button type="button" data-connection-edit aria-expanded="false" aria-controls="connection-credentials-${provider}">Cambiar conexión</button></div>
+<div class="connection-account" data-connection-account hidden><span data-connection-username></span><button type="button" class="lat-capsule-btn glass" data-connection-edit aria-expanded="false" aria-controls="connection-credentials-${provider}">Cambiar conexión</button></div>
     <form class="connection-form" data-connection-form>
       <div class="connection-credentials" data-connection-credentials id="connection-credentials-${provider}"><div class="connection-authorize"><a data-connection-authorize class="lat-capsule-btn glass text-xs" target="_blank" rel="noopener noreferrer">Conectar ${config.name} <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></div>
       <div class="connection-token"><label for="connection-${provider}" class="sr-only">Identificador de conexión</label>
@@ -72,7 +72,7 @@ function renderCredentialVisibility(card) {
   card.querySelector('[data-connection-help]').hidden = !visible;
   const button = card.querySelector('[data-connection-edit]');
   button.setAttribute('aria-expanded', String(visible && card.dataset.connected === 'true'));
-  button.textContent = card.dataset.editing === 'true' ? 'Ocultar campo' : 'Cambiar conexión';
+  button.innerHTML = `<i class="fa-solid fa-pen-to-square" aria-hidden="true"></i><span>${card.dataset.editing === 'true' ? 'Ocultar campo' : 'Cambiar conexión'}</span>`;
 }
 
 export function toggleConnectionEditor(card) {

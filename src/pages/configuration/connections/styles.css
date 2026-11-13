@@ -46,8 +46,8 @@
 
 .connection-account { display: flex; align-items: center; justify-content: space-between; gap: .75rem; font-size: .75rem; }
 .connection-account > span { color: #34d399; min-width: 0; overflow-wrap: anywhere; }
-.connection-account > button { flex-shrink: 0; color: rgb(255 255 255 / .55); font-size: .6875rem; min-height: 2rem; padding: .25rem 0; background: none; border: 0; cursor: pointer; }
-.connection-account > button:hover { color: white; }
+.connection-account > button { flex-shrink: 0; color: rgb(255 255 255 / .55); font-size: .6875rem; min-height: 2.125rem; padding: .375rem .75rem; background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .16); border-radius: 999px; cursor: pointer; gap: .375rem; }
+.connection-account > button:hover { color: white; background: rgb(255 255 255 / .1); border-color: rgb(255 255 255 / .3); }
 .connection-tracking-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 2.75rem; font-size: .75rem; }
 .connection-tracking-row > button { font-size: .6875rem; padding: .375rem .75rem; }
 .connection-authorize a[aria-disabled="true"] { opacity: .45; pointer-events: none; }

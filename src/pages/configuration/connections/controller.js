@@ -1,3 +1,4 @@
+import { mountConnectionRemoval } from './remove-modal.js';
 import { mountConnectionTracking } from './tracking.js';
 import { isDemoCode } from '../../../shared/demo/setup.js';
 import { createLifetime } from '../../../shared/ui/lifetime.js';
@@ -145,8 +146,8 @@ export function mountConnections({ state, client, instance, updateUI, root = doc
   lifetime.on(view, 'click', event => {
     if (event.target.closest('[data-connection-edit]')) toggleConnectionEditor(event.target.closest('[data-connection-provider]'));
     if (event.target.closest('[data-connection-visibility]')) toggleConnectionSecret(event.target.closest('[data-connection-provider]'));
-    if (event.target.closest('[data-connection-remove]')) actions.remove(event.target.closest('[data-connection-provider]'));
   });
+  lifetime.add(mountConnectionRemoval({ root, view, remove: actions.remove }));
   lifetime.add(mountConnectionLists({ root, state, view, synchronize }));
   lifetime.add(mountConnectionTracking({ root, state, view, synchronize }));
   attachConnectionsNavigation({ root, state, lifetime, updateUI });
