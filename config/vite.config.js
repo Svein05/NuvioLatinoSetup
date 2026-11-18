@@ -12,6 +12,7 @@ const pages = ['index', 'configuration/index', 'account/index', 'documentation/i
 
 export default defineConfig({
   appType: 'mpa',
+  worker: { format: 'es' },
   css: { postcss },
   root: path.join(repository, 'src/pages'),
   publicDir: path.join(repository, 'public'),
