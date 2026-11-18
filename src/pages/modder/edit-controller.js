@@ -1,23 +1,34 @@
-import { convertToWebp, formatBytes } from '../../shared/media/image-converter.js';
+import { convertToWebp, formatBytes, releasePreviewUrl } from '../../shared/media/image-converter.js';
 import { showModderToast } from './ui/modder-toast.js';
 import { closeEditModal } from './ui/edit-modal.js';
 import { escapeHtml } from '../../shared/ui/safe-markup.js';
 
 function bindModalReplacement(controller) {
+  let replacementRequest = 0;
+  for (const id of ['btnModalClose', 'btnModalCancel']) {
+    document.getElementById(id)?.addEventListener('click', () => { replacementRequest++; });
+  }
   document.getElementById('modalFileInput')?.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
+    const request = ++replacementRequest;
+    const avatarId = controller.modderState.selectedAvatarForEdit?.id;
+    const isCurrent = () => request === replacementRequest && avatarId === controller.modderState.selectedAvatarForEdit?.id
+      && !document.getElementById('editAvatarModal')?.classList.contains('hidden');
     const status = document.getElementById('modalEditStatus');
     if (status) status.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Convirtiendo reemplazo a WebP...';
     try {
       const converted = await convertToWebp(file, 0.90);
+      if (!isCurrent()) { releasePreviewUrl(converted.previewUrl); return; }
+      releasePreviewUrl(controller.modderState.editReplacementWebp?.previewUrl);
       controller.modderState.editReplacementWebp = converted;
       const previewImg = document.getElementById('modalReplacementImg');
       if (previewImg) previewImg.src = converted.previewUrl;
       document.getElementById('modalReplacementPreview')?.classList.remove('hidden');
       if (status) status.innerHTML = `<span class="text-emerald-400 font-medium">✓ Nueva imagen lista (${formatBytes(converted.webpSize)}).</span>`;
     } catch (err) {
-      if (status) status.innerHTML = `<span class="text-rose-400">Error: ${escapeHtml(err.message)}</span>`;
+      if (status && isCurrent()) status.innerHTML = `<span class="text-rose-400">Error: ${escapeHtml(err.message)}</span>`;
     }
   });
 }

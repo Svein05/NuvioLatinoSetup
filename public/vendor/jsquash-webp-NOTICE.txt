@@ -1,0 +1,5 @@
+WebP fallback encoder: @jsquash/webp 1.5.0
+https://github.com/jamsinclair/jSquash
+Copyright 2020 Google Inc. Modified by Jamie Sinclair.
+Licensed under Apache-2.0; see jsquash-webp-LICENSE.txt.
+The application uses this package without changes to its source.

@@ -95,8 +95,8 @@ async function handleIncomingFiles(controller, files) {
         fileName: `${rawBase}.webp`,
         characterName: rawBase,
       });
-    } catch {
-      showModderToast('No se pudo convertir una de las imágenes a WebP.', 'error');
+    } catch (error) {
+      showModderToast(error.message || 'No se pudo convertir una de las imágenes a WebP. Tus cambios anteriores se conservan.', 'error');
     }
   }
   controller.renderQueue();
